@@ -1,0 +1,31 @@
+export type {
+  LLMChatResponseOpts,
+  LLMCompletionOpts,
+  LLMLoadModelOpts,
+  LLMModel,
+  LLMNamespace,
+  LMStudioClientConstructorOpts,
+  OngoingPrediction,
+  PredictionResult,
+  SystemNamespace,
+} from "@lmstudio/lms-client";
+export type { LoggerInterface, StreamablePromise } from "@lmstudio/lms-common";
+export type {
+  DownloadedModel,
+  LLMAccelerationConfig,
+  LLMAccelerationOffload,
+  LLMChatHistory,
+  LLMChatHistoryMessage,
+  LLMChatHistoryRole,
+  LLMChatPredictionConfig,
+  LLMCompletionPredictionConfig,
+  LLMContextOverflowPolicy,
+  LLMDescriptor,
+  LLMLoadModelConfig,
+  LLMModelQuery,
+  LLMPredictionConfigBase,
+  LLMPredictionStats,
+  LLMPredictionStopReason,
+  LLMStructuredPredictionSetting,
+  LogLevel,
+} from "@lmstudio/lms-shared-types";

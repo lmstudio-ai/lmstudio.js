@@ -1,0 +1,7 @@
+node_modules
+dist
+tsconfig.tsbuildinfo
+.parcel-cache
+coverage
+.env
+.DS_Store

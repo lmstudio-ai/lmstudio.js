@@ -1,0 +1,25 @@
+{
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.rulers": [100],
+  "cSpell.words": [
+    "concatenator",
+    "Fcfs",
+    "GGUF",
+    "immer",
+    "inferencing",
+    "lmstudio",
+    "proxying",
+    "Streamable"
+  ],
+  "rewrap.wrappingColumn": 100,
+  "jest.runMode": "on-demand",
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "typescript.inlayHints.enumMemberValues.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": true,
+  "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true
+}

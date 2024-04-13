@@ -1,0 +1,18 @@
+{
+  "name": "@lmstudio/lms-common",
+  "version": "0.2.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@lmstudio/lms-shared-types": "^0.2.0",
+    "chalk": "^4.1.2",
+    "immer": "^10.0.4",
+    "zod": "^3.22.4"
+  }
+}

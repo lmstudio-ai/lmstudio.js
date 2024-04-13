@@ -1,0 +1,25 @@
+{
+  "name": "@lmstudio/sdk",
+  "version": "0.0.0",
+  "description": "LM Studio SDK",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build-webpack": "webpack --config ./webpack.config.js --mode production",
+    "build-dts": "api-extractor run --local",
+    "build": "npm run build-webpack && npm run build-dts"
+  },
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "zod": "^3.22.4",
+    "chalk": "^4.1.2",
+    "immer": "^10.0.4",
+    "@lmstudio/lms-isomorphic": "^0.1.0"
+  }
+}

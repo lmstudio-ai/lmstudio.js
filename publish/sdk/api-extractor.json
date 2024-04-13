@@ -1,0 +1,25 @@
+{
+  "mainEntryPointFilePath": "./ts-out/index.d.ts",
+  "apiReport": {
+    "enabled": false
+  },
+  "docModel": {
+    "enabled": false
+  },
+  "dtsRollup": {
+    "enabled": true,
+    "untrimmedFilePath": "./dist/index.d.ts"
+  },
+  "bundledPackages": [
+    "@lmstudio/lms-client",
+    "@lmstudio/lms-common",
+    "@lmstudio/lms-communication",
+    "@lmstudio/lms-communication-client",
+    "@lmstudio/lms-llm-backend-interface",
+    "@lmstudio/lms-llm-sdk",
+    "@lmstudio/lms-platform-backend-interface",
+    "@lmstudio/lms-platform-sdk",
+    "@lmstudio/lms-sdk-common",
+    "@lmstudio/lms-shared-types"
+  ]
+}

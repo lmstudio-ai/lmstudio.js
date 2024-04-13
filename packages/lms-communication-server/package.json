@@ -1,0 +1,21 @@
+{
+  "name": "@lmstudio/lms-communication-server",
+  "version": "0.2.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@lmstudio/lms-common": "^0.2.0",
+    "@lmstudio/lms-communication": "^0.2.0",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.10",
+    "electron": "24.6.3"
+  }
+}

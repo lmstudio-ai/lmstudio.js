@@ -1,0 +1,19 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/lms-shared-types" },
+    { "path": "packages/lms-isomorphic" },
+    { "path": "packages/lms-common" },
+    { "path": "packages/lms-communication" },
+    { "path": "packages/lms-communication-client" },
+    { "path": "packages/lms-communication-server" },
+    { "path": "packages/lms-communication-mock" },
+    { "path": "packages/lms-llm-backend-interface" },
+    { "path": "packages/lms-platform-backend-interface" },
+    { "path": "packages/lms-system-backend-interface" },
+    { "path": "packages/lms-client" },
+    { "path": "packages/lms-cli" },
+    { "path": "packages/template" }
+  ],
+  "exclude": ["*.test.ts"]
+}

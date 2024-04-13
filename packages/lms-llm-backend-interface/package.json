@@ -1,0 +1,19 @@
+{
+  "name": "@lmstudio/lms-llm-backend-interface",
+  "version": "0.2.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@lmstudio/lms-common": "^0.2.0",
+    "@lmstudio/lms-communication": "^0.2.0"
+  },
+  "devDependencies": {
+    "@lmstudio/lms-communication-client": "^0.2.0"
+  }
+}
