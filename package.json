@@ -8,7 +8,7 @@
     "watch-tsc": "tsc --build tsconfig.build.json --watch",
     "watch-jest": "jest --watch --testMatch **/?(*.)+(test).ts",
     "watch-ui-css": "cd packages/lms-ui && npm run watch-css",
-    "clean": "shx rm -rf ./packages/**/dist ./packages/**/tsconfig.tsbuildinfo",
+    "clean": "shx rm -rf ./packages/**/dist ./packages/**/tsconfig.tsbuildinfo ./publish/**/dist ./publish/**/ts-out",
     "build-sdk": "cd publish/sdk && npm run build",
     "build-cli": "cd publish/cli && npm run build",
     "build": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run build-cli",

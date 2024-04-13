@@ -42,17 +42,4 @@ module.exports = [
       libraryTarget: "commonjs2",
     },
   },
-  {
-    ...base,
-    output: {
-      filename: "index.mjs",
-      path: path.join(__dirname, "dist"),
-      library: {
-        type: "module",
-      },
-    },
-    experiments: {
-      outputModule: true,
-    },
-  },
 ];

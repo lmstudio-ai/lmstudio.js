@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "LM Studio SDK",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "module": "index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
     "build-webpack": "webpack --config ./webpack.config.js --mode production",
