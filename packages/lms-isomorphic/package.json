@@ -9,7 +9,7 @@
     "build": "tsc"
   },
   "author": "",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@types/ws": "^8.5.10"
   },

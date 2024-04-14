@@ -8,7 +8,7 @@
     "build": "tsc"
   },
   "author": "",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "dependencies": {
     "@lmstudio/lms-common": "^0.2.0",
     "zod": "^3.22.4"

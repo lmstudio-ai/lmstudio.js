@@ -19,7 +19,7 @@
     "manual-testing": "cd ./packages/lms-sdk-manual-testing/dist && node index.js"
   },
   "author": "",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@microsoft/api-extractor": "^7.40.1",
     "@types/inquirer": "^9.0.7",

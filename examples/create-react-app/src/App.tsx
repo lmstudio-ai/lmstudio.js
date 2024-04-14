@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 
-import { LMStudioClient, DownloadedModel, LLMLoadModelOpts, LLMPredictionStats, OngoingPrediction } from '@lmstudio/sdk-test';
+import { DownloadedModel, LLMLoadModelOpts, LLMPredictionStats, LMStudioClient, OngoingPrediction } from '@lmstudio/sdk-test';
 
 function LoadedModelWidget({ client, loadedModels, onUnloadModel } : { client: LMStudioClient, loadedModels: {identifier: string, address: string}[], onUnloadModel: (model: string) => void }) {
   const [selectedModel, setSelectedModel] = useState(loadedModels[0].address);
@@ -163,7 +163,7 @@ function App() {
       {isLoading && 
       <>
         <p>Loading...</p>
-        <progress value={loadingProgress} max="100" />
+        <progress value={loadingProgress} max="1" />
       </>
       }
 
