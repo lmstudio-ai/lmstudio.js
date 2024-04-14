@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-communication-mock",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,9 +8,9 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@lmstudio/lms-communication": "^0.2.0",
-    "@lmstudio/lms-communication-server": "^0.2.0",
-    "@lmstudio/lms-communication-client": "^0.2.0"
+    "@lmstudio/lms-communication": "^0.3.0",
+    "@lmstudio/lms-communication-client": "^0.3.0",
+    "@lmstudio/lms-communication-server": "^0.3.0"
   },
   "author": "",
   "license": "UNLICENSED"

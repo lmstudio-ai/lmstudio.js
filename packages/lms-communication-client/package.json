@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-communication-client",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,8 +13,8 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lmstudio/lms-common": "^0.2.0",
-    "@lmstudio/lms-communication": "^0.2.0",
-    "@lmstudio/lms-isomorphic": "^0.1.0"
+    "@lmstudio/lms-common": "^0.3.0",
+    "@lmstudio/lms-communication": "^0.3.0",
+    "@lmstudio/lms-isomorphic": "^0.2.0"
   }
 }

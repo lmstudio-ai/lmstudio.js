@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-shared-types",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
