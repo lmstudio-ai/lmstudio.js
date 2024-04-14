@@ -6,12 +6,12 @@ import { z } from "zod";
  * @public
  */
 export type DownloadedModel = {
-  type: "llm";
+  type: "llm" | "embedding";
   address: string;
 };
 export const downloadedModelSchema = z.discriminatedUnion("type", [
   z.object({
-    type: z.literal("llm"),
+    type: z.enum(["llm", "embedding"]),
     address: z.string(),
   }),
 ]);
