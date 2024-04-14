@@ -64,7 +64,7 @@ const client = new LMStudioClient();
 const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF");
 
 // Create a text completion prediction
-const prediction = await hermes.complete("The meaning of life is");
+const prediction = hermes.complete("The meaning of life is");
 
 // Stream the response
 for await (const text of prediction) {
