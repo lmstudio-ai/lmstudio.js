@@ -9,7 +9,7 @@
     "build": "tsc"
   },
   "author": "",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "dependencies": {
     "@lmstudio/lms-common": "^0.2.0",
     "boxen": "^5.1.2",

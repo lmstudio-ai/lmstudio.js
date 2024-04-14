@@ -16,7 +16,7 @@
     "dist/index.js"
   ],
   "author": "",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "dependencies": {
     "@lmstudio/lms-cli": "^0.0.1"
   },
