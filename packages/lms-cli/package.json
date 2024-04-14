@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-cli",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
