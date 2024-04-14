@@ -18,11 +18,16 @@ export type DownloadedModel = {
    * The size of the model in bytes.
    */
   sizeBytes: number;
+  /**
+   * The architecture of the model.
+   */
+  architecture?: string;
 };
 export const downloadedModelSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.enum(["llm", "embedding"]),
     address: z.string(),
     sizeBytes: z.number(),
+    architecture: z.string().optional(),
   }),
 ]);

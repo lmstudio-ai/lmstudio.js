@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/sdk-test",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "LM Studio SDK",
   "main": "dist/index.js",
   "module": "index.mjs",
@@ -8,7 +8,8 @@
   "scripts": {
     "build-webpack": "webpack --config ./webpack.config.js --mode production",
     "build-dts": "api-extractor run --local",
-    "build": "npm run build-webpack && npm run build-dts"
+    "build-remove-source-map-comments": "node ./remoteSourceMapComments.js",
+    "build": "npm run build-webpack && npm run build-remove-source-map-comments && npm run build-dts"
   },
   "files": [
     "dist/index.js",
