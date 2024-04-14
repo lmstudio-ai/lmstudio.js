@@ -3,6 +3,19 @@ import './App.css';
 
 import { LMStudioClient, DownloadedModel, LLMLoadModelOpts, LLMPredictionStats, OngoingPrediction } from '@lmstudio/sdk-test';
 
+// Helper function to format bytes to human readable format
+// Author: GPT-4-0613
+const formatBytes = (bytes: number, decimals = 2): string => {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals <= 0 ? 0 : decimals || 2;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
 function LoadedModelWidget({ client, loadedModels, onUnloadModel } : { client: LMStudioClient, loadedModels: {identifier: string, address: string}[], onUnloadModel: (model: string) => void }) {
   const [selectedModel, setSelectedModel] = useState(loadedModels[0].address);
   const [message, setMessage] = useState('');
@@ -101,7 +114,7 @@ function App() {
 
   useEffect(() => {
     client.system.listDownloadedModels().then((downloadedModels) => {
-      setModels(downloadedModels);
+      setModels(downloadedModels as DownloadedModel[]);
     });
   }, []);
 
@@ -153,9 +166,9 @@ function App() {
           style={{ height: '30px' }}
         >
           <option value="">Select a model to load</option>
-          {models.map((model, index) => (
+          {models.filter(m => m.type === 'llm').map((model, index) => (
             <option key={index} value={model.address}>
-              {model.address}
+              {model.address} ({formatBytes(model.sizeBytes)})
             </option>
           ))}
         </select>
@@ -163,7 +176,7 @@ function App() {
       {isLoading && 
       <>
         <p>Loading...</p>
-        <progress value={loadingProgress} max="100" />
+        <progress value={loadingProgress * 100} max="100" />
       </>
       }
 

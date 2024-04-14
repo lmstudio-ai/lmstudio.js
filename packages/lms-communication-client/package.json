@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "devDependencies": {
-    "electron": "^24.6.3"
+    "electron": "^24.6.3",
+    "shx": "^0.3.4"
   },
   "scripts": {
     "build": "tsc"
