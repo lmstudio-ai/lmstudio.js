@@ -1,5 +1,5 @@
 {
-  "name": "@lmstudio/sdk",
+  "name": "@lmstudio/sdk-test",
   "version": "0.0.0",
   "description": "LM Studio SDK",
   "main": "dist/index.js",
@@ -12,7 +12,8 @@
   },
   "files": [
     "dist/index.js",
-    "dist/index.d.ts"
+    "dist/index.d.ts",
+    "index.mjs"
   ],
   "author": "",
   "license": "UNLICENSED",

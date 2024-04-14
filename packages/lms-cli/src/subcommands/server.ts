@@ -14,6 +14,7 @@ type HttpServerCtl =
   | {
       type: "start";
       port: number;
+      cors?: boolean;
     }
   | {
       type: "stop";
@@ -182,11 +183,18 @@ const start = command({
       `,
       long: "no-launch",
     }),
+    cors: flag({
+      description: text`
+        Enable CORS on the server. Allows any website you visit to access the server. This is
+        required if you are developing a web application.
+      `,
+      long: "cors",
+    }),
     ...logLevelArgs,
   },
   handler: async args => {
     let { port } = args;
-    const { noLaunch } = args;
+    const { noLaunch, cors } = args;
     const logger = createLogger(args);
     if (port === undefined) {
       try {
@@ -200,8 +208,13 @@ const start = command({
     } else {
       logger.debug(`Using provided port ${port}`);
     }
+    if (cors) {
+      logger.warnText`
+        CORS is enabled. This means any website you visit can use the LM Studio server.
+      `;
+    }
     logger.info(`Attempting to start the server on port ${port}...`);
-    await writeToServerCtl(logger, { type: "start", port });
+    await writeToServerCtl(logger, { type: "start", port, cors });
     if (await waitForCtlFileClear(logger, 100, 10)) {
       logger.info(`Requested the server to be started on port ${port}.`);
     } else {
