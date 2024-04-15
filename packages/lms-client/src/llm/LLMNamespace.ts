@@ -14,6 +14,7 @@ import {
   logLevelSchema,
   reasonableKeyStringSchema,
   type LLMAccelerationConfig,
+  type LLMDescriptor,
   type LLMLoadModelConfig,
   type LLMModelQuery,
   type LogLevel,
@@ -182,7 +183,7 @@ export class LLMNamespace {
    * @param opts - Options for loading the model. See {@link LLMLoadModelOpts} for details.
    * @returns A promise that resolves to the model that can be used for inferencing
    */
-  public async load(modelAddress: string, opts: LLMLoadModelOpts = {}) {
+  public async load(modelAddress: string, opts: LLMLoadModelOpts = {}): Promise<LLMModel> {
     [modelAddress, opts] = validateMethodParamsOrThrow(
       "LLMNamespace",
       "load",
@@ -278,7 +279,7 @@ export class LLMNamespace {
   /**
    * List all the currently loaded models.
    */
-  public listLoaded() {
+  public listLoaded(): Promise<Array<LLMDescriptor>> {
     return this.llmPort.callRpc("listLoaded", undefined);
   }
 
