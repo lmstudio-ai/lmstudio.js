@@ -15,12 +15,17 @@ const warnPrefix = chalk.yellowBright("W");
 const errorPrefix = chalk.redBright("E");
 const debugPrefix = chalk.blueBright("D");
 
+function isSimpleLogger(logger: LoggerInterface): logger is SimpleLogger {
+  return (logger as any)?.isSimpleLogger === true;
+}
+
 export class SimpleLogger {
+  public readonly isSimpleLogger = true;
   private fullPrefix: string;
   private innerPrefix: string;
   private parentLogger: LoggerInterface;
   public constructor(prefixText: string = "", parentLogger: LoggerInterface = console) {
-    if (parentLogger instanceof SimpleLogger) {
+    if (isSimpleLogger(parentLogger)) {
       if (prefixText === "") {
         this.innerPrefix = parentLogger.innerPrefix;
         this.fullPrefix = parentLogger.fullPrefix;

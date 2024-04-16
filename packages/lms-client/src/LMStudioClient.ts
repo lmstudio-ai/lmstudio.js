@@ -169,7 +169,7 @@ export class LMStudioClient {
       constructorOptsSchema,
       opts,
     ) satisfies LMStudioClientConstructorOpts;
-    this.logger = logger ?? new SimpleLogger("LMStudioClient");
+    this.logger = new SimpleLogger("LMStudioClient", logger);
     this.clientIdentifier = clientIdentifier ?? generateRandomBase64(18);
     this.clientPasskey = clientPasskey ?? generateRandomBase64(18);
 
