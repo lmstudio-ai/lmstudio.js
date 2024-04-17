@@ -1,5 +1,7 @@
 import {
   SimpleLogger,
+  changeErrorStackInPlace,
+  getCurrentStack,
   makePromise,
   prettyPrintZod,
   text,
@@ -22,6 +24,7 @@ import { fromSerializedError } from "@lmstudio/lms-shared-types";
 
 interface OpenChannel {
   endpoint: ChannelEndpoint;
+  stack: string;
   channel: Channel<any, any>;
   receivedAck: (ackId: number) => void;
   receivedMessage: (message: any) => void;
@@ -31,6 +34,7 @@ interface OpenChannel {
 
 interface OngoingRpc {
   endpoint: RpcEndpoint;
+  stack: string;
   resolve: (result: any) => void;
   reject: (error: any) => void;
 }
@@ -146,7 +150,9 @@ export class ClientPort<
       return;
     }
     this.openChannels.delete(message.channelId);
-    openChannel.errored(fromSerializedError(message.error));
+    const error = fromSerializedError(message.error);
+    changeErrorStackInPlace(error, openChannel.stack);
+    openChannel.errored(error);
     this.updateOpenCommunicationsCount();
   }
 
@@ -177,7 +183,9 @@ export class ClientPort<
       this.communicationWarning(`Received rpcError for unknown rpc, callId = ${message.callId}`);
       return;
     }
-    ongoingRpc.reject(fromSerializedError(message.error));
+    const error = fromSerializedError(message.error);
+    changeErrorStackInPlace(error, ongoingRpc.stack);
+    ongoingRpc.reject(error);
     this.ongoingRpcs.delete(message.callId);
     this.updateOpenCommunicationsCount();
   }
@@ -243,7 +251,7 @@ export class ClientPort<
       ongoingRpc.reject(error);
     }
   };
-  public callRpc<TEndpointName extends keyof TRpcEndpoints & string>(
+  public async callRpc<TEndpointName extends keyof TRpcEndpoints & string>(
     endpointName: TEndpointName,
     param: TRpcEndpoints[TEndpointName]["parameter"],
   ): Promise<TRpcEndpoints[TEndpointName]["returns"]> {
@@ -258,8 +266,10 @@ export class ClientPort<
 
     const { promise, resolve, reject } = makePromise();
 
+    const stack = getCurrentStack(1);
     this.ongoingRpcs.set(callId, {
       endpoint,
+      stack,
       resolve,
       reject,
     });
@@ -273,7 +283,7 @@ export class ClientPort<
 
     this.updateOpenCommunicationsCount();
 
-    return promise;
+    return await promise;
   }
   public createChannel<TEndpointName extends keyof TChannelEndpoints & string>(
     endpointName: TEndpointName,
@@ -299,8 +309,11 @@ export class ClientPort<
       creationParameter,
     });
 
+    const stack = getCurrentStack(1);
+
     const openChannel: OpenChannel = {
       endpoint: channelEndpoint,
+      stack,
       ...Channel.create(packet => {
         const result = channelEndpoint.toServerPacket.parse(packet);
         this.transport.send({

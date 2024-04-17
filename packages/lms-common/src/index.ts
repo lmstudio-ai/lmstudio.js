@@ -7,12 +7,8 @@ enablePatches();
 export { LazySignal } from "./LazySignal";
 
 export { BufferedEvent } from "./BufferedEvent";
+export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
 export { Event } from "./Event";
-export { Signal, SignalSetter } from "./Signal";
-export { LoggerInterface, SimpleLogger } from "./SimpleLogger";
-export { StreamablePromise } from "./StreamablePromise";
-export { TimeoutTracker } from "./TimeoutTracker";
-export { PagerExitedError, QueueClearedError, WaitQueue } from "./WaitQueue";
 export { lmsDefaultPorts } from "./lmsDefaultPorts";
 export { makePromise } from "./makePromise";
 export {
@@ -26,15 +22,20 @@ export {
 } from "./prettyPrintZod";
 export { removeUndefinedValues } from "./removeUndefinedValues";
 export {
-  MaybeErrored,
-  Result,
   createResultSchema,
+  MaybeErrored,
   maybeErroredSchema,
   promiseToMaybeErrored,
   promiseToResult,
+  Result,
   unwrapPromiseOfMaybeErrored,
   unwrapPromiseOfResult,
 } from "./resultTypes";
 export { runOnDispose } from "./runOnDispose";
+export { Signal, SignalSetter } from "./Signal";
+export { LoggerInterface, SimpleLogger } from "./SimpleLogger";
+export { StreamablePromise } from "./StreamablePromise";
 export { text } from "./text";
+export { TimeoutTracker } from "./TimeoutTracker";
 export { toJSONSafeNumber } from "./toJSONSafeNumber";
+export { PagerExitedError, QueueClearedError, WaitQueue } from "./WaitQueue";
