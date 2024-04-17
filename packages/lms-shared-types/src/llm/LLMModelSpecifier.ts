@@ -10,9 +10,9 @@ export interface LLMModelQuery {
   /**
    * If specified, the model must have exactly this identifier.
    *
-   * Note: The identifier of a model is set when loading the model. It defaults to the address of
+   * Note: The identifier of a model is set when loading the model. It defaults to the path of
    * the model if not specified. However, this default behavior should not be relied upon. If you
-   * wish to query a model by its address, you should specify the address instead of the identifier:
+   * wish to query a model by its path, you should specify the path instead of the identifier:
    *
    * Instead of
    *
@@ -25,14 +25,14 @@ export interface LLMModelQuery {
    * Use
    *
    * ```ts
-   * const model = client.llm.get({ address: "lmstudio-ai/gemma-2b-it-GGUF" });
+   * const model = client.llm.get({ path: "lmstudio-ai/gemma-2b-it-GGUF" });
    * ```
    */
   identifier?: string;
   /**
-   * If specified, the model must have this address.
+   * If specified, the model must have this path.
    *
-   * When specifying the model address, you can use the following format:
+   * When specifying the model path, you can use the following format:
    *
    * `<publisher>/<repo>[/model_file]`
    *
@@ -44,7 +44,7 @@ export interface LLMModelQuery {
    *
    * ```ts
    * const model = client.llm.get({
-   *   address: "lmstudio-ai/gemma-2b-it-GGUF",
+   *   path: "lmstudio-ai/gemma-2b-it-GGUF",
    * });
    * ```
    *
@@ -52,15 +52,15 @@ export interface LLMModelQuery {
    *
    * ```ts
    * const model = client.llm.get({
-   *   address: "lmstudio-ai/gemma-2b-it-GGUF/gemma-2b-it-q4_k_m.gguf",
+   *   path: "lmstudio-ai/gemma-2b-it-GGUF/gemma-2b-it-q4_k_m.gguf",
    * });
    * ```
    */
-  address?: string;
+  path?: string;
 }
 export const llmModelQuerySchema = z.object({
   identifier: reasonableKeyStringSchema.optional(),
-  address: reasonableKeyStringSchema.optional(),
+  path: reasonableKeyStringSchema.optional(),
 });
 
 export const llmModelSpecifierSchema = z.discriminatedUnion("type", [

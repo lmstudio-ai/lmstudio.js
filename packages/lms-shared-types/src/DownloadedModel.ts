@@ -11,9 +11,9 @@ export type DownloadedModel = {
    */
   type: "llm" | "embedding";
   /**
-   * The address of the model. Use to load the model.
+   * The path of the model. Use to load the model.
    */
-  address: string;
+  path: string;
   /**
    * The size of the model in bytes.
    */
@@ -26,7 +26,7 @@ export type DownloadedModel = {
 export const downloadedModelSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.enum(["llm", "embedding"]),
-    address: z.string(),
+    path: z.string(),
     sizeBytes: z.number(),
     architecture: z.string().optional(),
   }),

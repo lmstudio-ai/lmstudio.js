@@ -14,11 +14,11 @@
 
 #### You need a special LM Studio build to use `lmstudio.js`
 
-| Platform | LM Studio Installer |
-| - | - |
-| Mac (M1/M2/M3) | [0.2.19 + lmstudio.js (.dmg)](https://releases.lmstudio.ai/mac/arm64/0.2.19/mit-hackathon/LM-Studio-0.2.19-arm64.dmg) |
-| Windows | [0.2.19 + lmstudio.js (.exe) ](https://files.lmstudio.ai/windows/LM-Studio-0.2.19-mit-hackathon-SDK/beta/LM-Studio-0.2.19-Setup.exe) |
-| Linux | *Linux build not yet available*|
+| Platform       | LM Studio Installer                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Mac (M1/M2/M3) | [0.2.19 + lmstudio.js (.dmg)](https://releases.lmstudio.ai/mac/arm64/0.2.19/mit-hackathon/LM-Studio-0.2.19-arm64.dmg)                |
+| Windows        | [0.2.19 + lmstudio.js (.exe) ](https://files.lmstudio.ai/windows/LM-Studio-0.2.19-mit-hackathon-SDK/beta/LM-Studio-0.2.19-Setup.exe) |
+| Linux          | _Linux build not yet available_                                                                                                      |
 
 ### Installation
 
@@ -35,35 +35,40 @@ const lmstudio = new LMStudioClient();
 
 async function main() {
   const codegemma = await lmstudio.llm.load("lmstudio-community/codegemma-2b-GGUF");
-  const result = await codegemma.complete("# A function to print the digits of pi\ndef print_pi():");
+  const result = await codegemma.complete(
+    "# A function to print the digits of pi\ndef print_pi():",
+  );
   console.log(result.content);
   console.log(result.stats);
 }
 
-main()
+main();
 ```
 
-## Getting Started 
+## Getting Started
 
 ## Set up `lms` (cli)
+
 LM Studio builds linked above ship with the new `lms` cli. Follow the instructions below to add it to your terminal's autocomplete.
 
 #### macOS / Linux
+
 - **Zsh**
 
- ```bash
- echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.zshrc
- ```
+```bash
+echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.zshrc
+```
 
 - **Bash**
 
- ```bash
- echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.bashrc
- ```
+```bash
+echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.bashrc
+```
 
 > Not sure which shell you're using? Pop open your terminal and run `echo $SHELL` to find out. `/bin/zsh` means you're using Zsh, `/bin/bash` means you're using Bash.
 
 #### Windows
+
 - `lms.exe` should already be in your PATH after installation. Test it by running `lms.exe` in powershell or cmd.
 
 ## Start the local LLM server
@@ -71,6 +76,7 @@ LM Studio builds linked above ship with the new `lms` cli. Follow the instructio
 ### NodeJS script
 
 Start the server by running:
+
 ```shell
 lms server start
 ```
@@ -216,7 +222,7 @@ const downloadedModels = await client.system.listDownloadedModels();
 const downloadedLLMs = downloadedModels.filter(model => model.type === "llm");
 
 // Load the first model
-const model = await client.llm.load(downloadedLLMs[0].address);
+const model = await client.llm.load(downloadedLLMs[0].path);
 // model.complete(...);
 ```
 
@@ -277,15 +283,15 @@ const myModel = client.llm.get("my-model");
 // myModel.complete(...);
 ```
 
-To look up an already loaded model by its address, use the following:
+To look up an already loaded model by its path, use the following:
 
 ```ts
 // Matches any quantization
-const hermes = client.llm.get({ address: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF" });
+const hermes = client.llm.get({ path: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF" });
 
 // Or if a specific quantization is desired:
 const hermes = client.llm.get({
-  address: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF/Hermes-2-Pro-Mistral-7B.Q4_0.gguf",
+  path: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF/Hermes-2-Pro-Mistral-7B.Q4_0.gguf",
 });
 
 // hermes.complete(...);
@@ -305,7 +311,7 @@ const hermes = client.llm.get({
 > if (descriptor === undefined) {
 >   console.error("Model not loaded");
 > } else {
->   console.info("address:", descriptor.address);
+>   console.info("path:", descriptor.path);
 >   console.info("identifier:", descriptor.identifier);
 > }
 > ```

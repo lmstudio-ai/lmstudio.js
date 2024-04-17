@@ -14,6 +14,8 @@
     "@types/ws": "^8.5.10"
   },
   "dependencies": {
+    "bufferutil": "^4.0.1",
+    "utf-8-validate": "^6.0.3",
     "ws": "^8.16.0"
   }
 }

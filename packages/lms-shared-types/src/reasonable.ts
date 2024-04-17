@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * A string that is reasonable to use as a key. For example, as preset name, model address, or model
+ * A string that is reasonable to use as a key. For example, as preset name, model path, or model
  * identifier.
  */
 export const reasonableKeyStringSchema = z

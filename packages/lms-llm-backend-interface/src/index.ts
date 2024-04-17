@@ -20,7 +20,7 @@ export function createLlmBackendInterface() {
     })
     .addChannelEndpoint("loadModel", {
       creationParameter: z.object({
-        address: z.string(),
+        path: z.string(),
         identifier: z.string().optional(),
         preset: z.string().optional(),
         config: llmLoadModelConfigSchema,

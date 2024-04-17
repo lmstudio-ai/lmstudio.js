@@ -99,7 +99,7 @@ export class WsClientTransport extends ClientTransport {
     if (event.error.code === "ECONNREFUSED") {
       this.logger.warnText`
           WebSocket connection refused. This can happen if the server is not running or the client
-          is trying to connect to the wrong address. The server address that this client is
+          is trying to connect to the wrong path. The server path that this client is
           attempting to connect to is:
           ${this.resolvedUrl ?? "Unknown" /* Should never be Unknown */}.
 
@@ -109,7 +109,7 @@ export class WsClientTransport extends ClientTransport {
 
             2. The API server in LM Studio has started
 
-            3. The client is attempting to connect to the correct address
+            3. The client is attempting to connect to the correct path
         `;
     }
     try {

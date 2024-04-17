@@ -15,10 +15,10 @@ function LoadedModelWidget({
   onUnloadModel,
 }: {
   client: LMStudioClient;
-  loadedModels: { identifier: string; address: string }[];
+  loadedModels: { identifier: string; path: string }[];
   onUnloadModel: (model: string) => void;
 }) {
-  const [selectedModel, setSelectedModel] = useState(loadedModels[0].address);
+  const [selectedModel, setSelectedModel] = useState(loadedModels[0].path);
   const [message, setMessage] = useState("");
   const [stats, setStats] = useState<LLMPredictionStats | null>(null);
   const [isPredicting, setIsPredicting] = useState(false);
@@ -114,7 +114,7 @@ function LoadedModelWidget({
 
 function App() {
   const [models, setModels] = useState<DownloadedModel[]>([]);
-  const [loadedModels, setLoadedModels] = useState<{ identifier: string; address: string }[]>([]);
+  const [loadedModels, setLoadedModels] = useState<{ identifier: string; path: string }[]>([]);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isUnloading, setIsUnloading] = useState(false);
@@ -162,7 +162,7 @@ function App() {
     console.log(`Model loaded: ${info?.identifier}`);
     setLoadedModels([
       ...loadedModels,
-      { identifier: info?.identifier || "", address: info?.address || "" },
+      { identifier: info?.identifier || "", path: info?.path || "" },
     ]);
   };
 
@@ -185,8 +185,8 @@ function App() {
         <select onChange={e => loadModel(e.target.value)} style={{ height: "30px" }}>
           <option value="">Select a model to load</option>
           {models.map((model, index) => (
-            <option key={index} value={model.address}>
-              {model.address}
+            <option key={index} value={model.path}>
+              {model.path}
             </option>
           ))}
         </select>

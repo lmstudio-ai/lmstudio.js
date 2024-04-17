@@ -41,7 +41,7 @@ export interface LLMLoadModelOpts {
   /**
    * The identifier to use for the loaded model.
    *
-   * By default, the identifier is the same as the model address, and will have additional numbers
+   * By default, the identifier is the same as the model path, and will have additional numbers
    * attached if the identifier is already in use.
    *
    * However, when the identifier is specified and it is in use, an error will be thrown. If the
@@ -146,11 +146,11 @@ export class LLMNamespace {
     this.logger = new SimpleLogger("Llm", parentLogger);
   }
   /**
-   * Load a model for inferencing. The first parameter is the model address. The second parameter is
+   * Load a model for inferencing. The first parameter is the model path. The second parameter is
    * an optional object with additional options. By default, the model is loaded with the default
    * preset (as selected in LM Studio) and the verbose option is set to true.
    *
-   * When specifying the model address, you can use the following format:
+   * When specifying the model path, you can use the following format:
    *
    * `<publisher>/<repo>[/model_file]`
    *
@@ -178,18 +178,18 @@ export class LLMNamespace {
    * Once loaded, see {@link LLMModel} for how to use the model for inferencing or other things you
    * can do with the model.
    *
-   * @param modelAddress - The address of the model to load. See {@link LLMLoadModelOpts} for
+   * @param path - The path of the model to load. See {@link LLMLoadModelOpts} for
    * details.
    * @param opts - Options for loading the model. See {@link LLMLoadModelOpts} for details.
    * @returns A promise that resolves to the model that can be used for inferencing
    */
-  public async load(modelAddress: string, opts: LLMLoadModelOpts = {}): Promise<LLMModel> {
-    [modelAddress, opts] = validateMethodParamsOrThrow(
+  public async load(path: string, opts: LLMLoadModelOpts = {}): Promise<LLMModel> {
+    [path, opts] = validateMethodParamsOrThrow(
       "LLMNamespace",
       "load",
-      ["modelAddress", "opts"],
+      ["path", "opts"],
       [reasonableKeyStringSchema, llmLoadModelOptsSchema],
-      [modelAddress, opts],
+      [path, opts],
     );
     const { preset, identifier, signal, verbose = "info", config, onProgress, noHup } = opts;
     let lastVerboseCallTime = 0;
@@ -202,7 +202,7 @@ export class LLMNamespace {
     const channel = this.llmPort.createChannel(
       "loadModel",
       {
-        address: modelAddress,
+        path,
         preset,
         identifier,
         config: config ?? {},
@@ -216,7 +216,7 @@ export class LLMNamespace {
               this.logger.logAtLevel(
                 verboseLevel,
                 text`
-                  Successfully loaded model ${modelAddress} in ${Date.now() - startTime}ms
+                  Successfully loaded model ${path} in ${Date.now() - startTime}ms
                 `,
               );
             }
@@ -237,7 +237,7 @@ export class LLMNamespace {
                 const progressText = (progress * 100).toFixed(1);
                 this.logger.logAtLevel(
                   verboseLevel,
-                  `Loading model ${modelAddress}, progress: ${progressText}%`,
+                  `Loading model ${path}, progress: ${progressText}%`,
                 );
                 lastVerboseCallTime = now;
               }
@@ -310,7 +310,7 @@ export class LLMNamespace {
    * Use the Gemma 2B IT model (given it is already loaded elsewhere):
    *
    * ```ts
-   * const model = client.llm.get({ address: "lmstudio-ai/gemma-2b-it-GGUF" });
+   * const model = client.llm.get({ path: "lmstudio-ai/gemma-2b-it-GGUF" });
    * const prediction = model.complete("...");
    * ```
    *
@@ -356,9 +356,9 @@ export class LLMNamespace {
     } else {
       query = param;
     }
-    if (query.address?.includes("\\")) {
+    if (query.path?.includes("\\")) {
       throw new Error(text`
-        Model address should not contain backslashes, even if you are on Windows. Use forward
+        Model path should not contain backslashes, even if you are on Windows. Use forward
         slashes instead.
       `);
     }
