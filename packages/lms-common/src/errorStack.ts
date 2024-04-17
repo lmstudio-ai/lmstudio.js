@@ -11,6 +11,9 @@ export function getCurrentStack(goAbove = 0) {
 
 export function changeErrorStackInPlace(error: Error, newStack: string) {
   const stackContent = error.stack ?? "";
-  error.stack =
-    stackContent.substring(0, stackContent.indexOf("    at ")).trimEnd() + "\n" + newStack;
+  error.stack = (
+    stackContent.substring(0, stackContent.indexOf("\n    at ")).trimEnd() +
+    "\n" +
+    newStack
+  ).trimEnd();
 }

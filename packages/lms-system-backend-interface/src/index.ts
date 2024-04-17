@@ -1,3 +1,4 @@
+import { filteredArray } from "@lmstudio/lms-common";
 import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import { downloadedModelSchema } from "@lmstudio/lms-shared-types";
@@ -11,7 +12,7 @@ export function createSystemBackendInterface() {
     })
     .addRpcEndpoint("listDownloadedModels", {
       parameter: z.void(),
-      returns: z.array(downloadedModelSchema),
+      returns: filteredArray(downloadedModelSchema),
     });
 }
 

@@ -1,5 +1,6 @@
 import {
   SimpleLogger,
+  getCurrentStack,
   makePromise,
   text,
   validateMethodParamOrThrow,
@@ -254,6 +255,7 @@ export class LLMNamespace {
           }
         }
       },
+      { stack: getCurrentStack(2) },
     );
 
     channel.onError.subscribeOnce(reject);

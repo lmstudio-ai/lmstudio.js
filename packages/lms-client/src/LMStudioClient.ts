@@ -15,6 +15,7 @@ import {
 import chalk from "chalk";
 import { z } from "zod";
 import { createAuthenticatedClientPort } from "./createAuthenticatedClientPort";
+import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
 import { LLMNamespace } from "./llm/LLMNamespace";
 import { SystemNamespace } from "./system/SystemNamespace";
 
@@ -43,6 +44,11 @@ export interface LMStudioClientConstructorOpts {
    */
   baseUrl?: string;
   /**
+   * Whether to include stack traces in the errors caused by LM Studio. By default, this is set to
+   * `false`. If set to `true`, LM Studio SDK will include a stack trace in the error message.
+   */
+  verboseErrorMessages?: boolean;
+  /**
    * Changes the client identifier used to authenticate with LM Studio. By default, it uses a
    * randomly generated string.
    *
@@ -63,6 +69,7 @@ const constructorOptsSchema = z
   .object({
     logger: z.any().optional(),
     baseUrl: z.string().optional(),
+    verboseErrorMessages: z.boolean().optional(),
     clientIdentifier: z.string().optional(),
     clientPasskey: z.string().optional(),
   })
@@ -172,12 +179,13 @@ export class LMStudioClient {
 
   public constructor(opts: LMStudioClientConstructorOpts = {}) {
     const stack = getCurrentStack(1);
-    const { logger, baseUrl, clientIdentifier, clientPasskey } = validateConstructorParamOrThrow(
-      "LMStudioClient",
-      "opts",
-      constructorOptsSchema,
-      opts,
-    ) satisfies LMStudioClientConstructorOpts;
+    const { logger, baseUrl, verboseErrorMessages, clientIdentifier, clientPasskey } =
+      validateConstructorParamOrThrow(
+        "LMStudioClient",
+        "opts",
+        constructorOptsSchema,
+        opts,
+      ) satisfies LMStudioClientConstructorOpts;
     this.logger = new SimpleLogger("LMStudioClient", logger);
     this.clientIdentifier = clientIdentifier ?? generateRandomBase64(18);
     this.clientPasskey = clientPasskey ?? generateRandomBase64(18);
@@ -197,6 +205,10 @@ export class LMStudioClient {
       this.clientIdentifier,
       this.clientPasskey,
       new SimpleLogger("LLM", this.logger),
+      {
+        errorDeserializer: friendlyErrorDeserializer,
+        verboseErrorMessage: verboseErrorMessages ?? false,
+      },
     );
 
     this.systemPort = createAuthenticatedClientPort(
@@ -206,6 +218,10 @@ export class LMStudioClient {
       this.clientIdentifier,
       this.clientPasskey,
       new SimpleLogger("System", this.logger),
+      {
+        errorDeserializer: friendlyErrorDeserializer,
+        verboseErrorMessage: verboseErrorMessages ?? false,
+      },
     );
 
     this.llm = new LLMNamespace(this.llmPort, this.logger);

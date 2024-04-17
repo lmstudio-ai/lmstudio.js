@@ -5,30 +5,25 @@ export type LogLevel = "debug" | "info" | "warn" | "error";
 export const logLevelSchema = z.enum(["debug", "info", "warn", "error"]);
 export { DownloadedModel, downloadedModelSchema } from "./DownloadedModel";
 export {
-  SerializedLMSExtendedError,
+  attachSerializedErrorData,
+  ErrorDisplayData,
+  errorDisplayDataSchema,
   fromSerializedError,
-  serializeError,
+  SerializedLMSExtendedError,
   serializedLMSExtendedErrorSchema,
+  serializeError,
 } from "./Error";
 export {
-  Accelerator,
-  AcceleratorType,
-  Runtime,
-  acceleratorSchema,
-  acceleratorTypeSchema,
-  runtimeSchema,
-} from "./Runtime";
-export {
   LLMAccelerationConfig,
-  LLMAccelerationOffload,
   llmAccelerationConfigSchema,
+  LLMAccelerationOffload,
   llmAccelerationOffloadSchema,
 } from "./llm/LLMAccelerationConfig";
 export {
   LLMChatHistory,
   LLMChatHistoryMessage,
-  LLMChatHistoryRole,
   llmChatHistoryMessageSchema,
+  LLMChatHistoryRole,
   llmChatHistoryRoleSchema,
   llmChatHistorySchema,
 } from "./llm/LLMChatHistory";
@@ -36,25 +31,25 @@ export { LLMDescriptor, llmDescriptorSchema } from "./llm/LLMDescriptor";
 export { LLMLoadModelConfig, llmLoadModelConfigSchema } from "./llm/LLMLoadModelConfig";
 export {
   LLMModelQuery,
-  LLMModelSpecifier,
   llmModelQuerySchema,
+  LLMModelSpecifier,
   llmModelSpecifierSchema,
 } from "./llm/LLMModelSpecifier";
 export {
   LLMChatPredictionConfig,
-  LLMCompletionPredictionConfig,
-  LLMContextOverflowPolicy,
-  LLMFullPredictionConfig,
-  LLMPredictionConfigBase,
   llmChatPredictionConfigSchema,
+  LLMCompletionPredictionConfig,
   llmCompletionPredictionConfigSchema,
+  LLMContextOverflowPolicy,
   llmContextOverflowPolicySchema,
+  LLMFullPredictionConfig,
   llmFullPredictionConfigSchema,
+  LLMPredictionConfigBase,
 } from "./llm/LLMPredictionConfig";
 export {
   LLMPredictionStats,
-  LLMPredictionStopReason,
   llmPredictionStatsSchema,
+  LLMPredictionStopReason,
   llmPredictionStopReasonSchema,
 } from "./llm/LLMPredictionStats";
 export {
@@ -62,3 +57,11 @@ export {
   llmStructuredPredictionSettingSchema,
 } from "./llm/LLMStructuredPredictionSetting";
 export { reasonableKeyStringSchema } from "./reasonable";
+export {
+  Accelerator,
+  acceleratorSchema,
+  AcceleratorType,
+  acceleratorTypeSchema,
+  Runtime,
+  runtimeSchema,
+} from "./Runtime";

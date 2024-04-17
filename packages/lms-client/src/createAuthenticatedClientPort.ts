@@ -12,6 +12,7 @@ import {
   type InferClientPort,
   type LmsHostedEnv,
 } from "@lmstudio/lms-communication-client";
+import { type SerializedLMSExtendedError } from "@lmstudio/lms-shared-types";
 
 function createAuthenticatedIpcTransportFactory(
   apiNamespace: string,
@@ -54,6 +55,13 @@ export function createAuthenticatedClientPort<TBackendInterface extends BackendI
   clientIdentifier: string,
   clientPasskey: string,
   logger: SimpleLogger,
+  {
+    errorDeserializer,
+    verboseErrorMessage,
+  }: {
+    errorDeserializer?: (serialized: SerializedLMSExtendedError) => Error;
+    verboseErrorMessage?: boolean;
+  } = {},
 ) {
   let anyWindow: any;
   try {
@@ -76,7 +84,7 @@ export function createAuthenticatedClientPort<TBackendInterface extends BackendI
         clientIdentifier,
         clientPasskey,
       ),
-      { parentLogger: logger },
+      { parentLogger: logger, errorDeserializer, verboseErrorMessage },
     ) as InferClientPort<TBackendInterface>;
   } else {
     return new ClientPort(
@@ -87,7 +95,7 @@ export function createAuthenticatedClientPort<TBackendInterface extends BackendI
         clientIdentifier,
         clientPasskey,
       ),
-      { parentLogger: logger },
+      { parentLogger: logger, errorDeserializer, verboseErrorMessage },
     ) as InferClientPort<TBackendInterface>;
   }
 }

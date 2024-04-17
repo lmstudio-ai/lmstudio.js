@@ -20,7 +20,7 @@ import {
   type ChannelEndpointsSpecBase,
   type RpcEndpointsSpecBase,
 } from "@lmstudio/lms-communication/dist/BackendInterface";
-import { fromSerializedError } from "@lmstudio/lms-shared-types";
+import { fromSerializedError, type SerializedLMSExtendedError } from "@lmstudio/lms-shared-types";
 
 interface OpenChannel {
   endpoint: ChannelEndpoint;
@@ -39,6 +39,16 @@ interface OngoingRpc {
   reject: (error: any) => void;
 }
 
+function defaultErrorDeserializer(serialized: SerializedLMSExtendedError, stack?: string): Error {
+  const error = fromSerializedError(serialized);
+  if (stack === undefined) {
+    changeErrorStackInPlace(error, "");
+  } else {
+    changeErrorStackInPlace(error, stack);
+  }
+  return error;
+}
+
 export class ClientPort<
   TRpcEndpoints extends RpcEndpointsSpecBase,
   TChannelEndpoints extends ChannelEndpointsSpecBase,
@@ -50,17 +60,25 @@ export class ClientPort<
   private openCommunicationsCount = 0;
   private nextChannelId = 0;
   private producedCommunicationWarningsCount = 0;
+  private errorDeserializer: (serialized: SerializedLMSExtendedError, stack?: string) => Error;
+  private verboseErrorMessage: boolean;
 
   public constructor(
     private readonly backendInterface: BackendInterface<unknown, TRpcEndpoints, TChannelEndpoints>,
     factory: ClientTransportFactory,
     {
       parentLogger,
+      errorDeserializer,
+      verboseErrorMessage,
     }: {
       parentLogger?: LoggerInterface;
+      errorDeserializer?: (serialized: SerializedLMSExtendedError) => Error;
+      verboseErrorMessage?: boolean;
     } = {},
   ) {
     this.logger = new SimpleLogger("ClientPort", parentLogger);
+    this.errorDeserializer = errorDeserializer ?? defaultErrorDeserializer;
+    this.verboseErrorMessage = verboseErrorMessage ?? false;
     this.transport = factory(this.receivedMessage, this.errored, this.logger);
   }
 
@@ -150,8 +168,10 @@ export class ClientPort<
       return;
     }
     this.openChannels.delete(message.channelId);
-    const error = fromSerializedError(message.error);
-    changeErrorStackInPlace(error, openChannel.stack);
+    const error = this.errorDeserializer(
+      message.error,
+      this.verboseErrorMessage ? openChannel.stack : undefined,
+    );
     openChannel.errored(error);
     this.updateOpenCommunicationsCount();
   }
@@ -183,8 +203,10 @@ export class ClientPort<
       this.communicationWarning(`Received rpcError for unknown rpc, callId = ${message.callId}`);
       return;
     }
-    const error = fromSerializedError(message.error);
-    changeErrorStackInPlace(error, ongoingRpc.stack);
+    const error = this.errorDeserializer(
+      message.error,
+      this.verboseErrorMessage ? ongoingRpc.stack : undefined,
+    );
     ongoingRpc.reject(error);
     this.ongoingRpcs.delete(message.callId);
     this.updateOpenCommunicationsCount();
@@ -254,6 +276,7 @@ export class ClientPort<
   public async callRpc<TEndpointName extends keyof TRpcEndpoints & string>(
     endpointName: TEndpointName,
     param: TRpcEndpoints[TEndpointName]["parameter"],
+    { stack }: { stack?: string } = {},
   ): Promise<TRpcEndpoints[TEndpointName]["returns"]> {
     const endpoint = this.backendInterface.getRpcEndpoint(endpointName);
     if (endpoint === undefined) {
@@ -266,7 +289,7 @@ export class ClientPort<
 
     const { promise, resolve, reject } = makePromise();
 
-    const stack = getCurrentStack(1);
+    stack = stack ?? getCurrentStack(1);
     this.ongoingRpcs.set(callId, {
       endpoint,
       stack,
@@ -289,6 +312,7 @@ export class ClientPort<
     endpointName: TEndpointName,
     param: TChannelEndpoints[TEndpointName]["creationParameter"],
     onMessage?: (message: TChannelEndpoints[TEndpointName]["toClientPacket"]) => void,
+    { stack }: { stack?: string } = {},
   ): Channel<
     TChannelEndpoints[TEndpointName]["toClientPacket"],
     TChannelEndpoints[TEndpointName]["toServerPacket"]
@@ -309,7 +333,7 @@ export class ClientPort<
       creationParameter,
     });
 
-    const stack = getCurrentStack(1);
+    stack = stack ?? getCurrentStack(1);
 
     const openChannel: OpenChannel = {
       endpoint: channelEndpoint,

@@ -55,6 +55,7 @@
   },
   "workspaces": [
     "packages/*",
-    "publish/*"
+    "publish/*",
+    "examples/*"
   ]
 }

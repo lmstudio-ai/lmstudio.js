@@ -13,6 +13,7 @@
     "inferencing",
     "lmstudio",
     "proxying",
+    "Rpcs",
     "Streamable"
   ],
   "rewrap.wrappingColumn": 100,

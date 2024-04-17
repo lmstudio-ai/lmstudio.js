@@ -1,5 +1,5 @@
 const path = require("path");
-const { experiments, optimize } = require("webpack");
+const { ProvidePlugin } = require("webpack");
 
 const base = {
   entry: path.join(__dirname, "src", "index.ts"),
@@ -24,13 +24,18 @@ const base = {
   },
   externals: {
     "zod": "zod",
-    "chalk": "chalk",
     "immer": "immer",
     "@lmstudio/lms-isomorphic": "@lmstudio/lms-isomorphic",
   },
   optimization: {
     minimize: false,
   },
+  plugins: [
+    // fix "process is not defined" error:
+    new ProvidePlugin({
+      process: "process/browser",
+    }),
+  ],
 };
 
 module.exports = [

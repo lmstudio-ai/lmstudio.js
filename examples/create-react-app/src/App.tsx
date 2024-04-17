@@ -156,7 +156,7 @@ function App() {
     };
 
     setIsLoading(true);
-    const result = await client.llm.load(model, opts);
+    const result = await client.llm.load(model + "asd", opts);
     setIsLoading(false);
     const info = await result.getModelInfo();
     console.log(`Model loaded: ${info?.identifier}`);

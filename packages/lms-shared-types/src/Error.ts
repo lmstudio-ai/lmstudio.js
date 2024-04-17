@@ -1,10 +1,23 @@
-import { z } from "zod";
+import { z, type ZodSchema } from "zod";
+import { llmErrorDisplayDataSchema } from "./llm/LLMErrorDisplayData";
+
+export const errorDisplayDataSchema = z.discriminatedUnion("code", [...llmErrorDisplayDataSchema]);
+
+export type ErrorDisplayData = z.infer<typeof errorDisplayDataSchema>;
+
+/**
+ * Makes a Zod schema that turns a failed parse into an `undefined`.
+ */
+function failOk<T>(schema: ZodSchema<T>): ZodSchema<T | undefined> {
+  return z.any().transform(val => (schema.safeParse(val).success ? val : undefined));
+}
 
 export const serializedLMSExtendedErrorSchema = z.object({
   title: z.string(),
   cause: z.string().optional(),
   suggestion: z.string().optional(),
   errorData: z.record(z.string(), z.unknown()).optional(),
+  displayData: failOk(errorDisplayDataSchema).optional(),
 });
 export type SerializedLMSExtendedError = z.infer<typeof serializedLMSExtendedErrorSchema>;
 export function serializeError(error: any): SerializedLMSExtendedError {
@@ -14,6 +27,7 @@ export function serializeError(error: any): SerializedLMSExtendedError {
       cause: error.cause,
       suggestion: error.suggestion,
       errorData: error.errorData,
+      displayData: error.displayData,
     };
   } else {
     return {
@@ -21,11 +35,28 @@ export function serializeError(error: any): SerializedLMSExtendedError {
     };
   }
 }
+
+/**
+ * Attaches the additional error data from a serialized error to an error object.
+ */
+export function attachSerializedErrorData(
+  error: Error,
+  serialized: SerializedLMSExtendedError,
+): void {
+  const untypedError = error as any;
+  if (serialized.cause !== undefined) {
+    untypedError.cause = serialized.cause;
+  }
+  if (serialized.suggestion !== undefined) {
+    untypedError.suggestion = serialized.suggestion;
+  }
+  if (serialized.errorData !== undefined) {
+    untypedError.errorData = serialized.errorData;
+  }
+}
 export function fromSerializedError(error: SerializedLMSExtendedError): Error {
   const result = new Error(error.title) as any;
   result.name = "LMStudioError";
-  result.cause = error.cause;
-  result.suggestion = error.suggestion;
-  result.errorData = error.errorData;
+  attachSerializedErrorData(result, error);
   return result;
 }
