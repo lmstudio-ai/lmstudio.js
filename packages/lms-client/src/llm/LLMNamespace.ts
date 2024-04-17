@@ -198,6 +198,12 @@ export class LLMNamespace {
     const verboseLevel = typeof verbose === "boolean" ? "info" : verbose;
 
     const startTime = Date.now();
+    if (verbose) {
+      this.logger.logAtLevel(
+        verboseLevel,
+        'Verbose logging is enabled. To hide progress logs, set the "verbose" option to false.',
+      );
+    }
 
     const channel = this.llmPort.createChannel(
       "loadModel",
