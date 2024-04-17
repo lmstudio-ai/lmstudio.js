@@ -1,55 +1,95 @@
 <p align="center">
-  <br/>
+  
   <picture> 
     <source media="(prefers-color-scheme: dark)" srcset="https://github.com/lmstudio-ai/lmstudio.js/assets/3611042/dd0b2298-beec-4dfe-9019-7d4dc5427e40">
     <source media="(prefers-color-scheme: light)" srcset="https://github.com/lmstudio-ai/lmstudio.js/assets/3611042/70f24e8f-302b-465d-8607-8c3f36cd4934">
     <img alt="lmstudio javascript library logo" src="https://github.com/lmstudio-ai/lmstudio.js/assets/3611042/70f24e8f-302b-465d-8607-8c3f36cd4934" width="290" height="86" style="max-width: 100%;">
   </picture>
-  <br/>
-  <br/>
+  
 </p>
+<p align="center"><code>Use local LLMs in your JS/TS/Node code.</code></p>
+<p align="center"><i>LM Studio Client SDK - Pre-Release</i></p>
 
-lmstudio.js allows you to interact with local AI models using JavaScript/TypeScript.
+> **NOTE**: 👉 `lmstudio.js` is in early alpha. Expect breaking changes.
 
-# Installation
+#### You need a special LM Studio build to use `lmstudio.js`
 
-```bash
+| Platform | LM Studio Installer |
+| - | - |
+| Mac (M1/M2/M3) | [0.2.19 + lmstudio.js (.dmg)](https://releases.lmstudio.ai/mac/arm64/0.2.19/mit-hackathon/LM-Studio-0.2.19-arm64.dmg) |
+| Windows | [0.2.19 + lmstudio.js (.exe) ](https://files.lmstudio.ai/windows/LM-Studio-0.2.19-mit-hackathon-SDK/beta/LM-Studio-0.2.19-Setup.exe) |
+| Linux | *Linux build not yet available*|
+
+### Installation
+
+```shell
 npm install @lmstudio/sdk
 ```
 
-# Prerequisites
+### Usage
 
-1. If you don't have it installed already, get LM Studio from [https://lmstudio.ai/mit-hackathon](https://lmstudio.ai/mit-hackathon)
+```ts
+import { LMStudioClient } from "@lmstudio/sdk";
 
-2. Set up your LM Studio dev tools (`lms`):
+const lmstudio = new LMStudioClient();
 
-   ### macOS / Linux
+async function main() {
+  const codegemma = await lmstudio.llm.load("lmstudio-community/codegemma-2b-GGUF");
+  const result = await codegemma.complete("# A function to print the digits of pi\ndef print_pi():");
+  console.log(result.content);
+  console.log(result.stats);
+}
 
-   - #### Zsh (Oh My Zsh)
+main()
+```
 
-     ```bash
-     echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.zshrc
-     ```
+## Getting Started 
 
-   - #### Bash
+## Set up `lms` (cli)
+LM Studio builds linked above ship with the new `lms` cli. Follow the instructions below to add it to your terminal's autocomplete.
 
-     ```bash
-     echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.bashrc
-     ```
+#### macOS / Linux
+- **Zsh**
 
-     > _Not sure which shell you're using? Pop open your terminal and run `echo $SHELL` to find out. `/bin/zsh` means you're using Zsh, `/bin/bash` means you're using Bash._
+ ```bash
+ echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.zshrc
+ ```
 
-     #### 👉 Test that you have it all working by running `lms` in your terminal.
+- **Bash**
 
-   ### Windows
+ ```bash
+ echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.bashrc
+ ```
 
-   - `lms.exe` should already be in your PATH after installation. Test it by running `lms.exe` in powershell or cmd.
+> Not sure which shell you're using? Pop open your terminal and run `echo $SHELL` to find out. `/bin/zsh` means you're using Zsh, `/bin/bash` means you're using Bash.
 
-3. Starting the LM Studio server with the command `lms server start`.
+#### Windows
+- `lms.exe` should already be in your PATH after installation. Test it by running `lms.exe` in powershell or cmd.
 
-   - If you are developing a web application, you need to use `lms server start --cors` instead.
+## Start the local LLM server
 
-# Examples
+### NodeJS script
+
+Start the server by running:
+```shell
+lms server start
+```
+
+### Web app
+
+If you need to enable CORS (Cross Origin Resource Sharing), run this:
+
+```shell
+lms server start --cors=true
+```
+
+### Override the default port
+
+```shell
+lms server start --port 12345
+```
+
+## Examples
 
 ### Loading an LLM and Predicting with It
 
