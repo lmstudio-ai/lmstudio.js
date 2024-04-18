@@ -302,13 +302,11 @@ const hermes = client.llm.get({
 
 > [!NOTE]
 >
-> **The Underlying Model May Change**
+> **Underlying Model May Change**
 >
-> When obtaining a model using `client.llm.get`, you will get an `LLMModel` object. However, the object you get is not tied to a specific loaded model, but a handle for a model that satisfies the given query.
+> The LLMModel object returned by client.llm.get is a handle to a model that satisfies the query, not a specific loaded model. If the loaded model is unloaded, the object still exists but will error when used for predictions. If a new model with the same identifier is loaded, the object will refer to the new model.
 >
-> For example, if there is a loaded model with the identifier "my-model", and you call `client.llm.get("my-model")`, you will get an `LLMModel` object that you can use to predict with the model. If the loaded model is later unloaded, the `LLMModel` object still exists, but it no longer refers to a loaded model. Calling prediction methods on it will result in errors. However, if another model is loaded with the same identifier, the `LLMModel` object will now refer to the newly loaded model and can be used again. This allows you to swap out underlying models without restarting your application.
->
-> To get the current status of the model, you can use the `model.getModelInfo` method. If it returns undefined, it means there is no loaded model that satisfies the query.
+> Use model.getModelInfo to check the current status:
 >
 > ```ts
 > const myModel = client.llm.get("my-model");
