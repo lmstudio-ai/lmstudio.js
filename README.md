@@ -246,7 +246,8 @@ try {
 controller.abort();
 ```
 
-> [!NOTE}
+> [!NOTE]
+>
 > **About `AbortController`**
 >
 > AbortController is a standard JavaScript API that allows you to cancel asynchronous operations. It is supported in modern browsers and Node.js. For more information, see the [MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/AbortController).
@@ -267,7 +268,9 @@ await client.llm.unload("my-model");
 
 Note, by default, all models loaded by a client are unloaded when the client disconnects. Therefore, unless you want to precisely control the lifetime of a model, you do not need to unload them manually.
 
-> [!NOTE] > **Keeping a Model Loaded After Disconnection**
+> [!NOTE]
+>
+> **Keeping a Model Loaded After Disconnection**
 >
 > If you wish to keep a model loaded after disconnection, you can set the `noHup` option to `true` when loading the model.
 
@@ -297,7 +300,9 @@ const hermes = client.llm.get({
 // hermes.complete(...);
 ```
 
-> [!NOTE] > **The Underlying Model May Change**
+> [!NOTE]
+>
+> **The Underlying Model May Change**
 >
 > When obtaining a model using `client.llm.get`, you will get an `LLMModel` object. However, the object you get is not tied to a specific loaded model, but a handle for a model that satisfies the given query.
 >
@@ -407,7 +412,9 @@ const prediction = anyModel.respond(
 // ...Do stuff with the prediction...
 ```
 
-> [!IMPORTANT] \*_Always Provide the Full History/Context_
+> [!IMPORTANT]
+>
+> _Always Provide the Full History/Context_
 >
 > LLMs are _stateless_. They do not remember or retain information from previous inputs. Therefore, when predicting with an LLM, you should always provide the full history/context.
 
@@ -426,7 +433,9 @@ const { stats } = await prediction;
 console.log(stats);
 ```
 
-> [!INFO] > **No Extra Waiting**
+> [!INFO]
+>
+> **No Extra Waiting**
 >
 > When you have already consumed the prediction stream, awaiting on the prediction object will not cause any extra waiting, as the result is cached within the prediction object.
 >
