@@ -16,7 +16,7 @@
     "build-sdk": "cd publish/sdk && npm run build",
     "build-cli": "cd packages/lms-cli && npm run build && cd ../../publish/cli && npm run build",
     "build": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run build-cli",
-    "make-cli": "cd publish/cli && npm run make",
+    "make-cli": "cd packages/lms-cli && npm run build && cd ../../publish/cli && npm run make",
     "make": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run make-cli",
     "publish": "npm run build && lerna publish",
     "publish-sdk": "cd publish/sdk && npm publish",
