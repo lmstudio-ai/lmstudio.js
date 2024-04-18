@@ -16,6 +16,16 @@ const { commands } = await inquirer.prompt({
       value: '"npm run watch-jest"',
       name: "Jest (unit tests)",
     },
+    {
+      checked: true,
+      value: '[ "npm run watch-sdk-ae" : "npm run watch-sdk-webpack" ]',
+      name: "SDK (in /publish)",
+    },
+    {
+      checked: false,
+      value: '"npm run watch-cli"',
+      name: "CLI (in /packages/lms-cli)",
+    },
   ],
 });
 

@@ -10,6 +10,7 @@ export { BufferedEvent } from "./BufferedEvent";
 export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
 export { Event } from "./Event";
 export { lmsDefaultPorts } from "./lmsDefaultPorts";
+export { makePrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";
 export {
   prettyPrintZod,

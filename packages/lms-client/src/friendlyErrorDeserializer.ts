@@ -1,17 +1,31 @@
-import { text } from "@lmstudio/lms-common";
+import { makePrettyError, text } from "@lmstudio/lms-common";
 import {
   attachSerializedErrorData,
   type ErrorDisplayData,
-  fromSerializedError,
   type SerializedLMSExtendedError,
 } from "@lmstudio/lms-shared-types";
 import chalk from "chalk";
-import { makePrettyError } from "./makePrettyError";
 
 type DisplayData<TCode extends ErrorDisplayData["code"]> = Extract<
   ErrorDisplayData,
   { code: TCode }
 >;
+
+function deserializeOtherError(serialized: SerializedLMSExtendedError, stack?: string): Error {
+  let content = chalk.redBright(serialized.title);
+  if (serialized.suggestion !== undefined) {
+    content +=
+      "\n\n\n " +
+      chalk.bgWhite.black("  (!) SUGGESTION  ") +
+      "\n\n" +
+      chalk.white(serialized.suggestion);
+  }
+  if (serialized.cause !== undefined) {
+    content +=
+      "\n\n\n " + chalk.bgWhite.black("  (X) CAUSE  ") + "\n\n" + chalk.gray(serialized.cause);
+  }
+  return makePrettyError(content, stack);
+}
 
 function deserializeLLMPathNotFoundError(
   { availablePathsSample, path, totalModels }: DisplayData<"llm.pathNotFound">,
@@ -49,7 +63,7 @@ export function friendlyErrorDeserializer(
   stack?: string,
 ): Error {
   if (serialized.displayData === undefined) {
-    return fromSerializedError(serialized);
+    return deserializeOtherError(serialized, stack);
   }
   let error: Error;
   switch (serialized.displayData.code) {
@@ -57,7 +71,7 @@ export function friendlyErrorDeserializer(
       error = deserializeLLMPathNotFoundError(serialized.displayData, stack);
       break;
     default:
-      return fromSerializedError(serialized);
+      return deserializeOtherError(serialized, stack);
   }
   attachSerializedErrorData(error, serialized);
   return error;

@@ -7,9 +7,12 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build-webpack": "webpack --config ./webpack.config.js --mode production",
-    "build-dts": "api-extractor run --local",
-    "build-remove-source-map-comments": "node ./remoteSourceMapComments.js",
-    "build": "npm run build-webpack && npm run build-remove-source-map-comments && npm run build-dts"
+    "build-ae": "api-extractor run --local",
+    "build-remove-source-map-comments": "node ./removeSourceMapComments.js",
+    "build": "npm run build-webpack && npm run build-remove-source-map-comments && npm run build-ae",
+    "watch-webpack": "webpack --config ./webpack.config.js --mode development --watch",
+    "watch-ae": "nodemon --exec \"npm run build-ae\" --watch dist/index.js",
+    "watch": "npm run watch-webpack & npm run watch-dts"
   },
   "files": [
     "dist/index.js",
@@ -25,5 +28,8 @@
     "immer": "^10.0.4",
     "process": "^0.11.10",
     "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }

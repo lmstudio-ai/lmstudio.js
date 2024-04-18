@@ -1,5 +1,6 @@
 import {
   BufferedEvent,
+  getCurrentStack,
   SimpleLogger,
   validateMethodParamsOrThrow,
   type LoggerInterface,
@@ -114,6 +115,7 @@ export class LLMModel {
             break;
         }
       },
+      { stack: getCurrentStack(1) },
     );
     cancelEvent.subscribeOnce(() => {
       channel.send({ type: "cancel" });
@@ -288,6 +290,10 @@ export class LLMModel {
    * any moment.
    */
   public getModelInfo(): Promise<LLMDescriptor | undefined> {
-    return this.llmPort.callRpc("getModelInfo", { specifier: this.specifier });
+    return this.llmPort.callRpc(
+      "getModelInfo",
+      { specifier: this.specifier },
+      { stack: getCurrentStack(1) },
+    );
   }
 }

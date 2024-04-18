@@ -12,7 +12,6 @@
     { "path": "packages/lms-platform-backend-interface" },
     { "path": "packages/lms-system-backend-interface" },
     { "path": "packages/lms-client" },
-    { "path": "packages/lms-cli" },
     { "path": "packages/template" }
   ],
   "exclude": ["*.test.ts"]

@@ -1,6 +1,6 @@
-import { changeErrorStackInPlace } from "@lmstudio/lms-common";
 import boxen from "boxen";
 import chalk from "chalk";
+import { changeErrorStackInPlace } from "./errorStack";
 
 export function makePrettyError(content: string, stack?: string) {
   if ((process as any).browser) {

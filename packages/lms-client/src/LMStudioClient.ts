@@ -2,6 +2,7 @@ import {
   SimpleLogger,
   getCurrentStack,
   lmsDefaultPorts,
+  makePrettyError,
   text,
   validateConstructorParamOrThrow,
   type LoggerInterface,
@@ -149,36 +150,43 @@ export class LMStudioClient {
   /**
    * Guess the base URL of the LM Studio server by visiting localhost on various default ports.
    */
-  private async guessBaseUrl(stack: string): Promise<string> {
+  private async guessBaseUrl(stack?: string): Promise<string> {
     return Promise.any(lmsDefaultPorts.map(this.isLocalhostWithGivenPortLMStudioServer)).then(
       port => `ws://127.0.0.1:${port}`,
       () => {
-        console.error(text`
-          ${chalk.redBright("\nError: Failed to connect to LM Studio on the default port.")}
+        throw makePrettyError(
+          text`
+            ${chalk.redBright("Error: Failed to connect to LM Studio on the default port.")}
 
-          ${chalk.blueBright("· HINT: Is LM Studio running? If not, you can start it by running:")}
+            Is LM Studio running? If not, you can start it by running:
 
-              ${chalk.yellow("lms start ")}${chalk.gray("[--port <PORT>] [--cors=true|false]")}
+                ${chalk.yellow("lms server start ")}${chalk.gray("[--port <PORT>] [--cors=true|false]")}
 
-          ${chalk.blueBright(text`
-            · HINT: If you are using a custom port and/or are reverse-proxying, you should pass the
-            base URL to the LMStudioClient constructor like so:
-          `)}
+            ${chalk.white("(i) For more information, refer to the LM Studio documentation:")}
 
-              ${chalk.cyanBright(text`
-                const client = new LMStudioClient({ baseUrl: "ws://127.0.0.1:<PORT>" });
-              `)}
+                ${chalk.gray("https://lmstudio.ai/docs/local-server")}
+          `,
+          stack,
+        );
+        // console.error(text`
+        //   ${chalk.blueBright(text`
+        //     · HINT: If you are using a custom port and/or are reverse-proxying, you should pass the
+        //     base URL to the LMStudioClient constructor like so:
+        //   `)}
 
-        `);
-        // We just want to return a promise that never resolves.
-        // This blocks all the API calls.
-        return new Promise(() => undefined);
+        //       ${chalk.cyanBright(text`
+        //         const client = new LMStudioClient({ baseUrl: "ws://127.0.0.1:<PORT>" });
+        //       `)}
+
+        // `);
+        // // We just want to return a promise that never resolves.
+        // // This blocks all the API calls.
+        // return new Promise(() => undefined);
       },
     );
   }
 
   public constructor(opts: LMStudioClientConstructorOpts = {}) {
-    const stack = getCurrentStack(1);
     const { logger, baseUrl, verboseErrorMessages, clientIdentifier, clientPasskey } =
       validateConstructorParamOrThrow(
         "LMStudioClient",
@@ -190,9 +198,10 @@ export class LMStudioClient {
     this.clientIdentifier = clientIdentifier ?? generateRandomBase64(18);
     this.clientPasskey = clientPasskey ?? generateRandomBase64(18);
 
+    const stack = getCurrentStack(1);
     let resolvingBaseUrl: string | Promise<string>;
     if (baseUrl === undefined) {
-      resolvingBaseUrl = this.guessBaseUrl(stack);
+      resolvingBaseUrl = this.guessBaseUrl(verboseErrorMessages ? stack : undefined);
     } else {
       this.validateBaseUrlOrThrow(baseUrl);
       resolvingBaseUrl = baseUrl;

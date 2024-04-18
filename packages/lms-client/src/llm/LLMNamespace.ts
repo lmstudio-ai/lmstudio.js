@@ -255,7 +255,7 @@ export class LLMNamespace {
           }
         }
       },
-      { stack: getCurrentStack(2) },
+      { stack: getCurrentStack(1) },
     );
 
     channel.onError.subscribeOnce(reject);
@@ -281,14 +281,14 @@ export class LLMNamespace {
       reasonableKeyStringSchema,
       identifier,
     );
-    return this.llmPort.callRpc("unloadModel", { identifier });
+    return this.llmPort.callRpc("unloadModel", { identifier }, { stack: getCurrentStack(1) });
   }
 
   /**
    * List all the currently loaded models.
    */
   public listLoaded(): Promise<Array<LLMDescriptor>> {
-    return this.llmPort.callRpc("listLoaded", undefined);
+    return this.llmPort.callRpc("listLoaded", undefined, { stack: getCurrentStack(1) });
   }
 
   /**
