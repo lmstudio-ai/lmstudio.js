@@ -53,30 +53,34 @@ fi
 # Copy the node executable and rename it
 cp "${NODE_DIR}/node.exe" "${DIST_DIR}/${EXE_NAME}"
 
-# Remove the signature
-signtool remove "//s" "${DIST_DIR}/${EXE_NAME}"
+if [ -z "$LMS_NO_SIGN" ]; then
+    # Remove the signature
+    signtool remove "//s" "${DIST_DIR}/${EXE_NAME}"
 
-# Inject the blob into the copied binary
-postject "${DIST_DIR}/${EXE_NAME}" NODE_SEA_BLOB ./temp/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+    # Inject the blob into the copied binary
+    postject "${DIST_DIR}/${EXE_NAME}" NODE_SEA_BLOB ./temp/sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
 
-# Signing
+    # Signing
 
-if ! command -v smctl &> /dev/null
-then
-    echo "Warning: smctl could not be found"
-    exit 1
-fi
+    if ! command -v smctl &> /dev/null
+    then
+        echo "Warning: smctl could not be found - To skip signing, set LMS_NO_SIGN=true"
+        exit 1
+    fi
 
-# Check if WINDOWS_DIGICERT_KEYPAIR_ALIAS environment variable is set
-if [[ -z "${WINDOWS_DIGICERT_KEYPAIR_ALIAS}" ]]; then
-    echo "Warning: WINDOWS_DIGICERT_KEYPAIR_ALIAS is not set"
-    exit 1
-fi
+    # Check if WINDOWS_DIGICERT_KEYPAIR_ALIAS environment variable is set
+    if [[ -z "${WINDOWS_DIGICERT_KEYPAIR_ALIAS}" ]]; then
+        echo "Warning: WINDOWS_DIGICERT_KEYPAIR_ALIAS is not set - To skip signing, set LMS_NO_SIGN=true"
+        exit 1
+    fi
 
-# Try to sign the binary
-if [[ -n "${DIST_DIR}" ]] && [[ -n "${EXE_NAME}" ]]; then
-    smctl sign --keypair-alias="${WINDOWS_DIGICERT_KEYPAIR_ALIAS}" --input "${DIST_DIR}/${EXE_NAME}"
+    # Try to sign the binary
+    if [[ -n "${DIST_DIR}" ]] && [[ -n "${EXE_NAME}" ]]; then
+        smctl sign --keypair-alias="${WINDOWS_DIGICERT_KEYPAIR_ALIAS}" --input "${DIST_DIR}/${EXE_NAME}"
+    else
+        echo "Warning: DIST_DIR or EXE_NAME is not set - To skip signing, set LMS_NO_SIGN=true"
+        exit 1
+    fi
 else
-    echo "Warning: DIST_DIR or EXE_NAME is not set"
-    exit 1
+  echo "LMS_NO_SIGN is set, signing skipped."
 fi

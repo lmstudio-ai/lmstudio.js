@@ -25,6 +25,9 @@ const base = {
   externals: {
     "zod": "zod",
     "immer": "immer",
+    "process": "process",
+    "boxen": "boxen",
+    "chalk": "chalk",
     "@lmstudio/lms-isomorphic": "@lmstudio/lms-isomorphic",
   },
   optimization: {
