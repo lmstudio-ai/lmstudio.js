@@ -7,6 +7,7 @@
   "editor.rulers": [100],
   "cSpell.words": [
     "concatenator",
+    "Deserializers",
     "Fcfs",
     "GGUF",
     "immer",

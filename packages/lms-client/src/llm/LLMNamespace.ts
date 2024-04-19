@@ -1,11 +1,11 @@
 import {
-  SimpleLogger,
   getCurrentStack,
+  makePrettyError,
   makePromise,
+  SimpleLogger,
   text,
-  validateMethodParamOrThrow,
-  validateMethodParamsOrThrow,
   type LoggerInterface,
+  type Validator,
 } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
@@ -142,6 +142,7 @@ export class LLMNamespace {
   /** @internal */
   public constructor(
     private readonly llmPort: LLMPort,
+    private readonly validator: Validator,
     parentLogger: LoggerInterface,
   ) {
     this.logger = new SimpleLogger("Llm", parentLogger);
@@ -185,12 +186,14 @@ export class LLMNamespace {
    * @returns A promise that resolves to the model that can be used for inferencing
    */
   public async load(path: string, opts: LLMLoadModelOpts = {}): Promise<LLMModel> {
-    [path, opts] = validateMethodParamsOrThrow(
-      "LLMNamespace",
+    const stack = getCurrentStack(1);
+    [path, opts] = this.validator.validateMethodParamsOrThrow(
+      "client.llm",
       "load",
       ["path", "opts"],
       [reasonableKeyStringSchema, llmLoadModelOptsSchema],
       [path, opts],
+      stack,
     );
     const { preset, identifier, signal, verbose = "info", config, onProgress, noHup } = opts;
     let lastVerboseCallTime = 0;
@@ -231,6 +234,7 @@ export class LLMNamespace {
               new LLMModel(
                 this.llmPort,
                 { type: "sessionIdentifier", sessionIdentifier: message.sessionIdentifier },
+                this.validator,
                 this.logger,
               ),
             );
@@ -255,7 +259,7 @@ export class LLMNamespace {
           }
         }
       },
-      { stack: getCurrentStack(1) },
+      { stack },
     );
 
     channel.onError.subscribeOnce(reject);
@@ -274,21 +278,24 @@ export class LLMNamespace {
    * @param identifier - The identifier of the model to unload.
    */
   public unload(identifier: string) {
-    validateMethodParamOrThrow(
-      "LLMNamespace",
+    const stack = getCurrentStack(1);
+    this.validator.validateMethodParamOrThrow(
+      "client.llm",
       "unload",
       "identifier",
       reasonableKeyStringSchema,
       identifier,
+      stack,
     );
-    return this.llmPort.callRpc("unloadModel", { identifier }, { stack: getCurrentStack(1) });
+    return this.llmPort.callRpc("unloadModel", { identifier }, { stack });
   }
 
   /**
    * List all the currently loaded models.
    */
   public listLoaded(): Promise<Array<LLMDescriptor>> {
-    return this.llmPort.callRpc("listLoaded", undefined, { stack: getCurrentStack(1) });
+    const stack = getCurrentStack(1);
+    return this.llmPort.callRpc("listLoaded", undefined, { stack });
   }
 
   /**
@@ -349,12 +356,14 @@ export class LLMNamespace {
    */
   public get(identifier: string): LLMModel;
   public get(param: string | LLMModelQuery): LLMModel {
-    validateMethodParamOrThrow(
-      "LLMNamespace",
+    const stack = getCurrentStack(1);
+    this.validator.validateMethodParamOrThrow(
+      "client.llm",
       "get",
       "param",
       z.union([reasonableKeyStringSchema, llmModelQuerySchema]),
       param,
+      stack,
     );
     let query: LLMModelQuery;
     if (typeof param === "string") {
@@ -365,10 +374,13 @@ export class LLMNamespace {
       query = param;
     }
     if (query.path?.includes("\\")) {
-      throw new Error(text`
-        Model path should not contain backslashes, even if you are on Windows. Use forward
-        slashes instead.
-      `);
+      throw makePrettyError(
+        text`
+          Model path should not contain backslashes, even if you are on Windows. Use forward
+          slashes instead.
+        `,
+        stack,
+      );
     }
     return new LLMModel(
       this.llmPort,
@@ -376,6 +388,7 @@ export class LLMNamespace {
         type: "query",
         query,
       },
+      this.validator,
       this.logger,
     );
   }

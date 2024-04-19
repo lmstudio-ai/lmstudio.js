@@ -12,15 +12,6 @@ export { Event } from "./Event";
 export { lmsDefaultPorts } from "./lmsDefaultPorts";
 export { makePrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";
-export {
-  prettyPrintZod,
-  validateConstructorParamOrThrow,
-  validateConstructorParamsOrThrow,
-  validateMethodParamOrThrow,
-  validateMethodParamsOrThrow,
-  validateMultipleOrThrow,
-  validateOrThrow,
-} from "./prettyPrintZod";
 export { removeUndefinedValues } from "./removeUndefinedValues";
 export {
   createResultSchema,
@@ -39,5 +30,6 @@ export { StreamablePromise } from "./StreamablePromise";
 export { text } from "./text";
 export { TimeoutTracker } from "./TimeoutTracker";
 export { toJSONSafeNumber } from "./toJSONSafeNumber";
+export { Validator } from "./Validator";
 export { PagerExitedError, QueueClearedError, WaitQueue } from "./WaitQueue";
 export { failOk, filteredArray } from "./zodHelpers";

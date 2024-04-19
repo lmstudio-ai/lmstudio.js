@@ -2,6 +2,7 @@ import { makePrettyError, text } from "@lmstudio/lms-common";
 import {
   attachSerializedErrorData,
   type ErrorDisplayData,
+  type LLMModelQuery,
   type SerializedLMSExtendedError,
 } from "@lmstudio/lms-shared-types";
 import chalk from "chalk";
@@ -12,7 +13,7 @@ type DisplayData<TCode extends ErrorDisplayData["code"]> = Extract<
 >;
 
 function deserializeOtherError(serialized: SerializedLMSExtendedError, stack?: string): Error {
-  let content = chalk.redBright(serialized.title);
+  let content = chalk.bgRed.white(` ${serialized.title} `);
   if (serialized.suggestion !== undefined) {
     content +=
       "\n\n\n " +
@@ -27,36 +28,133 @@ function deserializeOtherError(serialized: SerializedLMSExtendedError, stack?: s
   return makePrettyError(content, stack);
 }
 
-function deserializeLLMPathNotFoundError(
-  { availablePathsSample, path, totalModels }: DisplayData<"llm.pathNotFound">,
-  stack?: string,
-): Error {
+const errorDeserializersMap = new Map<string, (data: ErrorDisplayData, stack?: string) => Error>();
+function registerErrorDeserializer<TCode extends ErrorDisplayData["code"]>(
+  code: TCode,
+  deserializer: (data: DisplayData<TCode>, stack?: string) => Error,
+) {
+  errorDeserializersMap.set(code, deserializer as any);
+}
+
+function formatAvailableLLMs(availablePathsSample: Array<string>, totalModels: number) {
+  if (availablePathsSample.length === 0) {
+    return chalk.gray("    You don't have any LLMs downloaded.");
+  }
+  let text = availablePathsSample.map(path => chalk.cyanBright(" · " + path)).join("\n");
+  if (availablePathsSample.length < totalModels) {
+    text += chalk.gray(`\n     ... (and ${totalModels - availablePathsSample.length} more)`);
+  }
+  return text;
+}
+
+registerErrorDeserializer(
+  "llm.pathNotFound",
+  ({ availablePathsSample, path, totalModels }, stack) => {
+    return makePrettyError(
+      text`
+        ${chalk.bgRed.white(text`
+          Cannot find an LLM with path "${chalk.yellowBright(path)}".
+        `)}
+
+        Here are your available LLMs:
+
+        ${formatAvailableLLMs(availablePathsSample, totalModels)}
+
+        Run
+
+            ${chalk.yellowBright("lms ls")}
+
+        to see a full list of loadable models
+      `,
+      stack,
+    );
+  },
+);
+
+function formatLoadedLLMs(loadedModelsSample: Array<string>, totalLoadedModels: number) {
+  if (loadedModelsSample.length === 0) {
+    return chalk.gray("    You don't have any LLMs loaded.");
+  }
+  let text = loadedModelsSample.map(path => chalk.cyanBright(" · " + path)).join("\n");
+  if (loadedModelsSample.length < totalLoadedModels) {
+    text += chalk.gray(`\n     ... (and ${totalLoadedModels - loadedModelsSample.length} more)`);
+  }
+  return text;
+}
+
+registerErrorDeserializer(
+  "llm.identifierNotFound",
+  ({ loadedModelsSample, identifier, totalLoadedModels }, stack) => {
+    return makePrettyError(
+      text`
+        ${chalk.bgRed.white(text`
+          Cannot find a loaded LLM with identifier "${chalk.yellowBright(identifier)}".
+        `)}
+
+        Here are your loaded LLMs:
+
+        ${formatLoadedLLMs(loadedModelsSample, totalLoadedModels)}
+
+        Run
+
+            ${chalk.yellowBright("lms ps")}
+
+        to see a full list of loaded models
+      `,
+      stack,
+    );
+  },
+);
+
+registerErrorDeserializer("llm.specificModelUnloaded", (_, stack) => {
   return makePrettyError(
-    text`
-      ${chalk.redBright(text`
-        Cannot find an LLM with path "${chalk.yellowBright(path)}".
-      `)}
-
-      Here are your available LLM's:
-
-      ${
-        availablePathsSample.length === 0
-          ? chalk.gray("You don't have any LLM's downloaded.")
-          : availablePathsSample.map(path => chalk.cyanBright(" - " + path)).join("\n") +
-            (availablePathsSample.length < totalModels
-              ? chalk.gray(`\n     ... (and ${totalModels - availablePathsSample.length} more)`)
-              : "")
-      }
-
-      Run
-
-          ${chalk.yellowBright("lms ls")}
-
-      to see a full list of loadable models
-    `,
+    chalk.bgRed.white(text`
+    This model has already been unloaded.
+  `),
     stack,
   );
+});
+
+function formatQuery(query: LLMModelQuery) {
+  const requirements: Array<string> = [];
+  if (query.identifier !== undefined) {
+    requirements.push(`The identifier must be exactly "${chalk.yellowBright(query.identifier)}"`);
+  }
+  if (query.path !== undefined) {
+    requirements.push(`The path must match "${chalk.yellowBright(query.path)}"`);
+  }
+  if (requirements.length === 0) {
+    return chalk.gray(" · Any LLM");
+  }
+  requirements.unshift("The model must be an LLM");
+  return requirements.map(req => chalk.white(" · " + req)).join("\n");
 }
+
+registerErrorDeserializer(
+  "llm.noModelMatchingQuery",
+  ({ query, loadedModelsSample, totalLoadedModels }, stack) => {
+    return makePrettyError(
+      text`
+        ${chalk.bgRed.white(" No loaded LLM satisfies all requirements specified in the query. ")}
+
+        Hints:
+        
+        ${formatQuery(query)}
+
+        Loaded LLMs:
+
+        ${formatLoadedLLMs(loadedModelsSample, totalLoadedModels)}
+
+        Run
+
+            ${chalk.yellowBright("lms ps")}
+
+        to see a full list of loaded models with details
+      `,
+      stack,
+    );
+  },
+);
 
 export function friendlyErrorDeserializer(
   serialized: SerializedLMSExtendedError,
@@ -66,13 +164,12 @@ export function friendlyErrorDeserializer(
     return deserializeOtherError(serialized, stack);
   }
   let error: Error;
-  switch (serialized.displayData.code) {
-    case "llm.pathNotFound":
-      error = deserializeLLMPathNotFoundError(serialized.displayData, stack);
-      break;
-    default:
-      return deserializeOtherError(serialized, stack);
+  const specificDeserializer = errorDeserializersMap.get(serialized.displayData.code);
+  if (specificDeserializer !== undefined) {
+    error = specificDeserializer(serialized.displayData);
+    attachSerializedErrorData(error, serialized);
+    return error;
+  } else {
+    return deserializeOtherError(serialized, stack);
   }
-  attachSerializedErrorData(error, serialized);
-  return error;
 }
