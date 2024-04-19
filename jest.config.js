@@ -3,5 +3,5 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   collectCoverage: true,
-  watchPathIgnorePatterns: ["<rootDir>/.git/"],
+  watchPathIgnorePatterns: ["\\.git", "node_modules"],
 };

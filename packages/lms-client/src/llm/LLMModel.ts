@@ -2,8 +2,8 @@ import {
   BufferedEvent,
   getCurrentStack,
   SimpleLogger,
-  validateMethodParamsOrThrow,
   type LoggerInterface,
+  type Validator,
 } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
@@ -86,6 +86,7 @@ export class LLMModel {
     private readonly llmPort: LLMPort,
     /** @internal */
     private readonly specifier: LLMModelSpecifier,
+    private readonly validator: Validator,
     parentLogger: LoggerInterface,
   ) {
     this.logger = new SimpleLogger(`LLMModel`, parentLogger);
@@ -115,7 +116,7 @@ export class LLMModel {
             break;
         }
       },
-      { stack: getCurrentStack(1) },
+      { stack: getCurrentStack(2) },
     );
     cancelEvent.subscribeOnce(() => {
       channel.send({ type: "cancel" });
@@ -172,12 +173,14 @@ export class LLMModel {
     if (!this.loaded) {
       this.logger.throw("Cannot use `complete` because the model is already unloaded.");
     }
-    [prompt, opts] = validateMethodParamsOrThrow(
-      "LLMModel",
+    const stack = getCurrentStack(1);
+    [prompt, opts] = this.validator.validateMethodParamsOrThrow(
+      "model",
       "complete",
       ["prompt", "opts"],
       [z.string(), completeOptsSchema],
       [prompt, opts],
+      stack,
     );
     const { config = {}, structured } = opts;
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
@@ -259,12 +262,14 @@ export class LLMModel {
     if (!this.loaded) {
       this.logger.throw("Cannot use `complete` because the model is already unloaded.");
     }
-    [history, opts] = validateMethodParamsOrThrow(
-      "LLMModel",
+    const stack = getCurrentStack(1);
+    [history, opts] = this.validator.validateMethodParamsOrThrow(
+      "model",
       "complete",
       ["history", "opts"],
       [llmChatHistorySchema, respondOptsSchema],
       [history, opts],
+      stack,
     );
     const { config = {}, structured } = opts;
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();

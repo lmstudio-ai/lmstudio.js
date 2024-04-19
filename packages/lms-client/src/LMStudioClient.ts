@@ -1,10 +1,10 @@
 import {
   SimpleLogger,
+  Validator,
   getCurrentStack,
   lmsDefaultPorts,
   makePrettyError,
   text,
-  validateConstructorParamOrThrow,
   type LoggerInterface,
 } from "@lmstudio/lms-common";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
@@ -156,7 +156,7 @@ export class LMStudioClient {
       () => {
         throw makePrettyError(
           text`
-            ${chalk.redBright("Error: Failed to connect to LM Studio on the default port.")}
+            ${chalk.redBright("Error: Failed to connect to LM Studio on the default port (1234).")}
 
             Is LM Studio running? If not, you can start it by running:
 
@@ -188,7 +188,7 @@ export class LMStudioClient {
 
   public constructor(opts: LMStudioClientConstructorOpts = {}) {
     const { logger, baseUrl, verboseErrorMessages, clientIdentifier, clientPasskey } =
-      validateConstructorParamOrThrow(
+      new Validator().validateConstructorParamOrThrow(
         "LMStudioClient",
         "opts",
         constructorOptsSchema,
@@ -233,7 +233,9 @@ export class LMStudioClient {
       },
     );
 
-    this.llm = new LLMNamespace(this.llmPort, this.logger);
+    const validator = new Validator();
+
+    this.llm = new LLMNamespace(this.llmPort, validator, this.logger);
     this.system = new SystemNamespace(this.systemPort, this.logger);
   }
 }
