@@ -20,7 +20,8 @@
     "make": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run make-cli",
     "publish": "npm run build && lerna publish --no-git-tag-version",
     "manual-testing": "cd ./packages/lms-sdk-manual-testing/dist && node index.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "prt": "./postReleaseTag.sh"
   },
   "author": "",
   "license": "Apache-2.0",
