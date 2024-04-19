@@ -56,13 +56,13 @@ LM Studio builds linked above ship with the new `lms` cli. Follow the instructio
 - **Zsh**
 
 ```bash
-echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="$HOME/.cache/lm-studio/bin:$PATH"' >> ~/.zshrc
 ```
 
 - **Bash**
 
 ```bash
-echo 'export PATH="$HOME/.cache/lmstudio/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="$HOME/.cache/lm-studio/bin:$PATH"' >> ~/.bashrc
 ```
 
 > Not sure which shell you're using? Pop open your terminal and run `echo $SHELL` to find out. `/bin/zsh` means you're using Zsh, `/bin/bash` means you're using Bash.
