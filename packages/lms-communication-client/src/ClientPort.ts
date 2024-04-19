@@ -1,9 +1,9 @@
 import {
   SimpleLogger,
+  Validator,
   changeErrorStackInPlace,
   getCurrentStack,
   makePromise,
-  prettyPrintZod,
   text,
   type LoggerInterface,
 } from "@lmstudio/lms-common";
@@ -128,7 +128,7 @@ export class ClientPort<
         Received invalid message for channel: endpointName = ${openChannel.endpoint.name}, message =
         ${message.message}. Zod error:
 
-        ${prettyPrintZod("message", parsed.error)}
+        ${Validator.prettyPrintZod("message", parsed.error)}
       `);
       return;
     }
@@ -188,7 +188,7 @@ export class ClientPort<
         Received invalid result for rpc, endpointName = ${ongoingRpc.endpoint.name}, result =
         ${message.result}. Zod error:
 
-        ${prettyPrintZod("result", parsed.error)}
+        ${Validator.prettyPrintZod("result", parsed.error)}
       `);
       return;
     }

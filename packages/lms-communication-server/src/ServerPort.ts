@@ -1,10 +1,4 @@
-import {
-  Event,
-  SimpleLogger,
-  prettyPrintZod,
-  text,
-  type LoggerInterface,
-} from "@lmstudio/lms-common";
+import { Event, SimpleLogger, text, Validator, type LoggerInterface } from "@lmstudio/lms-common";
 import type {
   BackendInterface,
   ChannelEndpoint,
@@ -104,7 +98,7 @@ export class ServerPort<
         Received invalid creationParameter for channel, endpointName = ${endpoint.name},
         creationParameter = ${message.creationParameter}. Zod error:
 
-        ${prettyPrintZod("creationParameter", parseResult.error)}
+        ${Validator.prettyPrintZod("creationParameter", parseResult.error)}
       `);
 
       return;
@@ -164,7 +158,7 @@ export class ServerPort<
         Received invalid message for channel, endpointName = ${openChannel.endpoint.name},
         message = ${message.message}. Zod error:
 
-        ${prettyPrintZod("message", parsed.error)}
+        ${Validator.prettyPrintZod("message", parsed.error)}
       `);
       return;
     }
@@ -202,7 +196,7 @@ export class ServerPort<
         Received invalid parameter for rpcCall, endpointName = ${endpoint.name},
         parameter = ${message.parameter}. Zod error:
 
-        ${prettyPrintZod("parameter", parseResult.error)}
+        ${Validator.prettyPrintZod("parameter", parseResult.error)}
       `);
       return;
     }

@@ -19,7 +19,7 @@ export class Validator {
    *
    * @returns The pretty-printed error in a string
    */
-  private prettyPrintZod(rootObjectName: string, error: ZodError) {
+  public static prettyPrintZod(rootObjectName: string, error: ZodError) {
     return error.errors
       .map(e => {
         if (e.path.length === 0) {
@@ -54,7 +54,7 @@ export class Validator {
       return result.data;
     } else {
       throw makePrettyError(
-        `${lead}\n\n${this.prettyPrintZod(rootObjectName, result.error)}`,
+        `${lead}\n\n${Validator.prettyPrintZod(rootObjectName, result.error)}`,
         this.attachStack ? stack : undefined,
       );
     }
@@ -97,7 +97,7 @@ export class Validator {
       const lead = leadProducer(erroredValues);
       throw makePrettyError(
         `${lead}\n\n${errors
-          .map(({ error, rootObjectName }) => this.prettyPrintZod(rootObjectName, error))
+          .map(({ error, rootObjectName }) => Validator.prettyPrintZod(rootObjectName, error))
           .join("\n")}`,
         this.attachStack ? stack : undefined,
       );
