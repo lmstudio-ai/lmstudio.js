@@ -1,0 +1,17 @@
+import { makeTitledPrettyError } from "@lmstudio/lms-common/dist/makePrettyError";
+import chalk from "chalk";
+import { installCli } from "./installCli";
+
+if (process.argv.length !== 3 && process.argv[2] !== "install-cli") {
+  throw makeTitledPrettyError(
+    "Invalid usage, only the following is supported:",
+    `    ${chalk.yellowBright("npx lmstudio install-cli")}`,
+  );
+}
+installCli().catch(e => {
+  if (typeof e.message === "string") {
+    console.error(e.message);
+    return;
+  }
+  throw e;
+});

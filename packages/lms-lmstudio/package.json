@@ -1,0 +1,22 @@
+{
+  "name": "@lmstudio/lms-lmstudio",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@lmstudio/lms-common": "^0.4.0",
+    "boxen": "^5.1.2",
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.6"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.12.7"
+  }
+}
