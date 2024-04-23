@@ -1,0 +1,13 @@
+{
+  "include": ["src/index.ts"],
+  "compilerOptions": {
+    "strict": true,
+    "module": "CommonJS",
+    "target": "ES2021",
+    "declaration": true,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "ts-out"
+  }
+}

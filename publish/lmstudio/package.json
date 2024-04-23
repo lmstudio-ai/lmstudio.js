@@ -2,11 +2,16 @@
   "name": "lmstudio",
   "version": "0.0.3",
   "description": "LM Studio Setup Tool",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "scripts": {
+    "build-webpack": "webpack --config ./webpack.config.js --mode production",
+    "build": "npm run build-webpack",
+    "watch": "webpack --config ./webpack.config.js --mode development --watch"
+  },
   "files": [
-    "index.js"
+    "dist/index.js"
   ],
-  "bin": "index.js",
+  "bin": "dist/index.js",
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {

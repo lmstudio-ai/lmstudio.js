@@ -1,5 +1,4 @@
-import { text } from "@lmstudio/lms-common";
-import { makeTitledPrettyError } from "@lmstudio/lms-common/dist/makePrettyError";
+import { makeTitledPrettyError, text } from "@lmstudio/lms-common";
 import chalk from "chalk";
 import { stat } from "node:fs/promises";
 import os from "node:os";

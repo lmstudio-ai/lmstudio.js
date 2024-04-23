@@ -10,17 +10,20 @@
     "watch-ui-css": "cd packages/lms-ui && npm run watch-css",
     "watch-sdk-ae": "cd publish/sdk && npm run watch-ae",
     "watch-sdk-webpack": "cd publish/sdk && npm run watch-webpack",
-    "watch-sdk": "npm run watch-tsc & npm run watch-sdk-ae",
-    "watch-cli": "cd packages/lms-cli && npm run watch",
+    "watch-cli-package": "cd packages/lms-cli && npm run watch",
+    "watch-cli-webpack": "cd publish/cli && npm run watch",
+    "watch-lmstudio": "cd publish/lmstudio && npm run watch",
     "clean": "shx rm -rf ./packages/**/dist ./packages/**/tsconfig.tsbuildinfo ./publish/**/dist ./publish/**/ts-out",
     "build-sdk": "cd publish/sdk && npm run build",
     "build-cli": "cd packages/lms-cli && npm run build && cd ../../publish/cli && npm run build",
-    "build": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run build-cli",
+    "build-lmstudio": "cd publish/lmstudio && npm run build",
+    "build": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run build-cli && npm run build-lmstudio",
     "make-cli": "cd packages/lms-cli && npm run build && cd ../../publish/cli && npm run make",
-    "make": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run make-cli",
+    "make": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run make-cli && npm run build-lmstudio",
     "publish": "npm run build && lerna publish --no-git-tag-version",
     "manual-testing": "cd ./packages/lms-sdk-manual-testing/dist && node index.js",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package && npm run postinstall-cli",
+    "postinstall-cli": "cd packages/lms-cli && npm run postinstall",
     "prt": "./postReleaseTag.sh"
   },
   "author": "",
@@ -41,6 +44,7 @@
     "jest": "^29.7.0",
     "lerna": "^8.1.2",
     "parcel": "^2.11.0",
+    "patch-package": "^8.0.0",
     "postcss": "^8.4.35",
     "postcss-cli": "^11.0.0",
     "prettier": "^3.2.5",
@@ -53,8 +57,7 @@
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
     "webpack": "^5.90.2",
-    "webpack-cli": "^5.1.4",
-    "patch-package": "^8.0.0"
+    "webpack-cli": "^5.1.4"
   },
   "overrides": {
     "node-pty": "npm:@homebridge/node-pty-prebuilt-multiarch"
@@ -63,5 +66,9 @@
     "packages/*",
     "publish/*",
     "examples/*"
-  ]
+  ],
+  "dependencies": {
+    "@lmstudio/lms-cli": "^0.2.2",
+    "terminal-size": "^4.0.0"
+  }
 }

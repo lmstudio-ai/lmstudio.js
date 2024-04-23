@@ -1,5 +1,4 @@
-import { text } from "@lmstudio/lms-common";
-import { makeTitledPrettyError } from "@lmstudio/lms-common/dist/makePrettyError";
+import { makeTitledPrettyError, text } from "@lmstudio/lms-common";
 import boxen from "boxen";
 import chalk from "chalk";
 import inquirer from "inquirer";
@@ -11,6 +10,7 @@ import { join } from "node:path";
 interface ShellInstallationInfo {
   shellName: string;
   configFileName: string;
+  commandToAddComment: string;
   commandToAddPath: string;
 }
 
@@ -18,31 +18,49 @@ const shellInstallationInfo: Array<ShellInstallationInfo> = [
   {
     shellName: "sh",
     configFileName: ".profile",
+    commandToAddComment:
+      "echo '' >> ~/.profile && echo '# Added by LM Studio CLI tool (lms)' >> ~/.profile",
     commandToAddPath: "echo 'export PATH=\"$PATH:<TARGET>\"' >> ~/.profile",
   },
   {
     shellName: "bash",
     configFileName: ".bashrc",
+    commandToAddComment:
+      "echo '' >> ~/.bashrc && echo '# Added by LM Studio CLI tool (lms)' >> ~/.bashrc",
     commandToAddPath: "echo 'export PATH=\"$PATH:<TARGET>\"' >> ~/.bashrc",
+  },
+  {
+    shellName: "bash",
+    configFileName: ".bash_profile",
+    commandToAddComment:
+      "echo '' >> ~/.bash_profile && echo '# Added by LM Studio CLI tool (lms)' >> ~/.bash_profile",
+    commandToAddPath: "echo 'export PATH=\"$PATH:<TARGET>\"' >> ~/.bash_profile",
   },
   {
     shellName: "zsh",
     configFileName: ".zshrc",
+    commandToAddComment: "echo '' >> a && echo '# Added by LM Studio CLI tool (lms)' >> ~/.zshrc",
     commandToAddPath: "echo 'export PATH=\"$PATH:<TARGET>\"' >> ~/.zshrc",
   },
   {
     shellName: "fish",
     configFileName: ".config/fish/config.fish",
+    commandToAddComment:
+      "echo '' >> ~/.config/fish/config.fish && echo '# Added by LM Studio CLI tool (lms)' >> ~/.config/fish/config.fish",
     commandToAddPath: "echo 'set -gx PATH $PATH <TARGET>' >> ~/.config/fish/config.fish",
   },
   {
     shellName: "csh",
     configFileName: ".cshrc",
+    commandToAddComment:
+      "echo '' >> ~/.cshrc && echo '# Added by LM Studio CLI tool (lms)' >> ~/.cshrc",
     commandToAddPath: "echo 'setenv PATH \"$PATH:<TARGET>\"' >> ~/.cshrc",
   },
   {
     shellName: "tcsh",
     configFileName: ".tcshrc",
+    commandToAddComment:
+      "echo '' >> ~/.tcshrc && echo '# Added by LM Studio CLI tool (lms)' >> ~/.tcshrc",
     commandToAddPath: "echo 'setenv PATH \"$PATH:<TARGET>\"' >> ~/.tcshrc",
   },
 ];
@@ -79,35 +97,39 @@ export async function installCliDarwinOrLinux(path: string) {
         `,
       );
     } else {
-      throw makeTitledPrettyError(
-        "LM Studio CLI tool (lms) is already installed",
-        text`
-          LM Studio CLI tool is already installed for the following shells:
+      console.info(
+        boxen(
+          text`
+            ${chalk.bgGreenBright.black("  ✓ Already Installed  ")}
 
-          ${detectedAlreadyInstalledShells
-            .map(shell =>
-              chalk.cyanBright(
-                `    · ${shell.shellName} ${chalk.gray(`(~/${shell.configFileName})`)})`,
-              ),
-            )
-            .join("\n")}
+            LM Studio CLI tool is already installed for the following shells:
 
-          If your shell is not listed above, please try to add the following directory to the PATH
-          environment variable:
+            ${detectedAlreadyInstalledShells
+              .map(shell =>
+                chalk.cyanBright(
+                  `    · ${shell.shellName} ${chalk.gray(`(~/${shell.configFileName})`)}`,
+                ),
+              )
+              .join("\n")}
 
-              ${chalk.yellowBright(path)}
+            If your shell is not listed above, please try to add the following directory to the PATH
+            environment variable:
 
-            ${chalk.gray(text`
-              (i) If you are having trouble running the CLI tool, please try to restart your
-              terminal.
-            `)}
+                ${chalk.yellowBright(path)}
 
-            ${chalk.gray(text`
-              (i) If you are using an integrated terminal in an editor (such as VS Code), please try
-              to restart the editor.
-            `)}
-        `,
+              ${chalk.gray(text`
+                (i) If you are having trouble running the CLI tool, please open a new terminal.
+              `)}
+          `,
+          {
+            padding: 1,
+            margin: 1,
+            title: "LM Studio CLI Installation",
+            borderColor: "greenBright",
+          },
+        ),
       );
+      return;
     }
   }
 
@@ -116,6 +138,7 @@ export async function installCliDarwinOrLinux(path: string) {
 
   for (const shell of detectedShells) {
     const command = shell.commandToAddPath.replace("<TARGET>", path);
+    commandsToRun.push(shell.commandToAddComment);
     commandsToRun.push(command);
     commandsToRunFormatted.push(`    ${command} ${chalk.gray(`# for ${shell.shellName}`)}`);
   }
@@ -130,7 +153,12 @@ export async function installCliDarwinOrLinux(path: string) {
 
         It will add the path ${chalk.greenBright(path)} to the PATH environment variable.
       `,
-      { padding: 1, margin: 1, title: "CLI Tool Installation", borderColor: "greenBright" },
+      {
+        padding: 1,
+        margin: 1,
+        title: "LM Studio CLI Installation",
+        borderColor: "greenBright",
+      },
     ),
   );
 
@@ -153,19 +181,23 @@ export async function installCliDarwinOrLinux(path: string) {
   console.info(
     boxen(
       text`
-        The LM Studio CLI tool (lms) has been successfully installed. You can run it with the
-        command ${chalk.cyanBright("lms")}.
+        ${chalk.bgGreenBright.black("  ✓ Installation Completed  ")}
+
+        The LM Studio CLI tool (lms) has been successfully installed. To test it, run the following
+        command in a new terminal window:
+
+            ${chalk.yellowBright("lms version")}
 
           ${chalk.gray(text`
-            (i) You need to restart your terminal to start using the CLI tool.
-          `)}
-
-          ${chalk.gray(text`
-            (i) If you are using an integrated terminal in an editor (such as VS Code), please try
-            to restart the editor.
+            (i) You need to open a new terminal window for these changes to take effect.
           `)}
       `,
-      { padding: 1, margin: 1, title: "CLI Tool Installation", borderColor: "greenBright" },
+      {
+        padding: 1,
+        margin: 1,
+        title: "LM Studio CLI Installation",
+        borderColor: "greenBright",
+      },
     ),
   );
 }

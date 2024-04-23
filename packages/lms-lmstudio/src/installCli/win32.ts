@@ -1,5 +1,4 @@
 import { text } from "@lmstudio/lms-common";
-import { makeTitledPrettyError } from "@lmstudio/lms-common/dist/makePrettyError";
 import boxen from "boxen";
 import chalk from "chalk";
 import inquirer from "inquirer";
@@ -32,22 +31,31 @@ export async function installCliWin32(path: string) {
     encoding: "utf8", // Ensure the output is a string
   }).trimEnd();
   if (previousPath.includes(path)) {
-    throw makeTitledPrettyError(
-      "LM Studio CLI tool (lms) is already installed",
-      text`
-        The path ${chalk.greenBright(path)} is already in the PATH environment variable. You don't
-        need to install it again.
+    console.info(
+      boxen(
+        text`
+          ${chalk.bgGreenBright.black("  ✓ Already Installed  ")}
 
-          ${chalk.gray(text`
-            (i) If you are having trouble running the CLI tool, please try to restart your terminal.
-          `)}
+          The path ${chalk.greenBright(path)} is already in the PATH environment variable.
 
-          ${chalk.gray(text`
-            (i) If you are using an integrated terminal in an editor (such as VS Code), please try
-            to restart the editor.
-          `)}
-      `,
+            ${chalk.gray(text`
+              (i) If Windows cannot find the CLI tool, please try again in a new terminal window.
+            `)}
+
+            ${chalk.gray(text`
+              (i) If you are using an integrated terminal in an editor (such as VS Code), please try
+              to restart the editor.
+            `)}
+        `,
+        {
+          padding: 1,
+          margin: 1,
+          title: "LM Studio CLI Installation",
+          borderColor: "greenBright",
+        },
+      ),
     );
+    return;
   }
 
   const command = `$path = [Environment]::GetEnvironmentVariable('PATH', 'User');
@@ -63,7 +71,12 @@ $path += ";${path}";
 
         It will add the path ${chalk.greenBright(path)} to the PATH environment variable.
       `,
-      { padding: 1, margin: 1, title: "CLI Tool Installation", borderColor: "greenBright" },
+      {
+        padding: 1,
+        margin: 1,
+        title: "LM Studio CLI Installation",
+        borderColor: "greenBright",
+      },
     ),
   );
   const { cont } = await inquirer.prompt([
@@ -85,11 +98,15 @@ $path += ";${path}";
   console.info(
     boxen(
       text`
-        The LM Studio CLI tool (lms) has been successfully installed. You can run it with the
-        command ${chalk.cyanBright("lms")}.
+        ${chalk.bgGreenBright.black("  ✓ Installation Completed  ")}
+
+        The LM Studio CLI tool (lms) has been successfully installed. To test it, run the following
+        command in a new terminal window:
+
+            ${chalk.yellowBright("lms version")}
 
           ${chalk.gray(text`
-            (i) You need to restart your terminal to start using the CLI tool.
+            (i) You need to open a new terminal window for these changes to take effect.
           `)}
 
           ${chalk.gray(text`
@@ -97,7 +114,12 @@ $path += ";${path}";
             to restart the editor.
           `)}
       `,
-      { padding: 1, margin: 1, title: "CLI Tool Installation", borderColor: "greenBright" },
+      {
+        padding: 1,
+        margin: 1,
+        title: "LM Studio CLI Installation",
+        borderColor: "greenBright",
+      },
     ),
   );
 }

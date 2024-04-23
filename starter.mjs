@@ -9,7 +9,7 @@ const { commands } = await inquirer.prompt({
     {
       checked: true,
       value: '"npm run watch-tsc"',
-      name: "TypeScript Compilation",
+      name: "TypeScript Compilation (for regular packages)",
     },
     {
       checked: true,
@@ -19,12 +19,17 @@ const { commands } = await inquirer.prompt({
     {
       checked: true,
       value: '[ "npm run watch-sdk-ae" : "npm run watch-sdk-webpack" ]',
-      name: "SDK (in /publish)",
+      name: "SDK (in /publish/lmstudio)",
     },
     {
       checked: false,
-      value: '"npm run watch-cli"',
-      name: "CLI (in /packages/lms-cli)",
+      value: '[ "npm run watch-cli-package" : "npm run watch-cli-webpack" ]',
+      name: "CLI (in /packages/lms-cli and in /publish/cli)",
+    },
+    {
+      checked: false,
+      value: '"npm run watch-lmstudio"',
+      name: "LM Studio Installer (in /publish/lmstudio)",
     },
   ],
 });
