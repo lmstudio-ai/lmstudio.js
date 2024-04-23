@@ -15,8 +15,8 @@ export async function installCli() {
     throw makeTitledPrettyError(
       "Cannot find LM Studio installation",
       text`
-        LM Studio CLI (lms) is shipped with LM Studio. Please install LM Studio first. You can
-        download it from:
+        LM Studio CLI (lms) is shipped with the latest version of LM Studio. Please install LM
+        Studio first. You can download it from:
 
             ${chalk.cyanBright("https://lmstudio.ai/")}
 

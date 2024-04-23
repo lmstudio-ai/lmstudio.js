@@ -160,7 +160,7 @@ export class LMStudioClient {
 
             Is LM Studio running? If not, you can start it by running:
 
-                ${chalk.yellow("lms server start ")}${chalk.gray("[--port <PORT>] [--cors=true|false]")}
+                ${chalk.yellow("lms server start ")}
 
             ${chalk.white("(i) For more information, refer to the LM Studio documentation:")}
 
