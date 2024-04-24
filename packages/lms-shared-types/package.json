@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-shared-types",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,5 +11,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "zod": "^3.22.4"
-  }
+  },
+  "gitHead": "d821c81d24bde49e43181177a4af37424bc13120"
 }

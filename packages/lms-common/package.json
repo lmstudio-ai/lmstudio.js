@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-common",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,10 +10,11 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lmstudio/lms-shared-types": "^0.4.0",
+    "@lmstudio/lms-shared-types": "^0.4.1",
     "chalk": "^4.1.2",
     "immer": "^10.0.4",
     "process": "^0.11.10",
     "zod": "^3.22.4"
-  }
+  },
+  "gitHead": "d821c81d24bde49e43181177a4af37424bc13120"
 }

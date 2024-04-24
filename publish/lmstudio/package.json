@@ -1,6 +1,6 @@
 {
   "name": "lmstudio",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "LM Studio Setup Tool",
   "main": "dist/index.js",
   "scripts": {
@@ -17,5 +17,6 @@
   "devDependencies": {
     "postject": "^1.0.0-alpha.6",
     "run-script-os": "^1.1.6"
-  }
+  },
+  "gitHead": "d821c81d24bde49e43181177a4af37424bc13120"
 }
