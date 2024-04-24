@@ -12,14 +12,6 @@
 
 > **NOTE**: 👉 `lmstudio.js` is in early alpha. Expect breaking changes.
 
-#### You need a special LM Studio build to use `lmstudio.js`
-
-| Platform       | LM Studio Installer                                                                                                                  |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Mac (M1/M2/M3) | [0.2.19 + lmstudio.js (.dmg)](https://releases.lmstudio.ai/mac/arm64/0.2.19/mit-hackathon/LM-Studio-0.2.19-arm64.dmg)                |
-| Windows        | [0.2.19 + lmstudio.js (.exe) ](https://files.lmstudio.ai/windows/LM-Studio-0.2.19-mit-hackathon-SDK/beta/LM-Studio-0.2.19-Setup.exe) |
-| Linux          | _Linux build not yet available_                                                                                                      |
-
 ### Installation
 
 ```shell
@@ -47,33 +39,23 @@ main();
 
 ## Getting Started
 
-## Set up `lms` (cli)
+## Set up `lms` (CLI)
 
-LM Studio builds linked above ship with the new `lms` cli. Follow the instructions below to add it to your terminal's autocomplete.
+`lms` is the CLI tool for LM Studio. It is shipped with [LM Studio](https://lmstudio.ai/). To set it up, run the following command:
 
-#### macOS / Linux
-
-- **Zsh**
-
-```bash
-echo 'export PATH="$HOME/.cache/lm-studio/bin:$PATH"' >> ~/.zshrc
+```shell
+npx lmstudio install-cli
 ```
 
-- **Bash**
+To check if the installation was successful, run:
 
-```bash
-echo 'export PATH="$HOME/.cache/lm-studio/bin:$PATH"' >> ~/.bashrc
+```shell
+lms version
 ```
-
-> Not sure which shell you're using? Pop open your terminal and run `echo $SHELL` to find out. `/bin/zsh` means you're using Zsh, `/bin/bash` means you're using Bash.
-
-#### Windows
-
-- `lms.exe` should already be in your PATH after installation. Test it by running `lms.exe` in powershell or cmd.
 
 ## Start the local LLM server
 
-### NodeJS script
+### Node.js script
 
 Start the server by running:
 
@@ -431,7 +413,7 @@ const { stats } = await prediction;
 console.log(stats);
 ```
 
-> [!INFO]
+> [!NOTE]
 >
 > **No Extra Waiting**
 >
