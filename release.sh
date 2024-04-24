@@ -21,3 +21,4 @@ git submodule foreach --recursive "git add . && git commit -m \"@Release-$next_r
 git add .
 git commit -m "@Release-$next_release_number"
 git tag -a "release-$next_release_number-$(git rev-parse --short HEAD)" -m "$(date)"
+git push --tags
