@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-lmstudio",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,5 +19,5 @@
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.12.7"
   },
-  "gitHead": "8ebf6207db9a7e2852d6e7fc85aef11d4ee8943c"
+  "gitHead": "5259c45c526765acba906a11bb3f03fb2581d1d2"
 }
