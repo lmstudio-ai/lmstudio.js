@@ -14,9 +14,6 @@
   "bin": "dist/index.js",
   "author": "",
   "license": "Apache-2.0",
-  "dependencies": {
-    "@lmstudio/lms-lmstudio": "^0.0.2"
-  },
   "devDependencies": {
     "postject": "^1.0.0-alpha.6",
     "run-script-os": "^1.1.6"
