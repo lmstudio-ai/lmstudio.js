@@ -18,6 +18,5 @@
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.12.7"
-  },
-  "gitHead": "5259c45c526765acba906a11bb3f03fb2581d1d2"
+  }
 }

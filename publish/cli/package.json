@@ -24,6 +24,5 @@
   "devDependencies": {
     "postject": "^1.0.0-alpha.6",
     "run-script-os": "^1.1.6"
-  },
-  "gitHead": "5259c45c526765acba906a11bb3f03fb2581d1d2"
+  }
 }

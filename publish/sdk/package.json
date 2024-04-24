@@ -31,6 +31,5 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
-  },
-  "gitHead": "63eff5e1f6cfc98f26dc7329b13452b482012a8a"
+  }
 }

@@ -20,7 +20,7 @@
     "build": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run build-cli && npm run build-lmstudio",
     "make-cli": "cd packages/lms-cli && npm run build && cd ../../publish/cli && npm run make",
     "make": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run make-cli && npm run build-lmstudio",
-    "publish": "npm run build && lerna publish --no-git-tag-version",
+    "publish": "npm run build && lerna publish --no-git-tag-version --no-git-reset",
     "manual-testing": "cd ./packages/lms-sdk-manual-testing/dist && node index.js",
     "postinstall": "patch-package && npm run postinstall-cli",
     "postinstall-cli": "cd packages/lms-cli && npm run postinstall",

@@ -17,6 +17,5 @@
     "bufferutil": "^4.0.1",
     "utf-8-validate": "^6.0.3",
     "ws": "^8.16.0"
-  },
-  "gitHead": "2f0245e2ff87d3dc68a6cd41267d1ec81a591ba4"
+  }
 }

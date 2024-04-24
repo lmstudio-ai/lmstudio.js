@@ -11,6 +11,5 @@
   "license": "Apache-2.0",
   "dependencies": {
     "zod": "^3.22.4"
-  },
-  "gitHead": "2f0245e2ff87d3dc68a6cd41267d1ec81a591ba4"
+  }
 }

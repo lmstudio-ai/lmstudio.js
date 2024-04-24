@@ -12,6 +12,5 @@
   "dependencies": {
     "@lmstudio/lms-communication": "^0.4.1",
     "@lmstudio/lms-shared-types": "^0.4.0"
-  },
-  "gitHead": "8ebf6207db9a7e2852d6e7fc85aef11d4ee8943c"
+  }
 }
