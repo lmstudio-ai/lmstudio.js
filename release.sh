@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# if [[ -n $(git status --porcelain) || -n $(git submodule --quiet foreach --recursive git status --porcelain) ]]; then
-#   echo "Error: Workspace or submodules are not clean. Please commit or stash your changes."
-#   exit 1
-# fi
+if [[ -n $(git status --porcelain) || -n $(git submodule --quiet foreach --recursive git status --porcelain) ]]; then
+  echo "Error: Workspace or submodules are not clean. Please commit or stash your changes."
+  exit 1
+fi
 
 npm run publish
 
@@ -17,8 +17,8 @@ else
   next_release_number=1
 fi
 
-# git submodule foreach --recursive "git add . && git commit -m \"@Release-$next_release_number\""
-# git add .
-# git commit -m "@Release-$next_release_number"
-# git tag -a "release-$next_release_number-$(git rev-parse --short HEAD)" -m "$(date)"
-# git push --follow-tags
+git submodule foreach --recursive "git add . && git commit -m \"@Release-$next_release_number\""
+git add .
+git commit -m "@Release-$next_release_number"
+git tag -a "release-$next_release_number-$(git rev-parse --short HEAD)" -m "$(date)"
+git push --follow-tags
