@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -n $(git status --porcelain) || -n $(git submodule foreach --recursive git status --porcelain) ]]; then
+if [[ -n $(git status --porcelain) || -n $(git submodule --quiet foreach --recursive git status --porcelain) ]]; then
   echo "Error: Workspace or submodules are not clean. Please commit or stash your changes."
   exit 1
 fi
