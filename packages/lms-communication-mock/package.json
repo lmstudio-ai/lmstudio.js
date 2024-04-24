@@ -13,6 +13,6 @@
     "@lmstudio/lms-communication-server": "^0.4.1"
   },
   "author": "",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "gitHead": "8ebf6207db9a7e2852d6e7fc85aef11d4ee8943c"
 }
