@@ -1,6 +1,6 @@
 {
   "name": "lmstudio",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "LM Studio Setup Tool",
   "main": "dist/index.js",
   "scripts": {
