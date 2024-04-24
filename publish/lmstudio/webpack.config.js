@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require("webpack");
 
 module.exports = [
   {
@@ -28,5 +29,6 @@ module.exports = [
       path: path.join(__dirname, "dist"),
       libraryTarget: "commonjs2",
     },
+    plugins: [new webpack.BannerPlugin({ banner: "#!/usr/bin/env node", raw: true })],
   },
 ];
