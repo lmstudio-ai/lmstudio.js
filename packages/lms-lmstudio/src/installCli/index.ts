@@ -7,7 +7,11 @@ import { platform } from "node:process";
 import { installCliDarwinOrLinux } from "./darwinOrLinux";
 import { installCliWin32 } from "./win32";
 
-export async function installCli() {
+export interface InstallCliOpts {
+  skipConfirmation?: boolean;
+}
+
+export async function installCli(opts: InstallCliOpts = {}) {
   const homeDir = os.homedir();
   const targetPath = join(`${homeDir}`, `/.cache/lm-studio/bin`);
   const pathStat = await stat(targetPath).catch(() => null);
@@ -26,10 +30,10 @@ export async function installCli() {
     );
   }
   if (platform === "win32") {
-    await installCliWin32(targetPath);
+    await installCliWin32(targetPath, opts);
     // await installCliWin32(targetPath);
   } else if (platform === "linux" || platform === "darwin") {
-    await installCliDarwinOrLinux(targetPath);
+    await installCliDarwinOrLinux(targetPath, opts);
   } else {
     throw makeTitledPrettyError(
       `Your platform (${chalk.yellowBright(platform)}) is not support by this tool`,

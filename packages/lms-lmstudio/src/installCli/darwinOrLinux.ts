@@ -6,6 +6,7 @@ import { execSync } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import os from "node:os";
 import { join } from "node:path";
+import { type InstallCliOpts } from ".";
 
 interface ShellInstallationInfo {
   shellName: string;
@@ -65,7 +66,7 @@ const shellInstallationInfo: Array<ShellInstallationInfo> = [
   },
 ];
 
-export async function installCliDarwinOrLinux(path: string) {
+export async function installCliDarwinOrLinux(path: string, { skipConfirmation }: InstallCliOpts) {
   const detectedShells: Array<ShellInstallationInfo> = [];
   const detectedAlreadyInstalledShells: Array<ShellInstallationInfo> = [];
   for (const shell of shellInstallationInfo) {
@@ -143,37 +144,39 @@ export async function installCliDarwinOrLinux(path: string) {
     commandsToRunFormatted.push(`    ${command} ${chalk.gray(`# for ${shell.shellName}`)}`);
   }
 
-  console.info(
-    boxen(
-      text`
-        We are about to run the following commands to install the LM Studio CLI tool
-        (lms).
+  if (!skipConfirmation) {
+    console.info(
+      boxen(
+        text`
+          We are about to run the following commands to install the LM Studio CLI tool
+          (lms).
 
-        ${chalk.cyanBright(commandsToRunFormatted.join("\n"))}
+          ${chalk.cyanBright(commandsToRunFormatted.join("\n"))}
 
-        It will add the path ${chalk.greenBright(path)} to the PATH environment variable.
-      `,
+          It will add the path ${chalk.greenBright(path)} to the PATH environment variable.
+        `,
+        {
+          padding: 1,
+          margin: 1,
+          title: "LM Studio CLI Installation",
+          borderColor: "greenBright",
+        },
+      ),
+    );
+
+    const { cont } = await inquirer.prompt([
       {
-        padding: 1,
-        margin: 1,
-        title: "LM Studio CLI Installation",
-        borderColor: "greenBright",
+        type: "confirm",
+        name: "cont",
+        message: chalk.yellowBright("Do you want to continue?"),
+        default: false,
       },
-    ),
-  );
+    ]);
 
-  const { cont } = await inquirer.prompt([
-    {
-      type: "confirm",
-      name: "cont",
-      message: chalk.yellowBright("Do you want to continue?"),
-      default: false,
-    },
-  ]);
-
-  if (!cont) {
-    console.info(chalk.greenBright("Installation aborted. No changes were made."));
-    return;
+    if (!cont) {
+      console.info(chalk.greenBright("Installation aborted. No changes were made."));
+      return;
+    }
   }
 
   execSync(commandsToRun.join(" && "));

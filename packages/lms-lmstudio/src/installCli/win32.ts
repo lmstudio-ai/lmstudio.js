@@ -4,6 +4,7 @@ import chalk from "chalk";
 import inquirer from "inquirer";
 import { execSync } from "node:child_process";
 import { access } from "node:fs/promises";
+import { type InstallCliOpts } from ".";
 
 async function getPowershellPath() {
   // Common PowerShell paths on Windows
@@ -24,7 +25,7 @@ async function getPowershellPath() {
 
   return "powershell"; // Default to PATH
 }
-export async function installCliWin32(path: string) {
+export async function installCliWin32(path: string, { skipConfirmation }: InstallCliOpts) {
   const powershellPath = await getPowershellPath();
   const previousPath = execSync(`[Environment]::GetEnvironmentVariable('PATH', 'User')`, {
     shell: powershellPath,
@@ -61,36 +62,39 @@ export async function installCliWin32(path: string) {
   const command = `$path = [Environment]::GetEnvironmentVariable('PATH', 'User');
 $path += ";${path}";
 [Environment]::SetEnvironmentVariable('PATH', $path, 'User');`;
-  console.info(
-    boxen(
-      text`
-        We are about to run the following powershell commands to install the LM Studio CLI tool
-        (lms).
 
-        ${chalk.cyanBright("    " + command.split("\n").join("\n    "))}
+  if (!skipConfirmation) {
+    console.info(
+      boxen(
+        text`
+          We are about to run the following powershell commands to install the LM Studio CLI tool
+          (lms).
 
-        It will add the path ${chalk.greenBright(path)} to the PATH environment variable.
-      `,
+          ${chalk.cyanBright("    " + command.split("\n").join("\n    "))}
+
+          It will add the path ${chalk.greenBright(path)} to the PATH environment variable.
+        `,
+        {
+          padding: 1,
+          margin: 1,
+          title: "LM Studio CLI Installation",
+          borderColor: "greenBright",
+        },
+      ),
+    );
+    const { cont } = await inquirer.prompt([
       {
-        padding: 1,
-        margin: 1,
-        title: "LM Studio CLI Installation",
-        borderColor: "greenBright",
+        type: "confirm",
+        name: "cont",
+        message: chalk.yellowBright("Do you want to continue?"),
+        default: false,
       },
-    ),
-  );
-  const { cont } = await inquirer.prompt([
-    {
-      type: "confirm",
-      name: "cont",
-      message: chalk.yellowBright("Do you want to continue?"),
-      default: false,
-    },
-  ]);
+    ]);
 
-  if (!cont) {
-    console.info(chalk.greenBright("Installation aborted. No changes were made."));
-    return;
+    if (!cont) {
+      console.info(chalk.greenBright("Installation aborted. No changes were made."));
+      return;
+    }
   }
 
   execSync(command, { shell: powershellPath });

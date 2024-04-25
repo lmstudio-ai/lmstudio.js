@@ -23,3 +23,5 @@ git commit -m "@Release-$next_release_number"
 git tag -a "release-$next_release_number-$(git rev-parse --short HEAD)" -m "$(date)"
 git push --follow-tags
 git submodule foreach --recursive 'git push --follow-tags'
+
+npm run upload-scaffolds-manifest

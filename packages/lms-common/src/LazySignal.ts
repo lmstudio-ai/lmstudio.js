@@ -1,43 +1,62 @@
 import { type OmitStatics } from "./OmitStatics";
-import { Signal } from "./Signal";
+import { Signal, type SignalSetter } from "./Signal";
 import { Subscribable } from "./Subscribable";
 import { makePromise } from "./makePromise";
 
-type NotAvailable = typeof LazySignal.NOT_AVAILABLE;
+export type NotAvailable = typeof LazySignal.NOT_AVAILABLE;
 
 /**
  * A lazy signal is a signal that will only subscribe to the upstream when at least one subscriber
  * is attached. It will unsubscribe from the upstream when the last subscriber is removed.
  *
- * The value of the signal will be `LazySignal.NOT_AVAILABLE` until the first value is emitted from
- * the upstream.
+ * A lazy signal can possess a special value "NOT_AVAILABLE", accessible from the static property
+ * {@link LazySignal.NOT_AVAILABLE}. This value is used to indicate that the value is not available
+ * yet. This can happen when the signal is created without an initial value and the upstream has not
+ * emitted a value yet.
  */
 export class LazySignal<TData>
-  extends Subscribable<TData | NotAvailable>
-  implements OmitStatics<Signal<TData | NotAvailable>, "create">
+  extends Subscribable<TData>
+  implements OmitStatics<Signal<TData>, "create">
 {
   public static readonly NOT_AVAILABLE = Symbol("notAvailable");
-  private readonly signal: Signal<TData | NotAvailable>;
-  private readonly setValue: (value: TData | NotAvailable) => void;
+  private readonly signal: Signal<TData>;
+  private readonly setValue: SignalSetter<TData>;
   private dataIsStale = true;
   private upstreamUnsubscribe: (() => void) | null = null;
   private subscribersCount = 0;
 
-  public constructor(
-    private readonly upstreamSubscriber: (listener: (data: TData) => void) => () => void,
+  public static create<TData>(
+    initialValue: TData,
+    upstreamSubscriber: (listener: (data: TData) => void) => () => void,
     equalsPredicate: (a: TData, b: TData) => boolean = (a, b) => a === b,
   ) {
-    super();
+    return new LazySignal(initialValue, upstreamSubscriber, equalsPredicate);
+  }
+
+  public static createWithoutInitialValue<TData>(
+    upstreamSubscriber: (listener: (data: TData) => void) => () => void,
+    equalsPredicate: (a: TData, b: TData) => boolean = (a, b) => a === b,
+  ): LazySignal<TData | NotAvailable> {
     const fullEqualsPredicate = (a: TData | NotAvailable, b: TData | NotAvailable) => {
       if (a === LazySignal.NOT_AVAILABLE || b === LazySignal.NOT_AVAILABLE) {
         return a === b;
       }
       return equalsPredicate(a, b);
     };
-    [this.signal, this.setValue] = Signal.create<TData | NotAvailable>(
+    return new LazySignal<TData | NotAvailable>(
       LazySignal.NOT_AVAILABLE,
+      upstreamSubscriber,
       fullEqualsPredicate,
     );
+  }
+
+  protected constructor(
+    initialValue: TData,
+    private readonly upstreamSubscriber: (listener: (data: TData) => void) => () => void,
+    equalsPredicate: (a: TData, b: TData) => boolean = (a, b) => a === b,
+  ) {
+    super();
+    [this.signal, this.setValue] = Signal.create<TData>(initialValue, equalsPredicate);
   }
 
   /**
@@ -81,7 +100,7 @@ export class LazySignal<TData>
    * If you wish to get the current value and ensure that it is not stale, use the method
    * {@link LazySignal#pull}.
    */
-  public get(): TData | typeof LazySignal.NOT_AVAILABLE {
+  public get(): TData {
     return this.signal.get();
   }
 
@@ -101,7 +120,7 @@ export class LazySignal<TData>
     return promise;
   }
 
-  public subscribe(callback: (value: TData | typeof LazySignal.NOT_AVAILABLE) => void): () => void {
+  public subscribe(callback: (value: TData) => void): () => void {
     if (this.subscribersCount === 0) {
       this.subscribeToUpstream();
     }

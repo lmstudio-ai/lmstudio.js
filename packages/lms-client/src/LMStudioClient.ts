@@ -156,7 +156,7 @@ export class LMStudioClient {
       () => {
         throw makePrettyError(
           text`
-            ${chalk.redBright("Error: Failed to connect to LM Studio on the default port (1234).")}
+            ${chalk.redBright("Failed to connect to LM Studio on the default port (1234).")}
 
             Is LM Studio running? If not, you can start it by running:
 

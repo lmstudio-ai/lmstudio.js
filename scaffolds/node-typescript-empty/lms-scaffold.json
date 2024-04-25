@@ -1,0 +1,15 @@
+{
+  "$schema": "./../scaffold-json-schema-v1.json",
+  "scaffoldVersion": 1,
+  "name": "node-typescript-empty",
+  "displayName": "Node.js with TypeScript (Empty)",
+  "description": "Completely empty minimalistic Node.js TypeScript project with lmstudio.js",
+  "args": [
+    {
+      "name": "Project Name",
+      "default": "node-typescript-empty",
+      "replaceFrom": ["@lmstudio/scaffold-node-typescript-empty"],
+      "isProjectName": true
+    }
+  ]
+}

@@ -7,7 +7,7 @@ export function makeTitledPrettyError(title: string, content: string, stack?: st
   return makePrettyError(chalk.bgRed.white(` ${title} `) + "\n\n" + content, stack);
 }
 export function makePrettyError(content: string, stack?: string) {
-  if ((process as any).browser) {
+  if ((process as any).browser || process.env.LMS_NO_FANCY_ERRORS) {
     const error = new Error(content);
     if (stack === undefined) {
       changeErrorStackInPlace(error, "");

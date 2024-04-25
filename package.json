@@ -22,6 +22,7 @@
     "make-cli": "cd packages/lms-cli && npm run build && cd ../../publish/cli && npm run make",
     "make": "npm run clean && tsc --build tsconfig.build.json && npm run build-sdk && npm run make-cli && npm run build-lmstudio && npm run build-scaffolds-json",
     "publish": "npm run build && lerna publish --no-git-tag-version --no-git-reset",
+    "upload-scaffolds-manifest": "cd scaffolds && node ./upload.js",
     "manual-testing": "cd ./packages/lms-sdk-manual-testing/dist && node index.js",
     "postinstall": "patch-package && npm run postinstall-cli",
     "postinstall-cli": "cd packages/lms-cli && npm run postinstall",
@@ -30,6 +31,7 @@
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.556.0",
     "@microsoft/api-extractor": "^7.40.1",
     "@types/inquirer": "^9.0.7",
     "@types/jest": "^29.5.12",
@@ -37,6 +39,7 @@
     "@typescript-eslint/parser": "^6.20.0",
     "autoprefixer": "^10.4.17",
     "bundle-declarations-webpack-plugin": "^5.0.1",
+    "dotenv": "^16.4.5",
     "eslint": "^8.56.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react-hooks": "^4.6.0",
