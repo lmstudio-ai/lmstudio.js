@@ -19,7 +19,7 @@ else
   next_release_number=1
 fi
 
-git submodule foreach --recursive "git add . && git commit -m \"@Release-$next_release_number\""
+git submodule foreach --recursive 'git add . && git diff --cached --exit-code --quiet || git commit -m "@Release-$next_release_number"'
 git add .
 git commit -m "@Release-$next_release_number"
 git tag -a "release-$next_release_number-$(git rev-parse --short HEAD)" -m "$(date)"
