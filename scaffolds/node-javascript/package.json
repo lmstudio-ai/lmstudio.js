@@ -1,0 +1,14 @@
+{
+  "name": "@lmstudio/scaffold-node-javascript",
+  "version": "0.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "<AUTHOR>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@lmstudio/sdk": "^0.0.6"
+  }
+}
