@@ -107,7 +107,7 @@ $path += ";${path}";
         The LM Studio CLI tool (lms) has been successfully installed. To test it, run the following
         command in a new terminal window:
 
-            ${chalk.yellowBright("lms version")}
+            ${chalk.yellowBright("lms")}
 
           ${chalk.gray(text`
             (i) You need to open a new terminal window for these changes to take effect.

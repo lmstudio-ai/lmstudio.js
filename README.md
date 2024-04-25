@@ -50,7 +50,7 @@ npx lmstudio install-cli
 To check if the installation was successful, run:
 
 ```shell
-lms version
+lms
 ```
 
 ## Start the local LLM server
