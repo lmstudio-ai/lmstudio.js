@@ -10,6 +10,11 @@
       "default": "node-typescript",
       "replaceFrom": ["@lmstudio/scaffold-node-typescript", "<PROJECT_NAME>"],
       "isProjectName": true
+    },
+    {
+      "name": "Author",
+      "default": "",
+      "replaceFrom": ["<AUTHOR>"]
     }
   ],
   "renames": [{ "from": "gitignore_template", "to": ".gitignore" }],

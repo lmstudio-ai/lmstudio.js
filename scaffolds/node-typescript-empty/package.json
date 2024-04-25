@@ -7,7 +7,7 @@
   "scripts": {
     "start": "ts-node src/index.ts"
   },
-  "author": "",
+  "author": "<AUTHOR>",
   "license": "UNLICENSED",
   "dependencies": {
     "@lmstudio/sdk": "^0.0.4",
