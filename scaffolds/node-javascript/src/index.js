@@ -41,7 +41,7 @@ async function printLoadedModels(client) {
 
 async function predictWithAnyModel(client) {
   const model = client.llm.get({});
-  const prompt = "The meaning of life is:";
+  const prompt = "The meaning of life is";
   const prediction = model.complete(prompt, {
     config: { maxPredictedTokens: 100, temperature: 0.7 },
   });
