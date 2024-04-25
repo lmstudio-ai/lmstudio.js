@@ -1,5 +1,5 @@
 {
-  "packages": ["packages/*", "publish/*"],
+  "packages": ["packages/*", "publish/*", "scaffolds/*"],
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
   "version": "independent"
 }

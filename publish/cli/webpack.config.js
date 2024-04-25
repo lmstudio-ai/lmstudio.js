@@ -28,5 +28,6 @@ module.exports = [
       path: path.join(__dirname, "dist"),
       libraryTarget: "commonjs2",
     },
+    devtool: false,
   },
 ];

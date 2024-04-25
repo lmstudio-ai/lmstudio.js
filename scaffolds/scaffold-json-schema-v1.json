@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": ["scaffoldVersion", "name", "displayName", "description", "args"],
+  "properties": {
+    "scaffoldVersion": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "default"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "replaceFrom": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "type": "string"
+          },
+          "isProjectName": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}
