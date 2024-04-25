@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/scaffold-node-typescript",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,9 +10,9 @@
   "author": "<AUTHOR>",
   "license": "UNLICENSED",
   "dependencies": {
-    "@lmstudio/sdk": "^0.0.4",
+    "@lmstudio/sdk": "^0.0.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
-  "gitHead": "a84a6c848e943bdd93d58502e312e317ed1ff721"
+  "gitHead": "b81938beb01d5d4db2acf64875a91b00b2554c4f"
 }

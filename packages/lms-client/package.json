@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-client",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -20,5 +20,5 @@
     "process": "^0.11.10",
     "zod": "^3.22.4"
   },
-  "gitHead": "d40dc744ffe4a2b2245336dde463fb07dd812353"
+  "gitHead": "b81938beb01d5d4db2acf64875a91b00b2554c4f"
 }
