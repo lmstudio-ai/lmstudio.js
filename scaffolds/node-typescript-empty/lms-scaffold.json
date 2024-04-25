@@ -3,13 +3,24 @@
   "scaffoldVersion": 1,
   "name": "node-typescript-empty",
   "displayName": "Node.js with TypeScript (Empty)",
-  "description": "Completely empty minimalistic Node.js TypeScript project with lmstudio.js",
+  "description": "Minimalistic Node.js TypeScript empty project with lmstudio.js",
   "args": [
     {
       "name": "Project Name",
       "default": "node-typescript-empty",
-      "replaceFrom": ["@lmstudio/scaffold-node-typescript-empty"],
+      "replaceFrom": ["@lmstudio/scaffold-node-typescript-empty", "<PROJECT_NAME>"],
       "isProjectName": true
     }
+  ],
+  "renames": [{ "from": "gitignore_template", "to": ".gitignore" }],
+  "motd": [
+    { "type": "title", "text": "✓ Project Creation Successful" },
+    {
+      "type": "regular",
+      "text": "An empty Node.js TypeScript project with lmstudio.js has been created in the <hl><PROJECT_NAME></hl> folder. You can enter it with:"
+    },
+    { "type": "command", "text": "cd <PROJECT_NAME>" },
+    { "type": "regular", "text": "Then you can run the project with:" },
+    { "type": "command", "text": "npm start" }
   ]
 }
