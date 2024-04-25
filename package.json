@@ -13,7 +13,7 @@
     "watch-cli-package": "cd packages/lms-cli && npm run watch",
     "watch-cli-webpack": "cd publish/cli && npm run watch",
     "watch-lmstudio": "cd publish/lmstudio && npm run watch",
-    "clean": "shx rm -rf ./packages/**/dist ./packages/**/tsconfig.tsbuildinfo ./publish/**/dist ./publish/**/ts-out",
+    "clean": "shx rm -rf ./packages/*/dist ./packages/*/tsconfig.tsbuildinfo ./publish/*/dist ./publish/*/ts-out",
     "build-sdk": "cd publish/sdk && npm run build",
     "build-cli": "cd packages/lms-cli && npm run build && cd ../../publish/cli && npm run build",
     "build-lmstudio": "cd publish/lmstudio && npm run build",
