@@ -14,6 +14,7 @@ import {
   type SystemPort,
 } from "@lmstudio/lms-system-backend-interface";
 import chalk from "chalk";
+import process from "process";
 import { z } from "zod";
 import { createAuthenticatedClientPort } from "./createAuthenticatedClientPort";
 import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
@@ -160,7 +161,7 @@ export class LMStudioClient {
 
             Is LM Studio running? If not, you can start it by running:
 
-                ${chalk.yellow("lms server start ")}
+                ${chalk.yellow("lms server start" + (process as any).browser ? " --cors=true" : "")}
 
             ${chalk.white("(i) For more information, refer to the LM Studio documentation:")}
 
