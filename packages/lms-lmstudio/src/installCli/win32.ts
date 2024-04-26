@@ -39,11 +39,11 @@ export async function installCliWin32(path: string, { skipConfirmation }: Instal
 
           The path ${chalk.greenBright(path)} is already in the PATH environment variable.
 
-            ${chalk.gray(text`
+            ${chalk.magentaBright(text`
               (i) If Windows cannot find the CLI tool, please try again in a new terminal window.
             `)}
 
-            ${chalk.gray(text`
+            ${chalk.magentaBright(text`
               (i) If you are using an integrated terminal in an editor (such as VS Code), please try
               to restart the editor.
             `)}
@@ -104,19 +104,19 @@ $path += ";${path}";
       text`
         ${chalk.bgGreenBright.black("  ✓ Installation Completed  ")}
 
+          ${chalk.magentaBright(text`
+            (i) You need to open a new terminal window for these changes to take effect.
+          `)}
+
+          ${chalk.magentaBright(text`
+            (i) If you are using an integrated terminal in an editor (such as VS Code), please try
+            to restart the editor.
+          `)}
+
         The LM Studio CLI tool (lms) has been successfully installed. To test it, run the following
         command in a new terminal window:
 
             ${chalk.yellowBright("lms")}
-
-          ${chalk.gray(text`
-            (i) You need to open a new terminal window for these changes to take effect.
-          `)}
-
-          ${chalk.gray(text`
-            (i) If you are using an integrated terminal in an editor (such as VS Code), please try
-            to restart the editor.
-          `)}
       `,
       {
         padding: 1,

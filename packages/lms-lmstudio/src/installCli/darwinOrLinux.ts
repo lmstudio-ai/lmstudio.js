@@ -119,7 +119,8 @@ export async function installCliDarwinOrLinux(path: string, { skipConfirmation }
                 ${chalk.yellowBright(path)}
 
               ${chalk.gray(text`
-                (i) If you are having trouble running the CLI tool, please open a new terminal.
+                (i) If you are having trouble running the CLI tool, please open a new terminal. and
+                try again.
               `)}
           `,
           {
@@ -186,14 +187,14 @@ export async function installCliDarwinOrLinux(path: string, { skipConfirmation }
       text`
         ${chalk.bgGreenBright.black("  ✓ Installation Completed  ")}
 
+          ${chalk.magentaBright(text`
+            (i) You need to open a new terminal window for these changes to take effect.
+          `)}
+
         The LM Studio CLI tool (lms) has been successfully installed. To test it, run the following
         command in a new terminal window:
 
             ${chalk.yellowBright("lms")}
-
-          ${chalk.gray(text`
-            (i) You need to open a new terminal window for these changes to take effect.
-          `)}
       `,
       {
         padding: 1,
