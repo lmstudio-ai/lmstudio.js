@@ -43,15 +43,25 @@ main();
 
 `lms` is the CLI tool for LM Studio. It is shipped with [LM Studio](https://lmstudio.ai/). To set it up, run the following command:
 
-```shell
-npx lmstudio install-cli
-```
+- **Windows**:
 
-To check if the installation was successful, run:
+  ```shell
+  cmd /c %USERPROFILE%/.cache/lm-studio/bin/lms.exe bootstrap
+  ```
+
+- **Linux/macOS**:
+
+  ```shell
+  ~/.cache/lm-studio/bin/lms bootstrap
+  ```
+
+To check if the bootstrapping was successful, run:
 
 ```shell
 lms
 ```
+
+Note, need to open a new terminal window for the changes to take effect.
 
 ## Start the local LLM server
 
@@ -65,7 +75,7 @@ lms server start
 
 ### Web app
 
-If you need to enable CORS (Cross Origin Resource Sharing), run this:
+If you are developing a web application and/or need to enable CORS (Cross Origin Resource Sharing), run this instead:
 
 ```shell
 lms server start --cors=true
@@ -100,7 +110,9 @@ for await (const text of prediction) {
 }
 ```
 
-> [!NOTE] > **About `process.stdout.write`**
+> [!NOTE]
+>
+> **About `process.stdout.write`**
 >
 > `process.stdout.write` is a [Node.js-specific function](https://nodejs.org/api/process.html#processstdout) that allows you to print text without a newline.
 >
