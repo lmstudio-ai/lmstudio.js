@@ -63,6 +63,10 @@ lms
 
 Note, need to open a new terminal window for the changes to take effect.
 
+> [!NOTE]
+>
+> `lms` is only shipped with the latest version of [LM Studio](https://lmstudio.ai/) (v0.2.22 and onwards). Please make sure you have the latest version installed.
+
 ## Start the local LLM server
 
 ### Node.js script
