@@ -10,7 +10,12 @@
 <p align="center"><code>Use local LLMs in your JS/TS/Node code.</code></p>
 <p align="center"><i>LM Studio Client SDK - Pre-Release</i></p>
 
-> **NOTE**: 👉 `lmstudio.js` is in early alpha. Expect breaking changes.
+### Pre-Release Alpha
+`lmstudio.js` is in pre-release alpha, and is undergoing rapid and continuous development. Expect breaking changes!
+
+Follow along for our upcoming announcements about `lmstudio.js` on [Twitter](https://lmstudio.ai/LMStudioAI) and [Discord](https://discord.gg/aPQfnNkxGC).
+
+----
 
 ### Installation
 
