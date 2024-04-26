@@ -8,7 +8,7 @@
     "start": "ts-node src/index.ts",
     "build": "tsc"
   },
-  "author": "<AUTHOR>",
+  "author": "Your Name",
   "license": "UNLICENSED",
   "dependencies": {
     "@lmstudio/sdk": "^0.0.6",

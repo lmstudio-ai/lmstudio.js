@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js"
   },
-  "author": "<AUTHOR>",
+  "author": "Your Name",
   "license": "UNLICENSED",
   "dependencies": {
     "@lmstudio/sdk": "^0.0.6"
