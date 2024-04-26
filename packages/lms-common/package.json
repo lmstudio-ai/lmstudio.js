@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-common",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,5 +16,5 @@
     "process": "^0.11.10",
     "zod": "^3.22.4"
   },
-  "gitHead": "d40dc744ffe4a2b2245336dde463fb07dd812353"
+  "gitHead": "4eed827a2c48b6c11faab5fdf5533b18076c3c60"
 }
