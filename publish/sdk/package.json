@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/sdk",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "LM Studio SDK",
   "main": "dist/index.js",
   "module": "index.mjs",
@@ -38,5 +38,5 @@
     "type": "git",
     "url": "git+https://github.com/lmstudio-ai/lmstudio.js.git"
   },
-  "gitHead": "c288cd1fb692f6ba472218093289ffb99bd16819"
+  "gitHead": "00a9ffe4fd044eebe53e65d3ea9970e4e9d5d997"
 }
