@@ -1,4 +1,4 @@
-import { makePrettyError, text } from "@lmstudio/lms-common";
+import { makePrettyError, makeTitledPrettyError, text } from "@lmstudio/lms-common";
 import {
   attachSerializedErrorData,
   type ErrorDisplayData,
@@ -50,12 +50,9 @@ function formatAvailableLLMs(availablePathsSample: Array<string>, totalModels: n
 registerErrorDeserializer(
   "llm.pathNotFound",
   ({ availablePathsSample, path, totalModels }, stack) => {
-    return makePrettyError(
+    return makeTitledPrettyError(
+      `Cannot find an LLM with path "${chalk.yellowBright(path)}"`,
       text`
-        ${chalk.bgRed.white(text`
-          Cannot find an LLM with path "${chalk.yellowBright(path)}".
-        `)}
-
         Here are your available LLMs:
 
         ${formatAvailableLLMs(availablePathsSample, totalModels)}
@@ -85,12 +82,9 @@ function formatLoadedLLMs(loadedModelsSample: Array<string>, totalLoadedModels: 
 registerErrorDeserializer(
   "llm.identifierNotFound",
   ({ loadedModelsSample, identifier, totalLoadedModels }, stack) => {
-    return makePrettyError(
+    return makeTitledPrettyError(
+      `Cannot find an LLM with identifier "${chalk.yellowBright(identifier)}"`,
       text`
-        ${chalk.bgRed.white(text`
-          Cannot find a loaded LLM with identifier "${chalk.yellowBright(identifier)}".
-        `)}
-
         Here are your loaded LLMs:
 
         ${formatLoadedLLMs(loadedModelsSample, totalLoadedModels)}
@@ -132,14 +126,10 @@ function formatQuery(query: LLMModelQuery) {
 
 registerErrorDeserializer(
   "llm.noModelMatchingQuery",
-  ({ query, loadedModelsSample, totalLoadedModels }, stack) => {
+  ({ loadedModelsSample, totalLoadedModels }, stack) => {
     return makePrettyError(
       text`
         ${chalk.bgRed.white(" No loaded LLM satisfies all requirements specified in the query. ")}
-
-        Hints:
-        
-        ${formatQuery(query)}
 
         Loaded LLMs:
 
@@ -166,7 +156,7 @@ export function friendlyErrorDeserializer(
   let error: Error;
   const specificDeserializer = errorDeserializersMap.get(serialized.displayData.code);
   if (specificDeserializer !== undefined) {
-    error = specificDeserializer(serialized.displayData);
+    error = specificDeserializer(serialized.displayData, stack);
     attachSerializedErrorData(error, serialized);
     return error;
   } else {

@@ -14,7 +14,7 @@ export class SystemNamespace {
     this.logger = new SimpleLogger("System", parentLogger);
   }
   /**
-   * TODO: Needs documentation.
+   * List all downloaded models.
    * @public
    */
   public async listDownloadedModels(): Promise<Array<DownloadedModel>> {

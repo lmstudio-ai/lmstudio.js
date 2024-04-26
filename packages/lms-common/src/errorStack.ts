@@ -1,3 +1,5 @@
+import process from "process";
+
 // Error stack manipulation related functions
 
 export function getCurrentStack(goAbove = 0) {
