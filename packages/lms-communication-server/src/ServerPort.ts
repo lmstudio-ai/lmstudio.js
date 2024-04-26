@@ -1,4 +1,12 @@
-import { Event, SimpleLogger, text, Validator, type LoggerInterface } from "@lmstudio/lms-common";
+import {
+  Event,
+  SimpleLogger,
+  text,
+  Validator,
+  type LoggerInterface,
+  type SignalLike,
+  type WriteTag,
+} from "@lmstudio/lms-common";
 import type {
   BackendInterface,
   ChannelEndpoint,
@@ -10,9 +18,16 @@ import { Channel } from "@lmstudio/lms-communication";
 import {
   type ChannelEndpointsSpecBase,
   type RpcEndpointsSpecBase,
+  type SignalEndpoint,
+  type SignalEndpointsSpecBase,
+  type WritableSignalEndpoint,
+  type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication/dist/BackendInterface";
 import { serializeError } from "@lmstudio/lms-shared-types";
+import { applyPatches, enablePatches } from "immer";
 import { type Context, type ContextCreator } from "./Authenticator";
+
+enablePatches();
 
 interface OpenChannel {
   endpoint: ChannelEndpoint;
@@ -23,20 +38,44 @@ interface OpenChannel {
   closed: () => void;
 }
 
+interface OpenSignalSubscription {
+  endpoint: SignalEndpoint;
+  unsubscribe: () => void;
+}
+
+interface OpenWritableSignalSubscription {
+  endpoint: WritableSignalEndpoint;
+  unsubscribe: () => void;
+  receivedPatches: (patches: Array<any>, tags: Array<WriteTag>) => void;
+}
+
 export class ServerPort<
   TContext,
   TRpcEndpoints extends RpcEndpointsSpecBase,
   TChannelEndpoints extends ChannelEndpointsSpecBase,
+  TSignalEndpoints extends SignalEndpointsSpecBase,
+  TWritableSignalEndpoints extends WritableSignalEndpointsSpecBase,
 > {
   private readonly transport: ServerTransport;
   private readonly logger;
   private readonly openChannels = new Map<number, OpenChannel>();
+  private readonly openSignalSubscriptions = new Map<number, OpenSignalSubscription>();
+  private readonly openWritableSignalSubscriptions = new Map<
+    number,
+    OpenWritableSignalSubscription
+  >();
   public readonly closeEvent: Event<void>;
   private readonly emitCloseEvent: () => void;
   private producedCommunicationWarningsCount = 0;
 
   public constructor(
-    private readonly backendInterface: BackendInterface<TContext, TRpcEndpoints, TChannelEndpoints>,
+    private readonly backendInterface: BackendInterface<
+      TContext,
+      TRpcEndpoints,
+      TChannelEndpoints,
+      TSignalEndpoints,
+      TWritableSignalEndpoints
+    >,
     private readonly contextCreator: ContextCreator<Context>,
     factory: ServerTransportFactory,
     {
@@ -223,6 +262,210 @@ export class ServerPort<
       });
   }
 
+  private receivedSignalSubscribe(message: ClientToServerMessage & { type: "signalSubscribe" }) {
+    const endpoint = this.backendInterface.getSignalEndpoint(message.endpoint);
+    if (endpoint === undefined) {
+      this.communicationWarning(
+        `Received signalSubscribe for unknown endpoint, endpoint = ${message.endpoint}`,
+      );
+      return;
+    }
+    if (endpoint.handler === null) {
+      this.communicationWarning(
+        `Received signalSubscribe for unhandled endpoint, endpoint = ${message.endpoint}`,
+      );
+      return;
+    }
+    if (this.openSignalSubscriptions.has(message.subscribeId)) {
+      this.communicationWarning(text`
+        Received signalSubscribe for already open subscription, subscribeId =
+        ${message.subscribeId}
+      `);
+      return;
+    }
+    const parseResult = endpoint.creationParameter.safeParse(message.creationParameter);
+    if (!parseResult.success) {
+      this.communicationWarning(text`
+        Received invalid parameter for signalSubscribe, endpointName = ${endpoint.name},
+        creationParameter = ${message.creationParameter}. Zod error:
+
+        ${Validator.prettyPrintZod("creationParameter", parseResult.error)}
+      `);
+      return;
+    }
+    const context = this.contextCreator({
+      type: "signal",
+      endpointName: endpoint.name,
+    });
+    Promise.resolve(endpoint.handler(context, parseResult.data))
+      .then((signal: SignalLike<any>) => {
+        this.transport.send({
+          type: "signalUpdate",
+          subscribeId: message.subscribeId,
+          patches: [
+            {
+              op: "replace",
+              path: [],
+              value: signal.get(),
+            },
+          ],
+          tags: [],
+        });
+        this.openSignalSubscriptions.set(message.subscribeId, {
+          endpoint,
+          unsubscribe: signal.subscribe((_value, patches, tags) => {
+            this.transport.send({
+              type: "signalUpdate",
+              subscribeId: message.subscribeId,
+              patches,
+              tags,
+            });
+          }),
+        });
+      })
+      .catch(error => {
+        this.transport.send({
+          type: "signalError",
+          subscribeId: message.subscribeId,
+          error: serializeError(error),
+        });
+        context.logger.error("Error in signal handler:", error);
+      });
+  }
+
+  private receivedSignalUnsubscribe(
+    message: ClientToServerMessage & { type: "signalUnsubscribe" },
+  ) {
+    const openSignalSubscription = this.openSignalSubscriptions.get(message.subscribeId);
+    if (openSignalSubscription === undefined) {
+      this.communicationWarning(
+        `Received signalUnsubscribe for unknown subscription, subscribeId = ${message.subscribeId}`,
+      );
+      return;
+    }
+    openSignalSubscription.unsubscribe();
+    this.openSignalSubscriptions.delete(message.subscribeId);
+  }
+
+  private receivedWritableSignalSubscribe(
+    message: ClientToServerMessage & { type: "writableSignalSubscribe" },
+  ) {
+    const endpoint = this.backendInterface.getWritableSignalEndpoint(message.endpoint);
+    if (endpoint === undefined) {
+      this.communicationWarning(
+        `Received writableSignalSubscribe for unknown endpoint, endpoint = ${message.endpoint}`,
+      );
+      return;
+    }
+    if (endpoint.handler === null) {
+      this.communicationWarning(
+        `Received writableSignalSubscribe for unhandled endpoint, endpoint = ${message.endpoint}`,
+      );
+      return;
+    }
+    if (this.openWritableSignalSubscriptions.has(message.subscribeId)) {
+      this.communicationWarning(text`
+        Received writableSignalSubscribe for already open subscription, subscribeId =
+        ${message.subscribeId}
+      `);
+      return;
+    }
+    const parseResult = endpoint.creationParameter.safeParse(message.creationParameter);
+    if (!parseResult.success) {
+      this.communicationWarning(text`
+        Received invalid parameter for writableSignalSubscribe, endpointName = ${endpoint.name},
+        creationParameter = ${message.creationParameter}. Zod error:
+
+        ${Validator.prettyPrintZod("creationParameter", parseResult.error)}
+      `);
+      return;
+    }
+    const context = this.contextCreator({
+      type: "writableSignal",
+      endpointName: endpoint.name,
+    });
+    Promise.resolve(endpoint.handler(context, parseResult.data))
+      .then(([signal, update]) => {
+        this.transport.send({
+          type: "writableSignalUpdate",
+          subscribeId: message.subscribeId,
+          patches: [
+            {
+              op: "replace",
+              path: [],
+              value: signal.get(),
+            },
+          ],
+          tags: [],
+        });
+        this.openWritableSignalSubscriptions.set(message.subscribeId, {
+          endpoint,
+          unsubscribe: signal.subscribe((_value, patches, tags) => {
+            this.transport.send({
+              type: "writableSignalUpdate",
+              subscribeId: message.subscribeId,
+              patches,
+              tags,
+            });
+          }),
+          receivedPatches: (patches, tags) => {
+            const data = signal.get();
+            const result = applyPatches(data, patches);
+            const parseResult = endpoint.signalData.safeParse(result);
+            if (!parseResult.success) {
+              this.communicationWarning(text`
+                Received invalid data for writable signal, endpointName = ${endpoint.name},
+                data = ${result}. Zod error:
+
+                ${Validator.prettyPrintZod("data", parseResult.error)}
+              `);
+              return;
+            }
+            update(parseResult.data, patches, tags);
+          },
+        });
+      })
+      .catch(error => {
+        this.transport.send({
+          type: "writableSignalError",
+          subscribeId: message.subscribeId,
+          error: serializeError(error),
+        });
+        context.logger.error("Error in writable signal handler:", error);
+      });
+  }
+
+  private receivedWritableSignalUnsubscribe(
+    message: ClientToServerMessage & { type: "writableSignalUnsubscribe" },
+  ) {
+    const openWritableSignalSubscription = this.openWritableSignalSubscriptions.get(
+      message.subscribeId,
+    );
+    if (openWritableSignalSubscription === undefined) {
+      this.communicationWarning(
+        `Received writableSignalUnsubscribe for unknown subscription, subscribeId = ${message.subscribeId}`,
+      );
+      return;
+    }
+    openWritableSignalSubscription.unsubscribe();
+    this.openWritableSignalSubscriptions.delete(message.subscribeId);
+  }
+
+  private receivedWritableSignalUpdate(
+    message: ClientToServerMessage & { type: "writableSignalUpdate" },
+  ) {
+    const openWritableSignalSubscription = this.openWritableSignalSubscriptions.get(
+      message.subscribeId,
+    );
+    if (openWritableSignalSubscription === undefined) {
+      this.communicationWarning(
+        `Received writableSignalUpdate for unknown subscription, subscribeId = ${message.subscribeId}`,
+      );
+      return;
+    }
+    openWritableSignalSubscription.receivedPatches(message.patches, message.tags);
+  }
+
   private receivedCommunicationWarning(
     message: ClientToServerMessage & { type: "communicationWarning" },
   ) {
@@ -260,6 +503,26 @@ export class ServerPort<
         this.receivedRpcCall(message);
         break;
       }
+      case "signalSubscribe": {
+        this.receivedSignalSubscribe(message);
+        break;
+      }
+      case "signalUnsubscribe": {
+        this.receivedSignalUnsubscribe(message);
+        break;
+      }
+      case "writableSignalSubscribe": {
+        this.receivedWritableSignalSubscribe(message);
+        break;
+      }
+      case "writableSignalUnsubscribe": {
+        this.receivedWritableSignalUnsubscribe(message);
+        break;
+      }
+      case "writableSignalUpdate": {
+        this.receivedWritableSignalUpdate(message);
+        break;
+      }
       case "communicationWarning": {
         this.receivedCommunicationWarning(message);
         break;
@@ -273,6 +536,12 @@ export class ServerPort<
   private errored = (error: any) => {
     for (const openChannel of this.openChannels.values()) {
       openChannel.errored(error);
+    }
+    for (const openSignalSubscription of this.openSignalSubscriptions.values()) {
+      openSignalSubscription.unsubscribe();
+    }
+    for (const openWritableSignalSubscription of this.openWritableSignalSubscriptions.values()) {
+      openWritableSignalSubscription.unsubscribe();
     }
     this.emitCloseEvent();
   };

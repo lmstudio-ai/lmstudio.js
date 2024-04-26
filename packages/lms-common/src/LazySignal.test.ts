@@ -1,4 +1,5 @@
 import { LazySignal } from "./LazySignal";
+import { type WriteTag } from "./makeSetter";
 
 describe("LazySignal", () => {
   it("should not subscribe to the upstream until a subscriber is attached", () => {
@@ -81,5 +82,30 @@ describe("LazySignal", () => {
     const promise = lazySignal.pull();
     callback(data);
     await expect(promise).resolves.toBe(data);
+  });
+
+  it("should preserve tags from the upstream", () => {
+    const data = "test";
+    let callback: (data: string, tags: Array<WriteTag>) => void = () => {};
+    const subscriberMock = jest.fn().mockImplementation(cb => {
+      callback = cb;
+      return () => {};
+    });
+    const lazySignal = LazySignal.createWithoutInitialValue(subscriberMock);
+    const listener = jest.fn();
+    lazySignal.subscribe(listener);
+    callback(data, ["tag1", "tag2"]);
+    expect(lazySignal.get()).toBe(data);
+    expect(listener).toHaveBeenCalledWith(
+      data,
+      [
+        {
+          op: "replace",
+          path: [],
+          value: data,
+        },
+      ],
+      ["tag1", "tag2"],
+    );
   });
 });

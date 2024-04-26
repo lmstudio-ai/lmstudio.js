@@ -14,7 +14,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/ws": "^8.5.10"
+    "@types/ws": "^8.5.10",
+    "immer": "^10.1.1"
   },
   "gitHead": "eb198b1c427b6efc59a0589aed998492ce039d77"
 }

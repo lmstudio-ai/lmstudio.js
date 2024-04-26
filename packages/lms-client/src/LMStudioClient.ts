@@ -7,6 +7,7 @@ import {
   Validator,
   type LoggerInterface,
 } from "@lmstudio/lms-common";
+import { getHostedEnv } from "@lmstudio/lms-communication-client";
 import {
   createDiagnosticsBackendInterface,
   type DiagnosticsPort,
@@ -160,6 +161,9 @@ export class LMStudioClient {
    * Guess the base URL of the LM Studio server by visiting localhost on various default ports.
    */
   private async guessBaseUrl(stack?: string): Promise<string> {
+    if (getHostedEnv() !== null) {
+      return Promise.resolve("Using hosted env");
+    }
     return Promise.any(lmsDefaultPorts.map(this.isLocalhostWithGivenPortLMStudioServer)).then(
       port => `ws://127.0.0.1:${port}`,
       () => {

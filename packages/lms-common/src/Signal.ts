@@ -1,13 +1,15 @@
-import { produceWithPatches, type Patch } from "immer";
+import { type Patch } from "immer";
 import { Subscribable } from "./Subscribable";
+import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter";
 
-export interface SignalSetter<TValue> {
-  (value: TValue): void;
-  withImmer(producer: (draft: TValue) => void): void;
-}
-
-const notQueued = Symbol("notQueued");
 const equals = <TValue>(a: TValue, b: TValue) => a === b;
+
+type Updater<TValue> = (oldValue: TValue) => readonly [TValue, Array<Patch>];
+export type Subscriber<TValue> = (
+  value: TValue,
+  patches: Array<Patch>,
+  tags: Array<WriteTag>,
+) => void;
 
 /**
  * A signal is a wrapper for a value. It can be used to notify subscribers when the value changes.
@@ -31,19 +33,13 @@ export class Signal<TValue> extends Subscribable<TValue> {
   public static create<TValue>(
     value: TValue,
     equalsPredicate: (a: TValue, b: TValue) => boolean = equals,
-  ) {
+  ): readonly [Signal<TValue>, Setter<TValue>] {
     const signal = new Signal(value, equalsPredicate);
-    const setValue = (value: TValue) => {
-      signal.set(value, [
-        {
-          op: "replace",
-          path: [],
-          value,
-        },
-      ]);
+    const update = (updater: Updater<TValue>, tags?: Array<WriteTag>) => {
+      signal.update(updater, tags);
     };
-    setValue.withImmer = signal.setWithImmer.bind(signal);
-    return [signal, setValue] as const;
+    const setter = makeSetterWithPatches(update);
+    return [signal, setter] as const;
   }
   protected constructor(
     private value: TValue,
@@ -51,64 +47,68 @@ export class Signal<TValue> extends Subscribable<TValue> {
   ) {
     super();
   }
-  private subscribers: Set<(value: TValue) => void> = new Set();
+  private subscribers: Set<Subscriber<TValue>> = new Set();
   /**
    * Returns the current value of the signal.
    */
   public get() {
     return this.value;
   }
-  private queuedUpdate: TValue | typeof notQueued = notQueued;
-  private queuedPatches: Array<Patch> = [];
+  private queuedUpdaters: Array<[updater: Updater<TValue>, tags?: Array<WriteTag>]> = [];
   private isEmitting = false;
-  private notify(value: TValue) {
+  private notify(value: TValue, patches: Array<Patch>, tags: Array<WriteTag>) {
     for (const subscriber of this.subscribers) {
-      subscriber(value);
+      subscriber(value, patches, tags);
     }
   }
-  private notifyAndUpdateIfChanged(value: TValue) {
-    if (!this.equalsPredicate(this.value, value)) {
+  private notifyAndUpdateIfChanged(value: TValue, patches: Array<Patch>, tags: Array<WriteTag>) {
+    // If the value has changed, or if there are any tags that need to be flushed, notify
+    if (tags.length !== 0 || !this.equalsPredicate(this.value, value)) {
       this.value = value;
-      this.notify(value);
+      this.notify(value, patches, tags);
     }
   }
 
-  private makeReplaceRootPatch(value: TValue): Patch {
-    return {
-      op: "replace",
-      path: [],
-      value,
-    };
+  private isReplaceRoot(patch: Patch) {
+    return patch.path.length === 0 && patch.op === "replace";
   }
 
-  protected set(value: TValue, patches?: Array<Patch>) {
+  private update(updater: Updater<TValue>, tags?: Array<WriteTag>) {
+    this.queuedUpdaters.push([updater, tags]);
+    // Only one concurrent update may emit
     if (this.isEmitting) {
-      // It is already emitting, so we should queue the update.
-      this.queuedUpdate = value;
-      if (patches === undefined) {
-        this.queuedPatches = [this.makeReplaceRootPatch(value)];
-      } else {
-        this.queuedPatches.push(...patches);
-      }
       return;
     }
     this.isEmitting = true;
     try {
-      this.notifyAndUpdateIfChanged(value);
-      while (this.queuedUpdate !== notQueued) {
-        const queuedValue = this.queuedUpdate;
-        this.queuedUpdate = notQueued;
-        this.notifyAndUpdateIfChanged(queuedValue);
+      // Outer while is for handling new updates caused by the notify
+      while (this.queuedUpdaters.length > 0) {
+        let value = this.value;
+        let patches: Array<Patch> = [];
+        const tags: Array<WriteTag> = [];
+        // Inner while is for handling multiple updates
+        while (this.queuedUpdaters.length > 0) {
+          const [updater, newTags] = this.queuedUpdaters.shift()!;
+          const [newValue, newPatches] = updater(value);
+          value = newValue;
+          // Extremely rudimentary patch merging
+          const rootReplacerIndex = newPatches.findIndex(this.isReplaceRoot);
+          if (rootReplacerIndex !== -1) {
+            patches = newPatches.slice(rootReplacerIndex);
+          } else {
+            patches.push(...newPatches);
+          }
+          if (newTags !== undefined) {
+            tags.push(...newTags);
+          }
+        }
+        this.notifyAndUpdateIfChanged(value, patches, tags);
       }
     } finally {
       this.isEmitting = false;
     }
   }
 
-  protected setWithImmer(producer: (draft: TValue) => void) {
-    const [updated, patch] = produceWithPatches(this.value, producer);
-    this.set(updated, patch);
-  }
   /**
    * Subscribes to the signal. The callback will be called whenever the value changes. All callbacks
    * are called synchronously upon updating. It will NOT be immediately called with the current
@@ -127,10 +127,15 @@ export class Signal<TValue> extends Subscribable<TValue> {
    *  - Callbacks are tracked with a set. Adding the same subscriber will not cause it to be called
    *    multiple times.
    */
-  public subscribe(callback: (value: TValue) => void): () => void {
+  public subscribe(callback: Subscriber<TValue>): () => void {
     this.subscribers.add(callback);
     return () => {
       this.subscribers.delete(callback);
     };
   }
+}
+
+export interface SignalLike<TValue> extends Subscribable<TValue> {
+  get(): TValue;
+  subscribe(subscriber: Subscriber<TValue>): () => void;
 }

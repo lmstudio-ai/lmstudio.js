@@ -7,7 +7,7 @@ const clientHolderDropped = Symbol("clientHolderDropped");
 
 export class FcfsAuthenticatedContext {
   public constructor(
-    public readonly requestType: "rpc" | "channel",
+    public readonly requestType: "rpc" | "channel" | "signal" | "writableSignal",
     public readonly requestEndpoint: string,
     public readonly logger: SimpleLogger,
     public readonly client: FcfsClient,
