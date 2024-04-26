@@ -30,7 +30,7 @@ async function printLoadedModels(client: LMStudioClient) {
   const loadedLLMs = await client.llm.listLoaded();
   console.log("Loaded Models:");
   if (loadedLLMs.length === 0) {
-    console.log("    You don't have any models loaded. (Run `lms load` to load a model)");
+    console.log("    You don't have any models loaded. (Run `lms load --gpu max` to load a model)");
     process.exit(0);
   }
   for (const model of loadedLLMs) {
