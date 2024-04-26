@@ -44,7 +44,7 @@ main();
 
 ## Getting Started
 
-## Set up `lms` (CLI)
+### Set up `lms` (CLI)
 
 `lms` is the CLI tool for LM Studio. It is shipped with the latest versions of [LM Studio](https://lmstudio.ai/). To set it up, run the following command:
 
@@ -60,7 +60,7 @@ main();
   ~/.cache/lm-studio/bin/lms bootstrap
   ```
 
-To check if the bootstrapping was successful, run the following in a new terminal window:
+To check if the bootstrapping was successful, run the following in a **👉 new terminal window 👈**:
 
 ```shell
 lms
