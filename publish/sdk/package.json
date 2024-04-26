@@ -17,7 +17,8 @@
   "files": [
     "dist/index.js",
     "dist/index.d.ts",
-    "index.mjs"
+    "index.mjs",
+    "README.md"
   ],
   "author": "",
   "license": "Apache-2.0",
@@ -32,6 +33,10 @@
   "devDependencies": {
     "@lmstudio/lms-client": "^0.4.6",
     "nodemon": "^3.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lmstudio-ai/lmstudio.js.git"
   },
   "gitHead": "c288cd1fb692f6ba472218093289ffb99bd16819"
 }
