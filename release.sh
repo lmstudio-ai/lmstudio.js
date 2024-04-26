@@ -2,6 +2,11 @@
 
 set -e
 
+if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
+    echo "You are not on the 'main' branch. Exiting."
+    exit 1
+fi
+
 if [[ -n $(git status --porcelain) || -n $(git submodule --quiet foreach --recursive git status --porcelain) ]]; then
   echo "Error: Workspace or submodules are not clean. Please commit or stash your changes."
   exit 1
