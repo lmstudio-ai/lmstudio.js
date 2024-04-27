@@ -60,8 +60,12 @@ fi
 
 if [[ -n "${DIST_DIR}" ]] && [[ -n "${EXE_NAME}" ]]; then
     codesign --sign "${APPLE_SIGNING_IDENTITY}" --options runtime --entitlements entitlements.plist "${DIST_DIR}/${EXE_NAME}"
-    zip -r "${DIST_DIR}/${EXE_NAME}.zip" "${DIST_DIR}/${EXE_NAME}"
-    xcrun notarytool submit "${DIST_DIR}/${EXE_NAME}.zip" --keychain-profile "AC_PASSWORD" --wait
+    if [ "$LMS_SKIP_NOTARIZATION" = "1" ] || [ "$LMS_SKIP_NOTARIZATION" = "true" ]; then
+        echo "LMS_SKIP_NOTARIZATION is set. Skipping notarization..."
+    else
+        zip -r "${DIST_DIR}/${EXE_NAME}.zip" "${DIST_DIR}/${EXE_NAME}"
+        xcrun notarytool submit "${DIST_DIR}/${EXE_NAME}.zip" --keychain-profile "AC_PASSWORD" --wait
+    fi
 else
     echo "Warning: DIST_DIR or EXE_NAME is not set"
     exit 1
