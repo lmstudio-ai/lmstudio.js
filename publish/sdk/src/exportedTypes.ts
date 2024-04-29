@@ -1,4 +1,5 @@
 export type {
+  DiagnosticsNamespace,
   LLMChatResponseOpts,
   LLMCompletionOpts,
   LLMDynamicHandle,
@@ -13,6 +14,7 @@ export type {
 export type { LoggerInterface, StreamablePromise } from "@lmstudio/lms-common";
 export type {
   DiagnosticsLogEvent,
+  DiagnosticsLogEventData,
   DownloadedModel,
   LLMAccelerationOffload,
   LLMChatHistory,

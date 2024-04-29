@@ -8,10 +8,24 @@ export const diagnosticsLogEventDataSchema = z.discriminatedUnion("type", [
     input: z.string(),
   }),
 ]);
-export type DiagnosticsLogEventData = z.infer<typeof diagnosticsLogEventDataSchema>;
+/**
+ * @public
+ */
+export type DiagnosticsLogEventData = {
+  type: "llm.prediction";
+  modelPath: string;
+  modelIdentifier: string;
+  input: string;
+};
 
 export const diagnosticsLogEventSchema = z.object({
   timestamp: z.number(),
   data: diagnosticsLogEventDataSchema,
 });
-export type DiagnosticsLogEvent = z.infer<typeof diagnosticsLogEventSchema>;
+/**
+ * @public
+ */
+export type DiagnosticsLogEvent = {
+  timestamp: number;
+  data: DiagnosticsLogEventData;
+};
