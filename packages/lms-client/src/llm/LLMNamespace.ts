@@ -98,7 +98,7 @@ export interface LLMLoadModelOpts {
    *
    * Logs are directed to the logger specified during the `LMStudioClient` construction.
    *
-   * Regardless of this option's value, the `progressCallback` function will always be called.
+   * Progress logs will be disabled if an `onProgress` callback is provided.
    *
    * Default value is "info", which logs progress at the "info" level.
    */
@@ -108,7 +108,7 @@ export interface LLMLoadModelOpts {
    * A function that is called with the progress of the model loading. The function is called with a
    * number between 0 and 1, inclusive, representing the progress of the model loading.
    *
-   * This function is called regardless of the value of the `verbose` option.
+   * If an `onProgress` callback is provided, verbose progress logs will be disabled.
    */
   onProgress?: (progress: number) => void;
 
@@ -158,6 +158,9 @@ export class LLMNamespace {
    *
    * If `model_file` is not specified, the first (sorted alphabetically) model in the repository is
    * loaded.
+   *
+   * To find out what models are available, you can use the `lms ls` command, or programmatically
+   * use the `client.system.listDownloadedModels` method.
    *
    * Here are some examples:
    *
@@ -242,7 +245,9 @@ export class LLMNamespace {
           }
           case "progress": {
             const { progress } = message;
-            if (verbose) {
+            if (onProgress !== undefined) {
+              onProgress(progress);
+            } else if (verbose) {
               const now = Date.now();
               if (now - lastVerboseCallTime > 500 || progress === 1) {
                 const progressText = (progress * 100).toFixed(1);
@@ -252,9 +257,6 @@ export class LLMNamespace {
                 );
                 lastVerboseCallTime = now;
               }
-            }
-            if (onProgress !== undefined) {
-              onProgress(progress);
             }
           }
         }
