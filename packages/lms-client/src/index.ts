@@ -1,3 +1,4 @@
+export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
 export type {
   LLMChatResponseOpts,
   LLMCompletionOpts,

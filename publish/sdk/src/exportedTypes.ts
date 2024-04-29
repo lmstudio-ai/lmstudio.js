@@ -12,6 +12,7 @@ export type {
 } from "@lmstudio/lms-client";
 export type { LoggerInterface, StreamablePromise } from "@lmstudio/lms-common";
 export type {
+  DiagnosticsLogEvent,
   DownloadedModel,
   LLMAccelerationOffload,
   LLMChatHistory,
