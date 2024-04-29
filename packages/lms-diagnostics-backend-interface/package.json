@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-diagnostics-backend-interface",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,7 +10,8 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lmstudio/lms-communication": "^0.4.5",
-    "@lmstudio/lms-shared-types": "^0.4.2"
-  }
+    "@lmstudio/lms-communication": "^0.4.6",
+    "@lmstudio/lms-shared-types": "^0.4.3"
+  },
+  "gitHead": "b00c0b977b06cb065832016f387c0a512eb44b54"
 }
