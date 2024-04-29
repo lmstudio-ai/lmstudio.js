@@ -1,14 +1,15 @@
 import { LMStudioClient } from "@lmstudio/sdk";
 
+const client = new LMStudioClient();
+
 async function main() {
-  const client = new LMStudioClient();
-  await printDownloadedModels(client);
-  await printLoadedModels(client);
-  await predictWithAnyModel(client);
+  await printDownloadedModels();
+  await printLoadedModels();
+  await predictWithAnyModel();
 }
 main();
 
-async function printDownloadedModels(client: LMStudioClient) {
+async function printDownloadedModels() {
   const downloadedModels = await client.system.listDownloadedModels();
   console.log("Downloaded Models:");
   if (downloadedModels.length === 0) {
@@ -26,7 +27,7 @@ async function printDownloadedModels(client: LMStudioClient) {
   console.log(); // Create an empty line
 }
 
-async function printLoadedModels(client: LMStudioClient) {
+async function printLoadedModels() {
   const loadedLLMs = await client.llm.listLoaded();
   console.log("Loaded Models:");
   if (loadedLLMs.length === 0) {
@@ -39,8 +40,8 @@ async function printLoadedModels(client: LMStudioClient) {
   console.log(); // Create an empty line
 }
 
-async function predictWithAnyModel(client: LMStudioClient) {
-  const model = client.llm.get({});
+async function predictWithAnyModel() {
+  const model = await client.llm.get({});
   const prompt = "The meaning of life is";
   const prediction = model.complete(prompt, {
     maxPredictedTokens: 100,
