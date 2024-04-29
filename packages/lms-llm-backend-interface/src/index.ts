@@ -80,8 +80,14 @@ export function createLlmBackendInterface() {
     .addRpcEndpoint("getModelInfo", {
       parameter: z.object({
         specifier: llmModelSpecifierSchema,
+        throwIfNotFound: z.boolean(),
       }),
-      returns: llmDescriptorSchema.optional(),
+      returns: z
+        .object({
+          sessionIdentifier: z.string(),
+          descriptor: llmDescriptorSchema,
+        })
+        .optional(),
     });
 }
 

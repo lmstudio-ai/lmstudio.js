@@ -21,7 +21,8 @@ import {
   type LogLevel,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { LLMModel } from "./LLMModel";
+import { LLMDynamicHandle } from "./LLMDynamicHandle";
+import { LLMSpecificModel } from "./LLMSpecificModel";
 
 /** @public */
 export interface LLMLoadModelOpts {
@@ -180,7 +181,7 @@ export class LLMNamespace {
    * client with the same `clientIdentifier` disconnects, all models loaded by that client will be
    * automatically unloaded.
    *
-   * Once loaded, see {@link LLMModel} for how to use the model for inferencing or other things you
+   * Once loaded, see {@link LLMDynamicHandle} for how to use the model for inferencing or other things you
    * can do with the model.
    *
    * @param path - The path of the model to load. See {@link LLMLoadModelOpts} for
@@ -188,7 +189,7 @@ export class LLMNamespace {
    * @param opts - Options for loading the model. See {@link LLMLoadModelOpts} for details.
    * @returns A promise that resolves to the model that can be used for inferencing
    */
-  public async load(path: string, opts: LLMLoadModelOpts = {}): Promise<LLMModel> {
+  public async load(path: string, opts: LLMLoadModelOpts = {}): Promise<LLMDynamicHandle> {
     const stack = getCurrentStack(1);
     [path, opts] = this.validator.validateMethodParamsOrThrow(
       "client.llm",
@@ -201,7 +202,7 @@ export class LLMNamespace {
     const { preset, identifier, signal, verbose = "info", config, onProgress, noHup } = opts;
     let lastVerboseCallTime = 0;
 
-    const { promise, resolve, reject } = makePromise<LLMModel>();
+    const { promise, resolve, reject } = makePromise<LLMDynamicHandle>();
     const verboseLevel = typeof verbose === "boolean" ? "info" : verbose;
 
     const startTime = Date.now();
@@ -234,7 +235,7 @@ export class LLMNamespace {
               );
             }
             resolve(
-              new LLMModel(
+              new LLMDynamicHandle(
                 this.llmPort,
                 { type: "sessionIdentifier", sessionIdentifier: message.sessionIdentifier },
                 this.validator,
@@ -301,24 +302,24 @@ export class LLMNamespace {
   }
 
   /**
-   * Get a model handle for any loaded model that satisfies the given query.
+   * Get a specific model that satisfies the given query. The returned model is tied to the specific
+   * model at the time of the call.
    *
    * For more information on the query, see {@link LLMModelQuery}.
-   *
-   * Note: The returned `LLMModel` is not tied to any specific loaded model. Instead, it represents
-   * a "handle for a model that satisfies the given query". If the model that satisfies the query is
-   * unloaded, the `LLMModel` will still be valid, but any method calls on it will fail. And later,
-   * if a new model is loaded that satisfies the query, the `LLMModel` will be usable again.
-   *
-   * You can use {@link LLMModel#getModelInfo} to get information about the model that is currently
-   * associated with this handle.
    *
    * @example
    *
    * If you have loaded a model with the identifier "my-model", you can use it like this:
    *
    * ```ts
-   * const model = client.llm.get({ identifier: "my-model" });
+   * const model = await client.llm.get({ identifier: "my-model" });
+   * const prediction = model.complete("...");
+   * ```
+   *
+   * Or just
+   *
+   * ```ts
+   * const model = await client.llm.get("my-model");
    * const prediction = model.complete("...");
    * ```
    *
@@ -327,41 +328,129 @@ export class LLMNamespace {
    * Use the Gemma 2B IT model (given it is already loaded elsewhere):
    *
    * ```ts
-   * const model = client.llm.get({ path: "lmstudio-ai/gemma-2b-it-GGUF" });
+   * const model = await client.llm.get({ path: "lmstudio-ai/gemma-2b-it-GGUF" });
    * const prediction = model.complete("...");
+   * ```
+   */
+  public get(query: LLMModelQuery): Promise<LLMSpecificModel>;
+  /**
+   * Get a specific model by its identifier. The returned model is tied to the specific model at the
+   * time of the call.
+   *
+   * @example
+   *
+   * If you have loaded a model with the identifier "my-model", you can use it like this:
+   *
+   * ```ts
+   * const model = await client.llm.get("my-model");
+   * const prediction = model.complete("...");
+   * ```
+   *
+   */
+  public get(identifier: string): Promise<LLMSpecificModel>;
+  public async get(param: string | LLMModelQuery): Promise<LLMSpecificModel> {
+    const stack = getCurrentStack(1);
+    this.validator.validateMethodParamOrThrow(
+      "client.llm",
+      "get",
+      "param",
+      z.union([reasonableKeyStringSchema, llmModelQuerySchema]),
+      param,
+      stack,
+    );
+    let query: LLMModelQuery;
+    if (typeof param === "string") {
+      query = {
+        identifier: param,
+      };
+    } else {
+      query = param;
+    }
+    const info = await this.llmPort.callRpc(
+      "getModelInfo",
+      {
+        specifier: {
+          type: "query",
+          query,
+        },
+        throwIfNotFound: true,
+      },
+      { stack },
+    );
+    if (info === undefined) {
+      throw new Error("Backend should have thrown.");
+    }
+    return new LLMSpecificModel(
+      this.llmPort,
+      info.sessionIdentifier,
+      info.descriptor,
+      this.validator,
+      new SimpleLogger("LLMSpecificModel", this.logger),
+    );
+  }
+
+  /**
+   * Get a dynamic model handle for any loaded model that satisfies the given query.
+   *
+   * For more information on the query, see {@link LLMModelQuery}.
+   *
+   * Note: The returned `LLMModel` is not tied to any specific loaded model. Instead, it represents
+   * a "handle for a model that satisfies the given query". If the model that satisfies the query is
+   * unloaded, the `LLMModel` will still be valid, but any method calls on it will fail. And later,
+   * if a new model is loaded that satisfies the query, the `LLMModel` will be usable again.
+   *
+   * You can use {@link LLMDynamicHandle#getModelInfo} to get information about the model that is
+   * currently associated with this handle.
+   *
+   * @example
+   *
+   * If you have loaded a model with the identifier "my-model", you can use it like this:
+   *
+   * ```ts
+   * const dh = client.llm.createDynamicHandle({ identifier: "my-model" });
+   * const prediction = dh.complete("...");
+   * ```
+   *
+   * @example
+   *
+   * Use the Gemma 2B IT model (given it is already loaded elsewhere):
+   *
+   * ```ts
+   * const dh = client.llm.createDynamicHandle({ path: "lmstudio-ai/gemma-2b-it-GGUF" });
+   * const prediction = dh.complete("...");
    * ```
    *
    * @param query - The query to use to get the model.
    */
-  public get(query: LLMModelQuery): LLMModel;
+  public createDynamicHandle(query: LLMModelQuery): LLMDynamicHandle;
   /**
-   * Get a model handle by its identifier.
+   * Get a dynamic model handle by its identifier.
    *
    * Note: The returned `LLMModel` is not tied to any specific loaded model. Instead, it represents
    * a "handle for a model with the given identifier". If the model with the given identifier is
    * unloaded, the `LLMModel` will still be valid, but any method calls on it will fail. And later,
    * if a new model is loaded with the same identifier, the `LLMModel` will be usable again.
    *
-   * You can use {@link LLMModel#getModelInfo} to get information about the model that is currently
-   * associated with this handle.
+   * You can use {@link LLMDynamicHandle#getModelInfo} to get information about the model that is
+   * currently associated with this handle.
    *
    * @example
    *
    * If you have loaded a model with the identifier "my-model", you can get use it like this:
    *
    * ```ts
-   * const model = client.llm.get("my-model");
-   * const prediction = model.complete("...");
+   * const dh = client.llm.createDynamicHandle("my-model");
+   * const prediction = dh.complete("...");
    * ```
    *
    * @param identifier - The identifier of the model to get.
    */
-  public get(identifier: string): LLMModel;
-  public get(param: string | LLMModelQuery): LLMModel {
+  public createDynamicHandle(identifier: string): LLMDynamicHandle;
+  public createDynamicHandle(param: string | LLMModelQuery): LLMDynamicHandle {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(
       "client.llm",
-      "get",
+      "createDynamicHandle",
       "param",
       z.union([reasonableKeyStringSchema, llmModelQuerySchema]),
       param,
@@ -384,14 +473,14 @@ export class LLMNamespace {
         stack,
       );
     }
-    return new LLMModel(
+    return new LLMDynamicHandle(
       this.llmPort,
       {
         type: "query",
         query,
       },
       this.validator,
-      this.logger,
+      new SimpleLogger("DynamicHandle", this.logger),
     );
   }
 }

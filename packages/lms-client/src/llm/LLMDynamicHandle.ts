@@ -1,10 +1,4 @@
-import {
-  BufferedEvent,
-  getCurrentStack,
-  SimpleLogger,
-  type LoggerInterface,
-  type Validator,
-} from "@lmstudio/lms-common";
+import { BufferedEvent, getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   llmChatHistorySchema,
@@ -25,11 +19,7 @@ import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
 
 /** @public */
-export interface LLMCompletionOpts {
-  /**
-   * Additional configuration for the prediction. Will override the values set in the preset.
-   */
-  config?: LLMCompletionPredictionConfig;
+export interface LLMCompletionOpts extends LLMCompletionPredictionConfig {
   /**
    * Structured output settings for the prediction. See {@link LLMStructuredPredictionSetting} for a
    * detailed explanation of what structured prediction is and how to use it.
@@ -38,16 +28,12 @@ export interface LLMCompletionOpts {
 }
 
 const completeOptsSchema = z.object({
-  config: llmCompletionPredictionConfigSchema.optional(),
+  ...llmCompletionPredictionConfigSchema.shape,
   structured: llmStructuredPredictionSettingSchema.optional(),
 });
 
 /** @public */
-export interface LLMChatResponseOpts {
-  /**
-   * Additional configuration for the prediction. Will override the values set in the preset.
-   */
-  config?: LLMChatPredictionConfig;
+export interface LLMChatResponseOpts extends LLMChatPredictionConfig {
   /**
    * Structured output settings for the prediction. See {@link LLMStructuredPredictionSetting} for a
    * detailed explanation of what structured prediction is and how to use it.
@@ -56,7 +42,7 @@ export interface LLMChatResponseOpts {
 }
 
 const respondOptsSchema = z.object({
-  config: llmChatPredictionConfigSchema.optional(),
+  ...llmChatPredictionConfigSchema.shape,
   structured: llmStructuredPredictionSettingSchema.optional(),
 });
 
@@ -71,10 +57,7 @@ const respondOptsSchema = z.object({
  *
  * @public
  */
-export class LLMModel {
-  /** @internal */
-  private readonly logger: SimpleLogger;
-  private loaded = true;
+export class LLMDynamicHandle {
   /**
    * Don't construct this on your own. Use {@link LLMNamespace#get} or {@link LLMNamespace#load}
    * instead.
@@ -86,11 +69,11 @@ export class LLMModel {
     private readonly llmPort: LLMPort,
     /** @internal */
     private readonly specifier: LLMModelSpecifier,
+    /** @internal */
     private readonly validator: Validator,
-    parentLogger: LoggerInterface,
-  ) {
-    this.logger = new SimpleLogger(`LLMModel`, parentLogger);
-  }
+    /** @internal */
+    private readonly logger: SimpleLogger = new SimpleLogger(`LLMModel`),
+  ) {}
 
   /** @internal */
   private predict(
@@ -170,9 +153,6 @@ export class LLMModel {
    * @param opts - Options for the prediction.
    */
   public complete(prompt: string, opts: LLMCompletionOpts = {}) {
-    if (!this.loaded) {
-      this.logger.throw("Cannot use `complete` because the model is already unloaded.");
-    }
     const stack = getCurrentStack(1);
     [prompt, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
@@ -182,7 +162,7 @@ export class LLMModel {
       [prompt, opts],
       stack,
     );
-    const { config = {}, structured } = opts;
+    const { structured, ...config } = opts;
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
     this.predict(
@@ -259,9 +239,6 @@ export class LLMModel {
    * @param opts - Options for the prediction.
    */
   public respond(history: LLMChatHistory, opts: LLMChatResponseOpts = {}) {
-    if (!this.loaded) {
-      this.logger.throw("Cannot use `complete` because the model is already unloaded.");
-    }
     const stack = getCurrentStack(1);
     [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
@@ -271,7 +248,7 @@ export class LLMModel {
       [history, opts],
       stack,
     );
-    const { config = {}, structured } = opts;
+    const { structured, ...config } = opts;
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
     this.predict(
@@ -294,11 +271,15 @@ export class LLMModel {
    * Note: As models are loaded/unloaded, the model associated with this `LLMModel` may change at
    * any moment.
    */
-  public getModelInfo(): Promise<LLMDescriptor | undefined> {
-    return this.llmPort.callRpc(
+  public async getModelInfo(): Promise<LLMDescriptor | undefined> {
+    const info = await this.llmPort.callRpc(
       "getModelInfo",
-      { specifier: this.specifier },
+      { specifier: this.specifier, throwIfNotFound: false },
       { stack: getCurrentStack(1) },
     );
+    if (info === undefined) {
+      return undefined;
+    }
+    return info.descriptor;
   }
 }
