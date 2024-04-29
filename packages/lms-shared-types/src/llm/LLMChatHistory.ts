@@ -10,8 +10,12 @@ import { z } from "zod";
  *
  * @public
  */
-export type LLMChatHistoryRole = "system" | "user" | "assistant";
-export const llmChatHistoryRoleSchema = z.enum(["system", "user", "assistant"]);
+export type LLMChatHistoryRole = string; // "system" | "user" | "assistant";
+export const llmChatHistoryRoleSchema = z
+  .string()
+  .refine(v => ["system", "user", "assistant"].includes(v), {
+    message: "Invalid role, must be one of 'system', 'user', or 'assistant'",
+  });
 
 /**
  * Represents a single message in the history.
