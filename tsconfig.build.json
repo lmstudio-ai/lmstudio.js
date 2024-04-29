@@ -11,6 +11,7 @@
     { "path": "packages/lms-llm-backend-interface" },
     { "path": "packages/lms-platform-backend-interface" },
     { "path": "packages/lms-system-backend-interface" },
+    { "path": "packages/lms-diagnostics-backend-interface" },
     { "path": "packages/lms-client" },
     { "path": "packages/lms-lmstudio" },
     { "path": "packages/template" }

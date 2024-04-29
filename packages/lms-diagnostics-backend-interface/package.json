@@ -1,0 +1,16 @@
+{
+  "name": "@lmstudio/lms-diagnostics-backend-interface",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@lmstudio/lms-communication": "^0.4.5",
+    "@lmstudio/lms-shared-types": "^0.4.2"
+  }
+}

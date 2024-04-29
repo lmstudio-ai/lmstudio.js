@@ -15,6 +15,7 @@
     "@lmstudio/lms-llm-backend-interface": "^0.4.5",
     "@lmstudio/lms-shared-types": "^0.4.2",
     "@lmstudio/lms-system-backend-interface": "^0.2.5",
+    "@lmstudio/lms-diagnostics-backend-interface": "^0.0.0",
     "boxen": "^5.1.2",
     "chalk": "^4.1.2",
     "process": "^0.11.10",

@@ -1,12 +1,16 @@
 import {
-  SimpleLogger,
-  Validator,
   getCurrentStack,
   lmsDefaultPorts,
   makePrettyError,
+  SimpleLogger,
   text,
+  Validator,
   type LoggerInterface,
 } from "@lmstudio/lms-common";
+import {
+  createDiagnosticsBackendInterface,
+  type DiagnosticsPort,
+} from "@lmstudio/lms-diagnostics-backend-interface";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
 import { createLlmBackendInterface, type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
@@ -17,6 +21,7 @@ import chalk from "chalk";
 import process from "process";
 import { z } from "zod";
 import { createAuthenticatedClientPort } from "./createAuthenticatedClientPort";
+import { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
 import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
 import { LLMNamespace } from "./llm/LLMNamespace";
 import { SystemNamespace } from "./system/SystemNamespace";
@@ -90,9 +95,12 @@ export class LMStudioClient {
   private readonly llmPort: LLMPort;
   /** @internal */
   private readonly systemPort: SystemPort;
+  /** @internal */
+  private readonly diagnosticsPort: DiagnosticsPort;
 
   public readonly llm: LLMNamespace;
   public readonly system: SystemNamespace;
+  public readonly diagnostics: DiagnosticsNamespace;
 
   /** @internal */
   private validateBaseUrlOrThrow(baseUrl: string) {
@@ -234,9 +242,23 @@ export class LMStudioClient {
       },
     );
 
+    this.diagnosticsPort = createAuthenticatedClientPort(
+      createDiagnosticsBackendInterface(),
+      resolvingBaseUrl,
+      "diagnostics",
+      this.clientIdentifier,
+      this.clientPasskey,
+      new SimpleLogger("Diagnostics", this.logger),
+      {
+        errorDeserializer: friendlyErrorDeserializer,
+        verboseErrorMessage: verboseErrorMessages ?? false,
+      },
+    );
+
     const validator = new Validator();
 
     this.llm = new LLMNamespace(this.llmPort, validator, this.logger);
     this.system = new SystemNamespace(this.systemPort, this.logger);
+    this.diagnostics = new DiagnosticsNamespace(this.diagnosticsPort, validator, this.logger);
   }
 }

@@ -3,6 +3,12 @@ import { z } from "zod";
 /** @public */
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export const logLevelSchema = z.enum(["debug", "info", "warn", "error"]);
+export {
+  DiagnosticsLogEvent,
+  DiagnosticsLogEventData,
+  diagnosticsLogEventDataSchema,
+  diagnosticsLogEventSchema,
+} from "./diagnostics/DiagnosticsLogEvent";
 export { DownloadedModel, downloadedModelSchema } from "./DownloadedModel";
 export {
   attachSerializedErrorData,
