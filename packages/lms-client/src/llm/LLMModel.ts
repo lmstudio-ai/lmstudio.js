@@ -265,7 +265,7 @@ export class LLMModel {
     const stack = getCurrentStack(1);
     [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
-      "complete",
+      "respond",
       ["history", "opts"],
       [llmChatHistorySchema, respondOptsSchema],
       [history, opts],
