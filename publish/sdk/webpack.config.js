@@ -23,22 +23,19 @@ const base = {
     extensions: [".tsx", ".ts", ".js"],
   },
   externals: {
-    "zod": "zod",
-    "immer": "immer",
     "process": "process",
-    "boxen": "boxen",
     "chalk": "chalk",
     "@lmstudio/lms-isomorphic": "@lmstudio/lms-isomorphic",
   },
   optimization: {
     minimize: false,
   },
-  plugins: [
-    // fix "process is not defined" error:
-    new ProvidePlugin({
-      process: "process/browser",
-    }),
-  ],
+  // plugins: [
+  //   // fix "process is not defined" error:
+  //   new ProvidePlugin({
+  //     process: "process",
+  //   }),
+  // ],
 };
 
 module.exports = [
