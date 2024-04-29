@@ -14,7 +14,7 @@ import { jsonSerializableSchema } from "../JSONSerializable";
  *
  * ```ts
  * const prediction = model.complete("...", {
- *   config: { maxPredictedTokens: 100 },
+ *   maxPredictedTokens: 100,
  *   structured: { type: "json" },
  * });
  * ```
@@ -32,7 +32,7 @@ import { jsonSerializableSchema } from "../JSONSerializable";
  *   required: ["name", "age"],
  * };
  * const prediction = model.complete("...", {
- *   config: { maxPredictedTokens: 100 },
+ *   maxPredictedTokens: 100,
  *   structured: { type: "json", jsonSchema: schema },
  * });
  * ```

@@ -6,10 +6,13 @@ import { LLMDynamicHandle } from "./LLMDynamicHandle";
 /**
  * Represents a specific loaded model. Most LLM related operations are inherited from
  * {@link LLMDynamicHandle}.
+ *
+ * @public
  */
 export class LLMSpecificModel extends LLMDynamicHandle {
   public readonly identifier: string;
   public readonly path: string;
+  /** @internal */
   public constructor(
     llmPort: LLMPort,
     sessionIdentifier: string,

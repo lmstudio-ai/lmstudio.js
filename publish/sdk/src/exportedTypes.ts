@@ -1,9 +1,10 @@
 export type {
   LLMChatResponseOpts,
   LLMCompletionOpts,
+  LLMDynamicHandle,
   LLMLoadModelOpts,
-  LLMModel,
   LLMNamespace,
+  LLMSpecificModel,
   LMStudioClientConstructorOpts,
   OngoingPrediction,
   PredictionResult,
@@ -12,7 +13,6 @@ export type {
 export type { LoggerInterface, StreamablePromise } from "@lmstudio/lms-common";
 export type {
   DownloadedModel,
-  LLMAccelerationConfig,
   LLMAccelerationOffload,
   LLMChatHistory,
   LLMChatHistoryMessage,
