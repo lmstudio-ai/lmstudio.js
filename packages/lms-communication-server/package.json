@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-communication-server",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,13 +10,13 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lmstudio/lms-common": "^0.5.3",
-    "@lmstudio/lms-communication": "^0.4.4",
+    "@lmstudio/lms-common": "^0.5.4",
+    "@lmstudio/lms-communication": "^0.4.5",
     "ws": "^8.16.0"
   },
   "devDependencies": {
     "@types/ws": "^8.5.10",
     "electron": "24.6.3"
   },
-  "gitHead": "4eed827a2c48b6c11faab5fdf5533b18076c3c60"
+  "gitHead": "9316939d39732206dd1fc57539b302ad36f6c92f"
 }
