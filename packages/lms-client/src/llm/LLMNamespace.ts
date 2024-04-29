@@ -68,7 +68,7 @@ export interface LLMLoadModelOpts {
    * ```typescript
    * const ac = new AbortController();
    * const model = await client.llm.load({
-   *   model: "lmstudio-ai/gemma-2b-it-GGUF",
+   *   model: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF",
    *   signal: ac.signal,
    * });
    *
@@ -157,16 +157,16 @@ export class LLMNamespace {
    *
    * Here are some examples:
    *
-   * Loading Gemma 2B:
+   * Loading Llama 3:
    *
    * ```typescript
-   * const model = await client.llm.load("lmstudio-ai/gemma-2b-it-GGUF");
+   * const model = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF");
    * ```
    *
-   * Loading a specific quantization (q4_k_m) of Gemma 2B:
+   * Loading a specific quantization (q4_k_m) of Llama 3:
    *
    * ```typescript
-   * const model = await client.llm.load("lmstudio-ai/gemma-2b-it-GGUF/gemma-2b-it-q4_k_m.gguf");
+   * const model = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF/Meta-Llama-3-8B-Instruct-Q4_K_M.gguf");
    * ```
    *
    * To unload the model, you can use the `client.llm.unload` method. Additionally, when the last
@@ -319,7 +319,7 @@ export class LLMNamespace {
    * Use the Gemma 2B IT model (given it is already loaded elsewhere):
    *
    * ```ts
-   * const model = await client.llm.get({ path: "lmstudio-ai/gemma-2b-it-GGUF" });
+   * const model = await client.llm.get({ path: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF" });
    * const prediction = model.complete("...");
    * ```
    */
@@ -407,7 +407,7 @@ export class LLMNamespace {
    * Use the Gemma 2B IT model (given it is already loaded elsewhere):
    *
    * ```ts
-   * const dh = client.llm.createDynamicHandle({ path: "lmstudio-ai/gemma-2b-it-GGUF" });
+   * const dh = client.llm.createDynamicHandle({ path: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF" });
    * const prediction = dh.complete("...");
    * ```
    *

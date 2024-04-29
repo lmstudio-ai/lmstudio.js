@@ -10,22 +10,22 @@ export interface LLMModelQuery {
   /**
    * If specified, the model must have exactly this identifier.
    *
-   * Note: The identifier of a model is set when loading the model. It defaults to the path of
+   * Note: The identifier of a model is set when loading the model. It defaults to the filename of
    * the model if not specified. However, this default behavior should not be relied upon. If you
    * wish to query a model by its path, you should specify the path instead of the identifier:
    *
    * Instead of
    *
    * ```ts
-   * const model = client.llm.get({ identifier: "lmstudio-ai/gemma-2b-it-GGUF" });
+   * const model = client.llm.get({ identifier: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF" });
    * // OR
-   * const model = client.llm.get("lmstudio-ai/gemma-2b-it-GGUF");
+   * const model = client.llm.get("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF");
    * ```
    *
    * Use
    *
    * ```ts
-   * const model = client.llm.get({ path: "lmstudio-ai/gemma-2b-it-GGUF" });
+   * const model = client.llm.get({ path: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF" });
    * ```
    */
   identifier?: string;
@@ -40,19 +40,19 @@ export interface LLMModelQuery {
    *
    * Here are some examples:
    *
-   * Query any loaded Gemma 2B model:
+   * Query any loaded Llama 3 model:
    *
    * ```ts
    * const model = client.llm.get({
-   *   path: "lmstudio-ai/gemma-2b-it-GGUF",
+   *   path: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF",
    * });
    * ```
    *
-   * Query any loaded model with a specific quantization of the Gemma 2B model:
+   * Query any loaded model with a specific quantization of the Llama 3 model:
    *
    * ```ts
    * const model = client.llm.get({
-   *   path: "lmstudio-ai/gemma-2b-it-GGUF/gemma-2b-it-q4_k_m.gguf",
+   *   path: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF/Meta-Llama-3-8B-Instruct-Q4_K_M.gguf",
    * });
    * ```
    */

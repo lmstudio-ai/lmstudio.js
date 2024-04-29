@@ -32,10 +32,8 @@ import { LMStudioClient } from "@lmstudio/sdk";
 const lmstudio = new LMStudioClient();
 
 async function main() {
-  const codegemma = await lmstudio.llm.load("lmstudio-community/codegemma-2b-GGUF");
-  const result = await codegemma.complete(
-    "# A function to print the digits of pi\ndef print_pi():",
-  );
+  const llama3 = await lmstudio.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF");
+  const result = await llama3.complete("# A function to print the digits of pi\ndef print_pi():");
   console.log(result.content);
   console.log(result.stats);
 }
@@ -99,7 +97,7 @@ lms server start --port 12345
 
 ### Loading an LLM and Predicting with It
 
-This example loads a model `"NousResearch/Hermes-2-Pro-Mistral-7B-GGUF"` and predicts text with it.
+This example loads a model `"lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF"` and predicts text with it.
 
 ```ts
 import { LMStudioClient } from "@lmstudio/sdk";
@@ -107,10 +105,10 @@ import { LMStudioClient } from "@lmstudio/sdk";
 const client = new LMStudioClient();
 
 // Load a model
-const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF");
+const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF");
 
 // Create a text completion prediction
-const prediction = hermes.complete("The meaning of life is");
+const prediction = llama3.complete("The meaning of life is");
 
 // Stream the response
 for await (const text of prediction) {
@@ -154,7 +152,7 @@ const client = new LMStudioClient({
 By default, when your client disconnects from LM Studio, all models loaded by that client are unloaded. You can prevent this by setting the `noHup` option to `true`.
 
 ```ts
-await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
+await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
   noHup: true,
 });
 
@@ -166,7 +164,7 @@ await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
 You can set an identifier for a model when loading it. This identifier can be used to refer to the model later.
 
 ```ts
-await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
+await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
   identifier: "my-model",
 });
 
@@ -180,14 +178,14 @@ const myModel = await client.llm.get("my-model");
 By default, the load configuration for a model comes from the preset associated with the model (Can be changed on the "My Models" page in LM Studio).
 
 ```ts
-const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
+const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
   config: {
     contextLength: 1024,
     gpuOffload: 0.5, // Offloads 50% of the computation to the GPU
   },
 });
 
-// hermes.complete(...);
+// llama3.complete(...);
 ```
 
 ### Loading a Model with a Specific Preset
@@ -195,7 +193,7 @@ const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF"
 The preset determines the default load configuration and the default inference configuration for a model. By default, the preset associated with the model is used. (Can be changed on the "My Models" page in LM Studio). You can change the preset used by specifying the `preset` option.
 
 ```ts
-const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
+const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
   preset: "My ChatML",
 });
 ```
@@ -205,7 +203,7 @@ const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF"
 You can track the loading progress of a model by providing an `onProgress` callback.
 
 ```ts
-const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
+const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
   verbose: false, // Disables the default progress logging
   onProgress: progress => {
     console.log(`Progress: ${(progress * 100).toFixed(1)}%`);
@@ -234,10 +232,10 @@ You can cancel a load by using an AbortController.
 const controller = new AbortController();
 
 try {
-  const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
+  const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
     signal: controller.signal,
   });
-  // hermes.complete(...);
+  // llama3.complete(...);
 } catch (error) {
   console.error(error);
 }
@@ -257,7 +255,7 @@ controller.abort();
 You can unload a model by calling the `unload` method.
 
 ```ts
-const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
+const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
   identifier: "my-model",
 });
 
@@ -290,14 +288,14 @@ To look up an already loaded model by its path, use the following:
 
 ```ts
 // Matches any quantization
-const hermes = await client.llm.get({ path: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF" });
+const llama3 = await client.llm.get({ path: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF" });
 
 // Or if a specific quantization is desired:
-const hermes = await client.llm.get({
-  path: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF/Hermes-2-Pro-Mistral-7B.Q4_0.gguf",
+const llama3 = await client.llm.get({
+  path: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF/Meta-Llama-3-8B-Instruct-Q4_K_M.gguf",
 });
 
-// hermes.complete(...);
+// llama3.complete(...);
 ```
 
 ### Using any Loaded Model
@@ -462,7 +460,7 @@ const schema = {
   required: ["setup", "punchline"],
 };
 
-const prediction = hermes.complete("Here is a joke in JSON:", {
+const prediction = llama3.complete("Here is a joke in JSON:", {
   maxPredictedTokens: 100,
   structured: { type: "json", jsonSchema: schema },
 });
