@@ -1,7 +1,6 @@
 import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
-  llmAccelerationConfigSchema,
   llmChatHistorySchema,
   llmDescriptorSchema,
   llmLoadModelConfigSchema,
@@ -24,7 +23,6 @@ export function createLlmBackendInterface() {
         identifier: z.string().optional(),
         preset: z.string().optional(),
         config: llmLoadModelConfigSchema,
-        acceleration: llmAccelerationConfigSchema,
         noHup: z.boolean(),
       }),
       toClientPacket: z.discriminatedUnion("type", [

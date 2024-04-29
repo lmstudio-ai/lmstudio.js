@@ -11,11 +11,12 @@
 <p align="center"><i>LM Studio Client SDK - Pre-Release</i></p>
 
 ### Pre-Release Alpha
+
 `lmstudio.js` is in pre-release alpha, and is undergoing rapid and continuous development. Expect breaking changes!
 
 Follow along for our upcoming announcements about `lmstudio.js` on [Twitter](https://lmstudio.ai/LMStudioAI) and [Discord](https://discord.gg/aPQfnNkxGC).
 
-----
+---
 
 ### Installation
 
@@ -170,7 +171,7 @@ await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
 });
 
 // You can refer to the model later using the identifier
-const myModel = client.llm.get("my-model");
+const myModel = await client.llm.get("my-model");
 // myModel.complete(...);
 ```
 
@@ -182,9 +183,7 @@ By default, the load configuration for a model comes from the preset associated 
 const hermes = await client.llm.load("NousResearch/Hermes-2-Pro-Mistral-7B-GGUF", {
   config: {
     contextLength: 1024,
-  },
-  acceleration: {
-    acceleration: { offload: 0.5 }, // Offloads 50% of the computation to the GPU
+    gpuOffload: 0.5, // Offloads 50% of the computation to the GPU
   },
 });
 
@@ -280,9 +279,9 @@ Note, by default, all models loaded by a client are unloaded when the client dis
 To look up an already loaded model by its identifier, use the following:
 
 ```ts
-const myModel = client.llm.get({ identifier: "my-model" });
+const myModel = await client.llm.get({ identifier: "my-model" });
 // Or just
-const myModel = client.llm.get("my-model");
+const myModel = await client.llm.get("my-model");
 
 // myModel.complete(...);
 ```
@@ -291,41 +290,22 @@ To look up an already loaded model by its path, use the following:
 
 ```ts
 // Matches any quantization
-const hermes = client.llm.get({ path: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF" });
+const hermes = await client.llm.get({ path: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF" });
 
 // Or if a specific quantization is desired:
-const hermes = client.llm.get({
+const hermes = await client.llm.get({
   path: "NousResearch/Hermes-2-Pro-Mistral-7B-GGUF/Hermes-2-Pro-Mistral-7B.Q4_0.gguf",
 });
 
 // hermes.complete(...);
 ```
 
-> [!NOTE]
->
-> **Underlying Model May Change**
->
-> The LLMModel object returned by client.llm.get is a handle to a model that satisfies the query, not a specific loaded model. If the loaded model is unloaded, the object still exists but will error when used for predictions. If a new model with the same identifier is loaded, the object will refer to the new model.
->
-> Use model.getModelInfo to check the current status:
->
-> ```ts
-> const myModel = client.llm.get("my-model");
-> const descriptor = await myModel.getModelInfo();
-> if (descriptor === undefined) {
->   console.error("Model not loaded");
-> } else {
->   console.info("path:", descriptor.path);
->   console.info("identifier:", descriptor.identifier);
-> }
-> ```
-
 ### Using any Loaded Model
 
 If you do not have a specific model in mind, and just want to use any loaded model, you can simply pass in an empty object to `client.llm.get`.
 
 ```ts
-const anyModel = client.llm.get({});
+const anyModel = await client.llm.get({});
 // anyModel.complete(...);
 ```
 
@@ -341,7 +321,7 @@ if (loadedModels.length === 0) {
 }
 
 // Use the first one
-const firstModel = client.llm.get({ identifier: loadedModels[0].identifier });
+const firstModel = await client.llm.get({ identifier: loadedModels[0].identifier });
 // firstModel.complete(...);
 ```
 
@@ -361,13 +341,11 @@ By default, the inference parameters in the preset is used for the prediction. Y
 
 ```ts
 const prediction = anyModel.complete("Meaning of life is", {
-  config: {
-    contextOverflowPolicy: "stopAtLimit",
-    maxPredictedTokens: 100,
-    prePrompt: "Some pre-prompt",
-    stopStrings: ["\n"],
-    temperature: 0.7,
-  },
+  contextOverflowPolicy: "stopAtLimit",
+  maxPredictedTokens: 100,
+  prePrompt: "Some pre-prompt",
+  stopStrings: ["\n"],
+  temperature: 0.7,
 });
 
 // ...Do stuff with the prediction...
@@ -397,14 +375,12 @@ const prediction = anyModel.respond(
     { role: "user", content: "What is the meaning of life?" },
   ],
   {
-    config: {
-      contextOverflowPolicy: "stopAtLimit",
-      maxPredictedTokens: 100,
-      stopStrings: ["\n"],
-      temperature: 0.7,
-      inputPrefix: "Q: ",
-      inputSuffix: "\nA:",
-    },
+    contextOverflowPolicy: "stopAtLimit",
+    maxPredictedTokens: 100,
+    stopStrings: ["\n"],
+    temperature: 0.7,
+    inputPrefix: "Q: ",
+    inputSuffix: "\nA:",
   },
 );
 
@@ -459,7 +435,7 @@ Here is an example of how to use structured prediction:
 
 ```ts
 const prediction = model.complete("Here is a joke in JSON:", {
-  config: { maxPredictedTokens: 100 },
+  maxPredictedTokens: 100,
   structured: { type: "json" },
 });
 
@@ -487,7 +463,7 @@ const schema = {
 };
 
 const prediction = hermes.complete("Here is a joke in JSON:", {
-  config: { maxPredictedTokens: 100 },
+  maxPredictedTokens: 100,
   structured: { type: "json", jsonSchema: schema },
 });
 

@@ -9,12 +9,10 @@ import {
 } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
-  llmAccelerationConfigSchema,
   llmLoadModelConfigSchema,
   llmModelQuerySchema,
   logLevelSchema,
   reasonableKeyStringSchema,
-  type LLMAccelerationConfig,
   type LLMDescriptor,
   type LLMLoadModelConfig,
   type LLMModelQuery,
@@ -60,11 +58,6 @@ export interface LLMLoadModelOpts {
    * system is used. ("Default LM Studio macOS" or "Default LM Studio Windows).
    */
   config?: LLMLoadModelConfig;
-
-  /**
-   * Config related to the acceleration method for the model, such as offloading to the GPU.
-   */
-  acceleration?: LLMAccelerationConfig;
 
   /**
    * An `AbortSignal` to cancel the model loading. This is useful if you wish to add a functionality
@@ -129,7 +122,6 @@ const llmLoadModelOptsSchema = z.object({
   preset: z.string().optional(),
   identifier: z.string().optional(),
   config: llmLoadModelConfigSchema.optional(),
-  acceleration: llmAccelerationConfigSchema.optional(),
   signal: z.instanceof(AbortSignal).optional(),
   verbose: z.union([z.boolean(), logLevelSchema]).optional(),
   onProgress: z.function().optional(),
@@ -217,10 +209,9 @@ export class LLMNamespace {
       "loadModel",
       {
         path,
-        preset,
         identifier,
+        preset,
         config: config ?? {},
-        acceleration: opts.acceleration ?? { offload: "auto" },
         noHup: noHup ?? false,
       },
       message => {

@@ -14,12 +14,6 @@ export {
   serializeError,
 } from "./Error";
 export {
-  LLMAccelerationConfig,
-  llmAccelerationConfigSchema,
-  LLMAccelerationOffload,
-  llmAccelerationOffloadSchema,
-} from "./llm/LLMAccelerationConfig";
-export {
   LLMChatHistory,
   LLMChatHistoryMessage,
   llmChatHistoryMessageSchema,
@@ -28,7 +22,12 @@ export {
   llmChatHistorySchema,
 } from "./llm/LLMChatHistory";
 export { LLMDescriptor, llmDescriptorSchema } from "./llm/LLMDescriptor";
-export { LLMLoadModelConfig, llmLoadModelConfigSchema } from "./llm/LLMLoadModelConfig";
+export {
+  LLMAccelerationOffload,
+  llmAccelerationOffloadSchema,
+  LLMLoadModelConfig,
+  llmLoadModelConfigSchema,
+} from "./llm/LLMLoadModelConfig";
 export {
   LLMModelQuery,
   llmModelQuerySchema,
