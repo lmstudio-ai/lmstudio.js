@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-platform-backend-interface",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,8 +10,8 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lmstudio/lms-communication": "^0.4.7",
-    "@lmstudio/lms-shared-types": "^0.4.4"
+    "@lmstudio/lms-communication": "^0.4.8",
+    "@lmstudio/lms-shared-types": "^0.4.5"
   },
-  "gitHead": "8abe1338bad3a58ec1fe3a0e6462f2bc331bf450"
+  "gitHead": "eb198b1c427b6efc59a0589aed998492ce039d77"
 }
