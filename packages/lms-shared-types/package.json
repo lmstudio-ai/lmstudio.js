@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-shared-types",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,5 +12,5 @@
   "dependencies": {
     "zod": "^3.22.4"
   },
-  "gitHead": "b00c0b977b06cb065832016f387c0a512eb44b54"
+  "gitHead": "8abe1338bad3a58ec1fe3a0e6462f2bc331bf450"
 }
