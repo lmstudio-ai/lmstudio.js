@@ -71,9 +71,5 @@
     "publish/*",
     "examples/*",
     "scaffolds/*"
-  ],
-  "dependencies": {
-    "@lmstudio/lms-cli": "^0.2.2",
-    "terminal-size": "^4.0.0"
-  }
+  ]
 }

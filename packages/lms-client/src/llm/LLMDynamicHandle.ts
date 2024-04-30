@@ -12,7 +12,10 @@ import {
   type LLMPredictionStats,
   type LLMStructuredPredictionSetting,
 } from "@lmstudio/lms-shared-types";
-import { type LLMCompletionPredictionConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
+import {
+  type LLMCompletionPredictionConfig,
+  type LLMFullPredictionConfig,
+} from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
 import { z } from "zod";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
@@ -79,7 +82,7 @@ export class LLMDynamicHandle {
   private predict(
     modelSpecifier: LLMModelSpecifier,
     history: LLMChatHistory,
-    config: LLMChatPredictionConfig,
+    config: LLMFullPredictionConfig,
     structured: LLMStructuredPredictionSetting | undefined,
     cancelEvent: BufferedEvent<void>,
     onFragment: (fragment: string) => void,
@@ -172,6 +175,8 @@ export class LLMDynamicHandle {
         // If the user did not specify `stopStrings`, we default to an empty array. This is to
         // prevent the model from using the value set in the preset.
         stopStrings: [],
+        // Same for pre-prompt
+        prePrompt: "",
         ...config,
         // We don't allow the user to set `inputPrefix` and `inputSuffix` in `complete` because it
         // doesn't make sense to do so (and can be vastly confusing.) If the user wants to set these

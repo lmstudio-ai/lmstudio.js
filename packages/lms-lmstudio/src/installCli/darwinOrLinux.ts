@@ -165,7 +165,9 @@ export async function installCliDarwinOrLinux(path: string, { skipConfirmation }
       ),
     );
 
-    const { cont } = await inquirer.prompt([
+    const { cont } = await inquirer.createPromptModule({
+      output: process.stderr,
+    })([
       {
         type: "confirm",
         name: "cont",

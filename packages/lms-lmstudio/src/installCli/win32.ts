@@ -82,7 +82,9 @@ $path += ";${path}";
         },
       ),
     );
-    const { cont } = await inquirer.prompt([
+    const { cont } = await inquirer.createPromptModule({
+      output: process.stderr,
+    })([
       {
         type: "confirm",
         name: "cont",

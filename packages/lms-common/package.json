@@ -11,6 +11,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@lmstudio/lms-shared-types": "^0.4.3",
+    "@lmstudio/lms-isomorphic": "^0.3.1",
     "chalk": "^4.1.2",
     "immer": "^10.0.4",
     "process": "^0.11.10",

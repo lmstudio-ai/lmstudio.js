@@ -1,3 +1,4 @@
+import { terminalSize } from "@lmstudio/lms-isomorphic";
 import boxen from "boxen";
 import chalk from "chalk";
 import process from "process";
@@ -7,7 +8,7 @@ export function makeTitledPrettyError(title: string, content: string, stack?: st
   return makePrettyError(chalk.bgRed.white(` ${title} `) + "\n\n" + content, stack);
 }
 export function makePrettyError(content: string, stack?: string) {
-  if ((process as any).browser || process.env.LMS_NO_FANCY_ERRORS) {
+  if ((process as any).browser || process.env.LMS_NO_FANCY_ERRORS || terminalSize().columns < 80) {
     const error = new Error(content);
     if (stack === undefined) {
       changeErrorStackInPlace(error, "");

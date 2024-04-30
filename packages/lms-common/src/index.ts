@@ -25,7 +25,7 @@ export {
 } from "./resultTypes";
 export { runOnDispose } from "./runOnDispose";
 export { Signal, SignalSetter } from "./Signal";
-export { LoggerInterface, SimpleLogger } from "./SimpleLogger";
+export { LoggerInterface, SimpleLogger, SimpleLoggerConstructorOpts } from "./SimpleLogger";
 export { StreamablePromise } from "./StreamablePromise";
 export { text } from "./text";
 export { TimeoutTracker } from "./TimeoutTracker";

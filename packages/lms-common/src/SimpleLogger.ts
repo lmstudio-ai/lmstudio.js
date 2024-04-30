@@ -10,21 +10,34 @@ export interface LoggerInterface {
   debug(...messages: Array<unknown>): void;
 }
 
-const infoPrefix = chalk.greenBright("I");
-const warnPrefix = chalk.yellowBright("W");
-const errorPrefix = chalk.redBright("E");
-const debugPrefix = chalk.blueBright("D");
-
 function isSimpleLogger(logger: LoggerInterface): logger is SimpleLogger {
   return (logger as any)?.isSimpleLogger === true;
 }
 
+export interface SimpleLoggerConstructorOpts {
+  useLogLevelPrefixes?: boolean;
+}
+
+const defaultInfoPrefix = chalk.greenBright("I");
+const defaultWarnPrefix = chalk.yellowBright("W");
+const defaultErrorPrefix = chalk.redBright("E");
+const defaultDebugPrefix = chalk.blueBright("D");
+
 export class SimpleLogger {
   public readonly isSimpleLogger = true;
-  private fullPrefix: string;
-  private innerPrefix: string;
-  private parentLogger: LoggerInterface;
-  public constructor(prefixText: string = "", parentLogger: LoggerInterface = console) {
+  private readonly fullPrefix: string;
+  private readonly innerPrefix: string;
+  private readonly parentLogger: LoggerInterface;
+  private readonly infoPrefix: Array<string> = [];
+  private readonly warnPrefix: Array<string> = [];
+  private readonly errorPrefix: Array<string> = [];
+  private readonly debugPrefix: Array<string> = [];
+
+  public constructor(
+    prefixText: string = "",
+    parentLogger: LoggerInterface = console,
+    { useLogLevelPrefixes = true }: SimpleLoggerConstructorOpts = {},
+  ) {
     if (isSimpleLogger(parentLogger)) {
       if (prefixText === "") {
         this.innerPrefix = parentLogger.innerPrefix;
@@ -48,12 +61,24 @@ export class SimpleLogger {
       }
       this.parentLogger = parentLogger;
     }
+    if (useLogLevelPrefixes) {
+      this.infoPrefix.push(defaultInfoPrefix);
+      this.warnPrefix.push(defaultWarnPrefix);
+      this.errorPrefix.push(defaultErrorPrefix);
+      this.debugPrefix.push(defaultDebugPrefix);
+    }
+    if (this.fullPrefix !== "") {
+      this.infoPrefix.push(this.fullPrefix);
+      this.warnPrefix.push(this.fullPrefix);
+      this.errorPrefix.push(this.fullPrefix);
+      this.debugPrefix.push(this.fullPrefix);
+    }
   }
   public subclass(prefixText: string) {
     return new SimpleLogger(`${this.innerPrefix}:${prefixText}`, this.parentLogger);
   }
   public info(...messages: Array<unknown>) {
-    this.parentLogger.info(infoPrefix, this.fullPrefix, ...messages);
+    this.parentLogger.info(...this.infoPrefix, ...messages);
   }
   public infoText(strings: TemplateStringsArray, ...values: Array<TextAllowedTypes>) {
     this.info(text(strings, ...values));
@@ -62,7 +87,7 @@ export class SimpleLogger {
     this.parentLogger.info(...messages);
   }
   public error(...messages: Array<unknown>) {
-    this.parentLogger.error(errorPrefix, this.fullPrefix, ...messages);
+    this.parentLogger.error(...this.errorPrefix, ...messages);
   }
   public errorText(strings: TemplateStringsArray, ...values: Array<TextAllowedTypes>) {
     this.error(text(strings, ...values));
@@ -71,7 +96,7 @@ export class SimpleLogger {
     this.parentLogger.error(...messages);
   }
   public warn(...messages: Array<unknown>) {
-    this.parentLogger.warn(warnPrefix, this.fullPrefix, ...messages);
+    this.parentLogger.warn(...this.warnPrefix, ...messages);
   }
   public warnText(strings: TemplateStringsArray, ...values: Array<TextAllowedTypes>) {
     this.warn(text(strings, ...values));
@@ -80,7 +105,7 @@ export class SimpleLogger {
     this.parentLogger.warn(...messages);
   }
   public debug(...messages: Array<unknown>) {
-    this.parentLogger.debug(debugPrefix, this.fullPrefix, ...messages);
+    this.parentLogger.debug(...this.debugPrefix, ...messages);
   }
   public debugText(strings: TemplateStringsArray, ...values: Array<TextAllowedTypes>) {
     this.debug(text(strings, ...values));

@@ -41,8 +41,8 @@ export interface LLMLoadModelOpts {
   /**
    * The identifier to use for the loaded model.
    *
-   * By default, the identifier is the same as the model path, and will have additional numbers
-   * attached if the identifier is already in use.
+   * By default, the identifier is the same as the path (1st parameter). If the identifier already
+   * exists, a number will be attached. This option allows you to specify the identifier to use.
    *
    * However, when the identifier is specified and it is in use, an error will be thrown. If the
    * call is successful, it is guaranteed that the loaded model will have the specified identifier.
@@ -338,7 +338,7 @@ export class LLMNamespace {
    * ```
    *
    */
-  public get(identifier: string): Promise<LLMSpecificModel>;
+  public get(path: string): Promise<LLMSpecificModel>;
   public async get(param: string | LLMModelQuery): Promise<LLMSpecificModel> {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(

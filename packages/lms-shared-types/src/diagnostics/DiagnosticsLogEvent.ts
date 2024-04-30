@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const diagnosticsLogEventDataSchema = z.discriminatedUnion("type", [
   z.object({
-    type: z.literal("llm.prediction"),
+    type: z.literal("llm.prediction.input"),
     modelPath: z.string(),
     modelIdentifier: z.string(),
     input: z.string(),
@@ -12,7 +12,7 @@ export const diagnosticsLogEventDataSchema = z.discriminatedUnion("type", [
  * @public
  */
 export type DiagnosticsLogEventData = {
-  type: "llm.prediction";
+  type: "llm.prediction.input";
   modelPath: string;
   modelIdentifier: string;
   input: string;

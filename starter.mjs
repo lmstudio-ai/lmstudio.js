@@ -1,7 +1,9 @@
 import { spawn } from "child_process";
 import inquirer from "inquirer";
 
-const { commands } = await inquirer.prompt({
+const { commands } = await inquirer.createPromptModule({
+  output: process.stderr,
+})({
   type: "checkbox",
   name: "commands",
   message: "Which services would you like to use?",
