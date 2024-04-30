@@ -11,8 +11,13 @@ import { type LLMContextOverflowPolicy, type LLMPredictionConfigBase } from "./L
  *
  * @public
  */
-export type LLMAccelerationOffload = number | "auto";
-export const llmAccelerationOffloadSchema = z.union([z.number().min(0).max(1), z.literal("auto")]);
+export type LLMAccelerationOffload = number | "auto" | "max" | "off";
+export const llmAccelerationOffloadSchema = z.union([
+  z.number().min(0).max(1),
+  z.literal("auto"),
+  z.literal("max"),
+  z.literal("off"),
+]);
 
 /** @public */
 export interface LLMLoadModelConfig {

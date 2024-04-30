@@ -189,7 +189,7 @@ export async function installCliDarwinOrLinux(path: string, { skipConfirmation }
       text`
         ${chalk.bgGreenBright.black("  ✓ Installation Completed  ")}
 
-          ${chalk.magentaBright(text`
+          ${chalk.cyanBright(text`
             (i) You need to open a new terminal window for these changes to take effect.
           `)}
 

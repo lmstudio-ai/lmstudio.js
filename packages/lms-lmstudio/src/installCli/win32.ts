@@ -39,11 +39,11 @@ export async function installCliWin32(path: string, { skipConfirmation }: Instal
 
           The path ${chalk.greenBright(path)} is already in the PATH environment variable.
 
-            ${chalk.magentaBright(text`
+            ${chalk.cyanBright(text`
               (i) If Windows cannot find the CLI tool, please try again in a new terminal window.
             `)}
 
-            ${chalk.magentaBright(text`
+            ${chalk.cyanBright(text`
               (i) If you are using an integrated terminal in an editor (such as VS Code), please try
               to restart the editor.
             `)}
@@ -106,11 +106,11 @@ $path += ";${path}";
       text`
         ${chalk.bgGreenBright.black("  ✓ Installation Completed  ")}
 
-          ${chalk.magentaBright(text`
+          ${chalk.cyanBright(text`
             (i) You need to open a new terminal window for these changes to take effect.
           `)}
 
-          ${chalk.magentaBright(text`
+          ${chalk.cyanBright(text`
             (i) If you are using an integrated terminal in an editor (such as VS Code), please try
             to restart the editor.
           `)}

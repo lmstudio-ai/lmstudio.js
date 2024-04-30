@@ -201,7 +201,10 @@ export class LLMNamespace {
     if (verbose) {
       this.logger.logAtLevel(
         verboseLevel,
-        'Verbose logging is enabled. To hide progress logs, set the "verbose" option to false.',
+        text`
+          Verbose logging is enabled. To hide progress logs, set the "verbose" option to false in
+          client.llm.load.
+        `,
       );
     }
 
