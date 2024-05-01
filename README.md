@@ -16,6 +16,8 @@
 
 Follow along for our upcoming announcements about `lmstudio.js` on [Twitter](https://lmstudio.ai/LMStudioAI) and [Discord](https://discord.gg/aPQfnNkxGC).
 
+Learn more on our [documentation](https://lmstudio.ai/docs).
+
 ---
 
 ### Installation
