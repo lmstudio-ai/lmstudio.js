@@ -16,7 +16,8 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "postject": "^1.0.0-alpha.6",
-    "run-script-os": "^1.1.6"
+    "run-script-os": "^1.1.6",
+    "@lmstudio/lms-lmstudio": "^0.0.11"
   },
   "gitHead": "d821c81d24bde49e43181177a4af37424bc13120"
 }
