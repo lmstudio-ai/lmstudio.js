@@ -7,12 +7,9 @@
   </picture>
   
 </p>
-<p align="center"><code>Use local LLMs in your JS/TS/Node code.</code></p>
+<p align="center"><code>Use local LLMs in JS/TS/Node</code></p>
 <p align="center"><i>LM Studio Client SDK - Pre-Release</i></p>
 
-<p align="center">
-  <bold><code>lms</code> - Command Line Tool for <a href="https://lmstudio.ai/">LM Studio</a></bold><br><br>
-</p>
 
 ### Pre-Release Alpha
 
@@ -26,23 +23,37 @@ Follow along for our upcoming announcements about `lmstudio.js` on [Twitter](htt
 ---
 
 ### Installation
-
 ```shell
 npm install @lmstudio/sdk
 ```
 
-### Usage
+### Quick project setup
+```shell
+npx lmstudio install-cli # open a new terminal window after installation...
+lms create
+```
+
+### API Usage
 
 ```ts
 import { LMStudioClient } from "@lmstudio/sdk";
 
-const lmstudio = new LMStudioClient();
+const client = new LMStudioClient();
 
 async function main() {
-  const llama3 = await lmstudio.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF");
-  const result = await llama3.complete("# A function to print the digits of pi\ndef print_pi():");
-  console.log(result.content);
-  console.log(result.stats);
+  const modelPath = "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF";
+  const llama3 = await client.llm.load(modelPath, { config: { gpuOffload: "max" } });
+  const prediction = llama3.respond([
+    { role: "system", content: "Always answer in rhymes." },
+    { role: "user", content: "Please introduce yourself." },
+  ]);
+
+  for await (const text of prediction) {
+    process.stdout.write(text);
+  }
+
+  const { stats } = await prediction;
+  console.log(stats);
 }
 
 main();
@@ -52,19 +63,11 @@ main();
 
 ### Set up `lms` (CLI)
 
-`lms` is the CLI tool for LM Studio. It is shipped with the latest versions of [LM Studio](https://lmstudio.ai/). To set it up, run the following command:
+`lms` is the CLI tool for LM Studio. It is shipped with the latest versions of [LM Studio](https://lmstudio.ai/). To set it up, run:
 
-- **Windows**:
-
-  ```shell
-  cmd /c %USERPROFILE%/.cache/lm-studio/bin/lms.exe bootstrap
-  ```
-
-- **Linux/macOS**:
-
-  ```shell
-  ~/.cache/lm-studio/bin/lms bootstrap
-  ```
+```shell
+npx lmstudio install-cli
+```
 
 To check if the bootstrapping was successful, run the following in a **👉 new terminal window 👈**:
 
