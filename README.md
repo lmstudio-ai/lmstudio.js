@@ -10,14 +10,19 @@
 <p align="center"><code>Use local LLMs in your JS/TS/Node code.</code></p>
 <p align="center"><i>LM Studio Client SDK - Pre-Release</i></p>
 
+<p align="center">
+  <bold><code>lms</code> - Command Line Tool for <a href="https://lmstudio.ai/">LM Studio</a></bold><br><br>
+</p>
+
 ### Pre-Release Alpha
 
 `lmstudio.js` is in pre-release alpha, and is undergoing rapid and continuous development. Expect breaking changes!
 
-Follow along for our upcoming announcements about `lmstudio.js` on [Twitter](https://lmstudio.ai/LMStudioAI) and [Discord](https://discord.gg/aPQfnNkxGC).
+Follow along for our upcoming announcements about `lmstudio.js` on [Twitter](https://lmstudio.ai/LMStudioAI) and [Discord](https://discord.gg/aPQfnNkxGC). Read the [Docs](https://lmstudio.ai/docs).
 
-Learn more on our [documentation](https://lmstudio.ai/docs).
-
+<p>Discuss all things lmstudio.js in <a href="https://discord.gg/aPQfnNkxGC">#dev-chat</a> in LM Studio's Community Discord server.</p>
+<a href="https://discord.gg/aPQfnNkxGC"><img alt="Discord" src="https://img.shields.io/discord/1110598183144399058?logo=discord&style=flat&logoColor=white"></a>
+  
 ---
 
 ### Installation
