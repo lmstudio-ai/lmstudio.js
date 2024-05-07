@@ -13,6 +13,14 @@ export function createSystemBackendInterface() {
     .addRpcEndpoint("listDownloadedModels", {
       parameter: z.void(),
       returns: filteredArray(downloadedModelSchema),
+    })
+    .addWritableSignalEndpoint("test", {
+      creationParameter: z.string(),
+      signalData: z.object({
+        timeSeconds: z.number(),
+        someString: z.string(),
+        obj: z.object({}),
+      }),
     });
 }
 

@@ -14,18 +14,39 @@ import { ServerPort } from "@lmstudio/lms-communication-server/dist/ServerPort";
 import {
   type ChannelEndpointsSpecBase,
   type RpcEndpointsSpecBase,
+  type SignalEndpointsSpecBase,
+  type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication/dist/BackendInterface";
 
 export function createMockedPorts<
   TContext extends Context,
   TRpcEndpoints extends RpcEndpointsSpecBase,
   TChannelEndpoints extends ChannelEndpointsSpecBase,
+  TSignalEndpoints extends SignalEndpointsSpecBase,
+  TWritableSignalEndpoints extends WritableSignalEndpointsSpecBase,
 >(
-  backendInterface: BackendInterface<TContext, TRpcEndpoints, TChannelEndpoints>,
+  backendInterface: BackendInterface<
+    TContext,
+    TRpcEndpoints,
+    TChannelEndpoints,
+    TSignalEndpoints,
+    TWritableSignalEndpoints
+  >,
   contextCreator: ContextCreator<TContext>,
 ): {
-  clientPort: ClientPort<TRpcEndpoints, TChannelEndpoints>;
-  serverPort: ServerPort<TContext, TRpcEndpoints, TChannelEndpoints>;
+  clientPort: ClientPort<
+    TRpcEndpoints,
+    TChannelEndpoints,
+    TSignalEndpoints,
+    TWritableSignalEndpoints
+  >;
+  serverPort: ServerPort<
+    TContext,
+    TRpcEndpoints,
+    TChannelEndpoints,
+    TSignalEndpoints,
+    TWritableSignalEndpoints
+  >;
 } {
   const [toClientMessageEvent, emitToClientMessageEvent] =
     BufferedEvent.create<ServerToClientMessage>();

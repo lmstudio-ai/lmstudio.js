@@ -3,7 +3,7 @@ import { type AuthPacket } from "@lmstudio/lms-communication";
 import { type ClientHolder } from "./AuthenticatedWsServer";
 
 export interface ContextCreatorParams {
-  type: "rpc" | "channel";
+  type: "rpc" | "channel" | "signal" | "writableSignal";
   endpointName: string;
 }
 

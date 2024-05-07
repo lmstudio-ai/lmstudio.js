@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { z, type ZodType } from "zod";
+import { type SignalLike, type WriteTag } from "@lmstudio/lms-common";
+import { type Patch } from "immer";
+import { type z, type ZodType } from "zod";
 import type { Channel } from "./Channel";
 
 export type RpcEndpointHandler<TContext = any, TParameter = any, TReturns = any> = (
@@ -16,7 +18,27 @@ export type ChannelEndpointHandler<
   ctx: TContext,
   creationParameter: TCreationParameter,
   channel: Channel<TToServerPacket, TToClientPacket>,
-) => void;
+) => Promise<void>;
+
+export type SignalEndpointHandler<TContext = any, TCreationParameter = any, TData = any> = (
+  ctx: TContext,
+  creationParameter: TCreationParameter,
+) => SignalLike<TData> | Promise<SignalLike<TData>>;
+
+export type WritableSignalEndpointHandler<TContext = any, TCreationParameter = any, TData = any> = (
+  ctx: TContext,
+  creationParameter: TCreationParameter,
+) =>
+  | readonly [
+      signal: SignalLike<TData>,
+      update: (data: TData, patches: Array<Patch>, tags: Array<WriteTag>) => void,
+    ]
+  | Promise<
+      readonly [
+        signal: SignalLike<TData>,
+        update: (data: TData, patches: Array<Patch>, tags: Array<WriteTag>) => void,
+      ]
+    >;
 
 export interface RpcEndpoint {
   name: string;
@@ -31,6 +53,20 @@ export interface ChannelEndpoint {
   toServerPacket: z.ZodType;
   toClientPacket: z.ZodType;
   handler: ChannelEndpointHandler | null;
+}
+
+export interface SignalEndpoint {
+  name: string;
+  creationParameter: z.ZodType;
+  signalData: z.ZodType;
+  handler: SignalEndpointHandler | null;
+}
+
+export interface WritableSignalEndpoint {
+  name: string;
+  creationParameter: z.ZodType;
+  signalData: z.ZodType;
+  handler: WritableSignalEndpointHandler | null;
 }
 
 interface RpcEndpointSpecBase {
@@ -52,20 +88,48 @@ export type ChannelEndpointsSpecBase = {
   [endpointName: string]: ChannelEndpointSpecBase;
 };
 
+interface SignalEndpointSpecBase {
+  creationParameter: any;
+  signalData: any;
+}
+
+export type SignalEndpointsSpecBase = {
+  [endpointName: string]: SignalEndpointSpecBase;
+};
+
+interface WritableSignalEndpointSpecBase {
+  creationParameter: any;
+  signalData: any;
+}
+
+export type WritableSignalEndpointsSpecBase = {
+  [endpointName: string]: WritableSignalEndpointSpecBase;
+};
+
 export class BackendInterface<
   TContext = never,
   TRpcEndpoints extends RpcEndpointsSpecBase = {},
   TChannelEndpoints extends ChannelEndpointsSpecBase = {},
+  TSignalEndpoints extends SignalEndpointsSpecBase = {},
+  TWritableSignalEndpoints extends WritableSignalEndpointsSpecBase = {},
 > {
   private unhandledEndpoints = new Set<string>();
   private existingEndpointNames = new Set<string>();
   private rpcEndpoints = new Map<string, RpcEndpoint>();
   private channelEndpoints = new Map<string, ChannelEndpoint>();
+  private signalEndpoints = new Map<string, SignalEndpoint>();
+  private writableSignalEndpoints = new Map<string, WritableSignalEndpoint>();
 
   public constructor() {}
 
   public withContextType<TContextType>() {
-    return this as any as BackendInterface<TContextType, TRpcEndpoints, TChannelEndpoints>;
+    return this as any as BackendInterface<
+      TContextType,
+      TRpcEndpoints,
+      TChannelEndpoints,
+      TSignalEndpoints,
+      TWritableSignalEndpoints
+    >;
   }
 
   private assertEndpointNameNotExists(endpointName: string) {
@@ -98,7 +162,9 @@ export class BackendInterface<
         returns: z.infer<TReturnsZod>;
       };
     },
-    TChannelEndpoints
+    TChannelEndpoints,
+    TSignalEndpoints,
+    TWritableSignalEndpoints
   > {
     this.assertEndpointNameNotExists(endpointName);
     this.existingEndpointNames.add(endpointName);
@@ -136,7 +202,9 @@ export class BackendInterface<
         toServerPacket: z.infer<TToServerPacketZod>;
         toClientPacket: z.infer<TToClientPacketZod>;
       };
-    }
+    },
+    TSignalEndpoints,
+    TWritableSignalEndpoints
   > {
     this.assertEndpointNameNotExists(endpointName);
     this.existingEndpointNames.add(endpointName);
@@ -166,23 +234,69 @@ export class BackendInterface<
   ): BackendInterface<
     TContext,
     TRpcEndpoints,
-    TChannelEndpoints & {
+    TChannelEndpoints,
+    TSignalEndpoints & {
       [endpointName in TEndpointName]: {
         creationParameter: z.infer<TCreationParameterZod>;
-        toServerPacket: undefined;
-        toClientPacket: z.infer<TSignalDataZod>;
+        signalData: z.infer<TSignalDataZod>;
+      };
+    },
+    TWritableSignalEndpoints
+  > {
+    this.assertEndpointNameNotExists(endpointName);
+    this.existingEndpointNames.add(endpointName);
+    this.signalEndpoints.set(endpointName, {
+      name: endpointName,
+      creationParameter,
+      signalData,
+      handler: null,
+    });
+    return this;
+  }
+
+  public addWritableSignalEndpoint<
+    TEndpointName extends string,
+    TCreationParameterZod extends ZodType,
+    TSignalDataZod extends ZodType,
+  >(
+    endpointName: TEndpointName,
+    {
+      creationParameter,
+      signalData,
+    }: {
+      creationParameter: TCreationParameterZod;
+      signalData: TSignalDataZod;
+    },
+  ): BackendInterface<
+    TContext,
+    TRpcEndpoints,
+    TChannelEndpoints,
+    TSignalEndpoints,
+    TWritableSignalEndpoints & {
+      [endpointName in TEndpointName]: {
+        creationParameter: z.infer<TCreationParameterZod>;
+        signalData: z.infer<TSignalDataZod>;
       };
     }
   > {
-    return this.addChannelEndpoint(endpointName, {
+    this.assertEndpointNameNotExists(endpointName);
+    this.existingEndpointNames.add(endpointName);
+    this.writableSignalEndpoints.set(endpointName, {
+      name: endpointName,
       creationParameter,
-      toServerPacket: z.undefined(),
-      toClientPacket: signalData,
+      signalData,
+      handler: null,
     });
+    return this;
   }
 
   /**
    * Adds a handler for an Rpc endpoint.
+   *
+   * @param endpointName - The name of the endpoint.
+   * @param handler - The handler function. Will be called when the endpoint is invoked. When
+   * called, the first parameter is the context, and the second parameter is the "parameter" for the
+   * RPC call. Can return a value or a promise that resolves to the result.
    */
   public handleRpcEndpoint<TEndpointName extends string>(
     endpointName: TEndpointName,
@@ -205,6 +319,14 @@ export class BackendInterface<
 
   /**
    * Adds a handler for a channel endpoint.
+   * 
+   * @param endpointName - The name of the endpoint.
+   * @param handler - The handler function. Will be called when the client creates a channel for
+   * this endpoint. When called, the first parameter is the context, the second parameter is the
+   * "creationParameter" for the channel, and the third parameter is a channel object that can be
+   * used to send and receive messages from the client.
+   * 
+   * Must return a promise. Once that promise is settled, the channel will be closed.
    */
   public handleChannelEndpoint<TEndpointName extends string>(
     endpointName: TEndpointName,
@@ -226,6 +348,85 @@ export class BackendInterface<
     this.unhandledEndpoints.delete(endpointName);
   }
 
+  /**
+   * Adds a handler for a signal endpoint.
+   *
+   * @param endpointName - The name of the endpoint.
+   * @param handler - The handler function. Will be called when the client creates a signal, and at
+   * least one subscriber is attached to that signal. When called, the first parameter is the
+   * context, and the second parameter is the "creationParameter" for the signal. This method should
+   * return a SignalLike, or a promise that resolves to a SignalLike.
+   *
+   * Note: There is no 1-to-1 correlation between the signal on the client side and the number of
+   * times this handler is called. Every time the number of client subscribers changes from 0 to 1,
+   * this handler will be called. Every time the number of client subscribers changes from 1 to 0,
+   * the signal returned from this handler will be unsubscribed.
+   *
+   * Caution: Do NOT create new subscriptions that don't self-terminate in this handler, as it will
+   * cause memory leaks. That is, either:
+   *
+   * - Return a signal that already exists
+   * - Create and return a LazySignal
+   */
+  public handleSignalEndpoint<TEndpointName extends string>(
+    endpointName: TEndpointName,
+    handler: SignalEndpointHandler<
+      TContext,
+      TSignalEndpoints[TEndpointName]["creationParameter"],
+      TSignalEndpoints[TEndpointName]["signalData"]
+    >,
+  ) {
+    const endpoint = this.signalEndpoints.get(endpointName);
+    if (endpoint === undefined) {
+      throw new Error(`No signal endpoint with name ${endpointName}`);
+    }
+    if (endpoint.handler !== null) {
+      throw new Error(`Signal endpoint with name ${endpointName} already has a handler`);
+    }
+    endpoint.handler = handler;
+    this.unhandledEndpoints.delete(endpointName);
+  }
+
+  /**
+   * Adds a handler for a writable signal endpoint.
+   *
+   * @param endpointName - The name of the endpoint.
+   * @param handler - The handler function. Will be called when the client creates a writable
+   * signal, and at least one subscriber is attached to that signal. When called, the first
+   * parameter is the context, and the second parameter is the "creationParameter" for the signal.
+   * This method should return a tuple of the signal and an update function. The update function
+   * should be called with the new data, patches, and tags to update the signal.
+   *
+   * Note: There is no 1-to-1 correlation between the signal on the client side and the number of
+   * times this handler is called. Every time the number of client subscribers changes from 0 to 1,
+   * this handler will be called. Every time the number of client subscribers changes from 1 to 0,
+   * the signal returned from this handler will be unsubscribed.
+   *
+   * Caution: Do NOT create new subscriptions that don't self-terminate in this handler, as it will
+   * cause memory leaks. That is, either:
+   *
+   * - Return a signal that already exists
+   * - Create and return a LazySignal
+   */
+  public handleWritableSignalEndpoint<TEndpointName extends string>(
+    endpointName: TEndpointName,
+    handler: WritableSignalEndpointHandler<
+      TContext,
+      TWritableSignalEndpoints[TEndpointName]["creationParameter"],
+      TWritableSignalEndpoints[TEndpointName]["signalData"]
+    >,
+  ) {
+    const endpoint = this.writableSignalEndpoints.get(endpointName);
+    if (endpoint === undefined) {
+      throw new Error(`No writable signal endpoint with name ${endpointName}`);
+    }
+    if (endpoint.handler !== null) {
+      throw new Error(`Writable signal endpoint with name ${endpointName} already has a handler`);
+    }
+    endpoint.handler = handler;
+    this.unhandledEndpoints.delete(endpointName);
+  }
+
   public assertAllEndpointsHandled() {
     if (this.unhandledEndpoints.size > 0) {
       throw new Error(
@@ -242,5 +443,13 @@ export class BackendInterface<
 
   public getChannelEndpoint(endpointName: string) {
     return this.channelEndpoints.get(endpointName);
+  }
+
+  public getSignalEndpoint(endpointName: string) {
+    return this.signalEndpoints.get(endpointName);
+  }
+
+  public getWritableSignalEndpoint(endpointName: string) {
+    return this.writableSignalEndpoints.get(endpointName);
   }
 }

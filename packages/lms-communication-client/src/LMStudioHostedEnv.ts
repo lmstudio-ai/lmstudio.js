@@ -18,3 +18,16 @@ export interface LMStudioHostedEnv {
     onClose: () => void,
   ) => (message: ClientToServerMessage) => void;
 }
+
+export function getHostedEnv(): LMStudioHostedEnv | null {
+  let anyWindow: any;
+  try {
+    anyWindow = window;
+  } catch (error) {
+    anyWindow = undefined;
+  }
+  if (anyWindow !== undefined && anyWindow.lmsHostedEnv !== undefined) {
+    return anyWindow.lmsHostedEnv as LMStudioHostedEnv;
+  }
+  return null;
+}

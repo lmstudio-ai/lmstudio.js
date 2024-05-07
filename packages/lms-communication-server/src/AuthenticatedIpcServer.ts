@@ -30,7 +30,7 @@ export class AuthenticatedIpcServer<TContext extends Context> extends IpcServer<
   }
   protected override async onConnection(
     event: IpcMainEvent,
-    ...data: Array<unknown>
+    data: Array<unknown>
   ): Promise<void> {
     if (event.ports.length !== 1) {
       this.logger.error(

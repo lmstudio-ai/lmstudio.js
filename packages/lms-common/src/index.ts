@@ -4,7 +4,7 @@ import "./polyfill";
 enablePatches();
 
 // Export lazy signal first to avoid circular dependency issues
-export { LazySignal } from "./LazySignal";
+export { LazySignal, NotAvailable } from "./LazySignal";
 
 export { BufferedEvent } from "./BufferedEvent";
 export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
@@ -12,6 +12,8 @@ export { Event } from "./Event";
 export { lmsDefaultPorts } from "./lmsDefaultPorts";
 export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";
+export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter";
+export { OWLSignal } from "./OWLSignal";
 export { removeUndefinedValues } from "./removeUndefinedValues";
 export {
   createResultSchema,
@@ -24,7 +26,7 @@ export {
   unwrapPromiseOfResult,
 } from "./resultTypes";
 export { runOnDispose } from "./runOnDispose";
-export { Signal, SignalSetter } from "./Signal";
+export { Signal, SignalLike } from "./Signal";
 export { LoggerInterface, SimpleLogger, SimpleLoggerConstructorOpts } from "./SimpleLogger";
 export { StreamablePromise } from "./StreamablePromise";
 export { text } from "./text";

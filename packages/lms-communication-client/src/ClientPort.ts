@@ -1,11 +1,16 @@
 import {
-  SimpleLogger,
-  Validator,
   changeErrorStackInPlace,
   getCurrentStack,
+  LazySignal,
   makePromise,
+  OWLSignal,
+  SimpleLogger,
   text,
+  Validator,
   type LoggerInterface,
+  type NotAvailable,
+  type Setter,
+  type WriteTag,
 } from "@lmstudio/lms-common";
 import type {
   BackendInterface,
@@ -19,8 +24,15 @@ import { Channel } from "@lmstudio/lms-communication";
 import {
   type ChannelEndpointsSpecBase,
   type RpcEndpointsSpecBase,
+  type SignalEndpoint,
+  type SignalEndpointsSpecBase,
+  type WritableSignalEndpoint,
+  type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication/dist/BackendInterface";
 import { fromSerializedError, type SerializedLMSExtendedError } from "@lmstudio/lms-shared-types";
+import { applyPatches, enablePatches, type Patch } from "immer";
+
+enablePatches();
 
 interface OpenChannel {
   endpoint: ChannelEndpoint;
@@ -39,6 +51,22 @@ interface OngoingRpc {
   reject: (error: any) => void;
 }
 
+interface OpenSignalSubscription {
+  endpoint: SignalEndpoint;
+  getValue: () => any;
+  receivedPatches: (newValue: any, patches: Array<Patch>, tags: Array<WriteTag>) => void;
+  errored: (error: any) => void;
+  stack?: string;
+}
+
+interface OpenWritableSignalSubscription {
+  endpoint: WritableSignalEndpoint;
+  getValue: () => any;
+  receivedPatches: (newValue: any, patches: Array<Patch>, tags: Array<WriteTag>) => void;
+  errored: (error: any) => void;
+  stack?: string;
+}
+
 function defaultErrorDeserializer(serialized: SerializedLMSExtendedError, stack?: string): Error {
   const error = fromSerializedError(serialized);
   if (stack === undefined) {
@@ -52,19 +80,31 @@ function defaultErrorDeserializer(serialized: SerializedLMSExtendedError, stack?
 export class ClientPort<
   TRpcEndpoints extends RpcEndpointsSpecBase,
   TChannelEndpoints extends ChannelEndpointsSpecBase,
+  TSignalEndpoints extends SignalEndpointsSpecBase,
+  TWritableSignalEndpoints extends WritableSignalEndpointsSpecBase,
 > {
   private readonly transport: ClientTransport;
   private readonly logger;
   private openChannels = new Map<number, OpenChannel>();
   private ongoingRpcs = new Map<number, OngoingRpc>();
+  private openSignalSubscriptions = new Map<number, OpenSignalSubscription>();
+  private openWritableSignalSubscriptions = new Map<number, OpenWritableSignalSubscription>();
   private openCommunicationsCount = 0;
   private nextChannelId = 0;
+  private nextSubscribeId = 0;
+  private nextWritableSubscribeId = 0;
   private producedCommunicationWarningsCount = 0;
   private errorDeserializer: (serialized: SerializedLMSExtendedError, stack?: string) => Error;
   private verboseErrorMessage: boolean;
 
   public constructor(
-    private readonly backendInterface: BackendInterface<unknown, TRpcEndpoints, TChannelEndpoints>,
+    private readonly backendInterface: BackendInterface<
+      unknown,
+      TRpcEndpoints,
+      TChannelEndpoints,
+      TSignalEndpoints,
+      TWritableSignalEndpoints
+    >,
     factory: ClientTransportFactory,
     {
       parentLogger,
@@ -106,7 +146,11 @@ export class ClientPort<
 
   private updateOpenCommunicationsCount() {
     const previousCount = this.openCommunicationsCount;
-    this.openCommunicationsCount = this.openChannels.size + this.ongoingRpcs.size;
+    this.openCommunicationsCount =
+      this.openChannels.size +
+      this.ongoingRpcs.size +
+      this.openSignalSubscriptions.size +
+      this.openWritableSignalSubscriptions.size;
     if (this.openCommunicationsCount === 0 && previousCount > 0) {
       this.transport.onHavingNoOpenCommunication();
     } else if (this.openCommunicationsCount === 1 && previousCount === 0) {
@@ -212,6 +256,108 @@ export class ClientPort<
     this.updateOpenCommunicationsCount();
   }
 
+  private receivedSignalUpdate(message: ServerToClientMessage & { type: "signalUpdate" }) {
+    const openSignalSubscription = this.openSignalSubscriptions.get(message.subscribeId);
+    if (openSignalSubscription === undefined) {
+      this.communicationWarning(
+        `Received signalUpdate for unknown signal, subscribeId = ${message.subscribeId}`,
+      );
+      return;
+    }
+    const patches = message.patches;
+    const beforeValue = openSignalSubscription.getValue();
+    const afterValue = applyPatches(openSignalSubscription.getValue(), patches);
+    const parseResult = openSignalSubscription.endpoint.signalData.safeParse(afterValue);
+    if (!parseResult.success) {
+      this.communicationWarning(text`
+        Received invalid signal patch data, subscribeId = ${message.subscribeId}
+
+        patches = ${patches},
+
+        beforeValue = ${beforeValue},
+
+        afterValue = ${afterValue}.
+
+        Zod error:
+
+        ${Validator.prettyPrintZod("value", parseResult.error)}
+      `);
+      return;
+    }
+    // Don't use the parsed value, as it loses the substructure identities
+    openSignalSubscription.receivedPatches(afterValue, message.patches, message.tags);
+  }
+
+  private receivedSignalError(message: ServerToClientMessage & { type: "signalError" }) {
+    const openSignalSubscription = this.openSignalSubscriptions.get(message.subscribeId);
+    if (openSignalSubscription === undefined) {
+      this.communicationWarning(
+        `Received signalError for unknown signal, subscribeId = ${message.subscribeId}`,
+      );
+      return;
+    }
+    const error = this.errorDeserializer(
+      message.error,
+      this.verboseErrorMessage ? openSignalSubscription.stack : undefined,
+    );
+    openSignalSubscription.errored(error);
+    this.openSignalSubscriptions.delete(message.subscribeId);
+    this.updateOpenCommunicationsCount();
+  }
+
+  private receivedWritableSignalUpdate(
+    message: ServerToClientMessage & { type: "writableSignalUpdate" },
+  ) {
+    const openSignalSubscription = this.openWritableSignalSubscriptions.get(message.subscribeId);
+    if (openSignalSubscription === undefined) {
+      this.communicationWarning(
+        `Received writableSignalUpdate for unknown signal, subscribeId = ${message.subscribeId}`,
+      );
+      return;
+    }
+    const patches = message.patches;
+    const beforeValue = openSignalSubscription.getValue();
+    const afterValue = applyPatches(openSignalSubscription.getValue(), patches);
+    const parseResult = openSignalSubscription.endpoint.signalData.safeParse(afterValue);
+    if (!parseResult.success) {
+      this.communicationWarning(text`
+        Received invalid writable signal patch data, subscribeId = ${message.subscribeId}
+
+        patches = ${patches},
+
+        beforeValue = ${beforeValue},
+
+        afterValue = ${afterValue}.
+
+        Zod error:
+
+        ${Validator.prettyPrintZod("value", parseResult.error)}
+      `);
+      return;
+    }
+    // Don't use the parsed value, as it loses the substructure identities
+    openSignalSubscription.receivedPatches(afterValue, patches, message.tags);
+  }
+
+  private receivedWritableSignalError(
+    message: ServerToClientMessage & { type: "writableSignalError" },
+  ) {
+    const openSignalSubscription = this.openWritableSignalSubscriptions.get(message.subscribeId);
+    if (openSignalSubscription === undefined) {
+      this.communicationWarning(
+        `Received writableSignalError for unknown signal, subscribeId = ${message.subscribeId}`,
+      );
+      return;
+    }
+    const error = this.errorDeserializer(
+      message.error,
+      this.verboseErrorMessage ? openSignalSubscription.stack : undefined,
+    );
+    openSignalSubscription.errored(error);
+    this.openWritableSignalSubscriptions.delete(message.subscribeId);
+    this.updateOpenCommunicationsCount();
+  }
+
   private receivedCommunicationWarning(
     message: ServerToClientMessage & { type: "communicationWarning" },
   ) {
@@ -253,6 +399,22 @@ export class ClientPort<
       }
       case "rpcError": {
         this.receivedRpcError(message);
+        break;
+      }
+      case "signalUpdate": {
+        this.receivedSignalUpdate(message);
+        break;
+      }
+      case "signalError": {
+        this.receivedSignalError(message);
+        break;
+      }
+      case "writableSignalUpdate": {
+        this.receivedWritableSignalUpdate(message);
+        break;
+      }
+      case "writableSignalError": {
+        this.receivedWritableSignalError(message);
         break;
       }
       case "communicationWarning": {
@@ -356,19 +518,124 @@ export class ClientPort<
     this.updateOpenCommunicationsCount();
     return openChannel.channel;
   }
+  /**
+   * Creates a readonly lazy signal will subscribe to the signal endpoint with the given name.
+   */
+  public createSignal<TEndpointName extends keyof TSignalEndpoints & string>(
+    endpointName: TEndpointName,
+    param: TSignalEndpoints[TEndpointName]["creationParameter"],
+    { stack }: { stack?: string } = {},
+  ): LazySignal<TSignalEndpoints[TEndpointName]["signalData"] | NotAvailable> {
+    const signalEndpoint = this.backendInterface.getSignalEndpoint(endpointName);
+    if (signalEndpoint === undefined) {
+      throw new Error(`No signal endpoint with name ${endpointName}`);
+    }
+    const creationParameter = signalEndpoint.creationParameter.parse(param);
+
+    stack = stack ?? getCurrentStack(1);
+
+    const signal = LazySignal.createWithoutInitialValue((setDownstream, errorListener) => {
+      const subscribeId = this.nextSubscribeId;
+      this.nextSubscribeId++;
+      this.transport.send({
+        type: "signalSubscribe",
+        endpoint: endpointName,
+        subscribeId,
+        creationParameter,
+      });
+      this.openSignalSubscriptions.set(subscribeId, {
+        endpoint: signalEndpoint,
+        getValue: () => signal.get(),
+        receivedPatches: setDownstream.withValueAndPatches,
+        errored: errorListener,
+        stack,
+      });
+      this.updateOpenCommunicationsCount();
+      return () => {
+        this.transport.send({
+          type: "signalUnsubscribe",
+          subscribeId,
+        });
+      };
+    });
+
+    return signal;
+  }
+
+  public createWritableSignal<TEndpointName extends keyof TWritableSignalEndpoints & string>(
+    endpointName: TEndpointName,
+    param: TWritableSignalEndpoints[TEndpointName]["creationParameter"],
+    { stack }: { stack?: string } = {},
+  ): [
+    signal: OWLSignal<TWritableSignalEndpoints[TEndpointName]["signalData"] | NotAvailable>,
+    setter: Setter<TWritableSignalEndpoints[TEndpointName]["signalData"]>,
+  ] {
+    const signalEndpoint = this.backendInterface.getWritableSignalEndpoint(endpointName);
+    if (signalEndpoint === undefined) {
+      throw new Error(`No writable signal endpoint with name ${endpointName}`);
+    }
+    const creationParameter = signalEndpoint.creationParameter.parse(param);
+
+    stack = stack ?? getCurrentStack(1);
+
+    let currentSubscribeId: number | null = null;
+    const writeUpstream = (_data: any, patches: Array<Patch>, tags: Array<WriteTag>) => {
+      if (currentSubscribeId === null) {
+        throw new Error("writeUpstream called when not subscribed");
+      }
+      this.transport.send({
+        type: "writableSignalUpdate",
+        subscribeId: currentSubscribeId as any,
+        patches,
+        tags,
+      });
+    };
+
+    const [signal, setter] = OWLSignal.createWithoutInitialValue((setDownstream, errorListener) => {
+      const subscribeId = this.nextWritableSubscribeId;
+      currentSubscribeId = subscribeId;
+      this.nextWritableSubscribeId++;
+      this.transport.send({
+        type: "writableSignalSubscribe",
+        endpoint: endpointName,
+        subscribeId,
+        creationParameter,
+      });
+      this.openWritableSignalSubscriptions.set(subscribeId, {
+        endpoint: signalEndpoint,
+        getValue: () => signal.get(),
+        receivedPatches: setDownstream.withValueAndPatches,
+        errored: errorListener,
+        stack,
+      });
+      this.updateOpenCommunicationsCount();
+      return () => {
+        currentSubscribeId = null;
+        this.transport.send({
+          type: "writableSignalUnsubscribe",
+          subscribeId,
+        });
+      };
+    }, writeUpstream);
+    return [signal, setter];
+  }
 }
 
 export type InferClientPort<TBackendInterfaceOrCreator> =
   TBackendInterfaceOrCreator extends BackendInterface<
     infer _TContext,
     infer TRpcEndpoints,
-    infer TChannelEndpoints
+    infer TChannelEndpoints,
+    infer TSignalEndpoints,
+    infer TWritableSignalEndpoints
   >
-    ? ClientPort<TRpcEndpoints, TChannelEndpoints>
+    ? ClientPort<TRpcEndpoints, TChannelEndpoints, TSignalEndpoints, TWritableSignalEndpoints>
     : TBackendInterfaceOrCreator extends () => BackendInterface<
           infer _TContext,
           infer TRpcEndpoints,
-          infer TChannelEndpoints
+          infer TChannelEndpoints,
+          infer TSignalEndpoints,
+          infer TWritableSignalEndpoints
         >
-      ? ClientPort<TRpcEndpoints, TChannelEndpoints>
+      ? ClientPort<TRpcEndpoints, TChannelEndpoints, TSignalEndpoints, TWritableSignalEndpoints>
       : never;
