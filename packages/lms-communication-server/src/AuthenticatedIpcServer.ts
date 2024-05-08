@@ -1,16 +1,16 @@
 import { type SimpleLogger } from "@lmstudio/lms-common";
 import { authPacketSchema, type BackendInterface } from "@lmstudio/lms-communication";
-import type { IpcMain, IpcMainEvent } from "electron";
+import type { IpcMainEvent } from "electron";
 import { type ClientHolder } from "./AuthenticatedWsServer";
 import { type Authenticator, type Context, type ContextCreator } from "./Authenticator";
-import { IpcServer } from "./IpcServer";
+import { IpcServer, type RegisterIpcListener } from "./IpcServer";
 import { IpcServerTransport } from "./IpcServerTransport";
 import { ServerPort } from "./ServerPort";
 
 interface Opts<TContext extends Context> {
   backendInterface: BackendInterface<TContext>;
   authenticator: Authenticator<TContext>;
-  ipcMain: IpcMain;
+  registerIpcListener: RegisterIpcListener;
   channel: string;
   parentLogger?: SimpleLogger;
 }
@@ -21,17 +21,14 @@ export class AuthenticatedIpcServer<TContext extends Context> extends IpcServer<
   public constructor({
     backendInterface,
     authenticator,
-    ipcMain,
+    registerIpcListener,
     channel,
     parentLogger,
   }: Opts<TContext>) {
-    super(backendInterface, ipcMain, channel, parentLogger);
+    super(backendInterface, registerIpcListener, channel, parentLogger);
     this.authenticator = authenticator;
   }
-  protected override async onConnection(
-    event: IpcMainEvent,
-    data: Array<unknown>
-  ): Promise<void> {
+  protected override async onConnection(event: IpcMainEvent, data: Array<unknown>): Promise<void> {
     if (event.ports.length !== 1) {
       this.logger.error(
         "Invalid number of ports received. IPC communication will not be established.",
