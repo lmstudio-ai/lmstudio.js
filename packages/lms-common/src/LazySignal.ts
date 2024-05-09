@@ -73,6 +73,7 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
         [TKey in keyof TSource]: StripNotAvailable<TSource[TKey]>;
       }
     ) => TData,
+    outputEqualsPredicate?: (a: TData, b: TData) => boolean,
   ): LazySignal<
     TSource extends Array<infer RElement>
       ? RElement extends NotAvailable
@@ -80,6 +81,17 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
         : TData
       : never
   > {
+    let fullEqualsPredicate:
+      | ((a: TData | NotAvailable, b: TData | NotAvailable) => boolean)
+      | undefined = undefined;
+    if (outputEqualsPredicate !== undefined) {
+      fullEqualsPredicate = (a, b) => {
+        if (a === LazySignal.NOT_AVAILABLE || b === LazySignal.NOT_AVAILABLE) {
+          return a === b;
+        }
+        return outputEqualsPredicate(a, b);
+      };
+    }
     const derive = () => {
       const sourceValues = sourceSignals.map(signal => signal.get());
       if (sourceValues.some(value => value === LazySignal.NOT_AVAILABLE)) {
@@ -87,19 +99,23 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
       }
       return deriver(...(sourceValues as any));
     };
-    return new LazySignal(derive(), setDownstream => {
-      const unsubscriber = sourceSignals.map(signal =>
-        signal.subscribe(() => {
-          const value = derive();
-          if (isAvailable(value)) {
-            setDownstream(value);
-          }
-        }),
-      );
-      return () => {
-        unsubscriber.forEach(unsub => unsub());
-      };
-    }) as any;
+    return new LazySignal(
+      derive(),
+      setDownstream => {
+        const unsubscriber = sourceSignals.map(signal =>
+          signal.subscribe((_values, _patches, tags) => {
+            const value = derive();
+            if (isAvailable(value)) {
+              setDownstream(value, tags);
+            }
+          }),
+        );
+        return () => {
+          unsubscriber.forEach(unsub => unsub());
+        };
+      },
+      fullEqualsPredicate,
+    ) as any;
   }
 
   protected constructor(

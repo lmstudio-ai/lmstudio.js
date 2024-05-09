@@ -1,27 +1,28 @@
-import { type SimpleLogger } from "@lmstudio/lms-common";
 import { isAvailable, type StripNotAvailable } from "@lmstudio/lms-common/dist/LazySignal";
 import { type ZodSchema } from "zod";
-import { FileData } from "./FileData";
+import { FileData, type FileDataOpts } from "./FileData";
 
-export class SimpleFileData<TData> extends FileData<TData, StripNotAvailable<TData>> {
+/**
+ * Capable of storing JSON serializable values.
+ */
+export class SimpleFileData<TData> extends FileData<TData> {
   public constructor(
     filePath: string,
     defaultData: StripNotAvailable<TData>,
     schema: ZodSchema<StripNotAvailable<TData>>,
-    logger?: SimpleLogger,
+    opts?: FileDataOpts,
   ) {
     super(
       filePath,
       defaultData,
       data => {
         if (isAvailable(data)) {
-          return data;
+          return Buffer.from(JSON.stringify(data), "utf-8");
         }
         throw new Error("Data is not available");
       },
-      data => data,
-      schema,
-      logger,
+      buffer => schema.parse(JSON.parse(buffer.toString("utf-8"))),
+      opts,
     );
   }
 }

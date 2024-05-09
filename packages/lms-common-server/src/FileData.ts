@@ -2,15 +2,14 @@ import {
   LazySignal,
   makeSetterWithPatches,
   Signal,
+  SimpleLogger,
   type Setter,
-  type SimpleLogger,
 } from "@lmstudio/lms-common";
 import { isAvailable, type StripNotAvailable } from "@lmstudio/lms-common/dist/LazySignal";
 import { existsSync, writeFileSync } from "fs";
 import { mkdir, readFile, watch } from "fs/promises";
 import { enablePatches } from "immer";
 import path from "path";
-import { type ZodSchema } from "zod";
 enablePatches();
 
 export type InitializationState =
@@ -25,7 +24,18 @@ export type InitializationState =
       type: "initialized";
     };
 
-export class FileData<TData, TSerialized> {
+export interface FileDataOpts {
+  logger?: SimpleLogger;
+  watch?: boolean;
+  /**
+   * If the file does not exist, do not create it until the first write.
+   * 
+   * The default value will still be available for use.
+   */
+  doNotCreateWhenInit?: boolean;
+}
+
+export class FileData<TData> {
   public get dataSignal(): LazySignal<TData> {
     if (this.initializationState.type !== "initialized") {
       throw new Error(
@@ -37,16 +47,24 @@ export class FileData<TData, TSerialized> {
   private innerSignal!: Signal<TData>;
   private setData!: Setter<TData>;
   private outerSignal!: LazySignal<TData>;
-  private lastWroteString: string | null = null;
+  private lastWroteBuffer: Buffer | null = null;
   private initializationState: InitializationState = { type: "notStarted" };
+  private readonly logger: SimpleLogger;
+  private readonly shouldWatch: boolean;
+  private readonly doNotCreateWhenInit: boolean;
   public constructor(
     private readonly filePath: string,
-    private readonly defaultData: StripNotAvailable<TData>,
-    private readonly serializer: (data: TData) => TSerialized,
-    private readonly deserializer: (serialized: TSerialized) => StripNotAvailable<TData>,
-    private readonly serializedSchema: ZodSchema<TSerialized>,
-    private readonly logger?: SimpleLogger,
-  ) {}
+    private readonly defaultData:
+      | StripNotAvailable<TData>
+      | (() => StripNotAvailable<TData> | Promise<StripNotAvailable<TData>>),
+    private readonly serializer: (data: TData) => Buffer,
+    private readonly deserializer: (serialized: Buffer) => StripNotAvailable<TData>,
+    { logger, watch, doNotCreateWhenInit }: FileDataOpts = {},
+  ) {
+    this.logger = logger ?? new SimpleLogger("FileData");
+    this.shouldWatch = watch ?? false;
+    this.doNotCreateWhenInit = doNotCreateWhenInit ?? false;
+  }
 
   public async init() {
     if (this.initializationState.type === "initializing") {
@@ -62,27 +80,43 @@ export class FileData<TData, TSerialized> {
     this.initializationState = { type: "initialized" };
   }
 
+  private async getDefaultData(): Promise<StripNotAvailable<TData>> {
+    return typeof this.defaultData === "function"
+      ? await (this.defaultData as any)()
+      : this.defaultData;
+  }
+
   private async initInternal() {
     this.logger?.debug("Initializing FileData");
     const dir = path.dirname(this.filePath);
     await mkdir(dir, { recursive: true });
     let data: TData | null = null;
     if (!existsSync(this.filePath)) {
-      this.logger?.debug("File does not exist, writing default data");
-      this.writeData(this.defaultData);
+      data = await this.getDefaultData();
+      if (!this.doNotCreateWhenInit) {
+        this.logger?.debug("File does not exist, writing default data");
+        this.writeData(data);
+      }
     } else {
       data = await this.readData();
     }
     if (data === null) {
-      data = this.defaultData;
+      data = await this.getDefaultData();
+      this.writeData(data);
     }
 
     [this.innerSignal, this.setData] = Signal.create<TData>(data);
     this.outerSignal = LazySignal.create(data, setDownstream => {
       const ac = new AbortController();
-      this.startWatcher(ac).catch(e => {
-        this.logger?.error(`Watcher failed: ${e}`);
-      });
+
+      if (this.shouldWatch) {
+        this.startWatcher(ac).catch(e => {
+          if (e.name === "AbortError") {
+            return;
+          }
+          this.logger?.error(`Watcher failed: ${e}`);
+        });
+      }
 
       const unsubscribe = this.innerSignal.subscribe((_data, patches, tags) => {
         setDownstream.withPatches(patches, tags);
@@ -119,14 +153,12 @@ export class FileData<TData, TSerialized> {
 
   private async readData(): Promise<StripNotAvailable<TData> | null> {
     try {
-      const content = await readFile(this.filePath, "utf-8");
-      if (content === this.lastWroteString) {
+      const content = await readFile(this.filePath);
+      if (this.lastWroteBuffer !== null && content.equals(this.lastWroteBuffer)) {
         this.logger?.debug("File content is the same as last written, skipping read");
         return null;
       }
-      const json = JSON.parse(content);
-      const parsed = this.serializedSchema.parse(json);
-      const data = this.deserializer(parsed);
+      const data = this.deserializer(content);
       if (isAvailable(data)) {
         return data;
       } else {
@@ -142,13 +174,8 @@ export class FileData<TData, TSerialized> {
   private writeData(data: TData) {
     // TODO: We should have a queue to batch up writes
     const serialized = this.serializer(data);
-    const json = JSON.stringify(serialized, null, 2);
-    if (json === this.lastWroteString) {
-      return;
-    }
-    this.lastWroteString = json;
     try {
-      writeFileSync(this.filePath, json);
+      writeFileSync(this.filePath, serialized);
     } catch (e) {
       this.logger?.error(`Error writing data to file: ${e}`);
     }

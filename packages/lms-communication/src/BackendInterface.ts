@@ -319,13 +319,13 @@ export class BackendInterface<
 
   /**
    * Adds a handler for a channel endpoint.
-   * 
+   *
    * @param endpointName - The name of the endpoint.
    * @param handler - The handler function. Will be called when the client creates a channel for
    * this endpoint. When called, the first parameter is the context, the second parameter is the
    * "creationParameter" for the channel, and the third parameter is a channel object that can be
    * used to send and receive messages from the client.
-   * 
+   *
    * Must return a promise. Once that promise is settled, the channel will be closed.
    */
   public handleChannelEndpoint<TEndpointName extends string>(
