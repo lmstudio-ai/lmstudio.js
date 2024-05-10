@@ -29,10 +29,10 @@ export interface FileDataOpts {
   watch?: boolean;
   /**
    * If the file does not exist, do not create it until the first write.
-   * 
+   *
    * The default value will still be available for use.
    */
-  doNotCreateWhenInit?: boolean;
+  doNotCreateOnInit?: boolean;
 }
 
 export class FileData<TData> {
@@ -51,7 +51,7 @@ export class FileData<TData> {
   private initializationState: InitializationState = { type: "notStarted" };
   private readonly logger: SimpleLogger;
   private readonly shouldWatch: boolean;
-  private readonly doNotCreateWhenInit: boolean;
+  private readonly doNotCreateOnInit: boolean;
   public constructor(
     private readonly filePath: string,
     private readonly defaultData:
@@ -59,11 +59,11 @@ export class FileData<TData> {
       | (() => StripNotAvailable<TData> | Promise<StripNotAvailable<TData>>),
     private readonly serializer: (data: TData) => Buffer,
     private readonly deserializer: (serialized: Buffer) => StripNotAvailable<TData>,
-    { logger, watch, doNotCreateWhenInit }: FileDataOpts = {},
+    { logger, watch, doNotCreateOnInit }: FileDataOpts = {},
   ) {
     this.logger = logger ?? new SimpleLogger("FileData");
     this.shouldWatch = watch ?? false;
-    this.doNotCreateWhenInit = doNotCreateWhenInit ?? false;
+    this.doNotCreateOnInit = doNotCreateOnInit ?? false;
   }
 
   public async init() {
@@ -93,7 +93,7 @@ export class FileData<TData> {
     let data: TData | null = null;
     if (!existsSync(this.filePath)) {
       data = await this.getDefaultData();
-      if (!this.doNotCreateWhenInit) {
+      if (!this.doNotCreateOnInit) {
         this.logger?.debug("File does not exist, writing default data");
         this.writeData(data);
       }
