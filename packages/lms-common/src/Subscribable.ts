@@ -1,7 +1,16 @@
 import { type Patch } from "immer";
 import { LazySignal, type NotAvailable, type StripNotAvailable } from "./LazySignal";
 import { type WriteTag } from "./makeSetter";
+import { type SignalLike } from "./Signal";
 
+function isSignalLike<TValue>(value: Subscribable<TValue>): value is SignalLike<TValue> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as any).get === "function" &&
+    typeof (value as any).subscribe === "function"
+  );
+}
 /**
  * Base class for objects that can be subscribed to. Provides common utility methods.
  */
@@ -23,6 +32,9 @@ export abstract class Subscribable<TData> {
   ): typeof this extends { get(): TData }
     ? LazySignal<TOutput>
     : LazySignal<TOutput | NotAvailable> {
+    if (isSignalLike(this)) {
+      return LazySignal.deriveFrom([this], deriver) as any;
+    }
     const thisWithGetter = this as any as { get?(): TData };
     if (thisWithGetter.get !== undefined) {
       return LazySignal.create<TOutput>(
