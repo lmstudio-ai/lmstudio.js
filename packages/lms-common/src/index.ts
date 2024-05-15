@@ -9,6 +9,7 @@ export { LazySignal, NotAvailable } from "./LazySignal";
 export { BufferedEvent } from "./BufferedEvent";
 export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
 export { Event } from "./Event";
+export { doesFileNameIndicateModel, modelExtensions } from "./fileName";
 export { lmsDefaultPorts } from "./lmsDefaultPorts";
 export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";

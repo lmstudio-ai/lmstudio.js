@@ -16,6 +16,7 @@
     "proxying",
     "Rpcs",
     "Streamable",
+    "uncategorized",
     "unsubscriber"
   ],
   "rewrap.wrappingColumn": 100,
