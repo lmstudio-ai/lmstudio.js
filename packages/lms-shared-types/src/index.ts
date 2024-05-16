@@ -31,8 +31,16 @@ export { LLMDescriptor, llmDescriptorSchema } from "./llm/LLMDescriptor";
 export {
   LLMAccelerationOffload,
   llmAccelerationOffloadSchema,
+  LLMLlamaLoadModelConfig,
+  llmLlamaLoadModelConfigSchema,
+  LLMLlamaRoPEConfig,
+  llmLlamaRoPEConfigSchema,
   LLMLoadModelConfig,
+  LLMLoadModelConfigBase,
+  llmLoadModelConfigBaseSchema,
   llmLoadModelConfigSchema,
+  LLMResolvedLoadModelConfig,
+  llmResolvedLoadModelConfigSchema,
 } from "./llm/LLMLoadModelConfig";
 export {
   LLMModelQuery,
@@ -50,6 +58,8 @@ export {
   LLMFullPredictionConfig,
   llmFullPredictionConfigSchema,
   LLMPredictionConfigBase,
+  LLMResolvedPredictionConfig,
+  llmResolvedPredictionConfigSchema,
 } from "./llm/LLMPredictionConfig";
 export {
   LLMPredictionStats,

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { type LLMContextOverflowPolicy, type LLMPredictionConfigBase } from "./LLMPredictionConfig";
 
 /**
  * How much of the model's work should be offloaded to the GPU. The value should be between 0 and 1.
@@ -20,16 +19,7 @@ export const llmAccelerationOffloadSchema = z.union([
 ]);
 
 /** @public */
-export interface LLMLoadModelConfig {
-  /**
-   * The size of the context length in number of tokens. This will include both the prompts and the
-   * responses. Once the context length is exceeded, the value set in
-   * {@link LLMPredictionConfigBase#contextOverflowPolicy} is used to determine the behavior.
-   *
-   * See {@link LLMContextOverflowPolicy} for more information.
-   */
-  contextLength?: number;
-
+export interface LLMLoadModelConfigBase {
   /**
    * How much of the model's work should be offloaded to the GPU. The value should be between 0 and 1.
    * A value of 0 means that no layers are offloaded to the GPU, while a value of 1 means that all
@@ -42,8 +32,53 @@ export interface LLMLoadModelConfig {
    */
   gpuOffload?: LLMAccelerationOffload;
 }
-
-export const llmLoadModelConfigSchema = z.object({
-  contextLength: z.number().int().min(0).optional(),
+export const llmLoadModelConfigBaseSchema = z.object({
   gpuOffload: llmAccelerationOffloadSchema.optional(),
 });
+
+/** @public */
+export interface LLMLlamaRoPEConfig {
+  frequencyScale: number;
+  frequencyBase: number;
+}
+export const llmLlamaRoPEConfigSchema = z.object({
+  frequencyScale: z.number().min(0),
+  frequencyBase: z.number().min(0),
+});
+
+/** @public */
+export interface LLMLlamaLoadModelConfig extends LLMLoadModelConfigBase {
+  modelType?: "llama";
+  /**
+   * The size of the context length in number of tokens. This will include both the prompts and the
+   * responses. Once the context length is exceeded, the value set in
+   * {@link LLMPredictionConfigBase#contextOverflowPolicy} is used to determine the behavior.
+   *
+   * See {@link LLMContextOverflowPolicy} for more information.
+   */
+  contextLength?: number;
+  /**
+   * Rotary Positional Encoding (RoPE) related configuration.
+   */
+  rope?: LLMLlamaRoPEConfig;
+  /**
+   * Prompt evaluation batch size.
+   */
+  evalBatchSize?: number;
+  flashAttention?: boolean;
+}
+export const llmLlamaLoadModelConfigSchema = llmLoadModelConfigBaseSchema.extend({
+  modelType: z.literal("llama").optional(),
+  contextLength: z.number().int().min(1).optional(),
+  rope: llmLlamaRoPEConfigSchema.optional(),
+  evalBatchSize: z.number().int().min(1).optional(),
+  flashAttention: z.boolean().optional(),
+});
+
+/** @public */
+export type LLMLoadModelConfig = LLMLlamaLoadModelConfig;
+export const llmLoadModelConfigSchema = llmLlamaLoadModelConfigSchema;
+
+/** @public */
+export type LLMResolvedLoadModelConfig = Required<LLMLoadModelConfig>;
+export const llmResolvedLoadModelConfigSchema = llmLlamaLoadModelConfigSchema.required();

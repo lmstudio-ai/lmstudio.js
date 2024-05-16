@@ -61,12 +61,22 @@ export interface LLMPredictionConfigBase {
    * - `rollingWindow`: Maintain a rolling window and truncate past messages.
    */
   contextOverflowPolicy?: LLMContextOverflowPolicy;
+  topKSampling?: number;
+  repeatPenalty?: number;
+  minPSampling?: number;
+  topPSampling?: number;
+  cpuThreads?: number;
 }
 const llmPredictionConfigBaseSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional(),
   temperature: z.number().min(0).max(1).optional(),
   stopStrings: z.array(z.string()).optional(),
   contextOverflowPolicy: llmContextOverflowPolicySchema.optional(),
+  topKSampling: z.number().optional(),
+  repeatPenalty: z.number().optional(),
+  minPSampling: z.number().optional(),
+  topPSampling: z.number().optional(),
+  cpuThreads: z.number().optional(),
 });
 
 /**
@@ -103,8 +113,16 @@ export const llmChatPredictionConfigSchema = llmPredictionConfigBaseSchema.exten
   inputSuffix: z.string().optional(),
 });
 
+/** @public */
 export type LLMFullPredictionConfig = LLMCompletionPredictionConfig & LLMChatPredictionConfig;
 export const llmFullPredictionConfigSchema = z.object({
   ...llmCompletionPredictionConfigSchema.shape,
   ...llmChatPredictionConfigSchema.shape,
+});
+
+/** @public */
+export type LLMResolvedPredictionConfig = { modelType: "llama" } & LLMFullPredictionConfig;
+export const llmResolvedPredictionConfigSchema = z.object({
+  modelType: z.literal("llama"),
+  ...llmFullPredictionConfigSchema.shape,
 });

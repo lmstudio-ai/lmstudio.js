@@ -8,7 +8,11 @@ import {
   llmPredictionStatsSchema,
   llmStructuredPredictionSettingSchema,
 } from "@lmstudio/lms-shared-types";
-import { llmFullPredictionConfigSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
+import { llmResolvedLoadModelConfigSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
+import {
+  llmFullPredictionConfigSchema,
+  llmResolvedPredictionConfigSchema,
+} from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
 import { z } from "zod";
 
 export function createLlmBackendInterface() {
@@ -63,6 +67,8 @@ export function createLlmBackendInterface() {
           type: z.literal("success"),
           stats: llmPredictionStatsSchema,
           modelInfo: llmDescriptorSchema,
+          loadModelConfig: llmResolvedLoadModelConfigSchema,
+          predictionConfig: llmResolvedPredictionConfigSchema,
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [

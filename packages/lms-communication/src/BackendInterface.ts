@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { type SignalLike, type WriteTag } from "@lmstudio/lms-common";
-import { type Patch } from "immer";
+import { type Setter, type SignalLike } from "@lmstudio/lms-common";
 import { type z, type ZodType } from "zod";
 import type { Channel } from "./Channel";
 
@@ -29,16 +28,8 @@ export type WritableSignalEndpointHandler<TContext = any, TCreationParameter = a
   ctx: TContext,
   creationParameter: TCreationParameter,
 ) =>
-  | readonly [
-      signal: SignalLike<TData>,
-      update: (data: TData, patches: Array<Patch>, tags: Array<WriteTag>) => void,
-    ]
-  | Promise<
-      readonly [
-        signal: SignalLike<TData>,
-        update: (data: TData, patches: Array<Patch>, tags: Array<WriteTag>) => void,
-      ]
-    >;
+  | readonly [signal: SignalLike<TData>, setter: Setter<TData>]
+  | Promise<readonly [signal: SignalLike<TData>, setter: Setter<TData>]>;
 
 export interface RpcEndpoint {
   name: string;
@@ -441,15 +432,31 @@ export class BackendInterface<
     return this.rpcEndpoints.get(endpointName);
   }
 
+  public getAllRpcEndpoints() {
+    return [...this.rpcEndpoints.values()];
+  }
+
   public getChannelEndpoint(endpointName: string) {
     return this.channelEndpoints.get(endpointName);
+  }
+
+  public getAllChannelEndpoints() {
+    return [...this.channelEndpoints.values()];
   }
 
   public getSignalEndpoint(endpointName: string) {
     return this.signalEndpoints.get(endpointName);
   }
 
+  public getAllSignalEndpoints() {
+    return [...this.signalEndpoints.values()];
+  }
+
   public getWritableSignalEndpoint(endpointName: string) {
     return this.writableSignalEndpoints.get(endpointName);
+  }
+
+  public getAllWritableSignalEndpoints() {
+    return [...this.writableSignalEndpoints.values()];
   }
 }

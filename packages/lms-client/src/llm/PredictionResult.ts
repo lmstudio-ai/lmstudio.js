@@ -1,4 +1,6 @@
 import { type LLMDescriptor, type LLMPredictionStats } from "@lmstudio/lms-shared-types";
+import { type LLMResolvedLoadModelConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
+import { type LLMResolvedPredictionConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
 
 /**
  * Represents the result of a prediction.
@@ -23,5 +25,13 @@ export class PredictionResult {
      * Information about the model used for the prediction.
      */
     public readonly modelInfo: LLMDescriptor,
+    /**
+     * The configuration used to load the model.
+     */
+    public readonly loadConfig: LLMResolvedLoadModelConfig,
+    /**
+     * The configuration used for the prediction.
+     */
+    public readonly predictionConfig: LLMResolvedPredictionConfig,
   ) {}
 }

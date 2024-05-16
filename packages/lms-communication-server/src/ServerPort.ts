@@ -385,7 +385,7 @@ export class ServerPort<
       endpointName: endpoint.name,
     });
     Promise.resolve(endpoint.handler(context, parseResult.data))
-      .then(([signal, update]) => {
+      .then(([signal, setter]) => {
         this.transport.send({
           type: "writableSignalUpdate",
           subscribeId: message.subscribeId,
@@ -421,7 +421,7 @@ export class ServerPort<
               `);
               return;
             }
-            update(parseResult.data, patches, tags);
+            setter.withValueAndPatches(parseResult.data, patches, tags);
           },
         });
       })

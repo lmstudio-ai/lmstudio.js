@@ -98,7 +98,7 @@ export class ClientPort<
   private verboseErrorMessage: boolean;
 
   public constructor(
-    private readonly backendInterface: BackendInterface<
+    public readonly backendInterface: BackendInterface<
       unknown,
       TRpcEndpoints,
       TChannelEndpoints,

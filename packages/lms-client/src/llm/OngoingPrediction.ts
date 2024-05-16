@@ -4,6 +4,8 @@ import {
   type LLMPredictionStats,
   type LLMPredictionStopReason,
 } from "@lmstudio/lms-shared-types";
+import { type LLMResolvedLoadModelConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
+import { type LLMResolvedPredictionConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
 import { PredictionResult } from "./PredictionResult";
 
 /**
@@ -41,6 +43,8 @@ import { PredictionResult } from "./PredictionResult";
 export class OngoingPrediction extends StreamablePromise<string, PredictionResult> {
   private stats: LLMPredictionStats | null = null;
   private modelInfo: LLMDescriptor | null = null;
+  private loadModelConfig: LLMResolvedLoadModelConfig | null = null;
+  private predictionConfig: LLMResolvedPredictionConfig | null = null;
 
   protected override async collect(fragments: ReadonlyArray<string>): Promise<PredictionResult> {
     if (this.stats === null) {
@@ -49,7 +53,19 @@ export class OngoingPrediction extends StreamablePromise<string, PredictionResul
     if (this.modelInfo === null) {
       throw new Error("Model info should not be null");
     }
-    return new PredictionResult(fragments.join(""), this.stats, this.modelInfo);
+    if (this.loadModelConfig === null) {
+      throw new Error("Load model config should not be null");
+    }
+    if (this.predictionConfig === null) {
+      throw new Error("Prediction config should not be null");
+    }
+    return new PredictionResult(
+      fragments.join(""),
+      this.stats,
+      this.modelInfo,
+      this.loadModelConfig,
+      this.predictionConfig,
+    );
   }
 
   private constructor(private readonly onCancel: () => void) {
@@ -59,9 +75,16 @@ export class OngoingPrediction extends StreamablePromise<string, PredictionResul
   /** @internal */
   public static create(onCancel: () => void) {
     const ongoingPrediction = new OngoingPrediction(onCancel);
-    const finished = (stats: LLMPredictionStats, modelInfo: LLMDescriptor) => {
+    const finished = (
+      stats: LLMPredictionStats,
+      modelInfo: LLMDescriptor,
+      loadModelConfig: LLMResolvedLoadModelConfig,
+      predictionConfig: LLMResolvedPredictionConfig,
+    ) => {
       ongoingPrediction.stats = stats;
       ongoingPrediction.modelInfo = modelInfo;
+      ongoingPrediction.loadModelConfig = loadModelConfig;
+      ongoingPrediction.predictionConfig = predictionConfig;
       ongoingPrediction.finished();
     };
     const failed = (error?: any) => ongoingPrediction.finished(error);

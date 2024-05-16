@@ -12,9 +12,11 @@ import {
   type LLMPredictionStats,
   type LLMStructuredPredictionSetting,
 } from "@lmstudio/lms-shared-types";
+import { type LLMResolvedLoadModelConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
 import {
   type LLMCompletionPredictionConfig,
   type LLMFullPredictionConfig,
+  type LLMResolvedPredictionConfig,
 } from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
 import { z } from "zod";
 import { type LLMNamespace } from "./LLMNamespace";
@@ -86,7 +88,12 @@ export class LLMDynamicHandle {
     structured: LLMStructuredPredictionSetting | undefined,
     cancelEvent: BufferedEvent<void>,
     onFragment: (fragment: string) => void,
-    onFinished: (stats: LLMPredictionStats, modelInfo: LLMDescriptor) => void,
+    onFinished: (
+      stats: LLMPredictionStats,
+      modelInfo: LLMDescriptor,
+      loadModelConfig: LLMResolvedLoadModelConfig,
+      predictionConfig: LLMResolvedPredictionConfig,
+    ) => void,
     onError: (error: Error) => void,
   ) {
     const channel = this.llmPort.createChannel(
@@ -98,7 +105,12 @@ export class LLMDynamicHandle {
             onFragment(message.fragment);
             break;
           case "success":
-            onFinished(message.stats, message.modelInfo);
+            onFinished(
+              message.stats,
+              message.modelInfo,
+              message.loadModelConfig,
+              message.predictionConfig,
+            );
             break;
         }
       },
@@ -188,7 +200,8 @@ export class LLMDynamicHandle {
       structured,
       cancelEvent,
       fragment => push(fragment),
-      (stats, modelInfo) => finished(stats, modelInfo),
+      (stats, modelInfo, loadModelConfig, predictionConfig) =>
+        finished(stats, modelInfo, loadModelConfig, predictionConfig),
       error => failed(error),
     );
     return ongoingPrediction;
@@ -263,7 +276,8 @@ export class LLMDynamicHandle {
       structured,
       cancelEvent,
       fragment => push(fragment),
-      (stats, modelInfo) => finished(stats, modelInfo),
+      (stats, modelInfo, loadModelConfig, predictionConfig) =>
+        finished(stats, modelInfo, loadModelConfig, predictionConfig),
       error => failed(error),
     );
     return ongoingPrediction;
