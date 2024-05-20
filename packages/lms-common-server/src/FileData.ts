@@ -174,6 +174,7 @@ export class FileData<TData> {
   private writeData(data: TData) {
     // TODO: We should have a queue to batch up writes
     const serialized = this.serializer(data);
+    this.lastWroteBuffer = serialized;
     try {
       writeFileSync(this.filePath, serialized);
     } catch (e) {

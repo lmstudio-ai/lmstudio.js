@@ -62,9 +62,9 @@ export class FcfsClient {
     clientIdentifier: string,
     clientPasskey: string,
     releaseCallback: (client: FcfsClient) => void,
-    parentLogger?: LoggerInterface,
+    logger?: LoggerInterface,
   ): { client: FcfsClient; holder: ClientHolder } {
-    const client = new FcfsClient(clientIdentifier, clientPasskey, releaseCallback, parentLogger);
+    const client = new FcfsClient(clientIdentifier, clientPasskey, releaseCallback, logger);
     return { client, holder: client.hold() };
   }
   protected constructor(
@@ -73,7 +73,7 @@ export class FcfsClient {
     private readonly onRelease: (client: FcfsClient) => void,
     parentLogger?: LoggerInterface,
   ) {
-    this.logger = new SimpleLogger(`FcfsClient(cId=${clientIdentifier})`, parentLogger);
+    this.logger = new SimpleLogger(`Client=${clientIdentifier}`, parentLogger);
     this.logger.debug("Client created.");
   }
   public async assertValid(authPacket: AuthPacket) {
