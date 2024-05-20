@@ -36,7 +36,7 @@ export class SimpleLogger {
   public constructor(
     prefixText: string = "",
     parentLogger: LoggerInterface = console,
-    { useLogLevelPrefixes = true }: SimpleLoggerConstructorOpts = {},
+    { useLogLevelPrefixes = false }: SimpleLoggerConstructorOpts = {},
   ) {
     if (isSimpleLogger(parentLogger)) {
       if (prefixText === "") {
@@ -131,5 +131,32 @@ export class SimpleLogger {
         this.error(...messages);
         break;
     }
+  }
+  public static fromMultiple(loggers: Array<LoggerInterface>, opts?: SimpleLoggerConstructorOpts): SimpleLogger {
+    return new SimpleLogger("", {
+      debug: (...messages) => {
+        for (const logger of loggers) {
+          logger.debug(...messages);
+        }
+      },
+      info: (...messages) => {
+        for (const logger of loggers) {
+          logger.info(...messages);
+        }
+      },
+      warn: (...messages) => {
+        for (const logger of loggers) {
+          logger.warn(...messages);
+        }
+      },
+      error: (...messages) => {
+        for (const logger of loggers) {
+          logger.error(...messages);
+        }
+      },
+    }, {
+      ...opts,
+      useLogLevelPrefixes: false,
+    });
   }
 }

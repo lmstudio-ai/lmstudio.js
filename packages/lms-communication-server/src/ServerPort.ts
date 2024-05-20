@@ -146,11 +146,20 @@ export class ServerPort<
     const openChannel = {
       endpoint,
       ...Channel.create((message, ackId) => {
-        const result = endpoint.toClientPacket.parse(message);
+        const result = endpoint.toClientPacket.safeParse(message);
+        if (!result.success) {
+          this.communicationWarning(text`
+            Tried to send invalid message for channel, endpointName = ${endpoint.name},
+            message = ${message as object}. Zod error:
+
+            ${Validator.prettyPrintZod("message", result.error)}
+          `);
+          return;
+        }
         this.transport.send({
           type: "channelSend",
           channelId,
-          message: result,
+          message: result.data,
           ackId: ackId,
         });
       }),
