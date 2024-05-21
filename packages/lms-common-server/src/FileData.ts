@@ -188,6 +188,6 @@ export class FileData<TData> {
 
   public readonly set = makeSetterWithPatches<TData>((updater, tags) => {
     this.setData.withPatchUpdater(updater, tags);
-    this.writeData(this.dataSignal.get());
+    this.writeData(this.innerSignal.get());
   });
 }
