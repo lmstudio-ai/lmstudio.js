@@ -1,5 +1,5 @@
 import { type Patch } from "immer";
-import { LazySignal, type NotAvailable, type StripNotAvailable } from "./LazySignal";
+import { isAvailable, LazySignal, type NotAvailable, type StripNotAvailable } from "./LazySignal";
 import { type WriteTag } from "./makeSetter";
 import { type SignalLike } from "./Signal";
 
@@ -27,20 +27,35 @@ export abstract class Subscribable<TData> {
   }
 
   public derive<TOutput>(
-    deriver: (data: TData) => StripNotAvailable<TOutput>,
+    deriver: (data: StripNotAvailable<TData>) => StripNotAvailable<TOutput>,
     outputEqualsPredicate: (a: TOutput, b: TOutput) => boolean = (a, b) => a === b,
   ): typeof this extends { get(): TData }
-    ? LazySignal<TOutput>
+    ? TOutput extends NotAvailable
+      ? LazySignal<TOutput | NotAvailable>
+      : LazySignal<TOutput>
     : LazySignal<TOutput | NotAvailable> {
     if (isSignalLike(this)) {
       return LazySignal.deriveFrom([this], deriver) as any;
     }
-    const thisWithGetter = this as any as { get?(): TData };
+    const thisWithGetter = this as Subscribable<TData> & { get?(): TData };
     if (thisWithGetter.get !== undefined) {
+      const initialValue = thisWithGetter.get();
+      if (initialValue === LazySignal.NOT_AVAILABLE) {
+        return LazySignal.createWithoutInitialValue(setDownstream => {
+          return thisWithGetter.subscribe((data, _patches, tags) => {
+            if (isAvailable(data)) {
+              setDownstream(deriver(data), tags);
+            }
+          });
+        }) as any;
+      }
+      const thisNarrowed = thisWithGetter as Subscribable<StripNotAvailable<TData>> & {
+        get(): StripNotAvailable<TData>;
+      };
       return LazySignal.create<TOutput>(
-        deriver(thisWithGetter.get()),
+        deriver(thisNarrowed.get()),
         setDownstream => {
-          return this.subscribe((data, _patches, tags) => {
+          return thisNarrowed.subscribe((data, _patches, tags) => {
             setDownstream(deriver(data), tags);
           });
         },
@@ -49,7 +64,9 @@ export abstract class Subscribable<TData> {
     }
     return LazySignal.createWithoutInitialValue(setDownstream => {
       return this.subscribe((data, _patches, tags) => {
-        setDownstream(deriver(data), tags);
+        if (isAvailable(data)) {
+          setDownstream(deriver(data), tags);
+        }
       });
     }, outputEqualsPredicate) as any;
   }
