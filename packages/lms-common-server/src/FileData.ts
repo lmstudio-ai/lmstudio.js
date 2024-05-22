@@ -33,6 +33,7 @@ export interface FileDataOpts {
    * The default value will still be available for use.
    */
   doNotCreateOnInit?: boolean;
+  onDelete?: () => void;
 }
 
 export class FileData<TData> {
@@ -52,6 +53,7 @@ export class FileData<TData> {
   private readonly logger: SimpleLogger;
   private readonly shouldWatch: boolean;
   private readonly doNotCreateOnInit: boolean;
+  private readonly onDelete?: () => void;
   public constructor(
     private readonly filePath: string,
     private readonly defaultData:
@@ -59,11 +61,14 @@ export class FileData<TData> {
       | (() => StripNotAvailable<TData> | Promise<StripNotAvailable<TData>>),
     private readonly serializer: (data: TData) => Buffer,
     private readonly deserializer: (serialized: Buffer) => StripNotAvailable<TData>,
-    { logger, watch, doNotCreateOnInit }: FileDataOpts = {},
+    { logger, watch, doNotCreateOnInit, onDelete }: FileDataOpts = {},
   ) {
     this.logger = logger ?? new SimpleLogger("FileData");
     this.shouldWatch = watch ?? false;
     this.doNotCreateOnInit = doNotCreateOnInit ?? false;
+    if (!this.shouldWatch && onDelete) {
+      throw new Error("onDelete is only supported when watching is enabled");
+    }
   }
 
   public async init() {
@@ -141,6 +146,10 @@ export class FileData<TData> {
           if (data !== null) {
             this.setData(data);
           }
+        } else if (event.eventType === "rename") {
+          this.logger?.debug("File renamed, reinitializing");
+          this.onDelete?.();
+          this.setData(await this.getDefaultData());
         }
       }
     } catch (error: any) {

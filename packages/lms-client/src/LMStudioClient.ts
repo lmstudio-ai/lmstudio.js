@@ -80,6 +80,9 @@ const constructorOptsSchema = z
     verboseErrorMessages: z.boolean().optional(),
     clientIdentifier: z.string().optional(),
     clientPasskey: z.string().optional(),
+    llmPort: z.any().optional(),
+    systemPort: z.any().optional(),
+    diagnosticsPort: z.any().optional(),
   })
   .strict();
 
@@ -200,13 +203,21 @@ export class LMStudioClient {
   }
 
   public constructor(opts: LMStudioClientConstructorOpts = {}) {
-    const { logger, baseUrl, verboseErrorMessages, clientIdentifier, clientPasskey } =
-      new Validator().validateConstructorParamOrThrow(
-        "LMStudioClient",
-        "opts",
-        constructorOptsSchema,
-        opts,
-      ) satisfies LMStudioClientConstructorOpts;
+    const {
+      logger,
+      baseUrl,
+      verboseErrorMessages,
+      clientIdentifier,
+      clientPasskey,
+      llmPort,
+      systemPort,
+      diagnosticsPort,
+    } = new Validator().validateConstructorParamOrThrow(
+      "LMStudioClient",
+      "opts",
+      constructorOptsSchema,
+      opts,
+    ) satisfies LMStudioClientConstructorOpts;
     this.logger = new SimpleLogger("LMStudioClient", logger);
     this.clientIdentifier = clientIdentifier ?? generateRandomBase64(18);
     this.clientPasskey = clientPasskey ?? generateRandomBase64(18);
@@ -220,44 +231,50 @@ export class LMStudioClient {
       resolvingBaseUrl = baseUrl;
     }
 
-    this.llmPort = createAuthenticatedClientPort(
-      createLlmBackendInterface(),
-      resolvingBaseUrl,
-      "llm",
-      this.clientIdentifier,
-      this.clientPasskey,
-      new SimpleLogger("LLM", this.logger),
-      {
-        errorDeserializer: friendlyErrorDeserializer,
-        verboseErrorMessage: verboseErrorMessages ?? false,
-      },
-    );
+    this.llmPort =
+      llmPort ??
+      createAuthenticatedClientPort(
+        createLlmBackendInterface(),
+        resolvingBaseUrl,
+        "llm",
+        this.clientIdentifier,
+        this.clientPasskey,
+        new SimpleLogger("LLM", this.logger),
+        {
+          errorDeserializer: friendlyErrorDeserializer,
+          verboseErrorMessage: verboseErrorMessages ?? false,
+        },
+      );
 
-    this.systemPort = createAuthenticatedClientPort(
-      createSystemBackendInterface(),
-      resolvingBaseUrl,
-      "system",
-      this.clientIdentifier,
-      this.clientPasskey,
-      new SimpleLogger("System", this.logger),
-      {
-        errorDeserializer: friendlyErrorDeserializer,
-        verboseErrorMessage: verboseErrorMessages ?? false,
-      },
-    );
+    this.systemPort =
+      systemPort ??
+      createAuthenticatedClientPort(
+        createSystemBackendInterface(),
+        resolvingBaseUrl,
+        "system",
+        this.clientIdentifier,
+        this.clientPasskey,
+        new SimpleLogger("System", this.logger),
+        {
+          errorDeserializer: friendlyErrorDeserializer,
+          verboseErrorMessage: verboseErrorMessages ?? false,
+        },
+      );
 
-    this.diagnosticsPort = createAuthenticatedClientPort(
-      createDiagnosticsBackendInterface(),
-      resolvingBaseUrl,
-      "diagnostics",
-      this.clientIdentifier,
-      this.clientPasskey,
-      new SimpleLogger("Diagnostics", this.logger),
-      {
-        errorDeserializer: friendlyErrorDeserializer,
-        verboseErrorMessage: verboseErrorMessages ?? false,
-      },
-    );
+    this.diagnosticsPort =
+      diagnosticsPort ??
+      createAuthenticatedClientPort(
+        createDiagnosticsBackendInterface(),
+        resolvingBaseUrl,
+        "diagnostics",
+        this.clientIdentifier,
+        this.clientPasskey,
+        new SimpleLogger("Diagnostics", this.logger),
+        {
+          errorDeserializer: friendlyErrorDeserializer,
+          verboseErrorMessage: verboseErrorMessages ?? false,
+        },
+      );
 
     const validator = new Validator();
 
