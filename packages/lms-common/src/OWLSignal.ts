@@ -284,6 +284,15 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
   }
 
   /**
+   * Gets the current value of the signal pessimistically. If the value is not available, it will
+   * return {@link OWLSignal.NOT_AVAILABLE}. (A value will only be unavailable if the signal is
+   * created without an initial value and the upstream has not emitted a value yet.)
+   */
+  public getPessimistic(): TData {
+    return this.innerSignal.get();
+  }
+
+  /**
    * Pulls the current value of the signal. If the value is stale, it will subscribe and wait for
    * the next value from the upstream and return it.
    *

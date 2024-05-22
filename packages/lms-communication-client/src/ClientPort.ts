@@ -266,7 +266,7 @@ export class ClientPort<
     }
     const patches = message.patches;
     const beforeValue = openSignalSubscription.getValue();
-    const afterValue = applyPatches(openSignalSubscription.getValue(), patches);
+    const afterValue = applyPatches(beforeValue, patches);
     const parseResult = openSignalSubscription.endpoint.signalData.safeParse(afterValue);
     if (!parseResult.success) {
       this.communicationWarning(text`
@@ -603,7 +603,7 @@ export class ClientPort<
       });
       this.openWritableSignalSubscriptions.set(subscribeId, {
         endpoint: signalEndpoint,
-        getValue: () => signal.get(),
+        getValue: () => signal.getPessimistic(),
         receivedPatches: setDownstream.withValueAndPatches,
         errored: errorListener,
         stack,
