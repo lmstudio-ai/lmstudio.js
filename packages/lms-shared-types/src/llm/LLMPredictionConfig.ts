@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  type LLMStructuredPredictionSetting,
+  llmStructuredPredictionSettingSchema,
+} from "./LLMStructuredPredictionSetting";
 
 /**
  * Behavior for when the generated tokens length exceeds the context window size. Only the following
@@ -61,6 +65,7 @@ export interface LLMPredictionConfigBase {
    * - `rollingWindow`: Maintain a rolling window and truncate past messages.
    */
   contextOverflowPolicy?: LLMContextOverflowPolicy;
+  structured?: LLMStructuredPredictionSetting;
   topKSampling?: number;
   repeatPenalty?: number;
   minPSampling?: number;
@@ -72,6 +77,7 @@ const llmPredictionConfigBaseSchema = z.object({
   temperature: z.number().min(0).max(1).optional(),
   stopStrings: z.array(z.string()).optional(),
   contextOverflowPolicy: llmContextOverflowPolicySchema.optional(),
+  structured: llmStructuredPredictionSettingSchema.optional(),
   topKSampling: z.number().optional(),
   repeatPenalty: z.number().optional(),
   minPSampling: z.number().optional(),
@@ -84,34 +90,13 @@ const llmPredictionConfigBaseSchema = z.object({
  *
  * @public
  */
-export interface LLMCompletionPredictionConfig extends LLMPredictionConfigBase {
-  /**
-   * The pre-prompt to use for the prediction. The pre-prompt will be formatted and prepended to the
-   * input before making a prediction.
-   */
-  prePrompt?: string;
-}
-
-export const llmCompletionPredictionConfigSchema = llmPredictionConfigBaseSchema.extend({
-  prePrompt: z.string().optional(),
-});
+export interface LLMCompletionPredictionConfig extends LLMPredictionConfigBase {}
+export const llmCompletionPredictionConfigSchema = llmPredictionConfigBaseSchema.extend({});
 
 /** @public */
-export interface LLMChatPredictionConfig extends LLMPredictionConfigBase {
-  /**
-   * A string that will be prepended to each of the user message.
-   */
-  inputPrefix?: string;
-  /**
-   * A string that will be appended to each of the user message.
-   */
-  inputSuffix?: string;
-}
+export interface LLMChatPredictionConfig extends LLMPredictionConfigBase {}
 
-export const llmChatPredictionConfigSchema = llmPredictionConfigBaseSchema.extend({
-  inputPrefix: z.string().optional(),
-  inputSuffix: z.string().optional(),
-});
+export const llmChatPredictionConfigSchema = llmPredictionConfigBaseSchema.extend({});
 
 /** @public */
 export type LLMFullPredictionConfig = LLMCompletionPredictionConfig & LLMChatPredictionConfig;

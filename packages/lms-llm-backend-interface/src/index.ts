@@ -6,7 +6,6 @@ import {
   llmLoadModelConfigSchema,
   llmModelSpecifierSchema,
   llmPredictionStatsSchema,
-  llmStructuredPredictionSettingSchema,
 } from "@lmstudio/lms-shared-types";
 import { llmResolvedLoadModelConfigSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
 import {
@@ -56,7 +55,6 @@ export function createLlmBackendInterface() {
         modelSpecifier: llmModelSpecifierSchema,
         history: llmChatHistorySchema,
         config: llmFullPredictionConfigSchema,
-        structured: llmStructuredPredictionSettingSchema.optional(),
       }),
       toClientPacket: z.discriminatedUnion("type", [
         z.object({

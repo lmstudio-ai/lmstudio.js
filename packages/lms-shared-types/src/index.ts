@@ -29,15 +29,15 @@ export {
 } from "./llm/LLMChatHistory";
 export { LLMDescriptor, llmDescriptorSchema } from "./llm/LLMDescriptor";
 export {
-  LLMAccelerationOffload,
-  llmAccelerationOffloadSchema,
+  LLMLlamaAccelerationOffloadRatio,
+  llmLlamaAccelerationOffloadRatioSchema,
+  LLMLlamaAccelerationSetting,
+  llmLlamaAccelerationSettingSchema,
   LLMLlamaLoadModelConfig,
   llmLlamaLoadModelConfigSchema,
   LLMLlamaRoPEConfig,
   llmLlamaRoPEConfigSchema,
   LLMLoadModelConfig,
-  LLMLoadModelConfigBase,
-  llmLoadModelConfigBaseSchema,
   llmLoadModelConfigSchema,
   LLMResolvedLoadModelConfig,
   llmResolvedLoadModelConfigSchema,

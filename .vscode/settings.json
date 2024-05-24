@@ -13,6 +13,7 @@
     "immer",
     "inferencing",
     "lmstudio",
+    "Mmap",
     "proxying",
     "Rpcs",
     "Streamable",

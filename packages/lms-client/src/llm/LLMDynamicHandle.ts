@@ -85,7 +85,6 @@ export class LLMDynamicHandle {
     modelSpecifier: LLMModelSpecifier,
     history: LLMChatHistory,
     config: LLMFullPredictionConfig,
-    structured: LLMStructuredPredictionSetting | undefined,
     cancelEvent: BufferedEvent<void>,
     onFragment: (fragment: string) => void,
     onFinished: (
@@ -98,7 +97,7 @@ export class LLMDynamicHandle {
   ) {
     const channel = this.llmPort.createChannel(
       "predict",
-      { modelSpecifier, history, config, structured },
+      { modelSpecifier, history, config },
       message => {
         switch (message.type) {
           case "fragment":
@@ -177,7 +176,7 @@ export class LLMDynamicHandle {
       [prompt, opts],
       stack,
     );
-    const { structured, ...config } = opts;
+    const { ...config } = opts;
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
     this.predict(
@@ -187,17 +186,8 @@ export class LLMDynamicHandle {
         // If the user did not specify `stopStrings`, we default to an empty array. This is to
         // prevent the model from using the value set in the preset.
         stopStrings: [],
-        // Same for pre-prompt
-        prePrompt: "",
         ...config,
-        // We don't allow the user to set `inputPrefix` and `inputSuffix` in `complete` because it
-        // doesn't make sense to do so (and can be vastly confusing.) If the user wants to set these
-        // values, they can just include them in the prompt. Here, we just set them to empty strings
-        // to prevent the model from using the values set in the preset.
-        inputPrefix: "",
-        inputSuffix: "",
       },
-      structured,
       cancelEvent,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
@@ -266,14 +256,13 @@ export class LLMDynamicHandle {
       [history, opts],
       stack,
     );
-    const { structured, ...config } = opts;
+    const { ...config } = opts;
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
     this.predict(
       this.specifier,
       history,
       config,
-      structured,
       cancelEvent,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
