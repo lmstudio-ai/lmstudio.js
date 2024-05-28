@@ -69,8 +69,8 @@ export const llmModelSpecifierSchema = z.discriminatedUnion("type", [
     query: llmModelQuerySchema,
   }),
   z.object({
-    type: z.literal("sessionIdentifier"),
-    sessionIdentifier: z.string(),
+    type: z.literal("instanceReference"),
+    instanceReference: z.string(),
   }),
 ]);
 export type LLMModelSpecifier = z.infer<typeof llmModelSpecifierSchema>;

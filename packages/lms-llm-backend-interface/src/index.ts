@@ -6,8 +6,8 @@ import {
   llmLoadModelConfigSchema,
   llmModelSpecifierSchema,
   llmPredictionStatsSchema,
+  llmResolvedLoadModelConfigSchema,
 } from "@lmstudio/lms-shared-types";
-import { llmResolvedLoadModelConfigSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
 import {
   llmFullPredictionConfigSchema,
   llmResolvedPredictionConfigSchema,
@@ -34,8 +34,12 @@ export function createLlmBackendInterface() {
           progress: z.number(),
         }),
         z.object({
+          type: z.literal("ambiguous"),
+          paths: z.array(z.string()),
+        }),
+        z.object({
           type: z.literal("success"),
-          sessionIdentifier: z.string(),
+          instanceReference: z.string(),
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
@@ -86,7 +90,7 @@ export function createLlmBackendInterface() {
       }),
       returns: z
         .object({
-          sessionIdentifier: z.string(),
+          instanceReference: z.string(),
           descriptor: llmDescriptorSchema,
         })
         .optional(),

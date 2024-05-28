@@ -14,6 +14,7 @@ import {
   logLevelSchema,
   reasonableKeyStringSchema,
   type LLMDescriptor,
+  type LLMLlamaLoadModelConfig,
   type LLMLoadModelConfig,
   type LLMModelQuery,
   type LogLevel,
@@ -57,7 +58,7 @@ export interface LLMLoadModelOpts {
    * My Models page. If no preset is selected for that model, the default preset for the operating
    * system is used. ("Default LM Studio macOS" or "Default LM Studio Windows).
    */
-  config?: LLMLoadModelConfig;
+  config?: LLMLlamaLoadModelConfig;
 
   /**
    * An `AbortSignal` to cancel the model loading. This is useful if you wish to add a functionality
@@ -214,7 +215,7 @@ export class LLMNamespace {
         path,
         identifier,
         preset,
-        config: config ?? {},
+        config: { type: "llama", content: config ?? {} },
         noHup: noHup ?? false,
       },
       message => {
@@ -231,7 +232,7 @@ export class LLMNamespace {
             resolve(
               new LLMDynamicHandle(
                 this.llmPort,
-                { type: "sessionIdentifier", sessionIdentifier: message.sessionIdentifier },
+                { type: "instanceReference", instanceReference: message.instanceReference },
                 this.validator,
                 this.logger,
               ),
@@ -376,7 +377,7 @@ export class LLMNamespace {
     }
     return new LLMSpecificModel(
       this.llmPort,
-      info.sessionIdentifier,
+      info.instanceReference,
       info.descriptor,
       this.validator,
       new SimpleLogger("LLMSpecificModel", this.logger),

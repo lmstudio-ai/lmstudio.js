@@ -15,14 +15,14 @@ export class LLMSpecificModel extends LLMDynamicHandle {
   /** @internal */
   public constructor(
     llmPort: LLMPort,
-    sessionIdentifier: string,
+    instanceReference: string,
     descriptor: LLMDescriptor,
     validator: Validator,
     logger: SimpleLogger = new SimpleLogger(`LLMSpecificModel`),
   ) {
     const specifier: LLMModelSpecifier = {
-      type: "sessionIdentifier",
-      sessionIdentifier,
+      type: "instanceReference",
+      instanceReference,
     };
     super(llmPort, specifier, validator, logger);
     this.identifier = descriptor.identifier;

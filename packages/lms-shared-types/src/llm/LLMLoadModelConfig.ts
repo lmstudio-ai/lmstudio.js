@@ -104,5 +104,5 @@ export type LLMResolvedLoadModelConfig = {
 };
 export const llmResolvedLoadModelConfigSchema = z.object({
   type: z.literal("llama"),
-  content: llmLlamaLoadModelConfigSchema,
+  content: llmLlamaLoadModelConfigSchema.required(),
 });
