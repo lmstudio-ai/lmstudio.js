@@ -76,7 +76,14 @@ if [ -z "$LMS_NO_SIGN" ]; then
 
     # Try to sign the binary
     if [[ -n "${DIST_DIR}" ]] && [[ -n "${EXE_NAME}" ]]; then
-        smctl sign --keypair-alias="${WINDOWS_DIGICERT_KEYPAIR_ALIAS}" --input "${DIST_DIR}/${EXE_NAME}"
+        echo "Attempting to sign '${DIST_DIR}/${EXE_NAME}'..."
+        output=$(smctl sign --keypair-alias="${WINDOWS_DIGICERT_KEYPAIR_ALIAS}" --input "${DIST_DIR}/${EXE_NAME}" -v)
+        if [ $? -ne 0 ] || [[ ! $output == *"SUCCESSFUL"* ]]; then
+            echo "Error: Failed to sign the binary at '${DIST_DIR}/${EXE_NAME}' with output: $output"
+            echo "Signing FAILED"
+            exit 1
+        fi
+        echo "Signing was SUCCESSFUL"
     else
         echo "Warning: DIST_DIR or EXE_NAME is not set - To skip signing, set LMS_NO_SIGN=true"
         exit 1
