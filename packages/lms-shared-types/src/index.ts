@@ -49,15 +49,12 @@ export {
   llmModelSpecifierSchema,
 } from "./llm/LLMModelSpecifier";
 export {
-  LLMChatPredictionConfig,
-  llmChatPredictionConfigSchema,
-  LLMCompletionPredictionConfig,
-  llmCompletionPredictionConfigSchema,
   LLMContextOverflowPolicy,
   llmContextOverflowPolicySchema,
-  LLMFullPredictionConfig,
-  llmFullPredictionConfigSchema,
-  LLMPredictionConfigBase,
+  LLMLlamaPredictionConfig,
+  llmLlamaPredictionConfigSchema,
+  LLMPredictionConfig,
+  llmPredictionConfigSchema,
   LLMResolvedPredictionConfig,
   llmResolvedPredictionConfigSchema,
 } from "./llm/LLMPredictionConfig";

@@ -28,7 +28,7 @@ export const llmContextOverflowPolicySchema = z.enum([
  *
  * @public
  */
-export interface LLMPredictionConfigBase {
+export interface LLMLlamaPredictionConfig {
   /**
    * Number of tokens to predict at most. If set to -1, the model will predict as many tokens as it
    * wants.
@@ -72,7 +72,7 @@ export interface LLMPredictionConfigBase {
   topPSampling?: number;
   cpuThreads?: number;
 }
-const llmPredictionConfigBaseSchema = z.object({
+export const llmLlamaPredictionConfigSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional(),
   temperature: z.number().min(0).max(1).optional(),
   stopStrings: z.array(z.string()).optional(),
@@ -85,29 +85,21 @@ const llmPredictionConfigBaseSchema = z.object({
   cpuThreads: z.number().optional(),
 });
 
-/**
- * Extra config options for a `complete` prediction.
- *
- * @public
- */
-export interface LLMCompletionPredictionConfig extends LLMPredictionConfigBase {}
-export const llmCompletionPredictionConfigSchema = llmPredictionConfigBaseSchema.extend({});
-
-/** @public */
-export interface LLMChatPredictionConfig extends LLMPredictionConfigBase {}
-
-export const llmChatPredictionConfigSchema = llmPredictionConfigBaseSchema.extend({});
-
-/** @public */
-export type LLMFullPredictionConfig = LLMCompletionPredictionConfig & LLMChatPredictionConfig;
-export const llmFullPredictionConfigSchema = z.object({
-  ...llmCompletionPredictionConfigSchema.shape,
-  ...llmChatPredictionConfigSchema.shape,
+export type LLMPredictionConfig = {
+  type: "llama";
+  content: LLMLlamaPredictionConfig;
+};
+export const llmPredictionConfigSchema = z.object({
+  type: z.literal("llama"),
+  content: llmLlamaPredictionConfigSchema,
 });
 
 /** @public */
-export type LLMResolvedPredictionConfig = { modelType: "llama" } & LLMFullPredictionConfig;
+export type LLMResolvedPredictionConfig = {
+  type: "llama";
+  content: Required<LLMLlamaPredictionConfig>;
+};
 export const llmResolvedPredictionConfigSchema = z.object({
-  modelType: z.literal("llama"),
-  ...llmFullPredictionConfigSchema.shape,
+  type: z.literal("llama"),
+  content: llmLlamaPredictionConfigSchema.required(),
 });
