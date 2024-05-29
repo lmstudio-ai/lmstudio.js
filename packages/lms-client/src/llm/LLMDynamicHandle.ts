@@ -2,54 +2,22 @@ import { BufferedEvent, getCurrentStack, SimpleLogger, type Validator } from "@l
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   llmChatHistorySchema,
-  llmChatPredictionConfigSchema,
-  llmCompletionPredictionConfigSchema,
-  llmStructuredPredictionSettingSchema,
   type LLMChatHistory,
-  type LLMChatPredictionConfig,
   type LLMDescriptor,
   type LLMModelSpecifier,
   type LLMPredictionStats,
-  type LLMStructuredPredictionSetting,
 } from "@lmstudio/lms-shared-types";
 import { type LLMResolvedLoadModelConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
 import {
-  type LLMCompletionPredictionConfig,
-  type LLMFullPredictionConfig,
+  llmLlamaPredictionConfigSchema,
+  type LLMLlamaPredictionConfig,
+  type LLMPredictionConfig,
   type LLMResolvedPredictionConfig,
 } from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
 import { z } from "zod";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
-
-/** @public */
-export interface LLMCompletionOpts extends LLMCompletionPredictionConfig {
-  /**
-   * Structured output settings for the prediction. See {@link LLMStructuredPredictionSetting} for a
-   * detailed explanation of what structured prediction is and how to use it.
-   */
-  structured?: LLMStructuredPredictionSetting;
-}
-
-const completeOptsSchema = z.object({
-  ...llmCompletionPredictionConfigSchema.shape,
-  structured: llmStructuredPredictionSettingSchema.optional(),
-});
-
-/** @public */
-export interface LLMChatResponseOpts extends LLMChatPredictionConfig {
-  /**
-   * Structured output settings for the prediction. See {@link LLMStructuredPredictionSetting} for a
-   * detailed explanation of what structured prediction is and how to use it.
-   */
-  structured?: LLMStructuredPredictionSetting;
-}
-
-const respondOptsSchema = z.object({
-  ...llmChatPredictionConfigSchema.shape,
-  structured: llmStructuredPredictionSettingSchema.optional(),
-});
 
 /**
  * This represents a set of requirements for a model. It is not tied to a specific model, but rather
@@ -84,7 +52,7 @@ export class LLMDynamicHandle {
   private predict(
     modelSpecifier: LLMModelSpecifier,
     history: LLMChatHistory,
-    config: LLMFullPredictionConfig,
+    config: LLMPredictionConfig,
     cancelEvent: BufferedEvent<void>,
     onFragment: (fragment: string) => void,
     onFinished: (
@@ -166,27 +134,29 @@ export class LLMDynamicHandle {
    * @param prompt - The prompt to use for prediction.
    * @param opts - Options for the prediction.
    */
-  public complete(prompt: string, opts: LLMCompletionOpts = {}) {
+  public complete(prompt: string, config: LLMLlamaPredictionConfig = {}) {
     const stack = getCurrentStack(1);
-    [prompt, opts] = this.validator.validateMethodParamsOrThrow(
+    [prompt, config] = this.validator.validateMethodParamsOrThrow(
       "model",
       "complete",
       ["prompt", "opts"],
-      [z.string(), completeOptsSchema],
-      [prompt, opts],
+      [z.string(), llmLlamaPredictionConfigSchema],
+      [prompt, config],
       stack,
     );
-    const { ...config } = opts;
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
     this.predict(
       this.specifier,
       [{ role: "user", content: prompt }],
       {
-        // If the user did not specify `stopStrings`, we default to an empty array. This is to
-        // prevent the model from using the value set in the preset.
-        stopStrings: [],
-        ...config,
+        type: "llama",
+        content: {
+          // If the user did not specify `stopStrings`, we default to an empty array. This is to
+          // prevent the model from using the value set in the preset.
+          stopStrings: [],
+          ...config,
+        },
       },
       cancelEvent,
       fragment => push(fragment),
@@ -244,25 +214,24 @@ export class LLMDynamicHandle {
    * ```
    *
    * @param history - The LLMChatHistory array to use for generating a response.
-   * @param opts - Options for the prediction.
+   * @param config - Options for the prediction.
    */
-  public respond(history: LLMChatHistory, opts: LLMChatResponseOpts = {}) {
+  public respond(history: LLMChatHistory, config: LLMLlamaPredictionConfig = {}) {
     const stack = getCurrentStack(1);
-    [history, opts] = this.validator.validateMethodParamsOrThrow(
+    [history, config] = this.validator.validateMethodParamsOrThrow(
       "model",
       "respond",
       ["history", "opts"],
-      [llmChatHistorySchema, respondOptsSchema],
-      [history, opts],
+      [llmChatHistorySchema, llmLlamaPredictionConfigSchema],
+      [history, config],
       stack,
     );
-    const { ...config } = opts;
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
     this.predict(
       this.specifier,
       history,
-      config,
+      { type: "llama", content: config },
       cancelEvent,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
