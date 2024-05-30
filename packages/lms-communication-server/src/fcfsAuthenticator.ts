@@ -4,6 +4,7 @@ import { type ClientHolder } from "./AuthenticatedWsServer";
 import { Authenticator, type ContextCreator } from "./Authenticator";
 
 const clientHolderDropped = Symbol("clientHolderDropped");
+const clientHolderLeaked = Symbol("clientHolderLeaked");
 
 export class FcfsAuthenticatedContext {
   public constructor(
@@ -15,7 +16,7 @@ export class FcfsAuthenticatedContext {
   ) {}
 }
 
-class FcfsClientHolder {
+class FcfsClientHolder implements ClientHolder {
   private dropped = false;
   public constructor(private readonly client: FcfsClient) {}
   public drop() {
@@ -24,6 +25,13 @@ class FcfsClientHolder {
     }
     this.dropped = true;
     this.client[clientHolderDropped](this);
+  }
+  public leak() {
+    if (this.dropped) {
+      throw new Error("ClientHolder already dropped!");
+    }
+    this.dropped = true;
+    this.client[clientHolderLeaked](this);
   }
 }
 
@@ -116,6 +124,12 @@ export class FcfsClient {
   public [clientHolderDropped](holder: FcfsClientHolder) {
     this.clientHoldersFinalizationRegistry.unregister(holder);
     this.decreaseReferences();
+  }
+  /**
+   * Internal method for the holder to call when it is leaked.
+   */
+  public [clientHolderLeaked](holder: FcfsClientHolder) {
+    this.clientHoldersFinalizationRegistry.unregister(holder);
   }
 }
 

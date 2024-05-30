@@ -18,6 +18,7 @@ import { WsServerTransport } from "./WsServerTransport";
  */
 export interface ClientHolder {
   drop(): void;
+  leak(): void;
 }
 
 interface Opts<TContext extends Context> {
