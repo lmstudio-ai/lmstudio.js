@@ -22,11 +22,11 @@ export type {
   LLMLlamaLoadModelConfig,
   LLMLlamaRoPEConfig,
   LLMLoadModelConfig,
-  LLMModelQuery,
   LLMPredictionStats,
   LLMPredictionStopReason,
   LLMResolvedLoadModelConfig,
   LLMResolvedPredictionConfig,
   LLMStructuredPredictionSetting,
   LogLevel,
+  ModelQuery,
 } from "@lmstudio/lms-shared-types";

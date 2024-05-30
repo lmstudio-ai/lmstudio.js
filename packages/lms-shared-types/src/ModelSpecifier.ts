@@ -1,12 +1,17 @@
 import { z } from "zod";
-import { reasonableKeyStringSchema } from "../reasonable";
+import { type ModelDomainType } from "./ModelDomainType";
+import { reasonableKeyStringSchema } from "./reasonable";
 
 /**
  * Represents a query for a loaded LLM.
  *
  * @public
  */
-export interface LLMModelQuery {
+export interface ModelQuery {
+  /**
+   * The domain of the model.
+   */
+  domain?: ModelDomainType;
   /**
    * If specified, the model must have exactly this identifier.
    *
@@ -58,19 +63,19 @@ export interface LLMModelQuery {
    */
   path?: string;
 }
-export const llmModelQuerySchema = z.object({
+export const modelQuerySchema = z.object({
   identifier: reasonableKeyStringSchema.optional(),
   path: reasonableKeyStringSchema.optional(),
 });
 
-export const llmModelSpecifierSchema = z.discriminatedUnion("type", [
+export const modelSpecifierSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("query"),
-    query: llmModelQuerySchema,
+    query: modelQuerySchema,
   }),
   z.object({
     type: z.literal("instanceReference"),
     instanceReference: z.string(),
   }),
 ]);
-export type LLMModelSpecifier = z.infer<typeof llmModelSpecifierSchema>;
+export type ModelSpecifier = z.infer<typeof modelSpecifierSchema>;

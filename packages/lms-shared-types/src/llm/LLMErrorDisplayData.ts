@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { llmModelQuerySchema } from "./LLMModelSpecifier";
+import { modelQuerySchema } from "../ModelSpecifier";
 
 export const llmErrorDisplayDataSchema = [
   z.object({
@@ -19,7 +19,7 @@ export const llmErrorDisplayDataSchema = [
   }),
   z.object({
     code: z.literal("llm.noModelMatchingQuery"),
-    query: llmModelQuerySchema,
+    query: modelQuerySchema,
     loadedModelsSample: z.array(z.string()),
     totalLoadedModels: z.number(),
   }),

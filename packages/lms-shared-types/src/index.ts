@@ -43,12 +43,6 @@ export {
   llmResolvedLoadModelConfigSchema,
 } from "./llm/LLMLoadModelConfig";
 export {
-  LLMModelQuery,
-  llmModelQuerySchema,
-  LLMModelSpecifier,
-  llmModelSpecifierSchema,
-} from "./llm/LLMModelSpecifier";
-export {
   LLMContextOverflowPolicy,
   llmContextOverflowPolicySchema,
   LLMLlamaPredictionConfig,
@@ -68,6 +62,16 @@ export {
   LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,
 } from "./llm/LLMStructuredPredictionSetting";
+export {
+  ModelDomainType as ModelDomain,
+  modelDomainTypeSchema as modelDomainSchema,
+} from "./ModelDomainType";
+export {
+  ModelQuery,
+  modelQuerySchema,
+  ModelSpecifier,
+  modelSpecifierSchema,
+} from "./ModelSpecifier";
 export { reasonableKeyStringSchema } from "./reasonable";
 export {
   Accelerator,
