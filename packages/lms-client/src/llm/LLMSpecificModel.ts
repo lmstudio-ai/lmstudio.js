@@ -1,6 +1,6 @@
 import { SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
-import { type LLMDescriptor, type LLMModelSpecifier } from "@lmstudio/lms-shared-types";
+import { type LLMDescriptor, type ModelSpecifier } from "@lmstudio/lms-shared-types";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 
 /**
@@ -20,7 +20,7 @@ export class LLMSpecificModel extends LLMDynamicHandle {
     validator: Validator,
     logger: SimpleLogger = new SimpleLogger(`LLMSpecificModel`),
   ) {
-    const specifier: LLMModelSpecifier = {
+    const specifier: ModelSpecifier = {
       type: "instanceReference",
       instanceReference,
     };

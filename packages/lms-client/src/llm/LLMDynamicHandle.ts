@@ -4,8 +4,8 @@ import {
   llmChatHistorySchema,
   type LLMChatHistory,
   type LLMDescriptor,
-  type LLMModelSpecifier,
   type LLMPredictionStats,
+  type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { type LLMResolvedLoadModelConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
 import {
@@ -41,7 +41,7 @@ export class LLMDynamicHandle {
     /** @internal */
     private readonly llmPort: LLMPort,
     /** @internal */
-    private readonly specifier: LLMModelSpecifier,
+    private readonly specifier: ModelSpecifier,
     /** @internal */
     private readonly validator: Validator,
     /** @internal */
@@ -50,7 +50,7 @@ export class LLMDynamicHandle {
 
   /** @internal */
   private predict(
-    modelSpecifier: LLMModelSpecifier,
+    modelSpecifier: ModelSpecifier,
     history: LLMChatHistory,
     config: LLMPredictionConfig,
     cancelEvent: BufferedEvent<void>,

@@ -2,7 +2,7 @@ import { makePrettyError, makeTitledPrettyError, text } from "@lmstudio/lms-comm
 import {
   attachSerializedErrorData,
   type ErrorDisplayData,
-  type LLMModelQuery,
+  type ModelQuery,
   type SerializedLMSExtendedError,
 } from "@lmstudio/lms-shared-types";
 import chalk from "chalk";
@@ -100,7 +100,7 @@ registerErrorDeserializer(
   },
 );
 
-registerErrorDeserializer("llm.specificModelUnloaded", (_, stack) => {
+registerErrorDeserializer("generic.specificModelUnloaded", (_, stack) => {
   return makePrettyError(
     chalk.bgRed.white(text`
     This model has already been unloaded.
@@ -109,7 +109,7 @@ registerErrorDeserializer("llm.specificModelUnloaded", (_, stack) => {
   );
 });
 
-function formatQuery(query: LLMModelQuery) {
+function formatQuery(query: ModelQuery) {
   const requirements: Array<string> = [];
   if (query.identifier !== undefined) {
     requirements.push(`The identifier must be exactly "${chalk.yellowBright(query.identifier)}"`);
@@ -125,7 +125,7 @@ function formatQuery(query: LLMModelQuery) {
 }
 
 registerErrorDeserializer(
-  "llm.noModelMatchingQuery",
+  "generic.noModelMatchingQuery",
   ({ loadedModelsSample, totalLoadedModels }, stack) => {
     return makePrettyError(
       text`

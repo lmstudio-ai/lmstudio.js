@@ -1,7 +1,11 @@
 import { z, type ZodSchema } from "zod";
+import { genericErrorDisplayDataSchema } from "./GenericErrorDisplayData";
 import { llmErrorDisplayDataSchema } from "./llm/LLMErrorDisplayData";
 
-export const errorDisplayDataSchema = z.discriminatedUnion("code", [...llmErrorDisplayDataSchema]);
+export const errorDisplayDataSchema = z.discriminatedUnion("code", [
+  ...llmErrorDisplayDataSchema,
+  ...genericErrorDisplayDataSchema,
+]);
 
 export type ErrorDisplayData = z.infer<typeof errorDisplayDataSchema>;
 

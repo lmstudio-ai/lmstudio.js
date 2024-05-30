@@ -4,9 +4,9 @@ import {
   llmChatHistorySchema,
   llmDescriptorSchema,
   llmLoadModelConfigSchema,
-  llmModelSpecifierSchema,
   llmPredictionStatsSchema,
   llmResolvedLoadModelConfigSchema,
+  modelSpecifierSchema,
 } from "@lmstudio/lms-shared-types";
 import {
   llmPredictionConfigSchema,
@@ -39,6 +39,7 @@ export function createLlmBackendInterface() {
         }),
         z.object({
           type: z.literal("success"),
+          identifier: z.string(),
           instanceReference: z.string(),
         }),
       ]),
@@ -56,7 +57,7 @@ export function createLlmBackendInterface() {
     })
     .addChannelEndpoint("predict", {
       creationParameter: z.object({
-        modelSpecifier: llmModelSpecifierSchema,
+        modelSpecifier: modelSpecifierSchema,
         history: llmChatHistorySchema,
         config: llmPredictionConfigSchema,
       }),
@@ -85,7 +86,7 @@ export function createLlmBackendInterface() {
     })
     .addRpcEndpoint("getModelInfo", {
       parameter: z.object({
-        specifier: llmModelSpecifierSchema,
+        specifier: modelSpecifierSchema,
         throwIfNotFound: z.boolean(),
       }),
       returns: z

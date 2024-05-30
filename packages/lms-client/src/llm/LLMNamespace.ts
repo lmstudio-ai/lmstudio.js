@@ -10,14 +10,14 @@ import {
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   llmLoadModelConfigSchema,
-  llmModelQuerySchema,
   logLevelSchema,
+  modelQuerySchema,
   reasonableKeyStringSchema,
   type LLMDescriptor,
   type LLMLlamaLoadModelConfig,
   type LLMLoadModelConfig,
-  type LLMModelQuery,
   type LogLevel,
+  type ModelQuery,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
@@ -182,7 +182,7 @@ export class LLMNamespace {
    * @param opts - Options for loading the model. See {@link LLMLoadModelOpts} for details.
    * @returns A promise that resolves to the model that can be used for inferencing
    */
-  public async load(path: string, opts: LLMLoadModelOpts = {}): Promise<LLMDynamicHandle> {
+  public async load(path: string, opts: LLMLoadModelOpts = {}): Promise<LLMSpecificModel> {
     const stack = getCurrentStack(1);
     [path, opts] = this.validator.validateMethodParamsOrThrow(
       "client.llm",
@@ -195,7 +195,7 @@ export class LLMNamespace {
     const { preset, identifier, signal, verbose = "info", config, onProgress, noHup } = opts;
     let lastVerboseCallTime = 0;
 
-    const { promise, resolve, reject } = makePromise<LLMDynamicHandle>();
+    const { promise, resolve, reject } = makePromise<LLMSpecificModel>();
     const verboseLevel = typeof verbose === "boolean" ? "info" : verbose;
 
     const startTime = Date.now();
@@ -230,9 +230,10 @@ export class LLMNamespace {
               );
             }
             resolve(
-              new LLMDynamicHandle(
+              new LLMSpecificModel(
                 this.llmPort,
-                { type: "instanceReference", instanceReference: message.instanceReference },
+                message.instanceReference,
+                { identifier: message.identifier, path },
                 this.validator,
                 this.logger,
               ),
@@ -300,7 +301,7 @@ export class LLMNamespace {
    * Get a specific model that satisfies the given query. The returned model is tied to the specific
    * model at the time of the call.
    *
-   * For more information on the query, see {@link LLMModelQuery}.
+   * For more information on the query, see {@link ModelQuery}.
    *
    * @example
    *
@@ -327,7 +328,7 @@ export class LLMNamespace {
    * const prediction = model.complete("...");
    * ```
    */
-  public get(query: LLMModelQuery): Promise<LLMSpecificModel>;
+  public get(query: ModelQuery): Promise<LLMSpecificModel>;
   /**
    * Get a specific model by its identifier. The returned model is tied to the specific model at the
    * time of the call.
@@ -343,17 +344,17 @@ export class LLMNamespace {
    *
    */
   public get(path: string): Promise<LLMSpecificModel>;
-  public async get(param: string | LLMModelQuery): Promise<LLMSpecificModel> {
+  public async get(param: string | ModelQuery): Promise<LLMSpecificModel> {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(
       "client.llm",
       "get",
       "param",
-      z.union([reasonableKeyStringSchema, llmModelQuerySchema]),
+      z.union([reasonableKeyStringSchema, modelQuerySchema]),
       param,
       stack,
     );
-    let query: LLMModelQuery;
+    let query: ModelQuery;
     if (typeof param === "string") {
       query = {
         identifier: param,
@@ -387,7 +388,7 @@ export class LLMNamespace {
   /**
    * Get a dynamic model handle for any loaded model that satisfies the given query.
    *
-   * For more information on the query, see {@link LLMModelQuery}.
+   * For more information on the query, see {@link ModelQuery}.
    *
    * Note: The returned `LLMModel` is not tied to any specific loaded model. Instead, it represents
    * a "handle for a model that satisfies the given query". If the model that satisfies the query is
@@ -417,7 +418,7 @@ export class LLMNamespace {
    *
    * @param query - The query to use to get the model.
    */
-  public createDynamicHandle(query: LLMModelQuery): LLMDynamicHandle;
+  public createDynamicHandle(query: ModelQuery): LLMDynamicHandle;
   /**
    * Get a dynamic model handle by its identifier.
    *
@@ -441,17 +442,17 @@ export class LLMNamespace {
    * @param identifier - The identifier of the model to get.
    */
   public createDynamicHandle(identifier: string): LLMDynamicHandle;
-  public createDynamicHandle(param: string | LLMModelQuery): LLMDynamicHandle {
+  public createDynamicHandle(param: string | ModelQuery): LLMDynamicHandle {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(
       "client.llm",
       "createDynamicHandle",
       "param",
-      z.union([reasonableKeyStringSchema, llmModelQuerySchema]),
+      z.union([reasonableKeyStringSchema, modelQuerySchema]),
       param,
       stack,
     );
-    let query: LLMModelQuery;
+    let query: ModelQuery;
     if (typeof param === "string") {
       query = {
         identifier: param,
@@ -459,6 +460,8 @@ export class LLMNamespace {
     } else {
       query = param;
     }
+    // We set the domain to 'llm' to ensure that the handle is only used for LLM models.
+    query.domain = "llm";
     if (query.path?.includes("\\")) {
       throw makePrettyError(
         text`

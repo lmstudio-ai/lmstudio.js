@@ -80,6 +80,9 @@ const constructorOptsSchema = z
     verboseErrorMessages: z.boolean().optional(),
     clientIdentifier: z.string().optional(),
     clientPasskey: z.string().optional(),
+
+    // Internal testing options
+    disableConnection: z.boolean().optional(),
     llmPort: z.any().optional(),
     systemPort: z.any().optional(),
     diagnosticsPort: z.any().optional(),
@@ -209,6 +212,7 @@ export class LMStudioClient {
       verboseErrorMessages,
       clientIdentifier,
       clientPasskey,
+      disableConnection,
       llmPort,
       systemPort,
       diagnosticsPort,
@@ -224,11 +228,15 @@ export class LMStudioClient {
 
     const stack = getCurrentStack(1);
     let resolvingBaseUrl: string | Promise<string>;
-    if (baseUrl === undefined) {
-      resolvingBaseUrl = this.guessBaseUrl(verboseErrorMessages ? stack : undefined);
+    if (disableConnection) {
+      resolvingBaseUrl = new Promise(() => undefined);
     } else {
-      this.validateBaseUrlOrThrow(baseUrl);
-      resolvingBaseUrl = baseUrl;
+      if (baseUrl === undefined) {
+        resolvingBaseUrl = this.guessBaseUrl(verboseErrorMessages ? stack : undefined);
+      } else {
+        this.validateBaseUrlOrThrow(baseUrl);
+        resolvingBaseUrl = baseUrl;
+      }
     }
 
     this.llmPort =
