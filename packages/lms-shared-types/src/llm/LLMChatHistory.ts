@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export type LLMChatHistoryMessageContent = string;
+export const llmChatHistoryMessageContentSchema = z.string();
+
 /**
  * Represents a role in a specific message in the history. This is a string enum, and can only be
  * one of the following values:
@@ -24,11 +27,11 @@ export const llmChatHistoryRoleSchema = z
  */
 export interface LLMChatHistoryMessage {
   role: LLMChatHistoryRole;
-  content: string;
+  content: LLMChatHistoryMessageContent;
 }
 export const llmChatHistoryMessageSchema = z.object({
   role: llmChatHistoryRoleSchema,
-  content: z.string(),
+  content: llmChatHistoryMessageContentSchema,
 });
 
 /**
