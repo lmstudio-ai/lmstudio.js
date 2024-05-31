@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type ModelDomainType } from "./ModelDomainType";
+import { modelDomainTypeSchema, type ModelDomainType } from "./ModelDomainType";
 import { reasonableKeyStringSchema } from "./reasonable";
 
 /**
@@ -64,6 +64,7 @@ export interface ModelQuery {
   path?: string;
 }
 export const modelQuerySchema = z.object({
+  domain: modelDomainTypeSchema.optional(),
   identifier: reasonableKeyStringSchema.optional(),
   path: reasonableKeyStringSchema.optional(),
 });

@@ -362,6 +362,7 @@ export class LLMNamespace {
     } else {
       query = param;
     }
+    query.domain = "llm";
     const info = await this.llmPort.callRpc(
       "getModelInfo",
       {
