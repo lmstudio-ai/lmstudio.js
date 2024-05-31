@@ -64,6 +64,7 @@ export class LLMDynamicHandle {
     ) => void,
     onError: (error: Error) => void,
   ) {
+    let finished = false;
     const channel = this.llmPort.createChannel(
       "predict",
       { modelSpecifier, context, config },
@@ -73,6 +74,7 @@ export class LLMDynamicHandle {
             onFragment(message.fragment);
             break;
           case "success":
+            finished = true;
             onFinished(
               message.stats,
               message.modelInfo,
@@ -85,6 +87,9 @@ export class LLMDynamicHandle {
       { stack: getCurrentStack(2) },
     );
     cancelEvent.subscribeOnce(() => {
+      if (finished) {
+        return;
+      }
       channel.send({ type: "cancel" });
     });
     channel.onError.subscribeOnce(onError);
