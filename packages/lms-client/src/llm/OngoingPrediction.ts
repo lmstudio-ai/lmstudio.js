@@ -3,9 +3,9 @@ import {
   type LLMDescriptor,
   type LLMPredictionStats,
   type LLMPredictionStopReason,
+  type LLMResolvedLoadModelConfig,
+  type LLMResolvedPredictionConfig,
 } from "@lmstudio/lms-shared-types";
-import { type LLMResolvedLoadModelConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
-import { type LLMResolvedPredictionConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
 import { PredictionResult } from "./PredictionResult";
 
 /**

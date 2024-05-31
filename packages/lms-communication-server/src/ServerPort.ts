@@ -308,6 +308,17 @@ export class ServerPort<
     });
     Promise.resolve(endpoint.handler(context, parseResult.data))
       .then((signal: SignalLike<any>) => {
+        this.openSignalSubscriptions.set(message.subscribeId, {
+          endpoint,
+          unsubscribe: signal.subscribe((_value, patches, tags) => {
+            this.transport.send({
+              type: "signalUpdate",
+              subscribeId: message.subscribeId,
+              patches,
+              tags,
+            });
+          }),
+        });
         this.transport.send({
           type: "signalUpdate",
           subscribeId: message.subscribeId,
@@ -319,17 +330,6 @@ export class ServerPort<
             },
           ],
           tags: [],
-        });
-        this.openSignalSubscriptions.set(message.subscribeId, {
-          endpoint,
-          unsubscribe: signal.subscribe((_value, patches, tags) => {
-            this.transport.send({
-              type: "signalUpdate",
-              subscribeId: message.subscribeId,
-              patches,
-              tags,
-            });
-          }),
         });
       })
       .catch(error => {
@@ -395,18 +395,6 @@ export class ServerPort<
     });
     Promise.resolve(endpoint.handler(context, parseResult.data))
       .then(([signal, setter]) => {
-        this.transport.send({
-          type: "writableSignalUpdate",
-          subscribeId: message.subscribeId,
-          patches: [
-            {
-              op: "replace",
-              path: [],
-              value: signal.get(),
-            },
-          ],
-          tags: [],
-        });
         this.openWritableSignalSubscriptions.set(message.subscribeId, {
           endpoint,
           unsubscribe: signal.subscribe((_value, patches, tags) => {
@@ -432,6 +420,18 @@ export class ServerPort<
             }
             setter.withValueAndPatches(parseResult.data, patches, tags);
           },
+        });
+        this.transport.send({
+          type: "writableSignalUpdate",
+          subscribeId: message.subscribeId,
+          patches: [
+            {
+              op: "replace",
+              path: [],
+              value: signal.get(),
+            },
+          ],
+          tags: [],
         });
       })
       .catch(error => {

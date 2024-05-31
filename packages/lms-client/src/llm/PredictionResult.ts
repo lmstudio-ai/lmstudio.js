@@ -1,6 +1,9 @@
-import { type LLMDescriptor, type LLMPredictionStats } from "@lmstudio/lms-shared-types";
-import { type LLMResolvedLoadModelConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
-import { type LLMResolvedPredictionConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
+import {
+  type LLMDescriptor,
+  type LLMPredictionStats,
+  type LLMResolvedLoadModelConfig,
+  type LLMResolvedPredictionConfig,
+} from "@lmstudio/lms-shared-types";
 
 /**
  * Represents the result of a prediction.

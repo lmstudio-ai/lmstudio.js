@@ -22,10 +22,20 @@ export {
 export {
   LLMChatHistory,
   LLMChatHistoryMessage,
+  LLMChatHistoryMessageContent,
+  LLMChatHistoryMessageContentPart,
+  llmChatHistoryMessageContentPartSchema,
+  llmChatHistoryMessageContentSchema,
   llmChatHistoryMessageSchema,
   LLMChatHistoryRole,
   llmChatHistoryRoleSchema,
   llmChatHistorySchema,
+  LLMCompletionContextInput,
+  llmCompletionContextInputSchema,
+  LLMContext,
+  llmContextSchema,
+  LLMConversationContextInput,
+  llmConversationContextInputSchema,
 } from "./llm/LLMChatHistory";
 export { LLMDescriptor, llmDescriptorSchema } from "./llm/LLMDescriptor";
 export {

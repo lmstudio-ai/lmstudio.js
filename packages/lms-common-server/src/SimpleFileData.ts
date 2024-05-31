@@ -17,6 +17,9 @@ export class SimpleFileData<TData> extends FileData<TData> {
       defaultData,
       data => {
         if (isAvailable(data)) {
+          if (!schema.safeParse(data).success) {
+            throw new Error("Data does not match schema");
+          }
           return Buffer.from(JSON.stringify(data), "utf-8");
         }
         throw new Error("Data is not available");

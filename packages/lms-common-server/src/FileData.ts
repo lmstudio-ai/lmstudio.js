@@ -6,10 +6,11 @@ import {
   type Setter,
 } from "@lmstudio/lms-common";
 import { isAvailable, type StripNotAvailable } from "@lmstudio/lms-common/dist/LazySignal";
-import { existsSync, writeFileSync } from "fs";
+import { existsSync, writeFileSync , readFileSync } from "fs";
 import { mkdir, readFile, watch } from "fs/promises";
 import { enablePatches } from "immer";
 import path from "path";
+
 enablePatches();
 
 export type InitializationState =
@@ -33,6 +34,10 @@ export interface FileDataOpts {
    * The default value will still be available for use.
    */
   doNotCreateOnInit?: boolean;
+  /**
+   * Whether to make a backup of the file when a read fail to parse.
+   */
+  makeBackupOnFail?: boolean;
   onDelete?: () => void;
 }
 
@@ -45,7 +50,7 @@ export class FileData<TData> {
     }
     return this.outerSignal;
   }
-  private innerSignal!: Signal<TData>;
+  private innerSignal!: Signal<StripNotAvailable<TData>>;
   private setData!: Setter<TData>;
   private outerSignal!: LazySignal<TData>;
   private lastWroteBuffer: Buffer | null = null;
@@ -53,6 +58,7 @@ export class FileData<TData> {
   private readonly logger: SimpleLogger;
   private readonly shouldWatch: boolean;
   private readonly doNotCreateOnInit: boolean;
+  private readonly makeBackupOnFail: boolean;
   private readonly onDelete?: () => void;
   public constructor(
     private readonly filePath: string,
@@ -61,11 +67,12 @@ export class FileData<TData> {
       | (() => StripNotAvailable<TData> | Promise<StripNotAvailable<TData>>),
     private readonly serializer: (data: TData) => Buffer,
     private readonly deserializer: (serialized: Buffer) => StripNotAvailable<TData>,
-    { logger, watch, doNotCreateOnInit, onDelete }: FileDataOpts = {},
+    { logger, watch, doNotCreateOnInit, makeBackupOnFail, onDelete }: FileDataOpts = {},
   ) {
     this.logger = logger ?? new SimpleLogger("FileData");
     this.shouldWatch = watch ?? false;
     this.doNotCreateOnInit = doNotCreateOnInit ?? false;
+    this.makeBackupOnFail = makeBackupOnFail ?? false;
     if (!this.shouldWatch && onDelete) {
       throw new Error("onDelete is only supported when watching is enabled");
     }
@@ -95,7 +102,7 @@ export class FileData<TData> {
     this.logger?.debug("Initializing FileData");
     const dir = path.dirname(this.filePath);
     await mkdir(dir, { recursive: true });
-    let data: TData | null = null;
+    let data: StripNotAvailable<TData> | null = null;
     if (!existsSync(this.filePath)) {
       data = await this.getDefaultData();
       if (!this.doNotCreateOnInit) {
@@ -110,9 +117,10 @@ export class FileData<TData> {
       this.writeData(data);
     }
 
-    [this.innerSignal, this.setData] = Signal.create<TData>(data);
-    this.outerSignal = LazySignal.create(data, setDownstream => {
+    [this.innerSignal, this.setData] = Signal.create<StripNotAvailable<TData>>(data) as any;
+    this.outerSignal = LazySignal.create<TData>(data, setDownstream => {
       const ac = new AbortController();
+      setDownstream(this.innerSignal.get());
 
       if (this.shouldWatch) {
         this.startWatcher(ac).catch(e => {
@@ -160,6 +168,19 @@ export class FileData<TData> {
     }
   }
 
+  private makeBackup() {
+    this.logger?.error("Making backup of file");
+    try {
+      let id = 1;
+      while (existsSync(`${this.filePath}.bak.${id}`)) {
+        id++;
+      }
+      writeFileSync(`${this.filePath}.bak.${id}`, readFileSync(this.filePath));
+    } catch (e) {
+      this.logger?.error(`Error making backup: ${e}`);
+    }
+  }
+
   private async readData(): Promise<StripNotAvailable<TData> | null> {
     try {
       const content = await readFile(this.filePath);
@@ -176,6 +197,9 @@ export class FileData<TData> {
       }
     } catch (e) {
       this.logger?.error(`Error reading data from file: ${e}`);
+      if (this.makeBackupOnFail) {
+        this.makeBackup();
+      }
       return null;
     }
   }

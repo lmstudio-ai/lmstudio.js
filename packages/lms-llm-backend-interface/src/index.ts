@@ -1,13 +1,13 @@
 import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
-  llmChatHistorySchema,
   llmDescriptorSchema,
   llmLoadModelConfigSchema,
   llmPredictionStatsSchema,
   llmResolvedLoadModelConfigSchema,
   modelSpecifierSchema,
 } from "@lmstudio/lms-shared-types";
+import { llmContextSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMChatHistory";
 import {
   llmPredictionConfigSchema,
   llmResolvedPredictionConfigSchema,
@@ -58,7 +58,7 @@ export function createLlmBackendInterface() {
     .addChannelEndpoint("predict", {
       creationParameter: z.object({
         modelSpecifier: modelSpecifierSchema,
-        history: llmChatHistorySchema,
+        context: llmContextSchema,
         config: llmPredictionConfigSchema,
       }),
       toClientPacket: z.discriminatedUnion("type", [

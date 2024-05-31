@@ -1,7 +1,30 @@
 import { z } from "zod";
 
-export type LLMChatHistoryMessageContent = string;
-export const llmChatHistoryMessageContentSchema = z.string();
+/**
+ * Represents a part of the content of a message in the history.
+ */
+export type LLMChatHistoryMessageContentPart =
+  | {
+      type: "text";
+      text: string;
+    }
+  | {
+      type: "imageBase64";
+      base64: string;
+    };
+export const llmChatHistoryMessageContentPartSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("text"),
+    text: z.string(),
+  }),
+  z.object({
+    type: z.literal("imageBase64"),
+    base64: z.string(),
+  }),
+]);
+
+export type LLMChatHistoryMessageContent = Array<LLMChatHistoryMessageContentPart>;
+export const llmChatHistoryMessageContentSchema = z.array(llmChatHistoryMessageContentPartSchema);
 
 /**
  * Represents a role in a specific message in the history. This is a string enum, and can only be
@@ -41,3 +64,24 @@ export const llmChatHistoryMessageSchema = z.object({
  */
 export type LLMChatHistory = Array<LLMChatHistoryMessage>;
 export const llmChatHistorySchema = z.array(llmChatHistoryMessageSchema);
+
+export interface LLMContext {
+  history: LLMChatHistory;
+}
+export const llmContextSchema = z.object({
+  history: llmChatHistorySchema,
+});
+
+export type LLMConversationContextInput = Array<{
+  role: LLMChatHistoryRole;
+  content: string;
+}>;
+export const llmConversationContextInputSchema = z.array(
+  z.object({
+    role: llmChatHistoryRoleSchema,
+    content: z.string(),
+  }),
+);
+
+export type LLMCompletionContextInput = string;
+export const llmCompletionContextInputSchema = z.string();

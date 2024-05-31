@@ -1,5 +1,15 @@
-export { BackendInterface, ChannelEndpoint, RpcEndpoint } from "./BackendInterface";
+export { AuthPacket, authPacketSchema } from "./authentication";
+export {
+  BackendInterface,
+  ChannelEndpoint,
+  ChannelEndpointsSpecBase,
+  RpcEndpoint,
+  RpcEndpointsSpecBase,
+  SignalEndpointsSpecBase,
+  WritableSignalEndpointsSpecBase,
+} from "./BackendInterface";
 export { Channel } from "./Channel";
+export { KEEP_ALIVE_INTERVAL, KEEP_ALIVE_TIMEOUT } from "./timeoutConstants";
 export {
   ClientToServerMessage,
   ClientTransport,
@@ -9,6 +19,4 @@ export {
   ServerTransportFactory,
 } from "./Transport";
 export { WsAuthenticationResult } from "./WsAuthenticationResult";
-export { AuthPacket, authPacketSchema } from "./authentication";
-export { KEEP_ALIVE_INTERVAL, KEEP_ALIVE_TIMEOUT } from "./timeoutConstants";
 export { WsMessageEvent } from "./wsTypes";

@@ -1,20 +1,21 @@
 import { BufferedEvent, getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
-  llmChatHistorySchema,
-  type LLMChatHistory,
+  type LLMCompletionContextInput,
+  llmCompletionContextInputSchema,
+  type LLMContext,
+  llmContextSchema,
+  type LLMConversationContextInput,
+  llmConversationContextInputSchema,
   type LLMDescriptor,
+  type LLMLlamaPredictionConfig,
+  llmLlamaPredictionConfigSchema,
+  type LLMPredictionConfig,
   type LLMPredictionStats,
+  type LLMResolvedLoadModelConfig,
+  type LLMResolvedPredictionConfig,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
-import { type LLMResolvedLoadModelConfig } from "@lmstudio/lms-shared-types/dist/llm/LLMLoadModelConfig";
-import {
-  llmLlamaPredictionConfigSchema,
-  type LLMLlamaPredictionConfig,
-  type LLMPredictionConfig,
-  type LLMResolvedPredictionConfig,
-} from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
-import { z } from "zod";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
@@ -49,9 +50,9 @@ export class LLMDynamicHandle {
   ) {}
 
   /** @internal */
-  private predict(
+  private predictInternal(
     modelSpecifier: ModelSpecifier,
-    history: LLMChatHistory,
+    context: LLMContext,
     config: LLMPredictionConfig,
     cancelEvent: BufferedEvent<void>,
     onFragment: (fragment: string) => void,
@@ -65,7 +66,7 @@ export class LLMDynamicHandle {
   ) {
     const channel = this.llmPort.createChannel(
       "predict",
-      { modelSpecifier, history, config },
+      { modelSpecifier, context, config },
       message => {
         switch (message.type) {
           case "fragment":
@@ -134,21 +135,21 @@ export class LLMDynamicHandle {
    * @param prompt - The prompt to use for prediction.
    * @param opts - Options for the prediction.
    */
-  public complete(prompt: string, config: LLMLlamaPredictionConfig = {}) {
+  public complete(prompt: LLMCompletionContextInput, config: LLMLlamaPredictionConfig = {}) {
     const stack = getCurrentStack(1);
     [prompt, config] = this.validator.validateMethodParamsOrThrow(
       "model",
       "complete",
       ["prompt", "opts"],
-      [z.string(), llmLlamaPredictionConfigSchema],
+      [llmCompletionContextInputSchema, llmLlamaPredictionConfigSchema],
       [prompt, config],
       stack,
     );
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
-    this.predict(
+    this.predictInternal(
       this.specifier,
-      [{ role: "user", content: prompt }],
+      this.resolveCompletionContext(prompt),
       {
         type: "llama",
         content: {
@@ -165,6 +166,17 @@ export class LLMDynamicHandle {
       error => failed(error),
     );
     return ongoingPrediction;
+  }
+
+  private resolveCompletionContext(contextInput: LLMCompletionContextInput): LLMContext {
+    return {
+      history: [
+        {
+          role: "user",
+          content: [{ type: "text", text: contextInput }],
+        },
+      ],
+    };
   }
 
   /**
@@ -216,21 +228,58 @@ export class LLMDynamicHandle {
    * @param history - The LLMChatHistory array to use for generating a response.
    * @param config - Options for the prediction.
    */
-  public respond(history: LLMChatHistory, config: LLMLlamaPredictionConfig = {}) {
+  public respond(history: LLMConversationContextInput, config: LLMLlamaPredictionConfig = {}) {
     const stack = getCurrentStack(1);
     [history, config] = this.validator.validateMethodParamsOrThrow(
       "model",
       "respond",
       ["history", "opts"],
-      [llmChatHistorySchema, llmLlamaPredictionConfigSchema],
+      [llmConversationContextInputSchema, llmLlamaPredictionConfigSchema],
       [history, config],
       stack,
     );
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
-    this.predict(
+    this.predictInternal(
       this.specifier,
-      history,
+      this.resolveConversationContext(history),
+      { type: "llama", content: config },
+      cancelEvent,
+      fragment => push(fragment),
+      (stats, modelInfo, loadModelConfig, predictionConfig) =>
+        finished(stats, modelInfo, loadModelConfig, predictionConfig),
+      error => failed(error),
+    );
+    return ongoingPrediction;
+  }
+
+  private resolveConversationContext(contextInput: LLMConversationContextInput): LLMContext {
+    return {
+      history: contextInput.map(({ role, content }) => ({
+        role,
+        content: [{ type: "text", text: content }],
+      })),
+    };
+  }
+
+  /**
+   * @alpha
+   */
+  public predict(context: LLMContext, config: LLMLlamaPredictionConfig) {
+    const stack = getCurrentStack(1);
+    [context, config] = this.validator.validateMethodParamsOrThrow(
+      "model",
+      "predict",
+      ["context", "config"],
+      [llmContextSchema, llmLlamaPredictionConfigSchema],
+      [context, config],
+      stack,
+    );
+    const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
+    const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
+    this.predictInternal(
+      this.specifier,
+      context,
       { type: "llama", content: config },
       cancelEvent,
       fragment => push(fragment),

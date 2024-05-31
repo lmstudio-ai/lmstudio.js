@@ -1,8 +1,13 @@
 import { BufferedEvent, type SimpleLogger } from "@lmstudio/lms-common";
 import {
   type AuthPacket,
+  type BackendInterface,
+  type ChannelEndpointsSpecBase,
   type ClientTransportFactory,
+  type RpcEndpointsSpecBase,
   type ServerToClientMessage,
+  type SignalEndpointsSpecBase,
+  type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication";
 import {
   AuthenticatedWsClientTransport,
@@ -11,13 +16,7 @@ import {
   getHostedEnv,
   type LMStudioHostedEnv,
 } from "@lmstudio/lms-communication-client";
-import {
-  type BackendInterface,
-  type ChannelEndpointsSpecBase,
-  type RpcEndpointsSpecBase,
-  type SignalEndpointsSpecBase,
-  type WritableSignalEndpointsSpecBase,
-} from "@lmstudio/lms-communication/dist/BackendInterface";
+
 import { type SerializedLMSExtendedError } from "@lmstudio/lms-shared-types";
 
 function createAuthenticatedIpcTransportFactory(
