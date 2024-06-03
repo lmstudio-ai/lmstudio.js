@@ -323,6 +323,21 @@ const firstModel = await client.llm.get({ identifier: loadedModels[0].identifier
 // firstModel.complete(...);
 ```
 
+> Example loadedModels Response:
+> ```JSON
+> [
+>   {
+>     "identifier": "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF",
+>     "path": "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF",
+>   },
+>   {
+>     "identifier": "microsoft/Phi-3-mini-4k-instruct-gguf/Phi-3-mini-4k-instruct-q4.gguf",
+>     "path": "microsoft/Phi-3-mini-4k-instruct-gguf/Phi-3-mini-4k-instruct-q4.gguf",
+>   },
+> ]
+> ```
+
+
 ### Text Completion
 
 To perform text completion, use the `complete` method:
@@ -423,6 +438,21 @@ console.log(stats);
 > // Or just:
 >
 > const { content, stats } = await model.complete("The meaning of life is");
+> 
+> console.log(stats)
+> ```
+
+> Example output for stats: 
+> ```JSON
+> {
+>   "stopReason": "eosFound",
+>   "tokensPerSecond": 26.644333102146646,
+>   "numGpuLayers": 33,
+>   "timeToFirstTokenSec": 0.146,
+>   "promptTokensCount": 5,
+>   "predictedTokensCount": 694,
+>   "totalTokensCount": 699
+> }
 > ```
 
 ### Producing JSON (Structured Output)
@@ -440,7 +470,7 @@ const prediction = model.complete("Here is a joke in JSON:", {
 const result = await prediction;
 try {
   // Although the LLM is guaranteed to only produce valid JSON, when it is interrupted, the
-  // partial result might not be. Always check for errors. (See below)
+  // partial result might not be. Always check for errors. (See caveats below)
   const parsed = JSON.parse(result.content);
   console.info(parsed);
 } catch (e) {
@@ -448,32 +478,62 @@ try {
 }
 ```
 
+>  Example output: 
+>  ```JSON
+> {
+>   "title": "The Shawshank Redemption",
+>   "genre": [ "drama", "thriller" ],
+>   "release_year": 1994,
+>   "cast": [
+>     { "name": "Tim Robbins", "role": "Andy Dufresne" },
+>     { "name": "Morgan Freeman", "role": "Ellis Boyd" }
+>   ]
+> }
+>  ```
+
 Sometimes, any JSON is not enough. You might want to enforce a specific JSON schema. You can do this by providing a JSON schema to the `structured` field. Read more about JSON schema at [json-schema.org](https://json-schema.org/).
 
 ```ts
-const schema = {
+const bookSchema =  {
   type: "object",
   properties: {
-    setup: { type: "string" },
-    punchline: { type: "string" },
+    bookTitle: { type: "string" },
+    author: { type: "string" },
+    genre: { type: "string" },
+    pageCount: { type: "number" },
   },
-  required: ["setup", "punchline"],
+  required: ["bookTitle", "author", "genre"],
 };
 
-const prediction = llama3.complete("Here is a joke in JSON:", {
+const prediction = model.complete("Books that were turned into movies:", {
   maxPredictedTokens: 100,
-  structured: { type: "json", jsonSchema: schema },
+  structured: { type: "json", jsonSchema: bookSchema },
 });
 
 const result = await prediction;
 try {
   const parsed = JSON.parse(result.content);
-  console.info("The setup is", parsed.setup);
-  console.info("The punchline is", parsed.punchline);
+
+  console.info(parsed); // see example response below
+  console.info("The bookTitle is", parsed.bookTitle); // The bookTitle is The Help
+  console.info("The author is", parsed.author); // The author is Tina
+  console.info("The genre is", parsed.genre); // The genre is Historical Fiction
+  console.info("The pageCount is", parsed.pageCount); // The pageCount is 320
+
 } catch (e) {
   console.error(e);
 }
 ```
+
+> Example response for parsed:
+> ```JSON 
+> {
+>   "author": "J.K. Rowling",
+>   "bookTitle": "Harry Potter and the Philosopher's Stone",
+>   "genre": "Fantasy",
+>   "pageCount": 320
+> }
+> ```
 
 > [!IMPORTANT]
 >
@@ -482,7 +542,7 @@ try {
 > - Although the model is forced to generate predictions that conform to the specified structure, the prediction may be interrupted (for example, if the user stops the prediction). When that happens, the partial result may not conform to the specified structure. Thus, always check the prediction result before using it, for example, by wrapping the `JSON.parse` inside a try-catch block.
 > - In certain cases, the model may get stuck. For example, when forcing it to generate valid JSON, it may generate a opening brace `{` but never generate a closing brace `}`. In such cases, the prediction will go on forever until the context length is reached, which can take a long time. Therefore, it is recommended to always set a `maxPredictedTokens` limit. This also contributes to the point above.
 
-### Canceling a Prediction
+### Canceling/Aborting a Prediction
 
 A prediction may be canceled by calling the `cancel` method on the prediction object.
 
