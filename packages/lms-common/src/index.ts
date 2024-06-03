@@ -1,7 +1,8 @@
-import { enablePatches } from "immer";
+import { enableMapSet, enablePatches } from "immer";
 import "./polyfill";
 
 enablePatches();
+enableMapSet();
 
 // Export lazy signal first to avoid circular dependency issues
 export { LazySignal, NotAvailable } from "./LazySignal";
