@@ -1,17 +1,12 @@
 import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
+  kvConfigSchema,
   llmDescriptorSchema,
-  llmLoadModelConfigSchema,
   llmPredictionStatsSchema,
-  llmResolvedLoadModelConfigSchema,
   modelSpecifierSchema,
 } from "@lmstudio/lms-shared-types";
 import { llmContextSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMChatHistory";
-import {
-  llmPredictionConfigSchema,
-  llmResolvedPredictionConfigSchema,
-} from "@lmstudio/lms-shared-types/dist/llm/LLMPredictionConfig";
 import { z } from "zod";
 
 export function createLlmBackendInterface() {
@@ -25,7 +20,7 @@ export function createLlmBackendInterface() {
         path: z.string(),
         identifier: z.string().optional(),
         preset: z.string().optional(),
-        config: llmLoadModelConfigSchema,
+        loadConfig: kvConfigSchema,
         noHup: z.boolean(),
       }),
       toClientPacket: z.discriminatedUnion("type", [
@@ -59,7 +54,7 @@ export function createLlmBackendInterface() {
       creationParameter: z.object({
         modelSpecifier: modelSpecifierSchema,
         context: llmContextSchema,
-        config: llmPredictionConfigSchema,
+        predictionConfig: kvConfigSchema,
       }),
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
@@ -70,8 +65,8 @@ export function createLlmBackendInterface() {
           type: z.literal("success"),
           stats: llmPredictionStatsSchema,
           modelInfo: llmDescriptorSchema,
-          loadModelConfig: llmResolvedLoadModelConfigSchema,
-          predictionConfig: llmResolvedPredictionConfigSchema,
+          loadModelConfig: kvConfigSchema,
+          predictionConfig: kvConfigSchema,
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [

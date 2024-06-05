@@ -1,6 +1,8 @@
 import { BufferedEvent, getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
+import { globalConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
+  type KVConfig,
   type LLMCompletionContextInput,
   llmCompletionContextInputSchema,
   type LLMContext,
@@ -10,15 +12,17 @@ import {
   type LLMDescriptor,
   type LLMLlamaPredictionConfig,
   llmLlamaPredictionConfigSchema,
-  type LLMPredictionConfig,
   type LLMPredictionStats,
-  type LLMResolvedLoadModelConfig,
-  type LLMResolvedPredictionConfig,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
+
+const llamaPredictionConfigSchematics = globalConfigSchematics.scoped("llm:llama:prediction");
+function predictionConfigToKVConfig(predictionConfig: LLMLlamaPredictionConfig): KVConfig {
+  return llamaPredictionConfigSchematics.buildPartialConfig(predictionConfig);
+}
 
 /**
  * This represents a set of requirements for a model. It is not tied to a specific model, but rather
@@ -53,21 +57,21 @@ export class LLMDynamicHandle {
   private predictInternal(
     modelSpecifier: ModelSpecifier,
     context: LLMContext,
-    config: LLMPredictionConfig,
+    config: LLMLlamaPredictionConfig,
     cancelEvent: BufferedEvent<void>,
     onFragment: (fragment: string) => void,
     onFinished: (
       stats: LLMPredictionStats,
       modelInfo: LLMDescriptor,
-      loadModelConfig: LLMResolvedLoadModelConfig,
-      predictionConfig: LLMResolvedPredictionConfig,
+      loadModelConfig: KVConfig,
+      predictionConfig: KVConfig,
     ) => void,
     onError: (error: Error) => void,
   ) {
     let finished = false;
     const channel = this.llmPort.createChannel(
       "predict",
-      { modelSpecifier, context, config },
+      { modelSpecifier, context, predictionConfig: predictionConfigToKVConfig(config) },
       message => {
         switch (message.type) {
           case "fragment":
@@ -156,13 +160,10 @@ export class LLMDynamicHandle {
       this.specifier,
       this.resolveCompletionContext(prompt),
       {
-        type: "llama",
-        content: {
-          // If the user did not specify `stopStrings`, we default to an empty array. This is to
-          // prevent the model from using the value set in the preset.
-          stopStrings: [],
-          ...config,
-        },
+        // If the user did not specify `stopStrings`, we default to an empty array. This is to
+        // prevent the model from using the value set in the preset.
+        stopStrings: [],
+        ...config,
       },
       cancelEvent,
       fragment => push(fragment),
@@ -248,7 +249,7 @@ export class LLMDynamicHandle {
     this.predictInternal(
       this.specifier,
       this.resolveConversationContext(history),
-      { type: "llama", content: config },
+      config,
       cancelEvent,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
@@ -285,7 +286,7 @@ export class LLMDynamicHandle {
     this.predictInternal(
       this.specifier,
       context,
-      { type: "llama", content: config },
+      config,
       cancelEvent,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>

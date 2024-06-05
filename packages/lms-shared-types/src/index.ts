@@ -20,6 +20,16 @@ export {
   serializeError,
 } from "./Error";
 export {
+  KVConfig,
+  KVConfigField,
+  kvConfigFieldSchema,
+  kvConfigSchema,
+  KVConfigStack,
+  KVConfigStackLayer,
+  kvConfigStackLayerSchema,
+  kvConfigStackSchema,
+} from "./KVConfig";
+export {
   LLMChatHistory,
   LLMChatHistoryMessage,
   LLMChatHistoryMessageContent,
@@ -45,8 +55,6 @@ export {
   llmLlamaAccelerationSettingSchema,
   LLMLlamaLoadModelConfig,
   llmLlamaLoadModelConfigSchema,
-  LLMLlamaRoPEConfig,
-  llmLlamaRoPEConfigSchema,
   LLMLoadModelConfig,
   llmLoadModelConfigSchema,
   LLMResolvedLoadModelConfig,

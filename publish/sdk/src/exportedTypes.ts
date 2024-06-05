@@ -20,7 +20,6 @@ export type {
   LLMContextOverflowPolicy,
   LLMDescriptor,
   LLMLlamaLoadModelConfig,
-  LLMLlamaRoPEConfig,
   LLMLoadModelConfig,
   LLMPredictionStats,
   LLMPredictionStopReason,

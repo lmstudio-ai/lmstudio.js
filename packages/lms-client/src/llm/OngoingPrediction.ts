@@ -1,10 +1,9 @@
 import { StreamablePromise } from "@lmstudio/lms-common";
 import {
+  type KVConfig,
   type LLMDescriptor,
   type LLMPredictionStats,
   type LLMPredictionStopReason,
-  type LLMResolvedLoadModelConfig,
-  type LLMResolvedPredictionConfig,
 } from "@lmstudio/lms-shared-types";
 import { PredictionResult } from "./PredictionResult";
 
@@ -43,8 +42,8 @@ import { PredictionResult } from "./PredictionResult";
 export class OngoingPrediction extends StreamablePromise<string, PredictionResult> {
   private stats: LLMPredictionStats | null = null;
   private modelInfo: LLMDescriptor | null = null;
-  private loadModelConfig: LLMResolvedLoadModelConfig | null = null;
-  private predictionConfig: LLMResolvedPredictionConfig | null = null;
+  private loadModelConfig: KVConfig | null = null;
+  private predictionConfig: KVConfig | null = null;
 
   protected override async collect(fragments: ReadonlyArray<string>): Promise<PredictionResult> {
     if (this.stats === null) {
@@ -78,8 +77,8 @@ export class OngoingPrediction extends StreamablePromise<string, PredictionResul
     const finished = (
       stats: LLMPredictionStats,
       modelInfo: LLMDescriptor,
-      loadModelConfig: LLMResolvedLoadModelConfig,
-      predictionConfig: LLMResolvedPredictionConfig,
+      loadModelConfig: KVConfig,
+      predictionConfig: KVConfig,
     ) => {
       ongoingPrediction.stats = stats;
       ongoingPrediction.modelInfo = modelInfo;

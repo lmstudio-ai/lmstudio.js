@@ -7,6 +7,7 @@ import {
   type LoggerInterface,
   type Validator,
 } from "@lmstudio/lms-common";
+import { globalConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   llmLoadModelConfigSchema,
@@ -129,6 +130,11 @@ const llmLoadModelOptsSchema = z.object({
   noHup: z.boolean().optional(),
 });
 
+const llamaLoadConfigSchematics = globalConfigSchematics.scoped("llm:llama:load");
+function loadConfigToKVConfig(loadConfig: LLMLlamaLoadModelConfig) {
+  return llamaLoadConfigSchematics.buildPartialConfig(loadConfig);
+}
+
 /** @public */
 export class LLMNamespace {
   /** @internal */
@@ -215,7 +221,7 @@ export class LLMNamespace {
         path,
         identifier,
         preset,
-        config: { type: "llama", content: config ?? {} },
+        loadConfig: loadConfigToKVConfig(config ?? {}),
         noHup: noHup ?? false,
       },
       message => {

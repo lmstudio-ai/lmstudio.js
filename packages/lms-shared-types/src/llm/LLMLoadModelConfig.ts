@@ -30,16 +30,6 @@ export const llmLlamaAccelerationSettingSchema = z.object({
 });
 
 /** @public */
-export interface LLMLlamaRoPEConfig {
-  frequencyScale: number;
-  frequencyBase: number;
-}
-export const llmLlamaRoPEConfigSchema = z.object({
-  frequencyScale: z.number().min(0),
-  frequencyBase: z.number().min(0),
-});
-
-/** @public */
 export interface LLMLlamaLoadModelConfig {
   /**
    * How much of the model's work should be offloaded to the GPU. The value should be between 0 and 1.
@@ -60,10 +50,8 @@ export interface LLMLlamaLoadModelConfig {
    * See {@link LLMContextOverflowPolicy} for more information.
    */
   contextLength?: number;
-  /**
-   * Rotary Positional Encoding (RoPE) related configuration.
-   */
-  rope?: LLMLlamaRoPEConfig;
+  ropeFrequencyBase?: number;
+  ropeFrequencyScale?: number;
   /**
    * Prompt evaluation batch size.
    */
@@ -78,7 +66,8 @@ export interface LLMLlamaLoadModelConfig {
 export const llmLlamaLoadModelConfigSchema = z.object({
   gpuOffload: llmLlamaAccelerationSettingSchema.optional(),
   contextLength: z.number().int().min(1).optional(),
-  rope: llmLlamaRoPEConfigSchema.optional(),
+  ropeFrequencyBase: z.number().optional(),
+  ropeFrequencyScale: z.number().optional(),
   evalBatchSize: z.number().int().min(1).optional(),
   flashAttention: z.boolean().optional(),
   keepModelInMemory: z.boolean().optional(),

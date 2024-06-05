@@ -31,7 +31,8 @@
         "fixStyle": "inline-type-imports"
       }
     ],
-    "tsdoc/syntax": "warn"
+    "tsdoc/syntax": "warn",
+    "@typescript-eslint/ban-types": "off"
   },
   "overrides": [
     {

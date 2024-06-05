@@ -1,8 +1,7 @@
 import {
+  type KVConfig,
   type LLMDescriptor,
   type LLMPredictionStats,
-  type LLMResolvedLoadModelConfig,
-  type LLMResolvedPredictionConfig,
 } from "@lmstudio/lms-shared-types";
 
 /**
@@ -31,10 +30,10 @@ export class PredictionResult {
     /**
      * The configuration used to load the model.
      */
-    public readonly loadConfig: LLMResolvedLoadModelConfig,
+    public readonly loadConfig: KVConfig,
     /**
      * The configuration used for the prediction.
      */
-    public readonly predictionConfig: LLMResolvedPredictionConfig,
+    public readonly predictionConfig: KVConfig,
   ) {}
 }
