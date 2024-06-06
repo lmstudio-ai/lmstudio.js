@@ -24,9 +24,9 @@ function predictionConfigToKVConfig(predictionConfig: LLMLlamaPredictionConfig):
   return llmLlamaPredictionConfigSchematics.buildPartialConfig({
     "temperature": predictionConfig.temperature,
     "contextOverflowPolicy": predictionConfig.contextOverflowPolicy,
-    "llama.maxPredictedTokens": predictionConfig.maxPredictedTokens,
-    "llama.stopStrings": predictionConfig.stopStrings,
-    "llama.structured": predictionConfig.structured,
+    "maxPredictedTokens": predictionConfig.maxPredictedTokens,
+    "stopStrings": predictionConfig.stopStrings,
+    "structured": predictionConfig.structured,
     "llama.topKSampling": predictionConfig.topKSampling,
     "llama.repeatPenalty": predictionConfig.repeatPenalty,
     "llama.minPSampling": predictionConfig.minPSampling,

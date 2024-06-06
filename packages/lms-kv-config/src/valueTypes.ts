@@ -1,4 +1,5 @@
 import {
+  llmContextOverflowPolicySchema,
   llmLlamaAccelerationSettingSchema,
   llmStructuredPredictionSettingSchema,
 } from "@lmstudio/lms-shared-types";
@@ -11,6 +12,8 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
       min: z.number().optional(),
       max: z.number().optional(),
       int: z.boolean().optional(),
+      step: z.number().optional(),
+      shortHand: z.string().optional(),
     }),
     schemaMaker: ({ min, max, int }) => {
       let schema = z.number();
@@ -24,6 +27,28 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
         schema = schema.int();
       }
       return schema;
+    },
+  })
+  .valueType("checkboxNumeric", {
+    paramType: z.object({
+      disabledValue: z.number(),
+      min: z.number().optional(),
+      max: z.number().optional(),
+      int: z.boolean().optional(),
+      step: z.number().optional(),
+    }),
+    schemaMaker: ({ disabledValue, min, max, int }) => {
+      let schema = z.number();
+      if (min !== undefined) {
+        schema = schema.min(min);
+      }
+      if (max !== undefined) {
+        schema = schema.max(max);
+      }
+      if (int) {
+        schema = schema.int();
+      }
+      return schema.or(z.literal(disabledValue));
     },
   })
   .valueType("string", {
@@ -48,19 +73,6 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
       return z.boolean();
     },
   })
-  .valueType("selection", {
-    paramType: z.object({
-      options: z.array(
-        z.object({
-          value: z.string(),
-          label: z.string(),
-        }),
-      ),
-    }),
-    schemaMaker: () => {
-      return z.string();
-    },
-  })
   .valueType("stringArray", {
     paramType: z.object({
       maxNumItems: z.number().optional(),
@@ -79,6 +91,12 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
         schema = schema.max(maxNumItems);
       }
       return schema;
+    },
+  })
+  .valueType("contextOverflowPolicy", {
+    paramType: z.void(),
+    schemaMaker: () => {
+      return llmContextOverflowPolicySchema;
     },
   })
   .valueType("llamaStructuredOutput", {

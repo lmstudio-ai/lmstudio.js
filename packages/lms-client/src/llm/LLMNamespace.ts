@@ -132,7 +132,7 @@ const llmLoadModelOptsSchema = z.object({
 
 function loadConfigToKVConfig(loadConfig: LLMLlamaLoadModelConfig) {
   return llmLlamaLoadConfigSchematics.buildPartialConfig({
-    "llama.contextLength": loadConfig.contextLength,
+    "contextLength": loadConfig.contextLength,
     "llama.evalBatchSize": loadConfig.evalBatchSize,
     "llama.gpuOffload": loadConfig.gpuOffload,
     "llama.flashAttention": loadConfig.flashAttention,
