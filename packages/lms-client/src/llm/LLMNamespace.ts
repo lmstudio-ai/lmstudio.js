@@ -7,7 +7,7 @@ import {
   type LoggerInterface,
   type Validator,
 } from "@lmstudio/lms-common";
-import { globalConfigSchematics } from "@lmstudio/lms-kv-config";
+import { llmLlamaLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   llmLoadModelConfigSchema,
@@ -130,9 +130,20 @@ const llmLoadModelOptsSchema = z.object({
   noHup: z.boolean().optional(),
 });
 
-const llamaLoadConfigSchematics = globalConfigSchematics.scoped("llm:llama:load");
 function loadConfigToKVConfig(loadConfig: LLMLlamaLoadModelConfig) {
-  return llamaLoadConfigSchematics.buildPartialConfig(loadConfig);
+  return llmLlamaLoadConfigSchematics.buildPartialConfig({
+    "llama.contextLength": loadConfig.contextLength,
+    "llama.evalBatchSize": loadConfig.evalBatchSize,
+    "llama.gpuOffload": loadConfig.gpuOffload,
+    "llama.flashAttention": loadConfig.flashAttention,
+    "llama.ropeFrequencyBase": loadConfig.ropeFrequencyBase,
+    "llama.ropeFrequencyScale": loadConfig.ropeFrequencyScale,
+    "llama.keepModelInMemory": loadConfig.keepModelInMemory,
+    "llama.seed": loadConfig.seed,
+    "llama.useFp16ForKVCache": loadConfig.useFp16ForKVCache,
+    "llama.tryMmap": loadConfig.tryMmap,
+    "llama.numExperts": loadConfig.numExperts,
+  });
 }
 
 /** @public */
@@ -221,7 +232,9 @@ export class LLMNamespace {
         path,
         identifier,
         preset,
-        loadConfig: loadConfigToKVConfig(config ?? {}),
+        loadConfigStack: {
+          layers: [{ layerName: "inlineOverride", config: loadConfigToKVConfig(config ?? {}) }],
+        },
         noHup: noHup ?? false,
       },
       message => {

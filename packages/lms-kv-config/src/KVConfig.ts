@@ -1,4 +1,4 @@
-import { type KVConfig } from "@lmstudio/lms-shared-types";
+import { type KVConfig, type KVConfigStack } from "@lmstudio/lms-shared-types";
 import { type ZodSchema } from "zod";
 
 // KV Config is the idea of simply storing config as an array of key-value pairs. This file provides
@@ -133,11 +133,19 @@ type KVVirtualConfigSchema = {
 };
 
 interface KVConcreteFieldSchema {
-  // valueTypeDef: KVValueTypeDefBase;
   valueTypeKey: string;
+  valueTypeParams: any;
   schema: ZodSchema;
   defaultValue?: any;
 }
+
+type KeyPatternMatch<TSource, TPattern> = TPattern extends `${infer RParent}.*`
+  ? TSource extends `${RParent}.${string}`
+    ? TSource
+    : never
+  : TSource extends TPattern
+    ? TSource
+    : never;
 
 export class KVConfigSchematicsBuilder<
   TKVFieldValueTypeLibraryMap extends KVVirtualFieldValueTypesMapping,
@@ -186,6 +194,7 @@ export class KVConfigSchematicsBuilder<
     };
     this.fields.set(key, {
       valueTypeKey,
+      valueTypeParams,
       schema: this.valueTypeLibrary.getSchema(valueTypeKey, valueTypeParams),
       defaultValue,
     });
@@ -228,6 +237,7 @@ export class KVConfigSchematicsBuilder<
     }
     this.fields.set(key, {
       valueTypeKey,
+      valueTypeParams,
       schema: this.valueTypeLibrary.getSchema(valueTypeKey, valueTypeParams).transform(transform),
       defaultValue: transformedDefaultValue,
     });
@@ -266,13 +276,17 @@ export class KVConfigSchematicsBuilder<
     TKVFieldValueTypeLibraryMap,
     TKVConfigSchema & {
       [InnerKey in keyof TInnerConfigSchema &
-        string as `${TScopeKey}:${InnerKey}`]: TInnerConfigSchema[InnerKey];
+        string as `${TScopeKey}.${InnerKey}`]: TInnerConfigSchema[InnerKey];
     }
   > {
     const innerBuilder = fn(new KVConfigSchematicsBuilder(this.valueTypeLibrary));
-    for (const [key, { valueTypeKey, schema, defaultValue }] of innerBuilder.fields.entries()) {
-      this.fields.set(`${scopeKey}:${key}`, {
+    for (const [
+      key,
+      { valueTypeKey, valueTypeParams, schema, defaultValue },
+    ] of innerBuilder.fields.entries()) {
+      this.fields.set(`${scopeKey}.${key}`, {
         valueTypeKey,
+        valueTypeParams,
         schema,
         defaultValue,
       });
@@ -292,6 +306,10 @@ export class KVConfigSchematics<TKVConfigSchema extends KVVirtualConfigSchema> {
     private readonly fields: Map<string, KVConcreteFieldSchema>,
     private readonly baseKey: string = "",
   ) {}
+
+  public getFieldsMap(): ReadonlyMap<string, KVConcreteFieldSchema> {
+    return new Map([...this.fields.entries()].map(([key, field]) => [this.baseKey + key, field]));
+  }
 
   public getSchemaForKey<TKey extends keyof TKVConfigSchema & string>(
     key: TKey,
@@ -329,24 +347,45 @@ export class KVConfigSchematics<TKVConfigSchema extends KVVirtualConfigSchema> {
     return this.parseField(fieldSchema, fullKey, config.fields.find(f => f.key === fullKey)?.value);
   }
 
-  // /**
-  //  * Get a subset of the config schema with a specific scope.
-  //  */
-  // public scoped<TScopeKey extends string>(
-  //   scopeKey: TScopeKey,
-  // ): KVConfigSchema<{
-  //   [key in keyof TKVConfigSchema & string as key extends `${TScopeKey}:${infer _}`
-  //     ? key
-  //     : never]: TKVConfigSchema[key];
-  // }> {
-  //   const newFields = new Map<string, KVConcreteFieldSchema>();
-  //   for (const [key, field] of this.fields.entries()) {
-  //     if (key.startsWith(`${scopeKey}:`)) {
-  //       newFields.set(key, field);
-  //     }
-  //   }
-  //   return new KVConfigSchema(newFields);
-  // }
+  /**
+   * Gets a slice of the config schema with the given key patterns. Support syntax:
+   *
+   * - `some.namespace.key`: Matches exactly `some.namespace.key`
+   * - `some.namespace.*`: Matches anything that starts with `some.namespace.`
+   */
+  public sliced<TKeyPattern extends string>(
+    ...patterns: TKeyPattern[]
+  ): KVConfigSchematics<{
+    [TKey in KeyPatternMatch<keyof TKVConfigSchema, TKeyPattern>]: TKVConfigSchema[TKey];
+  }> {
+    type Pattern =
+      | {
+          type: "exact";
+          value: string;
+        }
+      | {
+          type: "prefix";
+          value: string;
+        };
+    const parsedPatterns: Array<Pattern> = patterns.map(p => {
+      if (p.endsWith("*")) {
+        return { type: "prefix", value: p.substring(0, p.length - 1) };
+      }
+      return { type: "exact", value: p };
+    });
+    const newFields = new Map<string, KVConcreteFieldSchema>();
+    for (const [key, field] of this.fields.entries()) {
+      for (const pattern of parsedPatterns) {
+        if (
+          (pattern.type === "exact" && key === pattern.value) ||
+          (pattern.type === "prefix" && key.startsWith(pattern.value))
+        ) {
+          newFields.set(key, field);
+        }
+      }
+    }
+    return new KVConfigSchematics(newFields, this.baseKey);
+  }
 
   /**
    * Get a subset of the config schema with a specific scope.
@@ -354,17 +393,17 @@ export class KVConfigSchematics<TKVConfigSchema extends KVVirtualConfigSchema> {
   public scoped<TScopeKey extends string>(
     scopeKey: TScopeKey,
   ): KVConfigSchematics<{
-    [TKey in keyof TKVConfigSchema & string as TKey extends `${TScopeKey}:${infer RInnerKey}`
+    [TKey in keyof TKVConfigSchema & string as TKey extends `${TScopeKey}.${infer RInnerKey}`
       ? RInnerKey
       : never]: TKVConfigSchema[TKey];
   }> {
     const newFields = new Map<string, KVConcreteFieldSchema>();
     for (const [key, field] of this.fields.entries()) {
-      if (key.startsWith(`${scopeKey}:`)) {
+      if (key.startsWith(`${scopeKey}.`)) {
         newFields.set(key.substring(scopeKey.length + 1), field);
       }
     }
-    return new KVConfigSchematics(newFields, `${scopeKey}:`);
+    return new KVConfigSchematics(newFields, `${scopeKey}.`);
   }
 
   public parseToMap(config: KVConfig) {
@@ -461,3 +500,39 @@ export function mapToKVConfig(map: Map<string, any>): KVConfig {
     fields: Array.from(map.entries()).map(([key, value]) => ({ key, value })),
   };
 }
+
+export function collapseKVStack(stack: KVConfigStack): KVConfig {
+  const map: Map<string, any> = new Map();
+  for (const layer of stack.layers) {
+    for (const { key, value } of layer.config.fields) {
+      map.set(key, value);
+    }
+  }
+  return mapToKVConfig(map);
+}
+
+export function collapseKVStackRaw(configs: Array<KVConfig>): KVConfig {
+  const map: Map<string, any> = new Map();
+  for (const config of configs) {
+    for (const { key, value } of config.fields) {
+      map.set(key, value);
+    }
+  }
+  return mapToKVConfig(map);
+}
+
+export const emptyKVConfig: KVConfig = {
+  fields: [],
+};
+
+export function combineKVStack(stacks: Array<KVConfigStack>): KVConfigStack {
+  return {
+    layers: stacks.flatMap(s => s.layers),
+  };
+}
+
+export type InferConfigSchemaMap<TKVConfigSchematics extends KVConfigSchematics<any>> =
+  TKVConfigSchematics extends KVConfigSchematics<infer RSchema> ? RSchema : never;
+
+export type InferConfigSchemaKeys<TKVConfigSchematics extends KVConfigSchematics<any>> =
+  keyof InferConfigSchemaMap<TKVConfigSchematics>;

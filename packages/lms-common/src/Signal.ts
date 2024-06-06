@@ -41,6 +41,9 @@ export class Signal<TValue> extends Subscribable<TValue> {
     const setter = makeSetterWithPatches(update);
     return [signal, setter] as const;
   }
+  public static createReadonly<TValue>(value: TValue): Signal<TValue> {
+    return Signal.create(value)[0];
+  }
   protected constructor(
     private value: TValue,
     private equalsPredicate: (a: TValue, b: TValue) => boolean,

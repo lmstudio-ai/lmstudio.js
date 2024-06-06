@@ -289,7 +289,7 @@ export class BackendInterface<
    * called, the first parameter is the context, and the second parameter is the "parameter" for the
    * RPC call. Can return a value or a promise that resolves to the result.
    */
-  public handleRpcEndpoint<TEndpointName extends string>(
+  public handleRpcEndpoint<TEndpointName extends keyof TRpcEndpoints & string>(
     endpointName: TEndpointName,
     handler: RpcEndpointHandler<
       TContext,
@@ -319,7 +319,7 @@ export class BackendInterface<
    *
    * Must return a promise. Once that promise is settled, the channel will be closed.
    */
-  public handleChannelEndpoint<TEndpointName extends string>(
+  public handleChannelEndpoint<TEndpointName extends keyof TChannelEndpoints & string>(
     endpointName: TEndpointName,
     handler: ChannelEndpointHandler<
       TContext,
@@ -359,7 +359,7 @@ export class BackendInterface<
    * - Return a signal that already exists
    * - Create and return a LazySignal
    */
-  public handleSignalEndpoint<TEndpointName extends string>(
+  public handleSignalEndpoint<TEndpointName extends keyof TSignalEndpoints & string>(
     endpointName: TEndpointName,
     handler: SignalEndpointHandler<
       TContext,
@@ -390,7 +390,7 @@ export class BackendInterface<
    *
    * Note: There is no 1-to-1 correlation between the signal on the client side and the number of
    * times this handler is called. Every time the number of client subscribers changes from 0 to 1,
-   * this handler will be called. Every time the number of client subscribers changes from 1 to 0,
+   * this handler will be called. Every time the number of client subscribers changes from 1 to 0
    * the signal returned from this handler will be unsubscribed.
    *
    * Caution: Do NOT create new subscriptions that don't self-terminate in this handler, as it will
@@ -399,7 +399,9 @@ export class BackendInterface<
    * - Return a signal that already exists
    * - Create and return a LazySignal
    */
-  public handleWritableSignalEndpoint<TEndpointName extends string>(
+  public handleWritableSignalEndpoint<
+    TEndpointName extends keyof TWritableSignalEndpoints & string,
+  >(
     endpointName: TEndpointName,
     handler: WritableSignalEndpointHandler<
       TContext,

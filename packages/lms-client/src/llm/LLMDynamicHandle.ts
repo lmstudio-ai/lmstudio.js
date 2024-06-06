@@ -1,8 +1,9 @@
 import { BufferedEvent, getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
-import { globalConfigSchematics } from "@lmstudio/lms-kv-config";
+import { llmLlamaPredictionConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   type KVConfig,
+  type KVConfigStack,
   type LLMCompletionContextInput,
   llmCompletionContextInputSchema,
   type LLMContext,
@@ -19,9 +20,19 @@ import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
 
-const llamaPredictionConfigSchematics = globalConfigSchematics.scoped("llm:llama:prediction");
 function predictionConfigToKVConfig(predictionConfig: LLMLlamaPredictionConfig): KVConfig {
-  return llamaPredictionConfigSchematics.buildPartialConfig(predictionConfig);
+  return llmLlamaPredictionConfigSchematics.buildPartialConfig({
+    "temperature": predictionConfig.temperature,
+    "contextOverflowPolicy": predictionConfig.contextOverflowPolicy,
+    "llama.maxPredictedTokens": predictionConfig.maxPredictedTokens,
+    "llama.stopStrings": predictionConfig.stopStrings,
+    "llama.structured": predictionConfig.structured,
+    "llama.topKSampling": predictionConfig.topKSampling,
+    "llama.repeatPenalty": predictionConfig.repeatPenalty,
+    "llama.minPSampling": predictionConfig.minPSampling,
+    "llama.topPSampling": predictionConfig.topPSampling,
+    "llama.cpuThreads": predictionConfig.cpuThreads,
+  });
 }
 
 /**
@@ -54,6 +65,9 @@ export class LLMDynamicHandle {
   ) {}
 
   /** @internal */
+  private readonly internalKVConfigStack: KVConfigStack = { layers: [] };
+
+  /** @internal */
   private predictInternal(
     modelSpecifier: ModelSpecifier,
     context: LLMContext,
@@ -71,7 +85,16 @@ export class LLMDynamicHandle {
     let finished = false;
     const channel = this.llmPort.createChannel(
       "predict",
-      { modelSpecifier, context, predictionConfig: predictionConfigToKVConfig(config) },
+      {
+        modelSpecifier,
+        context,
+        predictionConfigStack: {
+          layers: [
+            ...this.internalKVConfigStack.layers,
+            { layerName: "inlineOverride", config: predictionConfigToKVConfig(config) },
+          ],
+        },
+      },
       message => {
         switch (message.type) {
           case "fragment":

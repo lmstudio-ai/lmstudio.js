@@ -20,6 +20,7 @@
     "@lmstudio/lms-platform-backend-interface",
     "@lmstudio/lms-platform-sdk",
     "@lmstudio/lms-sdk-common",
-    "@lmstudio/lms-shared-types"
+    "@lmstudio/lms-shared-types",
+    "@lmstudio/lms-kv-config"
   ]
 }

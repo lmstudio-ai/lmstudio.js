@@ -2,6 +2,7 @@ import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
   kvConfigSchema,
+  kvConfigStackSchema,
   llmDescriptorSchema,
   llmPredictionStatsSchema,
   modelSpecifierSchema,
@@ -20,7 +21,7 @@ export function createLlmBackendInterface() {
         path: z.string(),
         identifier: z.string().optional(),
         preset: z.string().optional(),
-        loadConfig: kvConfigSchema,
+        loadConfigStack: kvConfigStackSchema,
         noHup: z.boolean(),
       }),
       toClientPacket: z.discriminatedUnion("type", [
@@ -54,7 +55,7 @@ export function createLlmBackendInterface() {
       creationParameter: z.object({
         modelSpecifier: modelSpecifierSchema,
         context: llmContextSchema,
-        predictionConfig: kvConfigSchema,
+        predictionConfigStack: kvConfigStackSchema,
       }),
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
