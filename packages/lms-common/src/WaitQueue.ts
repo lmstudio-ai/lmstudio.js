@@ -1,5 +1,7 @@
+import { Signal } from './Signal';
 import { SimpleLogger, type LoggerInterface } from "./SimpleLogger";
 import { makePromise } from "./makePromise";
+import { type Setter } from './makeSetter';
 
 const resolvePager = Symbol("resolvePager");
 const rejectPager = Symbol("rejectPager");
@@ -34,9 +36,15 @@ export class QueueClearedError extends Error {
  * Queue can be exited with the {@link Pager#exit} method.
  */
 export class WaitQueue {
+  /**
+   * A signal representing the length of the queue. Includes the one that is currently being served.
+   */
+  public readonly queueLengthSignal: Signal<number>;
+  private readonly setQueueLength: Setter<number>;
   private readonly logger: SimpleLogger;
   public constructor(parentLogger?: LoggerInterface) {
     this.logger = new SimpleLogger("WaitQueue", parentLogger);
+    [this.queueLengthSignal, this.setQueueLength] = Signal.create(0);
   }
   private readonly pagers: Array<Pager> = [];
   private readonly finalizationRegistry = new FinalizationRegistry(() => {
@@ -49,6 +57,9 @@ export class WaitQueue {
     this.tryAdvancingQueue();
   });
   private currentlyServing: Pager | null = null;
+  private updateQueueLength() {
+    this.setQueueLength(this.pagers.length + (this.currentlyServing === null ? 0 : 1));
+  }
   /**
    * Enters the queue and returns a pager that can be waited on.
    *
@@ -71,12 +82,14 @@ export class WaitQueue {
         pager[resolvePager](holder);
       }
     }
+    this.updateQueueLength();
   }
   public clearQueue(error: any = new QueueClearedError()) {
     for (const pager of this.pagers) {
       pager[rejectPager](error);
     }
     this.pagers.length = 0;
+    this.updateQueueLength();
   }
   /** @internal */
   public [dropHolder](holder: Holder) {
@@ -99,6 +112,7 @@ export class WaitQueue {
         that uses the WaitQueue.
       `;
     }
+    this.updateQueueLength();
   }
 }
 
