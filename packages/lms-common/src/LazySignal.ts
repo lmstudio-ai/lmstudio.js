@@ -110,6 +110,10 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
             }
           }),
         );
+        const newValue = derive();
+        if (isAvailable(newValue)) {
+          setDownstream(newValue);
+        }
         return () => {
           unsubscriber.forEach(unsub => unsub());
         };
