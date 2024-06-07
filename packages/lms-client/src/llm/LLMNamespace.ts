@@ -10,7 +10,7 @@ import {
 import { llmLlamaLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
-  llmLoadModelConfigSchema,
+  llmLlamaLoadModelConfigSchema,
   logLevelSchema,
   modelQuerySchema,
   reasonableKeyStringSchema,
@@ -123,7 +123,7 @@ export interface LLMLoadModelOpts {
 const llmLoadModelOptsSchema = z.object({
   preset: z.string().optional(),
   identifier: z.string().optional(),
-  config: llmLoadModelConfigSchema.optional(),
+  config: llmLlamaLoadModelConfigSchema.optional(),
   signal: z.instanceof(AbortSignal).optional(),
   verbose: z.union([z.boolean(), logLevelSchema]).optional(),
   onProgress: z.function().optional(),
