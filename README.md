@@ -17,7 +17,7 @@
 
 Follow along for our upcoming announcements about `lmstudio.js` on [Twitter](https://lmstudio.ai/LMStudioAI) and [Discord](https://discord.gg/aPQfnNkxGC). Read the [Docs](https://lmstudio.ai/docs).
 
-<p>Discuss all things lmstudio.js in <a href="https://discord.gg/aPQfnNkxGC">#dev-chat</a> in LM Studio's Community Discord server.</p>
+<p>Discuss all things lmstudio.js in <a href="https://discord.gg/aPQfnNkxGC">#Dev-chat</a> in LM Studio's Community Discord server.</p>
 <a href="https://discord.gg/aPQfnNkxGC"><img alt="Discord" src="https://img.shields.io/discord/1110598183144399058?logo=discord&style=flat&logoColor=white"></a>
   
 ---
@@ -89,7 +89,7 @@ Start the server by running:
 lms server start
 ```
 
-### Web app
+### Web App
 
 If you are developing a web application and/or need to enable CORS (Cross Origin Resource Sharing), run this instead:
 
@@ -185,7 +185,7 @@ const myModel = await client.llm.get("my-model");
 
 ### Loading a Model with a Custom Configuration
 
-By default, the load configuration for a model comes from the preset associated with the model (Can be changed on the "My Models" page in LM Studio).
+A model's load configuration is derived by default from the preset that is linked to it (this may be modified in LM Studio on the "My Models" tab).
 
 ```ts
 const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
@@ -200,7 +200,7 @@ const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruc
 
 ### Loading a Model with a Specific Preset
 
-The preset determines the default load configuration and the default inference configuration for a model. By default, the preset associated with the model is used. (Can be changed on the "My Models" page in LM Studio). You can change the preset used by specifying the `preset` option.
+For a model, the preset establishes both the default load and inference configurations. The model-specific setting is utilised by default. (Can be modified in LM Studio on the "My Models" page.) You can change the preset used by specifying the `preset` option.
 
 ```ts
 const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF", {
@@ -274,7 +274,9 @@ const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruc
 await client.llm.unload("my-model");
 ```
 
-Note, by default, all models loaded by a client are unloaded when the client disconnects. Therefore, unless you want to precisely control the lifetime of a model, you do not need to unload them manually.
+Keep in mind, that when a client disconnects, any models that the client has loaded are automatically emptied. Thus, you do not need to manually empty them unless you wish to precisely manage how long a model lasts.
+
+
 
 > [!NOTE]
 >
@@ -360,7 +362,8 @@ for await (const text of prediction) {
 }
 ```
 
-By default, the inference parameters in the preset is used for the prediction. You can override them like this:
+Predictions are made using the preset's inference parameters by default. Here's how you can override them:
+
 
 ```ts
 const prediction = anyModel.complete("Meaning of life is", {
@@ -389,7 +392,8 @@ for await (const text of prediction) {
 }
 ```
 
-Similarly, you can override the inference parameters for the conversation (Note the available options are different from text completion):
+In a similar vein, you have the ability to modify the inference parameters for the dialogue (note that the choices provided differ from text completion):
+
 
 ```ts
 const prediction = anyModel.respond(
@@ -435,9 +439,9 @@ console.log(stats);
 >
 > **No Extra Waiting**
 >
-> When you have already consumed the prediction stream, awaiting on the prediction object will not cause any extra waiting, as the result is cached within the prediction object.
+> As the outcome is cached within the prediction object, waiting on it won't require you to wait any longer after you've already consumed the prediction stream.As the outcome is cached within the prediction object, waiting on it won't require you to wait any longer after you've already consumed the prediction stream.
 >
-> On the other hand, if you only care about the final result, you don't need to iterate through the stream. Instead, you can await on the prediction object directly to get the final result.
+> However, you don't have to iterate over the stream if your sole concern is the outcome. To obtain the outcome, you may instead wait on the prediction object directly.
 >
 > ```ts
 > const prediction = model.complete("The meaning of life is");
