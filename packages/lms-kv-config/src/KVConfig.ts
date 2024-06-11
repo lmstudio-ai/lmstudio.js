@@ -495,6 +495,68 @@ export function combineKVStack(stacks: Array<KVConfigStack>): KVConfigStack {
   };
 }
 
+function deepEquals<T>(a: T, b: T) {
+  if (a === b) {
+    return true;
+  }
+  if (typeof a !== "object" || typeof b !== "object") {
+    return false;
+  }
+  if (a === null || b === null) {
+    return false;
+  }
+  if (Array.isArray(a) !== Array.isArray(b)) {
+    return false;
+  }
+  if (Array.isArray(a)) {
+    if (a.length !== (b as any)?.length) {
+      return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+      if (!deepEquals(a[i], (b as any)[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  const aKeys = new Set(Object.keys(a));
+  const bKeys = new Set(Object.keys(b));
+  if (aKeys.size !== bKeys.size) {
+    return false;
+  }
+  for (const key of aKeys) {
+    if (!bKeys.has(key)) {
+      return false;
+    }
+    if (!deepEquals((a as any)[key], (b as any)[key])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Compare two config KV config subject to a schema. Only the fields that exist in the schematic
+ * is compared. Default values are used for missing fields. (Meaning having a field with the same
+ * value as the default value is considered equal to not having the field at all.)
+ */
+export function kvConfigEquals(schematics: KVConfigSchematics<any, any>, a: KVConfig, b: KVConfig) {
+  const aMap = schematics.parseToMap(a);
+  const bMap = schematics.parseToMap(b);
+
+  for (const [aKey, aValue] of aMap) {
+    const bValue = bMap.get(aKey);
+    if (bValue === undefined) {
+      return false;
+    }
+    if (!deepEquals(aValue, bValue)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /**
  * Gets all keys of a union type.
  */
