@@ -7,6 +7,7 @@ import {
   type SignalLike,
   type WriteTag,
 } from "@lmstudio/lms-common";
+import { isAvailable } from "@lmstudio/lms-common/dist/LazySignal";
 import type {
   BackendInterface,
   ChannelEndpoint,
@@ -310,7 +311,10 @@ export class ServerPort<
       .then((signal: SignalLike<any>) => {
         this.openSignalSubscriptions.set(message.subscribeId, {
           endpoint,
-          unsubscribe: signal.subscribe((_value, patches, tags) => {
+          unsubscribe: signal.subscribe((value, patches, tags) => {
+            if (!isAvailable(value)) {
+              return;
+            }
             this.transport.send({
               type: "signalUpdate",
               subscribeId: message.subscribeId,
@@ -319,18 +323,21 @@ export class ServerPort<
             });
           }),
         });
-        this.transport.send({
-          type: "signalUpdate",
-          subscribeId: message.subscribeId,
-          patches: [
-            {
-              op: "replace",
-              path: [],
-              value: signal.get(),
-            },
-          ],
-          tags: [],
-        });
+        const currentValue = signal.get();
+        if (isAvailable(currentValue)) {
+          this.transport.send({
+            type: "signalUpdate",
+            subscribeId: message.subscribeId,
+            patches: [
+              {
+                op: "replace",
+                path: [],
+                value: signal.get(),
+              },
+            ],
+            tags: [],
+          });
+        }
       })
       .catch(error => {
         this.transport.send({
@@ -397,7 +404,10 @@ export class ServerPort<
       .then(([signal, setter]) => {
         this.openWritableSignalSubscriptions.set(message.subscribeId, {
           endpoint,
-          unsubscribe: signal.subscribe((_value, patches, tags) => {
+          unsubscribe: signal.subscribe((value, patches, tags) => {
+            if (!isAvailable(value)) {
+              return;
+            }
             this.transport.send({
               type: "writableSignalUpdate",
               subscribeId: message.subscribeId,
@@ -421,18 +431,21 @@ export class ServerPort<
             setter.withValueAndPatches(parseResult.data, patches, tags);
           },
         });
-        this.transport.send({
-          type: "writableSignalUpdate",
-          subscribeId: message.subscribeId,
-          patches: [
-            {
-              op: "replace",
-              path: [],
-              value: signal.get(),
-            },
-          ],
-          tags: [],
-        });
+        const currentValue = signal.get();
+        if (isAvailable(currentValue)) {
+          this.transport.send({
+            type: "writableSignalUpdate",
+            subscribeId: message.subscribeId,
+            patches: [
+              {
+                op: "replace",
+                path: [],
+                value: signal.get(),
+              },
+            ],
+            tags: [],
+          });
+        }
       })
       .catch(error => {
         this.transport.send({

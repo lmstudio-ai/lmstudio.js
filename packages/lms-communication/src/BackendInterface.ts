@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { type Setter, type SignalLike } from "@lmstudio/lms-common";
+import { type NotAvailable, type Setter, type SignalLike } from "@lmstudio/lms-common";
 import { type z, type ZodType } from "zod";
 import type { Channel } from "./Channel";
 
@@ -22,14 +22,22 @@ export type ChannelEndpointHandler<
 export type SignalEndpointHandler<TContext = any, TCreationParameter = any, TData = any> = (
   ctx: TContext,
   creationParameter: TCreationParameter,
-) => SignalLike<TData> | Promise<SignalLike<TData>>;
+) =>
+  | SignalLike<TData>
+  | Promise<SignalLike<TData>>
+  | SignalLike<TData | NotAvailable>
+  | Promise<SignalLike<TData | NotAvailable>>;
 
 export type WritableSignalEndpointHandler<TContext = any, TCreationParameter = any, TData = any> = (
   ctx: TContext,
   creationParameter: TCreationParameter,
 ) =>
   | readonly [signal: SignalLike<TData>, setter: Setter<TData>]
-  | Promise<readonly [signal: SignalLike<TData>, setter: Setter<TData>]>;
+  | Promise<readonly [signal: SignalLike<TData>, setter: Setter<TData>]>
+  | readonly [signal: SignalLike<TData | NotAvailable>, setter: Setter<TData>]
+  | Promise<
+      readonly [signal: SignalLike<TData | NotAvailable>, setter: Setter<TData>]
+    >;
 
 export interface RpcEndpoint {
   name: string;
