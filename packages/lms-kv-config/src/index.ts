@@ -16,9 +16,11 @@ export {
   GlobalKVValueTypeValueTypeForKey,
   emptyConfigSchematics,
   getLLMLoadConfigSchematics,
+  getLLMMoeLoadConfigSchematics,
   getLLMPredictionConfigSchematics,
   globalConfigSchematics,
   llmLlamaLoadConfigSchematics,
+  llmLlamaMoeLoadConfigSchematics,
   llmLlamaPredictionConfigSchematics,
 } from "./schema";
 export { kvValueTypesLibrary } from "./valueTypes";

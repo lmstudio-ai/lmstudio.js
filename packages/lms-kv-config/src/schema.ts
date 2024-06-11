@@ -31,8 +31,8 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field(
         "maxPredictedTokens",
         "checkboxNumeric",
-        { disabledValue: -1, min: 1, step: 1, int: true },
-        -1,
+        { min: 1, step: 1, int: true },
+        { checked: false, value: 100 },
       )
       .field("stopStrings", "stringArray", {}, [])
       .field("structured", "llamaStructuredOutput", undefined, {
@@ -44,27 +44,28 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field(
             "repeatPenalty",
             "checkboxNumeric",
-            { disabledValue: 1, min: -1, max: 50, step: 0.1 },
-            1.1,
+            { min: -1, max: 50, step: 0.1 },
+            { checked: true, value: 1.1 },
           )
           .field(
             "minPSampling",
             "checkboxNumeric",
-            { disabledValue: 0, min: 0, max: 1, step: 0.01 },
-            0.05,
+            { min: 0, max: 1, step: 0.01 },
+            { checked: true, value: 0.05 },
           )
           .field(
             "topPSampling",
             "checkboxNumeric",
-            { disabledValue: 1, min: 0, max: 1, step: 0.01 },
-            0.95,
+            { min: 0, max: 1, step: 0.01 },
+            { checked: true, value: 0.95 },
           )
           .field("cpuThreads", "numeric", { min: 1, int: true }, 4),
       ),
   )
   .scope("llm.load", builder =>
     builder
-      .field("contextLength", "numeric", { min: 1, int: true }, 2048) // asd
+      .field("contextLength", "numeric", { min: 1, int: true }, 2048)
+      .field("numExperts", "numeric", { min: 0, int: true }, 0)
       .scope("llama", builder =>
         builder
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
@@ -79,8 +80,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field("keepModelInMemory", "boolean", undefined, true)
           .field("seed", "numeric", { int: true }, 0) // asd
           .field("useFp16ForKVCache", "boolean", undefined, true)
-          .field("tryMmap", "boolean", undefined, true)
-          .field("numExperts", "numeric", { min: 0, int: true }, 0),
+          .field("tryMmap", "boolean", undefined, true),
       ),
   )
   .build();
@@ -104,6 +104,10 @@ export const llmLlamaLoadConfigSchematics = globalConfigSchematics
   .scoped("llm.load")
   .sliced("llama.*", "contextLength");
 
+export const llmLlamaMoeLoadConfigSchematics = globalConfigSchematics
+  .scoped("llm.load")
+  .sliced("llama.*", "contextLength", "numExperts");
+
 export const emptyConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary).build();
 
 // -----------------------------------------
@@ -120,6 +124,8 @@ export function getLLMPredictionConfigSchematics(modelCompatibilityType: string)
 }
 export type LLMPredictionConfigSchematics = ReturnType<typeof getLLMPredictionConfigSchematics>;
 
+// Will combine load and moeLoad eventually
+
 export function getLLMLoadConfigSchematics(modelCompatibilityType: string) {
   switch (modelCompatibilityType) {
     case "gguf":
@@ -129,6 +135,16 @@ export function getLLMLoadConfigSchematics(modelCompatibilityType: string) {
   }
 }
 export type LLMLoadConfigSchematics = ReturnType<typeof getLLMLoadConfigSchematics>;
+
+export function getLLMMoeLoadConfigSchematics(modelCompatibilityType: string) {
+  switch (modelCompatibilityType) {
+    case "gguf":
+      return llmLlamaMoeLoadConfigSchematics;
+    default:
+      throw new Error(`Unknown model compatibility type: ${modelCompatibilityType}`);
+  }
+}
+export type LLMMoeLoadConfigSchematics = ReturnType<typeof getLLMMoeLoadConfigSchematics>;
 
 // ------------------
 //  4. Utility types

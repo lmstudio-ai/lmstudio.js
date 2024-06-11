@@ -280,7 +280,14 @@ export class KVConfigSchematics<
       }
       return fieldSchema.defaultValue;
     }
-    return fieldSchema.schema.parse(value);
+    const parseResult = fieldSchema.schema.safeParse(value);
+    if (!parseResult.success) {
+      throw new Error(
+        `Field with key ${this.baseKey + key} does not satisfy the schema:` +
+          parseResult.error.message,
+      );
+    }
+    return parseResult.data;
   }
 
   /**

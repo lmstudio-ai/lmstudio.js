@@ -7,7 +7,7 @@ import {
   type LoggerInterface,
   type Validator,
 } from "@lmstudio/lms-common";
-import { llmLlamaLoadConfigSchematics } from "@lmstudio/lms-kv-config";
+import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   llmLlamaLoadModelConfigSchema,
@@ -131,7 +131,7 @@ const llmLoadModelOptsSchema = z.object({
 });
 
 function loadConfigToKVConfig(loadConfig: LLMLlamaLoadModelConfig) {
-  return llmLlamaLoadConfigSchematics.buildPartialConfig({
+  return llmLlamaMoeLoadConfigSchematics.buildPartialConfig({
     "contextLength": loadConfig.contextLength,
     "llama.evalBatchSize": loadConfig.evalBatchSize,
     "llama.gpuOffload": loadConfig.gpuOffload,
@@ -142,7 +142,7 @@ function loadConfigToKVConfig(loadConfig: LLMLlamaLoadModelConfig) {
     "llama.seed": loadConfig.seed,
     "llama.useFp16ForKVCache": loadConfig.useFp16ForKVCache,
     "llama.tryMmap": loadConfig.tryMmap,
-    "llama.numExperts": loadConfig.numExperts,
+    "numExperts": loadConfig.numExperts,
   });
 }
 

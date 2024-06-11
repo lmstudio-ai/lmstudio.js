@@ -31,24 +31,26 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
   })
   .valueType("checkboxNumeric", {
     paramType: z.object({
-      disabledValue: z.number(),
       min: z.number().optional(),
       max: z.number().optional(),
       int: z.boolean().optional(),
       step: z.number().optional(),
     }),
-    schemaMaker: ({ disabledValue, min, max, int }) => {
-      let schema = z.number();
+    schemaMaker: ({ min, max, int }) => {
+      let numberSchema = z.number();
       if (min !== undefined) {
-        schema = schema.min(min);
+        numberSchema = numberSchema.min(min);
       }
       if (max !== undefined) {
-        schema = schema.max(max);
+        numberSchema = numberSchema.max(max);
       }
       if (int) {
-        schema = schema.int();
+        numberSchema = numberSchema.int();
       }
-      return schema.or(z.literal(disabledValue));
+      return z.object({
+        checked: z.boolean(),
+        value: numberSchema,
+      });
     },
   })
   .valueType("string", {

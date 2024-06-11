@@ -20,17 +20,40 @@ import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
 
+/**
+ * Translate a number to a checkbox numeric value.
+ *
+ * @param value - The value to translate.
+ * @param uncheckedValue - The value to use when the checkbox is unchecked.
+ * @param valueWhenUnchecked - The value to use when the checkbox is unchecked.
+ */
+function numberToCheckboxNumeric(
+  value: number | undefined,
+  uncheckedValue: number,
+  valueWhenUnchecked: number,
+): undefined | { checked: boolean; value: number } {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === uncheckedValue) {
+    return { checked: false, value: valueWhenUnchecked };
+  }
+  if (value !== uncheckedValue) {
+    return { checked: true, value };
+  }
+}
+
 function predictionConfigToKVConfig(predictionConfig: LLMLlamaPredictionConfig): KVConfig {
   return llmLlamaPredictionConfigSchematics.buildPartialConfig({
     "temperature": predictionConfig.temperature,
     "contextOverflowPolicy": predictionConfig.contextOverflowPolicy,
-    "maxPredictedTokens": predictionConfig.maxPredictedTokens,
+    "maxPredictedTokens": numberToCheckboxNumeric(predictionConfig.maxPredictedTokens, -1, 1),
     "stopStrings": predictionConfig.stopStrings,
     "structured": predictionConfig.structured,
     "llama.topKSampling": predictionConfig.topKSampling,
-    "llama.repeatPenalty": predictionConfig.repeatPenalty,
-    "llama.minPSampling": predictionConfig.minPSampling,
-    "llama.topPSampling": predictionConfig.topPSampling,
+    "llama.repeatPenalty": numberToCheckboxNumeric(predictionConfig.repeatPenalty, 1, 1.1),
+    "llama.minPSampling": numberToCheckboxNumeric(predictionConfig.minPSampling, 0, 0.05),
+    "llama.topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
     "llama.cpuThreads": predictionConfig.cpuThreads,
   });
 }
