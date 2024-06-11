@@ -416,19 +416,37 @@ export class ServerPort<
             });
           }),
           receivedPatches: (patches, tags) => {
-            const data = signal.get();
-            const result = applyPatches(data, patches);
-            const parseResult = endpoint.signalData.safeParse(result);
-            if (!parseResult.success) {
-              this.communicationWarning(text`
-                Received invalid data for writable signal, endpointName = ${endpoint.name},
-                data = ${result}. Zod error:
+            try {
+              const data = signal.get();
+              if (!isAvailable(data)) {
+                // Backend is not ready, ignore the update and tell the frontend that the
+                // optimistic update is completed.
+                this.transport.send({
+                  type: "writableSignalUpdate",
+                  subscribeId: message.subscribeId,
+                  patches: [],
+                  tags, // Here is where we send the tags back to the client.
+                });
+                return;
+              }
+              const result = applyPatches(data, patches);
+              const parseResult = endpoint.signalData.safeParse(result);
+              if (!parseResult.success) {
+                this.communicationWarning(text`
+                  Received invalid data for writable signal, endpointName = ${endpoint.name},
+                  data = ${result}. Zod error:
 
-                ${Validator.prettyPrintZod("data", parseResult.error)}
+                  ${Validator.prettyPrintZod("data", parseResult.error)}
+                `);
+                return;
+              }
+              setter.withValueAndPatches(parseResult.data, patches, tags);
+            } catch (error: any) {
+              this.communicationWarning(text`
+                Error in receivedPatches for writable signal, endpointName = ${endpoint.name},
+                error = ${error.message}
               `);
-              return;
             }
-            setter.withValueAndPatches(parseResult.data, patches, tags);
           },
         });
         const currentValue = signal.get();

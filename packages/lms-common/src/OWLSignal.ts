@@ -104,7 +104,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
       data: StripNotAvailable<TData>,
       patches: Array<Patch>,
       tags: Array<WriteTag>,
-    ) => void,
+    ) => boolean,
     equalsPredicate: (a: TData, b: TData) => boolean,
   ) {
     super();
@@ -122,11 +122,15 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
   public static create<TData>(
     initialValue: TData,
     subscribeUpstream: SubscribeUpstream<TData>,
+    /**
+     * Returns true if the update is sent to the upstream (thus should wait for the upstream to
+     * confirm. Returns false if the update is not sent and the update should be dropped.
+     */
     writeUpstream: (
       data: StripNotAvailable<TData>,
       patches: Array<Patch>,
       tags: Array<WriteTag>,
-    ) => void,
+    ) => boolean,
     equalsPredicate: (a: TData, b: TData) => boolean = (a, b) => a === b,
   ) {
     const signal = new OWLSignal(initialValue, subscribeUpstream, writeUpstream, equalsPredicate);
@@ -142,7 +146,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
       data: StripNotAvailable<TData>,
       patches: Array<Patch>,
       tags: Array<WriteTag>,
-    ) => void,
+    ) => boolean,
     equalsPredicate: (a: TData, b: TData) => boolean = (a, b) => a === b,
   ) {
     const fullEqualsPredicate = (a: TData | NotAvailable, b: TData | NotAvailable) => {
@@ -229,7 +233,6 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
               return;
             }
             if (tags.includes(tag)) {
-              console.info(2);
               settle();
               reject(error);
               this.queuedUpdates.shift();
@@ -239,10 +242,16 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
         // At this point, we know the data is available, because upon entering the write loop, we
         // ensure that the data is available by pulling. Hence, we can safely cast the data to
         // StripNotAvailable<TData>.
-        this.writeUpstream(...updater(this.innerSignal.get() as StripNotAvailable<TData>), [
-          tag,
-          ...tags,
-        ]);
+        const sent = this.writeUpstream(
+          ...updater(this.innerSignal.get() as StripNotAvailable<TData>),
+          [tag, ...tags],
+        );
+        if (!sent) {
+          settle();
+          resolve();
+          this.queuedUpdates.shift();
+          this.updateOptimisticValue(tags.filter(t => t !== tag));
+        }
       });
     }
     this.isWriteLoopRunning = false;

@@ -63,6 +63,7 @@ interface OpenWritableSignalSubscription {
   endpoint: WritableSignalEndpoint;
   getValue: () => any;
   receivedPatches: (newValue: any, patches: Array<Patch>, tags: Array<WriteTag>) => void;
+  firstUpdateReceived: boolean;
   errored: (error: any) => void;
   stack?: string;
 }
@@ -336,6 +337,7 @@ export class ClientPort<
       return;
     }
     // Don't use the parsed value, as it loses the substructure identities
+    openSignalSubscription.firstUpdateReceived = true;
     openSignalSubscription.receivedPatches(afterValue, patches, message.tags);
   }
 
@@ -581,7 +583,12 @@ export class ClientPort<
     let currentSubscribeId: number | null = null;
     const writeUpstream = (_data: any, patches: Array<Patch>, tags: Array<WriteTag>) => {
       if (currentSubscribeId === null) {
-        throw new Error("writeUpstream called when not subscribed");
+        console.warn("writeUpstream called when not subscribed");
+        return false;
+      }
+      const subscription = this.openWritableSignalSubscriptions.get(currentSubscribeId);
+      if (!subscription?.firstUpdateReceived) {
+        return false;
       }
       this.transport.send({
         type: "writableSignalUpdate",
@@ -589,6 +596,7 @@ export class ClientPort<
         patches,
         tags,
       });
+      return true;
     };
 
     const [signal, setter] = OWLSignal.createWithoutInitialValue((setDownstream, errorListener) => {
@@ -605,6 +613,7 @@ export class ClientPort<
         endpoint: signalEndpoint,
         getValue: () => signal.getPessimistic(),
         receivedPatches: setDownstream.withValueAndPatches,
+        firstUpdateReceived: false,
         errored: errorListener,
         stack,
       });
