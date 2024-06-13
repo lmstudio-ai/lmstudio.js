@@ -154,13 +154,14 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
   private subscribeToUpstream() {
     this.isSubscribedToUpstream = true;
     let subscribed = true;
+    let becameStale = false;
     const unsubscribeFromUpstream = this.subscribeUpstream(
       makeSetterWithPatches((updater, tags) => {
         if (!subscribed) {
           return;
         }
         this.setValue.withPatchUpdater(updater, tags);
-        this.dataIsStale = false;
+        this.dataIsStale = becameStale;
       }),
       error => {
         if (!subscribed) {
@@ -176,6 +177,7 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
     this.upstreamUnsubscribe = () => {
       if (subscribed) {
         subscribed = false;
+        becameStale = true;
         unsubscribeFromUpstream();
       }
     };
@@ -219,6 +221,11 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
       resolve(data as StripNotAvailable<TData>);
     });
     return promise;
+  }
+
+  public async ensureAvailable(): Promise<LazySignal<StripNotAvailable<TData>>> {
+    await this.pull();
+    return this as any;
   }
 
   public subscribe(subscriber: Subscriber<TData>): () => void {
