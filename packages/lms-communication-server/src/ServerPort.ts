@@ -307,6 +307,7 @@ export class ServerPort<
       type: "signal",
       endpointName: endpoint.name,
     });
+    let initialized = false;
     Promise.resolve(endpoint.handler(context, parseResult.data))
       .then((signal: SignalLike<any>) => {
         this.openSignalSubscriptions.set(message.subscribeId, {
@@ -315,12 +316,28 @@ export class ServerPort<
             if (!isAvailable(value)) {
               return;
             }
-            this.transport.send({
-              type: "signalUpdate",
-              subscribeId: message.subscribeId,
-              patches,
-              tags,
-            });
+            if (initialized) {
+              this.transport.send({
+                type: "signalUpdate",
+                subscribeId: message.subscribeId,
+                patches,
+                tags,
+              });
+            } else {
+              this.transport.send({
+                type: "signalUpdate",
+                subscribeId: message.subscribeId,
+                patches: [
+                  {
+                    op: "replace",
+                    path: [],
+                    value,
+                  },
+                ],
+                tags,
+              });
+              initialized = true;
+            }
           }),
         });
         const currentValue = signal.get();
@@ -337,6 +354,7 @@ export class ServerPort<
             ],
             tags: [],
           });
+          initialized = true;
         }
       })
       .catch(error => {
@@ -400,6 +418,7 @@ export class ServerPort<
       type: "writableSignal",
       endpointName: endpoint.name,
     });
+    let initialized = false;
     Promise.resolve(endpoint.handler(context, parseResult.data))
       .then(([signal, setter]) => {
         this.openWritableSignalSubscriptions.set(message.subscribeId, {
@@ -408,12 +427,28 @@ export class ServerPort<
             if (!isAvailable(value)) {
               return;
             }
-            this.transport.send({
-              type: "writableSignalUpdate",
-              subscribeId: message.subscribeId,
-              patches,
-              tags,
-            });
+            if (initialized) {
+              this.transport.send({
+                type: "writableSignalUpdate",
+                subscribeId: message.subscribeId,
+                patches,
+                tags,
+              });
+            } else {
+              this.transport.send({
+                type: "writableSignalUpdate",
+                subscribeId: message.subscribeId,
+                patches: [
+                  {
+                    op: "replace",
+                    path: [],
+                    value,
+                  },
+                ],
+                tags,
+              });
+              initialized = true;
+            }
           }),
           receivedPatches: (patches, tags) => {
             try {
@@ -463,6 +498,7 @@ export class ServerPort<
             ],
             tags: [],
           });
+          initialized = true;
         }
       })
       .catch(error => {
