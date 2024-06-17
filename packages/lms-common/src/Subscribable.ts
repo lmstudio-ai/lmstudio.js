@@ -1,6 +1,4 @@
-import { type Patch } from "immer";
 import { isAvailable, LazySignal, type NotAvailable, type StripNotAvailable } from "./LazySignal";
-import { type WriteTag } from "./makeSetter";
 import { type SignalLike } from "./Signal";
 
 function isSignalLike<TValue>(value: Subscribable<TValue>): value is SignalLike<TValue> {
@@ -15,9 +13,7 @@ function isSignalLike<TValue>(value: Subscribable<TValue>): value is SignalLike<
  * Base class for objects that can be subscribed to. Provides common utility methods.
  */
 export abstract class Subscribable<TData> {
-  public abstract subscribe(
-    listener: (data: TData, patches?: Array<Patch>, tags?: Array<WriteTag>) => void,
-  ): () => void;
+  public abstract subscribe(listener: (data: TData) => void): () => void;
   public subscribeOnce(listener: (data: TData) => void): () => void {
     const unsubscribe = this.subscribe(data => {
       unsubscribe();
@@ -42,9 +38,9 @@ export abstract class Subscribable<TData> {
       const initialValue = thisWithGetter.get();
       if (initialValue === LazySignal.NOT_AVAILABLE) {
         return LazySignal.createWithoutInitialValue(setDownstream => {
-          return thisWithGetter.subscribe((data, _patches, tags) => {
+          return thisWithGetter.subscribe(data => {
             if (isAvailable(data)) {
-              setDownstream(deriver(data), tags);
+              setDownstream(deriver(data));
             }
           });
         }) as any;
@@ -55,17 +51,17 @@ export abstract class Subscribable<TData> {
       return LazySignal.create<TOutput>(
         deriver(thisNarrowed.get()),
         setDownstream => {
-          return thisNarrowed.subscribe((data, _patches, tags) => {
-            setDownstream(deriver(data), tags);
+          return thisNarrowed.subscribe(data => {
+            setDownstream(deriver(data));
           });
         },
         outputEqualsPredicate,
       ) as any;
     }
     return LazySignal.createWithoutInitialValue(setDownstream => {
-      return this.subscribe((data, _patches, tags) => {
+      return this.subscribe(data => {
         if (isAvailable(data)) {
-          setDownstream(deriver(data), tags);
+          setDownstream(deriver(data));
         }
       });
     }, outputEqualsPredicate) as any;

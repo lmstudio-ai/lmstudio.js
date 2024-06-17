@@ -78,7 +78,7 @@ describe("LazySignal", () => {
       return () => {};
     });
     const lazySignal = LazySignal.createWithoutInitialValue(subscriberMock);
-    lazySignal.subscribe(() => {});
+    lazySignal.subscribeFull(() => {});
     const promise = lazySignal.pull();
     callback(data);
     await expect(promise).resolves.toBe(data);
@@ -93,7 +93,7 @@ describe("LazySignal", () => {
     });
     const lazySignal = LazySignal.createWithoutInitialValue(subscriberMock);
     const listener = jest.fn();
-    lazySignal.subscribe(listener);
+    lazySignal.subscribeFull(listener);
     callback(data, ["tag1", "tag2"]);
     expect(lazySignal.get()).toBe(data);
     expect(listener).toHaveBeenCalledWith(

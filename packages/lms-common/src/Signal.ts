@@ -5,11 +5,23 @@ import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter"
 const equals = <TValue>(a: TValue, b: TValue) => a === b;
 
 type Updater<TValue> = (oldValue: TValue) => readonly [TValue, Array<Patch>];
-export type Subscriber<TValue> = (
+export type Subscriber<TValue> = (value: TValue) => void;
+
+export type SignalFullSubscriber<TValue> = (
   value: TValue,
   patches: Array<Patch>,
   tags: Array<WriteTag>,
 ) => void;
+
+type InternalSubscriber<TValue> =
+  | {
+      type: "regular";
+      callback: Subscriber<TValue>;
+    }
+  | {
+      type: "full";
+      callback: SignalFullSubscriber<TValue>;
+    };
 
 /**
  * A signal is a wrapper for a value. It can be used to notify subscribers when the value changes.
@@ -50,7 +62,7 @@ export class Signal<TValue> extends Subscribable<TValue> {
   ) {
     super();
   }
-  private subscribers: Set<Subscriber<TValue>> = new Set();
+  private subscribers: Set<InternalSubscriber<TValue>> = new Set();
   /**
    * Returns the current value of the signal.
    */
@@ -59,16 +71,31 @@ export class Signal<TValue> extends Subscribable<TValue> {
   }
   private queuedUpdaters: Array<[updater: Updater<TValue>, tags?: Array<WriteTag>]> = [];
   private isEmitting = false;
-  private notify(value: TValue, patches: Array<Patch>, tags: Array<WriteTag>) {
-    for (const subscriber of this.subscribers) {
-      subscriber(value, patches, tags);
+  private notifyFull(value: TValue, patches: Array<Patch>, tags: Array<WriteTag>) {
+    for (const { type, callback } of this.subscribers) {
+      if (type === "full") {
+        callback(value, patches, tags);
+      }
+    }
+  }
+  private notifyAll(value: TValue, patches: Array<Patch>, tags: Array<WriteTag>) {
+    for (const { type, callback } of this.subscribers) {
+      if (type === "regular") {
+        callback(value);
+      } else {
+        callback(value, patches, tags);
+      }
     }
   }
   private notifyAndUpdateIfChanged(value: TValue, patches: Array<Patch>, tags: Array<WriteTag>) {
     // If the value has changed, or if there are any tags that need to be flushed, notify
-    if (tags.length !== 0 || !this.equalsPredicate(this.value, value)) {
+    if (!this.equalsPredicate(this.value, value)) {
       this.value = value;
-      this.notify(value, patches, tags);
+      // If the values have changed, notify everyone
+      this.notifyAll(value, patches, tags);
+    } else if (tags.length > 0) {
+      // If values not changed, but there is a tag to be flushed, notify only full subscribers
+      this.notifyFull(value, patches, tags);
     }
   }
 
@@ -131,9 +158,24 @@ export class Signal<TValue> extends Subscribable<TValue> {
    *    multiple times.
    */
   public subscribe(callback: Subscriber<TValue>): () => void {
-    this.subscribers.add(callback);
+    const subscriber: InternalSubscriber<TValue> = {
+      type: "regular",
+      callback,
+    };
+    this.subscribers.add(subscriber);
     return () => {
-      this.subscribers.delete(callback);
+      this.subscribers.delete(subscriber);
+    };
+  }
+
+  public subscribeFull(callback: SignalFullSubscriber<TValue>): () => void {
+    const subscriber: InternalSubscriber<TValue> = {
+      type: "full",
+      callback,
+    };
+    this.subscribers.add(subscriber);
+    return () => {
+      this.subscribers.delete(subscriber);
     };
   }
 }
@@ -141,4 +183,5 @@ export class Signal<TValue> extends Subscribable<TValue> {
 export interface SignalLike<TValue> extends Subscribable<TValue> {
   get(): TValue;
   subscribe(subscriber: Subscriber<TValue>): () => void;
+  subscribeFull(subscriber: SignalFullSubscriber<TValue>): () => void;
 }

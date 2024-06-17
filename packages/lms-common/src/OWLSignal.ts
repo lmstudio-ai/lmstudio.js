@@ -9,7 +9,7 @@ import {
 } from "./LazySignal";
 import { makePromise } from "./makePromise";
 import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter";
-import { Signal, type SignalLike, type Subscriber } from "./Signal";
+import { Signal, type SignalFullSubscriber, type SignalLike, type Subscriber } from "./Signal";
 import { Subscribable } from "./Subscribable";
 
 interface WriteError {
@@ -111,7 +111,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
     [this.writeErrorEvent, this.emitWriteErrorEvent] = Event.create();
     [this.outerSignal, this.setOuterSignal] = Signal.create(initialValue, equalsPredicate);
     this.innerSignal = LazySignal.create(initialValue, subscribeUpstream, equalsPredicate);
-    this.innerSignal.passiveSubscribe((_data, _patches, tags) => {
+    this.innerSignal.passiveSubscribeFull((_data, _patches, tags) => {
       if (this.isSubscriptionHandledByWriteLoop) {
         return;
       }
@@ -209,7 +209,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
           nextStep();
         };
         unsubscribeArray.push(
-          this.innerSignal.subscribe((_data, _patches, tags) => {
+          this.innerSignal.subscribeFull((_data, _patches, tags) => {
             if (!this.isSubscriptionHandledByWriteLoop) {
               return;
             }
@@ -330,6 +330,15 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
   public subscribe(subscriber: Subscriber<TData>) {
     const unsubscribeOuter = this.outerSignal.subscribe(subscriber);
     const unsubscribeInner = this.innerSignal.subscribe(() => {});
+    return () => {
+      unsubscribeOuter();
+      unsubscribeInner();
+    };
+  }
+
+  public subscribeFull(subscriber: SignalFullSubscriber<TData>): () => void {
+    const unsubscribeOuter = this.outerSignal.subscribeFull(subscriber);
+    const unsubscribeInner = this.innerSignal.subscribeFull(() => {});
     return () => {
       unsubscribeOuter();
       unsubscribeInner();

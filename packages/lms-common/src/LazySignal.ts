@@ -1,4 +1,4 @@
-import { Signal, type SignalLike, type Subscriber } from "./Signal";
+import { Signal, type SignalFullSubscriber, type SignalLike, type Subscriber } from "./Signal";
 import { Subscribable } from "./Subscribable";
 import { makePromise } from "./makePromise";
 import { makeSetterWithPatches, type Setter } from "./makeSetter";
@@ -103,7 +103,7 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
       derive(),
       setDownstream => {
         const unsubscriber = sourceSignals.map(signal =>
-          signal.subscribe((_values, _patches, tags) => {
+          signal.subscribeFull((_values, _patches, tags) => {
             const value = derive();
             if (isAvailable(value)) {
               setDownstream(value, tags);
@@ -248,10 +248,34 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
     };
   }
 
+  public subscribeFull(subscriber: SignalFullSubscriber<TData>): () => void {
+    if (!this.isSubscribedToUpstream) {
+      this.subscribeToUpstream();
+    }
+    this.subscribersCount++;
+    const unsubscribe = this.signal.subscribeFull(subscriber);
+    let unsubscribeCalled = false;
+    return () => {
+      if (unsubscribeCalled) {
+        return;
+      }
+      unsubscribe();
+      unsubscribeCalled = true;
+      this.subscribersCount--;
+      if (this.subscribersCount === 0 && this.isSubscribedToUpstream) {
+        this.unsubscribeFromUpstream();
+      }
+    };
+  }
+
   /**
    * Subscribes to the signal. Will not cause the signal to subscribe to the upstream.
    */
   public passiveSubscribe(subscriber: Subscriber<TData>): () => void {
     return this.signal.subscribe(subscriber);
+  }
+
+  public passiveSubscribeFull(subscriber: SignalFullSubscriber<TData>): () => void {
+    return this.signal.subscribeFull(subscriber);
   }
 }

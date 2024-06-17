@@ -19,9 +19,9 @@ describe("Signal", () => {
     expect(subscriber2).not.toHaveBeenCalled();
     setSignal(1);
     expect(subscriber1).toHaveBeenCalledTimes(1);
-    expect(subscriber1).toHaveBeenCalledWith(1, [{ op: "replace", path: [], value: 1 }], []);
+    expect(subscriber1).toHaveBeenCalledWith(1);
     expect(subscriber2).toHaveBeenCalledTimes(1);
-    expect(subscriber2).toHaveBeenCalledWith(1, [{ op: "replace", path: [], value: 1 }], []);
+    expect(subscriber2).toHaveBeenCalledWith(1);
   });
 
   test("removing a subscriber", () => {
@@ -94,8 +94,8 @@ describe("Signal", () => {
 
     setSignal(1);
     expect(subscriber).toHaveBeenCalledTimes(2);
-    expect(subscriber.mock.calls[0]).toEqual([1, [{ op: "replace", path: [], value: 1 }], []]);
-    expect(subscriber.mock.calls[1]).toEqual([2, [{ op: "replace", path: [], value: 2 }], []]);
+    expect(subscriber.mock.calls[0]).toEqual([1]);
+    expect(subscriber.mock.calls[1]).toEqual([2]);
   });
 
   test("callback update value twice, the middle update should be ignored", () => {
@@ -110,8 +110,8 @@ describe("Signal", () => {
 
     setSignal(1);
     expect(subscriber).toHaveBeenCalledTimes(2);
-    expect(subscriber.mock.calls[0]).toEqual([1, [{ op: "replace", path: [], value: 1 }], []]);
-    expect(subscriber.mock.calls[1]).toEqual([3, [{ op: "replace", path: [], value: 3 }], []]);
+    expect(subscriber.mock.calls[0]).toEqual([1]);
+    expect(subscriber.mock.calls[1]).toEqual([3]);
   });
 
   test("increment three times in subscribe, should bump value to 4", () => {
@@ -129,14 +129,14 @@ describe("Signal", () => {
 
     setSignal(1);
     expect(subscriber).toHaveBeenCalledTimes(2);
-    expect(subscriber.mock.calls[0]).toEqual([1, [{ op: "replace", path: [], value: 1 }], []]);
-    expect(subscriber.mock.calls[1]).toEqual([4, [{ op: "replace", path: [], value: 4 }], []]);
+    expect(subscriber.mock.calls[0]).toEqual([1]);
+    expect(subscriber.mock.calls[1]).toEqual([4]);
   });
 
   test("should preserve tags", () => {
     const [signal, setSignal] = Signal.create(0);
     const subscriber = jest.fn();
-    signal.subscribe(subscriber);
+    signal.subscribeFull(subscriber);
     setSignal(1, ["tag1", "tag2"]);
     expect(subscriber).toHaveBeenCalledWith(
       1,
@@ -148,7 +148,7 @@ describe("Signal", () => {
   test("should notify if there are write tags even if value is the same", () => {
     const [signal, setSignal] = Signal.create(0);
     const subscriber = jest.fn();
-    signal.subscribe(subscriber);
+    signal.subscribeFull(subscriber);
     setSignal(0, ["tag1"]);
     expect(subscriber).toHaveBeenCalledWith(0, [{ op: "replace", path: [], value: 0 }], ["tag1"]);
   });

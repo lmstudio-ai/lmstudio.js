@@ -311,7 +311,7 @@ export class ServerPort<
       .then((signal: SignalLike<any>) => {
         this.openSignalSubscriptions.set(message.subscribeId, {
           endpoint,
-          unsubscribe: signal.subscribe((value, patches, tags) => {
+          unsubscribe: signal.subscribeFull((value, patches, tags) => {
             if (!isAvailable(value)) {
               return;
             }
@@ -404,7 +404,7 @@ export class ServerPort<
       .then(([signal, setter]) => {
         this.openWritableSignalSubscriptions.set(message.subscribeId, {
           endpoint,
-          unsubscribe: signal.subscribe((value, patches, tags) => {
+          unsubscribe: signal.subscribeFull((value, patches, tags) => {
             if (!isAvailable(value)) {
               return;
             }

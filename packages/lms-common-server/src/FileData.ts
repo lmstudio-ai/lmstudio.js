@@ -6,7 +6,7 @@ import {
   type Setter,
 } from "@lmstudio/lms-common";
 import { isAvailable, type StripNotAvailable } from "@lmstudio/lms-common/dist/LazySignal";
-import { existsSync, writeFileSync , readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { mkdir, readFile, watch } from "fs/promises";
 import { enablePatches } from "immer";
 import path from "path";
@@ -131,7 +131,7 @@ export class FileData<TData> {
         });
       }
 
-      const unsubscribe = this.innerSignal.subscribe((_data, patches, tags) => {
+      const unsubscribe = this.innerSignal.subscribeFull((_data, patches, tags) => {
         setDownstream.withPatches(patches, tags);
       });
       return () => {
