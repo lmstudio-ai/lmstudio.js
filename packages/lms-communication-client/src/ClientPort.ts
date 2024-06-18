@@ -260,14 +260,36 @@ export class ClientPort<
   private receivedSignalUpdate(message: ServerToClientMessage & { type: "signalUpdate" }) {
     const openSignalSubscription = this.openSignalSubscriptions.get(message.subscribeId);
     if (openSignalSubscription === undefined) {
-      this.communicationWarning(
-        `Received signalUpdate for unknown signal, subscribeId = ${message.subscribeId}`,
-      );
+      // As described in the comments below, this is caused by update and unsubscribe event
+      // happening at the same time. By the time the update has arrived at the client side, as far
+      // as the client is considered, the signal is already unsubscribed. This is a normal behavior
+      // and is especially prevalent when React StrictMode is enabled, because components are
+      // rendered twice where signals are oftentimes subscribed and then unsubscribed immediately
+      // after.
+      this.logger.debugText`
+        Received signalUpdate for unknown signal, subscribeId = ${message.subscribeId}. This is
+        likely caused by the update being sent after the signal was unsubscribed. (Usually not an
+        error and can be safely ignored unless some signal is not updating.)
+      `;
       return;
     }
     const patches = message.patches;
     const beforeValue = openSignalSubscription.getValue();
-    const afterValue = applyPatches(beforeValue, patches);
+    let afterValue: any;
+    try {
+      afterValue = applyPatches(beforeValue, patches);
+    } catch (error) {
+      this.communicationWarning(text`
+        Failed to apply patches to signal on signalUpdate. subscribeId = ${message.subscribeId}.
+
+        beforeValue = ${JSON.stringify(beforeValue, null, 2)},
+
+        patches = ${JSON.stringify(patches, null, 2)}.
+
+        Error: ${String(error)}
+      `);
+      return;
+    }
     const parseResult = openSignalSubscription.endpoint.signalData.safeParse(afterValue);
     if (!parseResult.success) {
       this.communicationWarning(text`
@@ -311,14 +333,36 @@ export class ClientPort<
   ) {
     const openSignalSubscription = this.openWritableSignalSubscriptions.get(message.subscribeId);
     if (openSignalSubscription === undefined) {
-      this.communicationWarning(
-        `Received writableSignalUpdate for unknown signal, subscribeId = ${message.subscribeId}`,
-      );
+      // As described in the comments below, this is caused by update and unsubscribe event
+      // happening at the same time. By the time the update has arrived at the client side, as far
+      // as the client is considered, the signal is already unsubscribed. This is a normal behavior
+      // and is especially prevalent when React StrictMode is enabled, because components are
+      // rendered twice where signals are oftentimes subscribed and then unsubscribed immediately
+      // after.
+      this.logger.debugText`
+        Received writableSignalUpdate for unknown signal, subscribeId = ${message.subscribeId}. This
+        is likely caused by the update being sent after the signal was unsubscribed. (Usually not an
+        error and can be safely ignored unless some signal is not updating.)
+      `;
       return;
     }
     const patches = message.patches;
     const beforeValue = openSignalSubscription.getValue();
-    const afterValue = applyPatches(openSignalSubscription.getValue(), patches);
+    let afterValue: any;
+    try {
+      afterValue = applyPatches(openSignalSubscription.getValue(), patches);
+    } catch (error) {
+      this.communicationWarning(text`
+        Failed to apply patches to writable signal on writableSignalUpdate. subscribeId =
+        ${message.subscribeId}.
+
+        beforeValue = ${JSON.stringify(beforeValue, null, 2)},
+
+        patches = ${JSON.stringify(patches, null, 2)}.
+
+        Error: ${String(error)}
+      `);
+    }
     const parseResult = openSignalSubscription.endpoint.signalData.safeParse(afterValue);
     if (!parseResult.success) {
       this.communicationWarning(text`
@@ -558,6 +602,7 @@ export class ClientPort<
           type: "signalUnsubscribe",
           subscribeId,
         });
+        this.openSignalSubscriptions.delete(subscribeId);
       };
     });
 
@@ -624,6 +669,7 @@ export class ClientPort<
           type: "writableSignalUnsubscribe",
           subscribeId,
         });
+        this.openWritableSignalSubscriptions.delete(subscribeId);
       };
     }, writeUpstream);
     return [signal, setter];

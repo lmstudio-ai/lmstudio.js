@@ -157,9 +157,9 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
     let becameStale = false;
     const unsubscribeFromUpstream = this.subscribeUpstream(
       makeSetterWithPatches((updater, tags) => {
-        // if (!subscribed) {
-        //   return;
-        // }
+        if (!subscribed) {
+          return;
+        }
         this.setValue.withPatchUpdater(updater, tags);
         this.dataIsStale = becameStale;
       }),
