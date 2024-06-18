@@ -6,7 +6,7 @@
   "scripts": {
     "build-webpack": "webpack --config ./webpack.config.js --mode production",
     "build": "npm run build-webpack",
-    "make-bin:win32": "bash make-bin-win32.sh",
+    "make-bin:win32": "powershell -File make-bin-win32.ps1",
     "make-bin:linux": "bash make-bin-linux.sh",
     "make-bin:darwin": "bash make-bin-darwin.sh",
     "make-bin": "run-script-os",
@@ -23,7 +23,10 @@
   },
   "devDependencies": {
     "postject": "^1.0.0-alpha.6",
-    "run-script-os": "^1.1.6"
+    "run-script-os": "^1.1.6",
+    "ts-loader": "^9.5.1",
+    "webpack": "^5.92.0",
+    "webpack-cli": "^5.1.4"
   },
   "gitHead": "74e72413fbaedf1e1bb9382284300dfe038302b6"
 }
