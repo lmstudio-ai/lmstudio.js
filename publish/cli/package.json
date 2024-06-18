@@ -6,7 +6,7 @@
   "scripts": {
     "build-webpack": "webpack --config ./webpack.config.js --mode production",
     "build": "npm run build-webpack",
-    "make-bin:win32": "bash make-bin-win32.sh",
+    "make-bin:win32": "powershell -File make-bin-win32.ps1",
     "make-bin:linux": "bash make-bin-linux.sh",
     "make-bin:darwin": "bash make-bin-darwin.sh",
     "make-bin": "run-script-os",
