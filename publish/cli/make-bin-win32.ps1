@@ -10,7 +10,8 @@ $ARCH = (Get-WmiObject -Class Win32_Processor).Architecture
 
 # Map the PowerShell architecture numbers to URL suffixes
 switch ($ARCH) {
-    0 { $ARCH_SUFFIX = "x64" }  # Assuming you want to default to x64 for x86 architecture
+    0 { $ARCH_SUFFIX = "x64" }  # x86 architecture, defaulting to x64 binaries
+    9 { $ARCH_SUFFIX = "x64" }  # x64 architecture
     12 { $ARCH_SUFFIX = "arm64" }
     default {
         Write-Host "Unsupported architecture: $ARCH"
