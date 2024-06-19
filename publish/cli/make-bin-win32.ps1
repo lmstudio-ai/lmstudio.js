@@ -64,7 +64,7 @@ Copy-Item -Path "${NODE_DIR}/node.exe" -Destination "${DIST_DIR}/${EXE_NAME}"
 
 if (-Not $env:LMS_NO_SIGN) {
     # Remove the signature
-    & signtool remove "//s" "${DIST_DIR}/${EXE_NAME}"
+    & signtool remove /s "${DIST_DIR}/${EXE_NAME}"
 }
 
 # Inject the blob into the copied binary
