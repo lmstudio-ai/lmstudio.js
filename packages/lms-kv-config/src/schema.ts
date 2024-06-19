@@ -38,6 +38,13 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("structured", "llamaStructuredOutput", undefined, {
         type: "none",
       })
+      .field("promptTemplate", "llmPromptTemplate", undefined, {
+        type: "legacy",
+        inputPrefix: "",
+        inputSuffix: "",
+        prePromptPrefix: "",
+        prePromptSuffix: "",
+      })
       .scope("llama", builder =>
         builder
           .field("topKSampling", "numeric", { min: -1, max: 500, step: 1, int: true }, 40)
@@ -98,6 +105,7 @@ export const llmLlamaPredictionConfigSchematics = globalConfigSchematics
     "maxPredictedTokens",
     "stopStrings",
     "structured",
+    "promptTemplate",
   );
 
 export const llmLlamaLoadConfigSchematics = globalConfigSchematics

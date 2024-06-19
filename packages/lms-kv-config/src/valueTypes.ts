@@ -1,6 +1,7 @@
 import {
   llmContextOverflowPolicySchema,
   llmLlamaAccelerationSettingSchema,
+  llmPromptTemplateSchema,
   llmStructuredPredictionSettingSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
@@ -99,6 +100,12 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
     paramType: z.void(),
     schemaMaker: () => {
       return llmContextOverflowPolicySchema;
+    },
+  })
+  .valueType("llmPromptTemplate", {
+    paramType: z.void(),
+    schemaMaker: () => {
+      return llmPromptTemplateSchema;
     },
   })
   .valueType("llamaStructuredOutput", {
