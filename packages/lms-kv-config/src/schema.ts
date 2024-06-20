@@ -45,6 +45,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         prePromptPrefix: "",
         prePromptSuffix: "",
       })
+      .field("systemPrompt", "string", {}, "")
       .scope("llama", builder =>
         builder
           .field("topKSampling", "numeric", { min: -1, max: 500, step: 1, int: true }, 40)
@@ -106,6 +107,7 @@ export const llmLlamaPredictionConfigSchematics = globalConfigSchematics
     "stopStrings",
     "structured",
     "promptTemplate",
+    "systemPrompt",
   );
 
 export const llmLlamaLoadConfigSchematics = globalConfigSchematics
