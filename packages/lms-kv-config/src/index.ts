@@ -22,5 +22,6 @@ export {
   llmLlamaLoadConfigSchematics,
   llmLlamaMoeLoadConfigSchematics,
   llmLlamaPredictionConfigSchematics,
+  llmPredictionConfigSchematics,
 } from "./schema";
 export { kvValueTypesLibrary } from "./valueTypes";

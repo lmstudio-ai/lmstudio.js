@@ -97,6 +97,18 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
 //  2. Functionality scope definitions
 // ------------------------------------
 
+export const llmPredictionConfigSchematics = globalConfigSchematics
+  .scoped("llm.prediction")
+  .sliced(
+    "temperature",
+    "contextOverflowPolicy",
+    "maxPredictedTokens",
+    "stopStrings",
+    "structured",
+    "promptTemplate",
+    "systemPrompt",
+  );
+
 export const llmLlamaPredictionConfigSchematics = globalConfigSchematics
   .scoped("llm.prediction")
   .sliced(
