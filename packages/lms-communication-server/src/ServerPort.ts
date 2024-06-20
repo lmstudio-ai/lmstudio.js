@@ -61,10 +61,19 @@ export class ServerPort<
   private readonly logger;
   private readonly openChannels = new Map<number, OpenChannel>();
   private readonly openSignalSubscriptions = new Map<number, OpenSignalSubscription>();
+  /**
+   * Signal subscriptions that needs to be closed because unsubscribe comes before it is created.
+   */
+  private readonly signalSubscriptionsToClose = new Set<number>();
   private readonly openWritableSignalSubscriptions = new Map<
     number,
     OpenWritableSignalSubscription
   >();
+  /**
+   * Writable signal subscriptions that needs to be closed because unsubscribe comes before it is
+   * created.
+   */
+  private readonly writableSignalSubscriptionsToClose = new Set<number>();
   public readonly closeEvent: Event<void>;
   private readonly emitCloseEvent: () => void;
   private producedCommunicationWarningsCount = 0;
@@ -310,7 +319,7 @@ export class ServerPort<
     let initialized = false;
     Promise.resolve(endpoint.handler(context, parseResult.data))
       .then((signal: SignalLike<any>) => {
-        this.openSignalSubscriptions.set(message.subscribeId, {
+        const openSignalSubscription: OpenSignalSubscription = {
           endpoint,
           unsubscribe: signal.subscribeFull((value, patches, tags) => {
             if (!isAvailable(value)) {
@@ -339,22 +348,28 @@ export class ServerPort<
               initialized = true;
             }
           }),
-        });
-        const currentValue = signal.get();
-        if (isAvailable(currentValue)) {
-          this.transport.send({
-            type: "signalUpdate",
-            subscribeId: message.subscribeId,
-            patches: [
-              {
-                op: "replace",
-                path: [],
-                value: signal.get(),
-              },
-            ],
-            tags: [],
-          });
-          initialized = true;
+        };
+        if (this.signalSubscriptionsToClose.has(message.subscribeId)) {
+          this.signalSubscriptionsToClose.delete(message.subscribeId);
+          openSignalSubscription.unsubscribe();
+        } else {
+          this.openSignalSubscriptions.set(message.subscribeId, openSignalSubscription);
+          const currentValue = signal.get();
+          if (isAvailable(currentValue)) {
+            this.transport.send({
+              type: "signalUpdate",
+              subscribeId: message.subscribeId,
+              patches: [
+                {
+                  op: "replace",
+                  path: [],
+                  value: signal.get(),
+                },
+              ],
+              tags: [],
+            });
+            initialized = true;
+          }
         }
       })
       .catch(error => {
@@ -372,9 +387,7 @@ export class ServerPort<
   ) {
     const openSignalSubscription = this.openSignalSubscriptions.get(message.subscribeId);
     if (openSignalSubscription === undefined) {
-      this.communicationWarning(
-        `Received signalUnsubscribe for unknown subscription, subscribeId = ${message.subscribeId}`,
-      );
+      this.signalSubscriptionsToClose.add(message.subscribeId);
       return;
     }
     openSignalSubscription.unsubscribe();
@@ -421,7 +434,7 @@ export class ServerPort<
     let initialized = false;
     Promise.resolve(endpoint.handler(context, parseResult.data))
       .then(([signal, setter]) => {
-        this.openWritableSignalSubscriptions.set(message.subscribeId, {
+        const openWritableSignalSubscription: OpenWritableSignalSubscription = {
           endpoint,
           unsubscribe: signal.subscribeFull((value, patches, tags) => {
             if (!isAvailable(value)) {
@@ -483,22 +496,31 @@ export class ServerPort<
               `);
             }
           },
-        });
-        const currentValue = signal.get();
-        if (isAvailable(currentValue)) {
-          this.transport.send({
-            type: "writableSignalUpdate",
-            subscribeId: message.subscribeId,
-            patches: [
-              {
-                op: "replace",
-                path: [],
-                value: signal.get(),
-              },
-            ],
-            tags: [],
-          });
-          initialized = true;
+        };
+        if (this.writableSignalSubscriptionsToClose.has(message.subscribeId)) {
+          this.writableSignalSubscriptionsToClose.delete(message.subscribeId);
+          openWritableSignalSubscription.unsubscribe();
+        } else {
+          this.openWritableSignalSubscriptions.set(
+            message.subscribeId,
+            openWritableSignalSubscription,
+          );
+          const currentValue = signal.get();
+          if (isAvailable(currentValue)) {
+            this.transport.send({
+              type: "writableSignalUpdate",
+              subscribeId: message.subscribeId,
+              patches: [
+                {
+                  op: "replace",
+                  path: [],
+                  value: signal.get(),
+                },
+              ],
+              tags: [],
+            });
+            initialized = true;
+          }
         }
       })
       .catch(error => {
@@ -518,9 +540,7 @@ export class ServerPort<
       message.subscribeId,
     );
     if (openWritableSignalSubscription === undefined) {
-      this.communicationWarning(
-        `Received writableSignalUnsubscribe for unknown subscription, subscribeId = ${message.subscribeId}`,
-      );
+      this.writableSignalSubscriptionsToClose.add(message.subscribeId);
       return;
     }
     openWritableSignalSubscription.unsubscribe();
