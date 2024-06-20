@@ -298,7 +298,7 @@ export class KVConfigSchematics<
     key: TKey,
   ): TKVConfigSchema[TKey]["type"] {
     const fullKey = this.baseKey + key;
-    const fieldSchema = this.fields.get(fullKey);
+    const fieldSchema = this.fields.get(key);
     if (fieldSchema === undefined) {
       throw new Error(`Field with key ${fullKey} does not exist`);
     }
