@@ -13,7 +13,13 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
       min: z.number().optional(),
       max: z.number().optional(),
       int: z.boolean().optional(),
-      step: z.number().optional(),
+      slider: z
+        .object({
+          min: z.number(),
+          max: z.number(),
+          step: z.number(),
+        })
+        .optional(),
       shortHand: z.string().optional(),
     }),
     schemaMaker: ({ min, max, int }) => {
@@ -35,7 +41,13 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
       min: z.number().optional(),
       max: z.number().optional(),
       int: z.boolean().optional(),
-      step: z.number().optional(),
+      slider: z
+        .object({
+          min: z.number(),
+          max: z.number(),
+          step: z.number(),
+        })
+        .optional(),
     }),
     schemaMaker: ({ min, max, int }) => {
       let numberSchema = z.number();

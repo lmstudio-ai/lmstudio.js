@@ -242,18 +242,20 @@ export class KVConfigSchematicsBuilder<
     return this as any;
   }
 
-  public build(): KVConfigSchematics<TKVConfigSchema, ""> {
-    return new KVConfigSchematics(this.fields, "");
+  public build(): KVConfigSchematics<TKVFieldValueTypeLibraryMap, TKVConfigSchema, ""> {
+    return new KVConfigSchematics(this.valueTypeLibrary, this.fields, "");
   }
 }
 
 const createParsedKVConfig = Symbol("createParsedKVConfig");
 
 export class KVConfigSchematics<
+  TKVFieldValueTypeLibraryMap extends KVVirtualFieldValueTypesMapping,
   TKVConfigSchema extends KVVirtualConfigSchema,
   TBaseKey extends string,
 > {
   public constructor(
+    private readonly valueTypeLibrary: KVFieldValueTypeLibrary<TKVFieldValueTypeLibraryMap>,
     private readonly fields: Map<string, KVConcreteFieldSchema>,
     private readonly baseKey: TBaseKey,
   ) {}
@@ -314,6 +316,7 @@ export class KVConfigSchematics<
   public sliced<TKeyPattern extends string>(
     ...patterns: TKeyPattern[]
   ): KVConfigSchematics<
+    TKVFieldValueTypeLibraryMap,
     {
       [TKey in KeyPatternMatch<keyof TKVConfigSchema, TKeyPattern>]: TKVConfigSchema[TKey];
     },
@@ -345,7 +348,7 @@ export class KVConfigSchematics<
         }
       }
     }
-    return new KVConfigSchematics(newFields, this.baseKey);
+    return new KVConfigSchematics(this.valueTypeLibrary, newFields, this.baseKey);
   }
 
   /**
@@ -354,6 +357,7 @@ export class KVConfigSchematics<
   public scoped<TScopeKey extends string>(
     scopeKey: TScopeKey,
   ): KVConfigSchematics<
+    TKVFieldValueTypeLibraryMap,
     {
       [TKey in keyof TKVConfigSchema & string as TKey extends `${TScopeKey}.${infer RInnerKey}`
         ? RInnerKey
@@ -367,7 +371,31 @@ export class KVConfigSchematics<
         newFields.set(key.substring(scopeKey.length + 1), field);
       }
     }
-    return new KVConfigSchematics(newFields, `${this.baseKey}${scopeKey}.`);
+    return new KVConfigSchematics(this.valueTypeLibrary, newFields, `${this.baseKey}${scopeKey}.`);
+  }
+
+  public union<TOtherKVConfigSchema extends KVVirtualConfigSchema>(
+    other: KVConfigSchematics<
+      TKVFieldValueTypeLibraryMap, // Must be the same
+      TOtherKVConfigSchema,
+      TBaseKey // Must be the same
+    >,
+  ): KVConfigSchematics<
+    TKVFieldValueTypeLibraryMap,
+    TKVConfigSchema & TOtherKVConfigSchema,
+    TBaseKey
+  > {
+    if (this.baseKey !== other.baseKey) {
+      throw new Error("Cannot union two config schematics with different base keys");
+    }
+    const newFields = new Map<string, KVConcreteFieldSchema>();
+    for (const [key, field] of this.fields.entries()) {
+      newFields.set(key, field);
+    }
+    for (const [key, field] of other.fields.entries()) {
+      newFields.set(key, field);
+    }
+    return new KVConfigSchematics(this.valueTypeLibrary, newFields, this.baseKey);
   }
 
   public parseToMap(config: KVConfig) {
@@ -426,6 +454,25 @@ export class KVConfigSchematics<
         }),
     };
   }
+
+  public withTypeParamOverride<
+    TKey extends keyof TKVConfigSchema & string,
+    TParam extends TKVFieldValueTypeLibraryMap[TKVConfigSchema[TKey]["valueTypeKey"]]["param"],
+  >(key: TKey, paramMapper: (oldParam: TParam) => TParam) {
+    const field = this.fields.get(key);
+    if (field === undefined) {
+      throw new Error(`Field with key ${this.baseKey + key} does not exist`);
+    }
+    this.fields.set(key, {
+      ...field,
+      valueTypeParams: paramMapper(field.valueTypeParams),
+      schema: this.valueTypeLibrary.getSchema(
+        field.valueTypeKey,
+        paramMapper(field.valueTypeParams),
+      ),
+    });
+    return this;
+  }
 }
 
 /**
@@ -434,7 +481,7 @@ export class KVConfigSchematics<
  */
 export class ParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
   private constructor(
-    private readonly schema: KVConfigSchematics<TKVConfigSchema, string>,
+    private readonly schema: KVConfigSchematics<any, TKVConfigSchema, string>,
     /**
      * Guaranteed to satisfy the schema.
      */
@@ -442,7 +489,7 @@ export class ParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
   ) {}
 
   public static [createParsedKVConfig]<TKVConfigSchema extends KVVirtualConfigSchema>(
-    schema: KVConfigSchematics<TKVConfigSchema, string>,
+    schema: KVConfigSchematics<any, TKVConfigSchema, string>,
     configMap: Map<string, any>,
   ): ParsedKVConfig<TKVConfigSchema> {
     return new ParsedKVConfig(schema, configMap);
@@ -540,7 +587,11 @@ function deepEquals<T>(a: T, b: T) {
  * is compared. Default values are used for missing fields. (Meaning having a field with the same
  * value as the default value is considered equal to not having the field at all.)
  */
-export function kvConfigEquals(schematics: KVConfigSchematics<any, any>, a: KVConfig, b: KVConfig) {
+export function kvConfigEquals(
+  schematics: KVConfigSchematics<any, any, any>,
+  a: KVConfig,
+  b: KVConfig,
+) {
   const aMap = schematics.parseToMap(a);
   const bMap = schematics.parseToMap(b);
 
@@ -565,24 +616,27 @@ type UnionKeyOf<T> = T extends T ? keyof T : never;
 /**
  * Given a ConfigSchematic, gets the internal virtual schema with shortened keys.
  */
-export type InferConfigSchemaMap<TKVConfigSchematics extends KVConfigSchematics<any, any>> =
-  TKVConfigSchematics extends KVConfigSchematics<infer RSchema, any> ? RSchema : never;
+export type InferConfigSchemaMap<TKVConfigSchematics extends KVConfigSchematics<any, any, any>> =
+  TKVConfigSchematics extends KVConfigSchematics<any, infer RSchema, any> ? RSchema : never;
 
 /**
  * Given a ConfigSchematic, gets the shortened keys of the internal virtual schema.
  */
-export type InferConfigSchemaKeys<TKVConfigSchematics extends KVConfigSchematics<any, any>> =
+export type InferConfigSchemaKeys<TKVConfigSchematics extends KVConfigSchematics<any, any, any>> =
   UnionKeyOf<InferConfigSchemaMap<TKVConfigSchematics>>;
 
-export type InferConfigSchemaFullMap<TKVConfigSchematics extends KVConfigSchematics<any, any>> =
-  TKVConfigSchematics extends KVConfigSchematics<infer RSchema, infer RBaseKey>
+export type InferConfigSchemaFullMap<
+  TKVConfigSchematics extends KVConfigSchematics<any, any, any>,
+> =
+  TKVConfigSchematics extends KVConfigSchematics<any, infer RSchema, infer RBaseKey>
     ? {
         [TKey in keyof RSchema as `${RBaseKey}${TKey & string}`]: RSchema[TKey];
       }
     : never;
 
-export type InferConfigSchemaFullKeys<TKVConfigSchematics extends KVConfigSchematics<any, any>> =
-  UnionKeyOf<InferConfigSchemaFullMap<TKVConfigSchematics>>;
+export type InferConfigSchemaFullKeys<
+  TKVConfigSchematics extends KVConfigSchematics<any, any, any>,
+> = UnionKeyOf<InferConfigSchemaFullMap<TKVConfigSchematics>>;
 
 export type InferValueTypeMap<TLibrary extends KVFieldValueTypeLibrary<any>> =
   TLibrary extends KVFieldValueTypeLibrary<infer RMap> ? RMap : never;
@@ -590,7 +644,3 @@ export type InferValueTypeMap<TLibrary extends KVFieldValueTypeLibrary<any>> =
 export type InferValueTypeKeys<TLibrary extends KVFieldValueTypeLibrary<any>> = UnionKeyOf<
   InferValueTypeMap<TLibrary>
 >;
-
-export type S<A extends string> = A extends `a${infer R}` ? R : never;
-
-type AAA = S<"abc" | "axx">;

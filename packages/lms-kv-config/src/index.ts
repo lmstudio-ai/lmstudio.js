@@ -15,13 +15,10 @@ export {
   GlobalKVValueTypeParamTypeForKey,
   GlobalKVValueTypeValueTypeForKey,
   emptyConfigSchematics,
-  getLLMLoadConfigSchematics,
-  getLLMMoeLoadConfigSchematics,
-  getLLMPredictionConfigSchematics,
   globalConfigSchematics,
   llmLlamaLoadConfigSchematics,
   llmLlamaMoeLoadConfigSchematics,
   llmLlamaPredictionConfigSchematics,
-  llmPredictionConfigSchematics,
+  llmSharedPredictionConfigSchematics,
 } from "./schema";
 export { kvValueTypesLibrary } from "./valueTypes";

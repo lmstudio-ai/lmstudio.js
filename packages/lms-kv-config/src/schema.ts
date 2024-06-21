@@ -4,10 +4,7 @@
  * 1. globalConfigSchematics: The pool for all config keys and their types
  * 2. Functionality scope definitions: i.e. what config keys are available in what functionality
  *    scope. An example functionality scope is llmPrediction.
- * 3. Functionality scope mapper functions: Lookup functions for getting a functionality scope, for
- *    example, given a ModelCompatibilityType, get the associated functionality scope for predicting
- *    with it.
- * 4. Utility types that can be used to work with types of schema.
+ * 3. Utility types that can be used to work with types of schema.
  */
 
 import {
@@ -26,12 +23,17 @@ import { kvValueTypesLibrary } from "./valueTypes";
 export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
   .scope("llm.prediction", builder =>
     builder
-      .field("temperature", "numeric", { min: 0, max: 1, step: 0.01, shortHand: "temp" }, 0.8)
+      .field(
+        "temperature",
+        "numeric",
+        { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 }, shortHand: "temp" },
+        0.8,
+      )
       .field("contextOverflowPolicy", "contextOverflowPolicy", undefined, "stopAtLimit")
       .field(
         "maxPredictedTokens",
         "checkboxNumeric",
-        { min: 1, step: 1, int: true },
+        { min: 1, int: true },
         { checked: false, value: 100 },
       )
       .field("stopStrings", "stringArray", {}, [])
@@ -48,23 +50,18 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("systemPrompt", "string", {}, "")
       .scope("llama", builder =>
         builder
-          .field("topKSampling", "numeric", { min: -1, max: 500, step: 1, int: true }, 40)
-          .field(
-            "repeatPenalty",
-            "checkboxNumeric",
-            { min: -1, max: 50, step: 0.1 },
-            { checked: true, value: 1.1 },
-          )
+          .field("topKSampling", "numeric", { min: -1, max: 500, int: true }, 40)
+          .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
           .field(
             "minPSampling",
             "checkboxNumeric",
-            { min: 0, max: 1, step: 0.01 },
+            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: true, value: 0.05 },
           )
           .field(
             "topPSampling",
             "checkboxNumeric",
-            { min: 0, max: 1, step: 0.01 },
+            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: true, value: 0.95 },
           )
           .field("cpuThreads", "numeric", { min: 1, int: true }, 4),
@@ -97,79 +94,36 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
 //  2. Functionality scope definitions
 // ------------------------------------
 
-export const llmPredictionConfigSchematics = globalConfigSchematics
-  .scoped("llm.prediction")
-  .sliced(
-    "temperature",
-    "contextOverflowPolicy",
-    "maxPredictedTokens",
-    "stopStrings",
-    "structured",
-    "promptTemplate",
-    "systemPrompt",
-  );
+const llmPrediction = globalConfigSchematics.scoped("llm.prediction");
 
-export const llmLlamaPredictionConfigSchematics = globalConfigSchematics
-  .scoped("llm.prediction")
-  .sliced(
-    "llama.*",
-    "temperature",
-    "contextOverflowPolicy",
-    "maxPredictedTokens",
-    "stopStrings",
-    "structured",
-    "promptTemplate",
-    "systemPrompt",
-  );
+export const llmSharedPredictionConfigSchematics = llmPrediction.sliced(
+  "temperature",
+  "contextOverflowPolicy",
+  "maxPredictedTokens",
+  "stopStrings",
+  "structured",
+  "promptTemplate",
+  "systemPrompt",
+);
 
-export const llmLlamaLoadConfigSchematics = globalConfigSchematics
-  .scoped("llm.load")
-  .sliced("llama.*", "contextLength");
+export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
+  llmPrediction.sliced("llama.*"),
+);
 
-export const llmLlamaMoeLoadConfigSchematics = globalConfigSchematics
-  .scoped("llm.load")
-  .sliced("llama.*", "contextLength", "numExperts");
+const llmLoad = globalConfigSchematics.scoped("llm.load");
+
+export const llmLlamaLoadConfigSchematics = llmLoad.sliced("llama.*", "contextLength");
+
+const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoad.sliced("numExperts");
+
+export const llmLlamaMoeLoadConfigSchematics = llmLlamaLoadConfigSchematics.union(
+  llmLlamaMoeAdditionalLoadConfigSchematics,
+);
 
 export const emptyConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary).build();
 
-// -----------------------------------------
-//  3. Functionality scope mapper functions
-// -----------------------------------------
-
-export function getLLMPredictionConfigSchematics(modelCompatibilityType: string) {
-  switch (modelCompatibilityType) {
-    case "gguf":
-      return llmLlamaPredictionConfigSchematics;
-    default:
-      throw new Error(`Unknown model compatibility type: ${modelCompatibilityType}`);
-  }
-}
-export type LLMPredictionConfigSchematics = ReturnType<typeof getLLMPredictionConfigSchematics>;
-
-// Will combine load and moeLoad eventually
-
-export function getLLMLoadConfigSchematics(modelCompatibilityType: string) {
-  switch (modelCompatibilityType) {
-    case "gguf":
-      return llmLlamaLoadConfigSchematics;
-    default:
-      throw new Error(`Unknown model compatibility type: ${modelCompatibilityType}`);
-  }
-}
-export type LLMLoadConfigSchematics = ReturnType<typeof getLLMLoadConfigSchematics>;
-
-export function getLLMMoeLoadConfigSchematics(modelCompatibilityType: string) {
-  switch (modelCompatibilityType) {
-    case "gguf":
-      return llmLlamaMoeLoadConfigSchematics;
-    default:
-      throw new Error(`Unknown model compatibility type: ${modelCompatibilityType}`);
-  }
-}
-export type LLMMoeLoadConfigSchematics = ReturnType<typeof getLLMMoeLoadConfigSchematics>;
-
 // ------------------
-//  4. Utility types
+//  3. Utility types
 // ------------------
 
 export type GlobalKVValueTypeMap = InferValueTypeMap<typeof kvValueTypesLibrary>;
