@@ -1,3 +1,4 @@
+import { Event } from "./Event";
 import { Signal, type SignalFullSubscriber, type SignalLike, type Subscriber } from "./Signal";
 import { Subscribable } from "./Subscribable";
 import { makePromise } from "./makePromise";
@@ -40,6 +41,11 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
   private upstreamUnsubscribe: (() => void) | null = null;
   private subscribersCount = 0;
   private isSubscribedToUpstream = false;
+  /**
+   * This event will be triggered even if the value did not change. This is for resolving .pull.
+   */
+  private readonly updateReceivedEvent: Event<void>;
+  private readonly emitUpdateReceivedEvent: () => void;
 
   public static create<TData>(
     initialValue: TData,
@@ -129,6 +135,7 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
   ) {
     super();
     [this.signal, this.setValue] = Signal.create<TData>(initialValue, equalsPredicate) as any;
+    [this.updateReceivedEvent, this.emitUpdateReceivedEvent] = Event.create();
   }
 
   /**
@@ -162,6 +169,7 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
         }
         this.setValue.withPatchUpdater(updater, tags);
         this.dataIsStale = becameStale;
+        this.emitUpdateReceivedEvent();
       }),
       error => {
         if (!subscribed) {
@@ -216,10 +224,13 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
     if (!this.isStale()) {
       // If not stale, definitely not "NOT_AVAILABLE"
       resolve(this.get() as StripNotAvailable<TData>);
+    } else {
+      const unsubscribe = this.subscribe(() => {});
+      this.updateReceivedEvent.subscribeOnce(() => {
+        resolve(this.get() as StripNotAvailable<TData>);
+      });
+      promise.then(unsubscribe);
     }
-    this.subscribeOnce(data => {
-      resolve(data as StripNotAvailable<TData>);
-    });
     return promise;
   }
 
