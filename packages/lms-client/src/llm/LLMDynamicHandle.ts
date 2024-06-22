@@ -1,7 +1,14 @@
-import { BufferedEvent, getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
+import {
+  BufferedEvent,
+  getCurrentStack,
+  SimpleLogger,
+  text,
+  type Validator,
+} from "@lmstudio/lms-common";
 import {
   llmLlamaPredictionConfigSchematics,
   llmSharedLoadConfigSchematics,
+  llmSharedPredictionConfigSchematics,
 } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
@@ -25,6 +32,10 @@ import { z } from "zod";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
+
+const noFormattingTemplate = text`
+  {% for message in messages %}{{ message['content'] }}{% endfor %}
+`;
 
 /**
  * Translate a number to a checkbox numeric value.
@@ -100,7 +111,7 @@ export class LLMDynamicHandle {
   private predictInternal(
     modelSpecifier: ModelSpecifier,
     context: LLMContext,
-    config: LLMLlamaPredictionConfig,
+    predictionConfigStack: KVConfigStack,
     cancelEvent: BufferedEvent<void>,
     onFragment: (fragment: string) => void,
     onFinished: (
@@ -117,12 +128,7 @@ export class LLMDynamicHandle {
       {
         modelSpecifier,
         context,
-        predictionConfigStack: {
-          layers: [
-            ...this.internalKVConfigStack.layers,
-            { layerName: "inlineOverride", config: predictionConfigToKVConfig(config) },
-          ],
-        },
+        predictionConfigStack,
       },
       message => {
         switch (message.type) {
@@ -212,10 +218,29 @@ export class LLMDynamicHandle {
       this.specifier,
       this.resolveCompletionContext(prompt),
       {
-        // If the user did not specify `stopStrings`, we default to an empty array. This is to
-        // prevent the model from using the value set in the preset.
-        stopStrings: [],
-        ...config,
+        layers: [
+          ...this.internalKVConfigStack.layers,
+          {
+            layerName: "inlineOverride",
+            config: predictionConfigToKVConfig({
+              // If the user did not specify `stopStrings`, we default to an empty array. This is to
+              // prevent the model from using the value set in the preset.
+              stopStrings: [],
+              ...config,
+            }),
+          },
+          {
+            layerName: "completeModeFormatting",
+            config: llmSharedPredictionConfigSchematics.buildPartialConfig({
+              promptTemplate: {
+                type: "jinja",
+                bosToken: "",
+                eosToken: "",
+                template: noFormattingTemplate,
+              },
+            }),
+          },
+        ],
       },
       cancelEvent,
       fragment => push(fragment),
@@ -301,7 +326,15 @@ export class LLMDynamicHandle {
     this.predictInternal(
       this.specifier,
       this.resolveConversationContext(history),
-      config,
+      {
+        layers: [
+          ...this.internalKVConfigStack.layers,
+          {
+            layerName: "inlineOverride",
+            config: predictionConfigToKVConfig(config),
+          },
+        ],
+      },
       cancelEvent,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
@@ -338,7 +371,15 @@ export class LLMDynamicHandle {
     this.predictInternal(
       this.specifier,
       context,
-      config,
+      {
+        layers: [
+          ...this.internalKVConfigStack.layers,
+          {
+            layerName: "inlineOverride",
+            config: predictionConfigToKVConfig(config),
+          },
+        ],
+      },
       cancelEvent,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
