@@ -112,7 +112,11 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
 
 const llmLoad = globalConfigSchematics.scoped("llm.load");
 
-export const llmLlamaLoadConfigSchematics = llmLoad.sliced("llama.*", "contextLength");
+export const llmSharedLoadConfigSchematics = llmLoad.sliced("contextLength");
+
+export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
+  llmLoad.sliced("llama.*"),
+);
 
 const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoad.sliced("numExperts");
 

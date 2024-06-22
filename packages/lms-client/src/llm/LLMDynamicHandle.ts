@@ -1,9 +1,14 @@
 import { BufferedEvent, getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
-import { llmLlamaPredictionConfigSchematics } from "@lmstudio/lms-kv-config";
+import {
+  llmLlamaPredictionConfigSchematics,
+  llmSharedLoadConfigSchematics,
+} from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   type KVConfig,
   type KVConfigStack,
+  type LLMApplyPromptTemplateOpts,
+  llmApplyPromptTemplateOptsSchema,
   type LLMCompletionContextInput,
   llmCompletionContextInputSchema,
   type LLMContext,
@@ -16,6 +21,7 @@ import {
   type LLMPredictionStats,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
+import { z } from "zod";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
@@ -359,5 +365,71 @@ export class LLMDynamicHandle {
       return undefined;
     }
     return info.descriptor;
+  }
+
+  private async getLoadConfig(stack: string): Promise<KVConfig> {
+    const loadConfig = await this.llmPort.callRpc(
+      "getLoadConfig",
+      { specifier: this.specifier },
+      { stack },
+    );
+    return loadConfig;
+  }
+
+  public async unstable_getContextLength(): Promise<number> {
+    const stack = getCurrentStack(1);
+    const loadConfig = await this.getLoadConfig(stack);
+    return llmSharedLoadConfigSchematics.access(loadConfig, "contextLength");
+  }
+
+  public async unstable_applyPromptTemplate(
+    context: LLMContext,
+    opts: LLMApplyPromptTemplateOpts = {},
+  ): Promise<string> {
+    const stack = getCurrentStack(1);
+    [context, opts] = this.validator.validateMethodParamsOrThrow(
+      "model",
+      "unstable_applyPromptTemplate",
+      ["context", "opts"],
+      [llmContextSchema, llmApplyPromptTemplateOptsSchema],
+      [context, opts],
+      stack,
+    );
+    return (
+      await this.llmPort.callRpc(
+        "applyPromptTemplate",
+        {
+          specifier: this.specifier,
+          context,
+          predictionConfigStack: this.internalKVConfigStack,
+          opts,
+        },
+        {
+          stack,
+        },
+      )
+    ).formatted;
+  }
+
+  public async unstable_tokenize(inputString: string): Promise<number[]> {
+    const stack = getCurrentStack(1);
+    inputString = this.validator.validateMethodParamOrThrow(
+      "model",
+      "unstable_tokenize",
+      "inputString",
+      z.string(),
+      inputString,
+      stack,
+    );
+    return (
+      await this.llmPort.callRpc(
+        "tokenize",
+        {
+          specifier: this.specifier,
+          inputString,
+        },
+        { stack },
+      )
+    ).tokens;
   }
 }

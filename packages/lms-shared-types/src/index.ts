@@ -30,6 +30,10 @@ export {
   kvConfigStackSchema,
 } from "./KVConfig";
 export {
+  LLMApplyPromptTemplateOpts,
+  llmApplyPromptTemplateOptsSchema,
+} from "./llm/LLMApplyPromptTemplateOpts";
+export {
   LLMChatHistory,
   LLMChatHistoryMessage,
   LLMChatHistoryMessageContent,

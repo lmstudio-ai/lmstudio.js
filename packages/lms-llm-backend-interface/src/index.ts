@@ -3,6 +3,7 @@ import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
   kvConfigSchema,
   kvConfigStackSchema,
+  llmApplyPromptTemplateOptsSchema,
   llmDescriptorSchema,
   llmPredictionStatsSchema,
   modelSpecifierSchema,
@@ -91,6 +92,32 @@ export function createLlmBackendInterface() {
           descriptor: llmDescriptorSchema,
         })
         .optional(),
+    })
+    .addRpcEndpoint("getLoadConfig", {
+      parameter: z.object({
+        specifier: modelSpecifierSchema,
+      }),
+      returns: kvConfigSchema,
+    })
+    .addRpcEndpoint("applyPromptTemplate", {
+      parameter: z.object({
+        specifier: modelSpecifierSchema,
+        context: llmContextSchema,
+        predictionConfigStack: kvConfigStackSchema,
+        opts: llmApplyPromptTemplateOptsSchema,
+      }),
+      returns: z.object({
+        formatted: z.string(),
+      }),
+    })
+    .addRpcEndpoint("tokenize", {
+      parameter: z.object({
+        specifier: modelSpecifierSchema,
+        inputString: z.string(),
+      }),
+      returns: z.object({
+        tokens: z.array(z.number()),
+      }),
     });
 }
 

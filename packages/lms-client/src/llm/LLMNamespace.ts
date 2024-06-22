@@ -480,8 +480,6 @@ export class LLMNamespace {
     } else {
       query = param;
     }
-    // We set the domain to 'llm' to ensure that the handle is only used for LLM models.
-    query.domain = "llm";
     if (query.path?.includes("\\")) {
       throw makePrettyError(
         text`
