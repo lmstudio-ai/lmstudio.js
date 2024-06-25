@@ -13,6 +13,8 @@
     "immer",
     "inferencing",
     "lmstudio",
+    "Logit",
+    "Mirostat",
     "Mmap",
     "proxying",
     "Rpcs",

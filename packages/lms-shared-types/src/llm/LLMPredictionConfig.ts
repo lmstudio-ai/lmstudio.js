@@ -103,3 +103,31 @@ export const llmResolvedPredictionConfigSchema = z.object({
   type: z.literal("llama"),
   content: llmLlamaPredictionConfigSchema.required(),
 });
+
+export interface LLMLlamaMirostatSamplingConfig {
+  /**
+   * 0 = disabled
+   */
+  version: 0 | 1 | 2;
+  learningRate: number;
+  targetEntropy: number;
+}
+export const llmLlamaMirostatSamplingConfigSchema = z.object({
+  version: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+  learningRate: z.number(),
+  targetEntropy: z.number(),
+});
+
+/**
+ * Specify a number to modify the likelihood. Specify "-inf" to prevent the token from being
+ * generated.
+ */
+export type LLMLlamaSingleLogitBiasModification = number | "-inf";
+export const llmLlamaSingleLogitBiasModificationSchema = z.union([z.number(), z.literal("-inf")]);
+
+export type LLMLlamaLogitBiasConfig = Array<
+  [token: number, modification: LLMLlamaSingleLogitBiasModification]
+>;
+export const llmLlamaLogitBiasConfigSchema = z.array(
+  z.tuple([z.number(), llmLlamaSingleLogitBiasModificationSchema]),
+);

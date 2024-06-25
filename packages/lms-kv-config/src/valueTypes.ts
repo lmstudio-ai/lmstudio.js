@@ -1,6 +1,8 @@
 import {
   llmContextOverflowPolicySchema,
   llmLlamaAccelerationSettingSchema,
+  llmLlamaLogitBiasConfigSchema,
+  llmLlamaMirostatSamplingConfigSchema,
   llmPromptTemplateSchema,
   llmStructuredPredictionSettingSchema,
 } from "@lmstudio/lms-shared-types";
@@ -130,6 +132,18 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
     paramType: z.void(),
     schemaMaker: () => {
       return llmLlamaAccelerationSettingSchema;
+    },
+  })
+  .valueType("llamaMirostatSampling", {
+    paramType: z.void(),
+    schemaMaker: () => {
+      return llmLlamaMirostatSamplingConfigSchema;
+    },
+  })
+  .valueType("llamaLogitBias", {
+    paramType: z.void(),
+    schemaMaker: () => {
+      return llmLlamaLogitBiasConfigSchema;
     },
   })
   .build();

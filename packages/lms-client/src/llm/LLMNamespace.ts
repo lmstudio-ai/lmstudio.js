@@ -139,7 +139,7 @@ function loadConfigToKVConfig(loadConfig: LLMLlamaLoadModelConfig) {
     "llama.ropeFrequencyBase": loadConfig.ropeFrequencyBase,
     "llama.ropeFrequencyScale": loadConfig.ropeFrequencyScale,
     "llama.keepModelInMemory": loadConfig.keepModelInMemory,
-    "llama.seed": loadConfig.seed,
+    "seed": loadConfig.seed,
     "llama.useFp16ForKVCache": loadConfig.useFp16ForKVCache,
     "llama.tryMmap": loadConfig.tryMmap,
     "numExperts": loadConfig.numExperts,

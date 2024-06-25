@@ -455,6 +455,10 @@ export class KVConfigSchematics<
     };
   }
 
+  public configBuilder(): KVConfigBuilder<TKVConfigSchema> {
+    return new KVConfigBuilder(this.baseKey);
+  }
+
   public withTypeParamOverride<
     TKey extends keyof TKVConfigSchema & string,
     TParam extends TKVFieldValueTypeLibraryMap[TKVConfigSchema[TKey]["valueTypeKey"]]["param"],
@@ -472,6 +476,21 @@ export class KVConfigSchematics<
       ),
     });
     return this;
+  }
+}
+
+export class KVConfigBuilder<TKVConfigSchema extends KVVirtualConfigSchema> {
+  public constructor(private readonly baseKey: string) {}
+  private readonly fields: Map<string, any> = new Map();
+  public with<TKey extends keyof TKVConfigSchema & string>(
+    key: TKey,
+    value: TKVConfigSchema[TKey]["type"],
+  ) {
+    this.fields.set(this.baseKey + key, value);
+    return this;
+  }
+  public build() {
+    return mapToKVConfig(this.fields);
   }
 }
 

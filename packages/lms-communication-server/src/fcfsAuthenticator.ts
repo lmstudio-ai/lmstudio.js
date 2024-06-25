@@ -113,7 +113,7 @@ export class FcfsClient {
     this.references--;
     this.logger.debug("Holder released, references:", this.references);
     if (this.references === 0) {
-      this.logger.info("All holders released, releasing the client.");
+      this.logger.debug("All holders released, releasing the client.");
       this.onRelease(this);
     }
   }

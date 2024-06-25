@@ -48,6 +48,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         prePromptSuffix: "",
       })
       .field("systemPrompt", "string", {}, "")
+      .field("seed", "numeric", { int: true }, -1)
       .scope("llama", builder =>
         builder
           .field("topKSampling", "numeric", { min: -1, max: 500, int: true }, 40)
@@ -64,13 +65,35 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: true, value: 0.95 },
           )
-          .field("cpuThreads", "numeric", { min: 1, int: true }, 4),
+          .field("cpuThreads", "numeric", { min: 1, int: true }, 4)
+          .field("frequencyPenalty", "checkboxNumeric", {}, { checked: false, value: 0.0 })
+          .field("presencePenalty", "checkboxNumeric", {}, { checked: false, value: 0.0 })
+          .field("mirostatSampling", "llamaMirostatSampling", undefined, {
+            // Disabled by default
+            version: 0,
+            learningRate: 0.1,
+            targetEntropy: 5,
+          })
+          .field(
+            "tailFreeSampling",
+            "checkboxNumeric",
+            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+            { checked: false, value: 0.95 },
+          )
+          .field(
+            "locallyTypicalSampling",
+            "checkboxNumeric",
+            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+            { checked: false, value: 0.9 },
+          )
+          .field("logitBias", "llamaLogitBias", undefined, []),
       ),
   )
   .scope("llm.load", builder =>
     builder
       .field("contextLength", "numeric", { min: 1, int: true }, 2048)
       .field("numExperts", "numeric", { min: 0, int: true }, 0)
+      .field("seed", "numeric", { int: true }, -1)
       .scope("llama", builder =>
         builder
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
@@ -83,7 +106,6 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field("ropeFrequencyBase", "numeric", {}, 0)
           .field("ropeFrequencyScale", "numeric", {}, 0)
           .field("keepModelInMemory", "boolean", undefined, true)
-          .field("seed", "numeric", { int: true }, 0) // asd
           .field("useFp16ForKVCache", "boolean", undefined, true)
           .field("tryMmap", "boolean", undefined, true),
       ),
@@ -107,7 +129,7 @@ export const llmSharedPredictionConfigSchematics = llmPrediction.sliced(
 );
 
 export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPrediction.sliced("llama.*"),
+  llmPrediction.sliced("llama.*", "seed"),
 );
 
 const llmLoad = globalConfigSchematics.scoped("llm.load");
@@ -115,7 +137,7 @@ const llmLoad = globalConfigSchematics.scoped("llm.load");
 export const llmSharedLoadConfigSchematics = llmLoad.sliced("contextLength");
 
 export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
-  llmLoad.sliced("llama.*"),
+  llmLoad.sliced("llama.*", "seed"),
 );
 
 const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoad.sliced("numExperts");
