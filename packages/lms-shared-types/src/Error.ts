@@ -18,9 +18,9 @@ function failOk<T>(schema: ZodSchema<T>): ZodSchema<T | undefined> {
 
 export const serializedLMSExtendedErrorSchema = z.object({
   title: z.string(),
-  cause: z.string().optional(),
-  suggestion: z.string().optional(),
-  errorData: z.record(z.string(), z.unknown()).optional(),
+  cause: failOk(z.string()).optional(),
+  suggestion: failOk(z.string()).optional(),
+  errorData: failOk(z.record(z.string(), z.unknown())).optional(),
   displayData: failOk(errorDisplayDataSchema).optional(),
 });
 export type SerializedLMSExtendedError = z.infer<typeof serializedLMSExtendedErrorSchema>;
