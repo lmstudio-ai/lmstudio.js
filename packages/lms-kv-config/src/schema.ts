@@ -29,7 +29,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 }, shortHand: "temp" },
         0.8,
       )
-      .field("contextOverflowPolicy", "contextOverflowPolicy", undefined, "stopAtLimit")
+      .field("contextOverflowPolicy", "contextOverflowPolicy", undefined, "rollingWindow")
       .field(
         "maxPredictedTokens",
         "checkboxNumeric",
