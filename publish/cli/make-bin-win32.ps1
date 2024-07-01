@@ -31,8 +31,16 @@ function Load-EnvFromAncestors {
         if (Test-Path $envPath) {
             Write-Host "Loading .env from $currentDir"
             Get-Content $envPath | ForEach-Object {
-                $key, $value = $_.Split('=', 2)
-                Set-Variable -Name $key -Value $value -Scope Global
+                # ignore lines that don't have the expected X=Y format
+                if ($_ -and $_.Contains('=')) {
+                    $key, $value = $_.Split('=', 2)
+                    # Remove single quotes from the value if present
+                    $value = $value.Trim("'")
+                    # Set environment variable for the current process
+                    [System.Environment]::SetEnvironmentVariable($key, $value, [System.EnvironmentVariableTarget]::Process)
+                    # Output the environment variable and its value
+                    Write-Output "Setting environment variable: '$key'"
+                }
             }
         }
         $currentDir = Split-Path $currentDir -Parent
