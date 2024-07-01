@@ -7,7 +7,7 @@ import {
   llmStructuredPredictionSettingSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { type InferKVValueTypeDef, KVFieldValueTypesLibraryBuilder } from "./KVConfig";
+import { KVFieldValueTypesLibraryBuilder, type InferKVValueTypeDef } from "./KVConfig";
 
 export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
   .valueType("numeric", {
@@ -129,7 +129,9 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
     },
   })
   .valueType("llamaGpuOffload", {
-    paramType: z.void(),
+    paramType: z.object({
+      numLayers: z.number().optional(),
+    }),
     schemaMaker: () => {
       return llmLlamaAccelerationSettingSchema;
     },

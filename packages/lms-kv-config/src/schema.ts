@@ -8,11 +8,11 @@
  */
 
 import {
+  KVConfigSchematicsBuilder,
   type InferConfigSchemaKeys,
   type InferConfigSchemaMap,
   type InferValueTypeKeys,
   type InferValueTypeMap,
-  KVConfigSchematicsBuilder,
 } from "./KVConfig";
 import { kvValueTypesLibrary } from "./valueTypes";
 
@@ -97,7 +97,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .scope("llama", builder =>
         builder
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
-          .field("gpuOffload", "llamaGpuOffload", undefined, {
+          .field("gpuOffload", "llamaGpuOffload", {}, {
             ratio: "auto",
             mainGpu: 0,
             tensorSplit: [0],
