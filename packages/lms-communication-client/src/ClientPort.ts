@@ -1,5 +1,4 @@
 import {
-  changeErrorStackInPlace,
   getCurrentStack,
   LazySignal,
   makePromise,
@@ -29,11 +28,7 @@ import {
   type WritableSignalEndpoint,
   type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication/dist/BackendInterface";
-import {
-  fromSerializedError,
-  recreateSerializedError,
-  type SerializedLMSExtendedError,
-} from "@lmstudio/lms-shared-types";
+import { fromSerializedError, type SerializedLMSExtendedError } from "@lmstudio/lms-shared-types";
 import { applyPatches, enablePatches, type Patch } from "immer";
 
 enablePatches();
@@ -77,13 +72,7 @@ function defaultErrorDeserializer(
   directCause: string,
   stack?: string,
 ): Error {
-  if (stack === undefined) {
-    return fromSerializedError(serialized, directCause);
-  } else {
-    const error = recreateSerializedError(serialized);
-    changeErrorStackInPlace(error, stack);
-    return error;
-  }
+  return fromSerializedError(serialized, directCause, stack);
 }
 
 export class ClientPort<
@@ -135,7 +124,7 @@ export class ClientPort<
   ) {
     this.logger = new SimpleLogger("ClientPort", parentLogger);
     this.errorDeserializer = errorDeserializer ?? defaultErrorDeserializer;
-    this.verboseErrorMessage = verboseErrorMessage ?? false;
+    this.verboseErrorMessage = verboseErrorMessage ?? true;
     this.transport = factory(this.receivedMessage, this.errored, this.logger);
   }
 

@@ -23,21 +23,26 @@ export const serializedLMSExtendedErrorSchema = z.object({
   errorData: failOk(z.record(z.string(), z.unknown())).optional(),
   displayData: failOk(errorDisplayDataSchema).optional(),
   stack: failOk(z.string()).optional(),
+  rootTitle: failOk(z.string()).optional(),
 });
 export type SerializedLMSExtendedError = z.infer<typeof serializedLMSExtendedErrorSchema>;
 export function serializeError(error: any): SerializedLMSExtendedError {
   if (typeof error === "object") {
+    const title = error.title ?? error.message ?? "Unknown error";
     return serializedLMSExtendedErrorSchema.parse({
-      title: error.title ?? error.message ?? "Unknown error",
+      title,
       cause: error.cause,
       suggestion: error.suggestion,
       errorData: error.errorData,
       displayData: error.displayData,
       stack: error.stack,
+      rootTitle: title,
     });
   } else {
+    const title = String(error);
     return {
-      title: String(error),
+      title,
+      rootTitle: title,
     };
   }
 }
@@ -50,6 +55,7 @@ export function attachSerializedErrorData(
   serialized: SerializedLMSExtendedError,
 ): void {
   const untypedError = error as any;
+  untypedError.title = serialized.title;
   if (serialized.cause !== undefined) {
     untypedError.cause = serialized.cause;
   }
@@ -63,17 +69,25 @@ export function attachSerializedErrorData(
 export function fromSerializedError(
   error: SerializedLMSExtendedError,
   message = "Rehydrated error",
+  replacementStack?: string,
 ): Error {
-  const result = new Error(message) as any;
-  result.name = "RehydratedError";
+  const result = new Error(error.rootTitle) as any;
   attachSerializedErrorData(result, error);
   if (error.displayData !== undefined) {
     result.displayData = error.displayData;
   }
-  if (error.stack !== undefined) {
-    result.stack += "\n Caused By: " + error.stack;
+  if (replacementStack !== undefined) {
+    if (error.stack !== undefined) {
+      result.stack = `Error: ${message}\n${replacementStack}\n  Caused By: ${error.stack}`;
+    } else {
+      result.stack = `Error: ${message}\n${replacementStack}`;
+    }
   } else {
-    result.message += ` - caused by error without stack (${error.title})`;
+    if (error.stack !== undefined) {
+      result.stack += "\n  Caused By: " + error.stack;
+    } else {
+      result.message += ` - caused by error without stack (${error.title})`;
+    }
   }
   return result;
 }
