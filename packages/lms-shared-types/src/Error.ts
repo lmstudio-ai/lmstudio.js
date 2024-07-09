@@ -63,7 +63,7 @@ export function attachSerializedErrorData(
     untypedError.displayData = serialized.displayData;
   }
   if (serialized.stack !== undefined) {
-    untypedError.stack = serialized.stack;
+    untypedError.stack += "\n Caused By: " + serialized.stack;
   }
 }
 export function fromSerializedError(error: SerializedLMSExtendedError): Error {
