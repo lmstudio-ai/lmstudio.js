@@ -29,7 +29,11 @@ import {
   type WritableSignalEndpoint,
   type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication/dist/BackendInterface";
-import { fromSerializedError, type SerializedLMSExtendedError } from "@lmstudio/lms-shared-types";
+import {
+  fromSerializedError,
+  recreateSerializedError,
+  type SerializedLMSExtendedError,
+} from "@lmstudio/lms-shared-types";
 import { applyPatches, enablePatches, type Patch } from "immer";
 
 enablePatches();
@@ -68,14 +72,18 @@ interface OpenWritableSignalSubscription {
   stack?: string;
 }
 
-function defaultErrorDeserializer(serialized: SerializedLMSExtendedError, stack?: string): Error {
-  const error = fromSerializedError(serialized);
+function defaultErrorDeserializer(
+  serialized: SerializedLMSExtendedError,
+  directCause: string,
+  stack?: string,
+): Error {
   if (stack === undefined) {
-    changeErrorStackInPlace(error, "");
+    return fromSerializedError(serialized, directCause);
   } else {
+    const error = recreateSerializedError(serialized);
     changeErrorStackInPlace(error, stack);
+    return error;
   }
-  return error;
 }
 
 export class ClientPort<
@@ -95,7 +103,11 @@ export class ClientPort<
   private nextSubscribeId = 0;
   private nextWritableSubscribeId = 0;
   private producedCommunicationWarningsCount = 0;
-  private errorDeserializer: (serialized: SerializedLMSExtendedError, stack?: string) => Error;
+  private errorDeserializer: (
+    serialized: SerializedLMSExtendedError,
+    directCause: string,
+    stack?: string,
+  ) => Error;
   private verboseErrorMessage: boolean;
 
   public constructor(
@@ -113,7 +125,11 @@ export class ClientPort<
       verboseErrorMessage,
     }: {
       parentLogger?: LoggerInterface;
-      errorDeserializer?: (serialized: SerializedLMSExtendedError) => Error;
+      errorDeserializer?: (
+        serialized: SerializedLMSExtendedError,
+        directCause: string,
+        stack?: string,
+      ) => Error;
       verboseErrorMessage?: boolean;
     } = {},
   ) {
@@ -215,6 +231,7 @@ export class ClientPort<
     this.openChannels.delete(message.channelId);
     const error = this.errorDeserializer(
       message.error,
+      "Channel Error",
       this.verboseErrorMessage ? openChannel.stack : undefined,
     );
     openChannel.errored(error);
@@ -250,6 +267,7 @@ export class ClientPort<
     }
     const error = this.errorDeserializer(
       message.error,
+      "RPC Error",
       this.verboseErrorMessage ? ongoingRpc.stack : undefined,
     );
     ongoingRpc.reject(error);
@@ -321,6 +339,7 @@ export class ClientPort<
     }
     const error = this.errorDeserializer(
       message.error,
+      "Signal Error",
       this.verboseErrorMessage ? openSignalSubscription.stack : undefined,
     );
     openSignalSubscription.errored(error);
@@ -397,6 +416,7 @@ export class ClientPort<
     }
     const error = this.errorDeserializer(
       message.error,
+      "Writable Signal Error",
       this.verboseErrorMessage ? openSignalSubscription.stack : undefined,
     );
     openSignalSubscription.errored(error);

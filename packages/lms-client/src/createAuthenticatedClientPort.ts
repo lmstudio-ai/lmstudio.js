@@ -75,7 +75,11 @@ export function createAuthenticatedClientPort<
     errorDeserializer,
     verboseErrorMessage,
   }: {
-    errorDeserializer?: (serialized: SerializedLMSExtendedError) => Error;
+    errorDeserializer?: (
+      serialized: SerializedLMSExtendedError,
+      directCause: string,
+      stack?: string,
+    ) => Error;
     verboseErrorMessage?: boolean;
   } = {},
 ): ClientPort<TRpcEndpoints, TChannelEndpoints, TSignalEndpoints, TWritableSignalEndpoints> {

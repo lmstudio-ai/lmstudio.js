@@ -148,6 +148,7 @@ registerErrorDeserializer(
 
 export function friendlyErrorDeserializer(
   serialized: SerializedLMSExtendedError,
+  _directCause: string,
   stack?: string,
 ): Error {
   if (serialized.displayData === undefined) {

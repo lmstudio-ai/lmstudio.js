@@ -15,6 +15,7 @@ export {
   ErrorDisplayData,
   errorDisplayDataSchema,
   fromSerializedError,
+  recreateSerializedError,
   SerializedLMSExtendedError,
   serializedLMSExtendedErrorSchema,
   serializeError,

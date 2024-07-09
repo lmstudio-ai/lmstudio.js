@@ -59,16 +59,30 @@ export function attachSerializedErrorData(
   if (serialized.errorData !== undefined) {
     untypedError.errorData = serialized.errorData;
   }
-  if (serialized.displayData !== undefined) {
-    untypedError.displayData = serialized.displayData;
-  }
-  if (serialized.stack !== undefined) {
-    untypedError.stack += "\n Caused By: " + serialized.stack;
-  }
 }
-export function fromSerializedError(error: SerializedLMSExtendedError): Error {
+export function fromSerializedError(
+  error: SerializedLMSExtendedError,
+  message = "Rehydrated error",
+): Error {
+  const result = new Error(message) as any;
+  result.name = "RehydratedError";
+  attachSerializedErrorData(result, error);
+  if (error.displayData !== undefined) {
+    result.displayData = error.displayData;
+  }
+  if (error.stack !== undefined) {
+    result.stack += "\n Caused By: " + error.stack;
+  } else {
+    result.message += ` - caused by error without stack (${error.title})`;
+  }
+  return result;
+}
+/**
+ * Recreate an error as-is.
+ */
+export function recreateSerializedError(error: SerializedLMSExtendedError) {
   const result = new Error(error.title) as any;
-  result.name = "LMStudioError";
+  result.name = "LMSExtendedError";
   attachSerializedErrorData(result, error);
   return result;
 }
