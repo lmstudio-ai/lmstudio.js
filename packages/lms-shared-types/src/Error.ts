@@ -17,22 +17,24 @@ function failOk<T>(schema: ZodSchema<T>): ZodSchema<T | undefined> {
 }
 
 export const serializedLMSExtendedErrorSchema = z.object({
-  title: z.string(),
+  title: failOk(z.string()).default("Unknown error"),
   cause: failOk(z.string()).optional(),
   suggestion: failOk(z.string()).optional(),
   errorData: failOk(z.record(z.string(), z.unknown())).optional(),
   displayData: failOk(errorDisplayDataSchema).optional(),
+  stack: failOk(z.string()).optional(),
 });
 export type SerializedLMSExtendedError = z.infer<typeof serializedLMSExtendedErrorSchema>;
 export function serializeError(error: any): SerializedLMSExtendedError {
   if (typeof error === "object") {
-    return {
+    return serializedLMSExtendedErrorSchema.parse({
       title: error.title ?? error.message ?? "Unknown error",
       cause: error.cause,
       suggestion: error.suggestion,
       errorData: error.errorData,
       displayData: error.displayData,
-    };
+      stack: error.stack,
+    });
   } else {
     return {
       title: String(error),
@@ -56,6 +58,12 @@ export function attachSerializedErrorData(
   }
   if (serialized.errorData !== undefined) {
     untypedError.errorData = serialized.errorData;
+  }
+  if (serialized.displayData !== undefined) {
+    untypedError.displayData = serialized.displayData;
+  }
+  if (serialized.stack !== undefined) {
+    untypedError.stack = serialized.stack;
   }
 }
 export function fromSerializedError(error: SerializedLMSExtendedError): Error {
