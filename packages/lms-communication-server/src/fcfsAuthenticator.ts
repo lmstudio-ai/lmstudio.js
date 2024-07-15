@@ -106,14 +106,14 @@ export class FcfsClient {
     }
     const holder = new FcfsClientHolder(this);
     this.clientHoldersFinalizationRegistry.register(holder, undefined, holder);
-    this.logger.debug("Holder created, references:", this.references);
+    // this.logger.debug("Holder created, references:", this.references);
     return holder;
   }
   private decreaseReferences() {
     this.references--;
-    this.logger.debug("Holder released, references:", this.references);
+    // this.logger.debug("Holder released, references:", this.references);
     if (this.references === 0) {
-      this.logger.debug("All holders released, releasing the client.");
+      this.logger.debug("Client disconnected.");
       this.onRelease(this);
     }
   }
