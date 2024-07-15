@@ -78,13 +78,15 @@ export function fromSerializedError(
   }
   if (replacementStack !== undefined) {
     if (error.stack !== undefined) {
-      result.stack = `Error: ${message}\n${replacementStack}\n  Caused By: ${error.stack}`;
+      result.stack = `Error: ${message}\n${replacementStack}\n- Caused By: ${error.stack}`;
     } else {
       result.stack = `Error: ${message}\n${replacementStack}`;
     }
   } else {
     if (error.stack !== undefined) {
-      result.stack += "\n  Caused By: " + error.stack;
+      result.stack =
+        `Error: ${message}\n${result.stack.substring(error.stack.indexOf("\n") + 1)}\n- Caused By: ` +
+        error.stack;
     } else {
       result.message += ` - caused by error without stack (${error.title})`;
     }
