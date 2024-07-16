@@ -3,7 +3,7 @@ export {
   collapseKVStack,
   collapseKVStackRaw,
   combineKVStack,
-  emptyKVConfig,
+  emptyKVConfig
 } from "./KVConfig";
 export {
   GlobalConfigSchemaKeys,
@@ -19,7 +19,9 @@ export {
   llmLlamaLoadConfigSchematics,
   llmLlamaMoeLoadConfigSchematics,
   llmLlamaPredictionConfigSchematics,
+  llmMlxLoadConfigSchematics,
+  llmMlxPredictionConfigSchematics,
   llmSharedLoadConfigSchematics,
-  llmSharedPredictionConfigSchematics,
+  llmSharedPredictionConfigSchematics
 } from "./schema";
 export { kvValueTypesLibrary } from "./valueTypes";

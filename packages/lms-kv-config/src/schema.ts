@@ -87,7 +87,8 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { checked: false, value: 0.9 },
           )
           .field("logitBias", "llamaLogitBias", undefined, []),
-      ),
+      )
+      .scope("mlx", builder => builder.field("repeatPenalty", "numeric", { min: 1 }, 1.1)),
   )
   .scope("llm.load", builder =>
     builder
@@ -97,11 +98,16 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .scope("llama", builder =>
         builder
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
-          .field("gpuOffload", "llamaGpuOffload", {}, {
-            ratio: "auto",
-            mainGpu: 0,
-            tensorSplit: [0],
-          })
+          .field(
+            "gpuOffload",
+            "llamaGpuOffload",
+            {},
+            {
+              ratio: "auto",
+              mainGpu: 0,
+              tensorSplit: [0],
+            },
+          )
           .field("flashAttention", "boolean", undefined, false)
           .field("ropeFrequencyBase", "numeric", {}, 0)
           .field("ropeFrequencyScale", "numeric", {}, 0)
@@ -120,16 +126,17 @@ const llmPrediction = globalConfigSchematics.scoped("llm.prediction");
 
 export const llmSharedPredictionConfigSchematics = llmPrediction.sliced(
   "temperature",
-  "contextOverflowPolicy",
   "maxPredictedTokens",
-  "stopStrings",
-  "structured",
   "promptTemplate",
   "systemPrompt",
 );
 
 export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPrediction.sliced("llama.*", "seed"),
+  llmPrediction.sliced("llama.*", "contextOverflowPolicy", "seed", "stopStrings", "structured"),
+);
+
+export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
+  llmPrediction.sliced("mlx.*", "seed"),
 );
 
 const llmLoad = globalConfigSchematics.scoped("llm.load");
@@ -138,6 +145,10 @@ export const llmSharedLoadConfigSchematics = llmLoad.sliced("contextLength");
 
 export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
   llmLoad.sliced("llama.*", "seed"),
+);
+
+export const llmMlxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
+  llmLoad.sliced("mlx.*"),
 );
 
 const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoad.sliced("numExperts");
