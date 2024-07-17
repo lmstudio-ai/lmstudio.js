@@ -22,6 +22,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
           step: z.number(),
         })
         .optional(),
+      hidden: z.boolean().optional(),
       shortHand: z.string().optional(),
     }),
     schemaMaker: ({ min, max, int }) => {
@@ -50,6 +51,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
           step: z.number(),
         })
         .optional(),
+      hidden: z.boolean().optional(),
     }),
     schemaMaker: ({ min, max, int }) => {
       let numberSchema = z.number();
@@ -72,6 +74,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
     paramType: z.object({
       minLength: z.number().optional(),
       maxLength: z.number().optional(),
+      hidden: z.boolean().optional(),
     }),
     schemaMaker: ({ minLength, maxLength }) => {
       let schema = z.string();
@@ -97,6 +100,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
        * Whether to allow empty strings in the array. Default is false.
        */
       allowEmptyStrings: z.boolean().optional(),
+      hidden: z.boolean().optional(),
     }),
     schemaMaker: ({ maxNumItems, allowEmptyStrings }) => {
       let stringSchema = z.string();
@@ -131,6 +135,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
   .valueType("llamaGpuOffload", {
     paramType: z.object({
       numLayers: z.number().optional(),
+      hidden: z.boolean().optional(),
     }),
     schemaMaker: () => {
       return llmLlamaAccelerationSettingSchema;
