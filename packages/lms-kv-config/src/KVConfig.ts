@@ -459,6 +459,10 @@ export class KVConfigSchematics<
     return new KVConfigBuilder(this.baseKey);
   }
 
+  public clone(): KVConfigSchematics<TKVFieldValueTypeLibraryMap, TKVConfigSchema, TBaseKey> {
+    return new KVConfigSchematics(this.valueTypeLibrary, new Map(this.fields), this.baseKey);
+  }
+
   public withTypeParamOverride<
     TKey extends keyof TKVConfigSchema & string,
     TParam extends TKVFieldValueTypeLibraryMap[TKVConfigSchema[TKey]["valueTypeKey"]]["param"],
@@ -467,7 +471,8 @@ export class KVConfigSchematics<
     if (field === undefined) {
       throw new Error(`Field with key ${this.baseKey + key} does not exist`);
     }
-    this.fields.set(key, {
+    const clone = this.clone();
+    clone.fields.set(key, {
       ...field,
       valueTypeParams: paramMapper(field.valueTypeParams),
       schema: this.valueTypeLibrary.getSchema(
@@ -475,7 +480,7 @@ export class KVConfigSchematics<
         paramMapper(field.valueTypeParams),
       ),
     });
-    return this;
+    return clone;
   }
 }
 
