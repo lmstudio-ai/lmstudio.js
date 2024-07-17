@@ -129,22 +129,23 @@ export const llmSharedPredictionConfigSchematics = llmPrediction.sliced(
   "maxPredictedTokens",
   "promptTemplate",
   "systemPrompt",
+  "seed",
 );
 
 export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPrediction.sliced("llama.*", "contextOverflowPolicy", "seed", "stopStrings", "structured"),
+  llmPrediction.sliced("llama.*", "contextOverflowPolicy", "stopStrings", "structured"),
 );
 
 export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPrediction.sliced("mlx.*", "seed"),
+  llmPrediction.sliced("mlx.*"),
 );
 
 const llmLoad = globalConfigSchematics.scoped("llm.load");
 
-export const llmSharedLoadConfigSchematics = llmLoad.sliced("contextLength");
+export const llmSharedLoadConfigSchematics = llmLoad.sliced("contextLength", "seed");
 
 export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
-  llmLoad.sliced("llama.*", "seed"),
+  llmLoad.sliced("llama.*"),
 );
 
 export const llmMlxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
