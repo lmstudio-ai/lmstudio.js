@@ -21,6 +21,8 @@ export {
   llmLlamaPredictionConfigSchematics,
   llmMlxLoadConfigSchematics,
   llmMlxPredictionConfigSchematics,
+  llmOnnxLoadConfigSchematics,
+  llmOnnxPredictionConfigSchematics,
   llmSharedLoadConfigSchematics,
   llmSharedPredictionConfigSchematics
 } from "./schema";

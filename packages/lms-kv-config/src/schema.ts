@@ -88,7 +88,23 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           )
           .field("logitBias", "llamaLogitBias", undefined, []),
       )
-      .scope("mlx", builder => builder.field("repeatPenalty", "numeric", { min: 1 }, 1.1)),
+      .scope("mlx", builder => builder.field("repeatPenalty", "numeric", { min: 1 }, 1.1))
+      .scope("onnx", builder =>
+        builder
+          .field(
+            "topKSampling",
+            "checkboxNumeric",
+            { min: 0, max: 5000, slider: { min: 1, max: 5000, step: 1 } },
+            { checked: false, value: 40 },
+          )
+          .field("repeatPenalty", "numeric", { min: 1 }, 1.1)
+          .field(
+            "topPSampling",
+            "checkboxNumeric",
+            { min: 0, max: 1, slider: { min: 0.01, max: 1, step: 0.01 } },
+            { checked: false, value: 0.95 },
+          )
+      ),
   )
   .scope("llm.load", builder =>
     builder
@@ -140,6 +156,10 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
   llmPrediction.sliced("mlx.*"),
 );
 
+export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
+  llmPrediction.sliced("onnx.*"),
+);
+
 const llmLoad = globalConfigSchematics.scoped("llm.load");
 
 export const llmSharedLoadConfigSchematics = llmLoad.sliced("contextLength", "seed");
@@ -150,6 +170,10 @@ export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
 
 export const llmMlxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
   llmLoad.sliced("mlx.*"),
+);
+
+export const llmOnnxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
+  llmLoad.sliced("onnx.*"),
 );
 
 const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoad.sliced("numExperts");
