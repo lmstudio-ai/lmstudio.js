@@ -82,6 +82,8 @@ export {
   llmResolvedPredictionConfigSchema,
 } from "./llm/LLMPredictionConfig";
 export {
+  LLMGenInfo,
+  llmGenInfoSchema,
   LLMPredictionStats,
   llmPredictionStatsSchema,
   LLMPredictionStopReason,
@@ -97,6 +99,35 @@ export {
   LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,
 } from "./llm/LLMStructuredPredictionSetting";
+export {
+  GetModelOpts,
+  getModelOptsSchema,
+  ResolvedGetModelOpts,
+  resolvedGetModelOptsSchema,
+} from "./llm/processor/Processor";
+export {
+  ProcessorInputContext,
+  processorInputContextSchema,
+  ProcessorInputFile,
+  processorInputFileSchema,
+  ProcessorInputFileType,
+  processorInputFileTypeSchema,
+  ProcessorInputMessage,
+  ProcessorInputMessageRole,
+  processorInputMessageRoleSchema,
+  processorInputMessageSchema,
+} from "./llm/processor/ProcessorInput";
+export {
+  CitationSource,
+  citationSourceSchema,
+  PromptPreprocessorUpdate,
+  PromptPreprocessorUpdateOf,
+  promptPreprocessorUpdateSchema,
+  StatusStepState,
+  statusStepStateSchema,
+  StatusStepStatus,
+  statusStepStatusSchema,
+} from "./llm/processor/PromptPreprocessorUpdate";
 export {
   ModelDomainType as ModelDomain,
   modelDomainTypeSchema as modelDomainSchema,

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type KVConfig, kvConfigSchema } from "../KVConfig";
 
 /**
  * Represents the reason why a prediction stopped. Only the following values are possible:
@@ -97,4 +98,19 @@ export interface LLMPredictionStats {
    * The total number of tokens. This is the sum of the prompt tokens and the predicted tokens.
    */
   totalTokensCount?: number;
+}
+
+export const llmGenInfoSchema = z.object({
+  indexedModelIdentifier: z.string(),
+  identifier: z.string(),
+  loadModelConfig: kvConfigSchema,
+  predictionConfig: kvConfigSchema,
+  stats: llmPredictionStatsSchema,
+});
+export interface LLMGenInfo {
+  indexedModelIdentifier: string;
+  identifier: string;
+  loadModelConfig: KVConfig;
+  predictionConfig: KVConfig;
+  stats: LLMPredictionStats;
 }

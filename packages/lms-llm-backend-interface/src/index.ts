@@ -4,11 +4,15 @@ import {
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
+  llmContextSchema,
   llmDescriptorSchema,
   llmPredictionStatsSchema,
   modelSpecifierSchema,
+  processorInputContextSchema,
+  processorInputMessageSchema,
+  promptPreprocessorUpdateSchema,
+  serializedLMSExtendedErrorSchema,
 } from "@lmstudio/lms-shared-types";
-import { llmContextSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMChatHistory";
 import { z } from "zod";
 
 export function createLlmBackendInterface() {
@@ -118,6 +122,40 @@ export function createLlmBackendInterface() {
       returns: z.object({
         tokens: z.array(z.number()),
       }),
+    })
+    .addChannelEndpoint("registerPromptPreprocessor", {
+      creationParameter: z.object({
+        identifier: z.string(),
+      }),
+      toClientPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("preprocess"),
+          taskId: z.string(),
+          context: processorInputContextSchema,
+          userInput: processorInputMessageSchema,
+        }),
+        z.object({
+          type: z.literal("cancel"),
+          taskId: z.string(),
+        }),
+      ]),
+      toServerPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("update"),
+          taskId: z.string(),
+          update: promptPreprocessorUpdateSchema,
+        }),
+        z.object({
+          type: z.literal("complete"),
+          taskId: z.string(),
+          processed: processorInputMessageSchema,
+        }),
+        z.object({
+          type: z.literal("error"),
+          taskId: z.string(),
+          error: serializedLMSExtendedErrorSchema,
+        }),
+      ]),
     });
 }
 

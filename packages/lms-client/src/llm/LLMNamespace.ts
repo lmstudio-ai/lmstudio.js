@@ -4,8 +4,8 @@ import {
   makePromise,
   SimpleLogger,
   text,
+  Validator,
   type LoggerInterface,
-  type Validator,
 } from "@lmstudio/lms-common";
 import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
@@ -13,16 +13,24 @@ import {
   llmLlamaLoadModelConfigSchema,
   logLevelSchema,
   modelQuerySchema,
+  processorInputMessageSchema,
   reasonableKeyStringSchema,
+  serializeError,
   type LLMDescriptor,
   type LLMLlamaLoadModelConfig,
   type LLMLoadModelConfig,
   type LogLevel,
   type ModelQuery,
+  type ProcessorInputMessage,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 import { LLMSpecificModel } from "./LLMSpecificModel";
+import {
+  PromptPreprocessController,
+  type PromptCoPreprocessor,
+} from "./processor/PormptPreprocessorController";
+import { type PromptPreprocessor } from "./processor/PromptPreprocessor";
 
 /** @public */
 export interface LLMLoadModelOpts {
@@ -497,6 +505,117 @@ export class LLMNamespace {
       },
       this.validator,
       new SimpleLogger("DynamicHandle", this.logger),
+    );
+  }
+
+  public unstable_registerPromptPreprocessor(promptPreprocessor: PromptPreprocessor) {
+    // TODO: Check types of promptPreprocessor
+    const stack = getCurrentStack(1);
+
+    const logger = new SimpleLogger(
+      `Prompt Preprocessor - ${promptPreprocessor.identifier}`,
+      this.logger,
+    );
+    logger.info("Register to LM Studio");
+
+    interface OngoingPreprocessTask {
+      cancel: () => void;
+    }
+
+    const tasks = new Map<string, OngoingPreprocessTask>();
+    const channel = this.llmPort.createChannel(
+      "registerPromptPreprocessor",
+      {
+        identifier: promptPreprocessor.identifier,
+      },
+      message => {
+        switch (message.type) {
+          case "preprocess": {
+            logger.info(`Received preprocess request ${message.taskId}`);
+            const coPreprocessor: PromptCoPreprocessor = {
+              handleUpdate: update => {
+                channel.send({
+                  type: "update",
+                  taskId: message.taskId,
+                  update,
+                });
+              },
+            };
+            const abortController = new AbortController();
+            const controller = new PromptPreprocessController(
+              coPreprocessor,
+              message.context,
+              message.userInput,
+              abortController.signal,
+            );
+            tasks.set(message.taskId, {
+              cancel: () => {
+                abortController.abort();
+              },
+            });
+            promptPreprocessor
+              .preprocess(controller)
+              .then(result => {
+                logger.info(`Preprocess request ${message.taskId} completed`);
+                const parsedReturned = z
+                  .union([z.string(), processorInputMessageSchema])
+                  .safeParse(result);
+                if (!parsedReturned.success) {
+                  throw new Error(
+                    "Prompt preprocessor returned an invalid value:" +
+                      Validator.prettyPrintZod("result", parsedReturned.error),
+                  );
+                }
+                const returned = parsedReturned.data;
+                let processed: ProcessorInputMessage;
+                if (typeof returned === "string") {
+                  processed = {
+                    role: "user",
+                    text: returned,
+                    files: message.userInput.files,
+                  };
+                } else {
+                  processed = returned;
+                }
+
+                console.info(processed);
+
+                channel.send({
+                  type: "complete",
+                  taskId: message.taskId,
+                  processed,
+                });
+              })
+              .catch(error => {
+                if (error.name === "AbortError") {
+                  logger.info(`Preprocess request ${message.taskId} aborted`);
+                  return;
+                }
+                logger.warn(`Preprocess request ${message.taskId} failed`, error);
+                channel.send({
+                  type: "error",
+                  taskId: message.taskId,
+                  error: serializeError(error),
+                });
+              })
+              .finally(() => {
+                tasks.delete(message.taskId);
+                controller.end();
+              });
+            break;
+          }
+          case "cancel": {
+            logger.info(`Received cancel request ${message.taskId}`);
+            const task = tasks.get(message.taskId);
+            if (task !== undefined) {
+              task.cancel();
+              tasks.delete(message.taskId);
+            }
+            break;
+          }
+        }
+      },
+      { stack },
     );
   }
 }
