@@ -204,7 +204,7 @@ export class LLMDynamicHandle {
    * Example usage as a promise (Resolves to a {@link PredictionResult}):
    *
    * ```typescript
-   * const history = [{ type: 'user', content: "When will The Winds of Winter be released?" }];
+   * const history = [{ role: 'user', content: "When will The Winds of Winter be released?" }];
    * const result = await model.respond(history);
    * console.log(result.content);
    * ```
@@ -212,7 +212,7 @@ export class LLMDynamicHandle {
    * Or
    *
    * ```typescript
-   * const history = [{ type: 'user', content: "When will The Winds of Winter be released?" }];
+   * const history = [{ role: 'user', content: "When will The Winds of Winter be released?" }];
    * model.respond(history)
    *  .then(result => console.log(result.content))
    *  .catch(error => console.error(error));
@@ -221,7 +221,7 @@ export class LLMDynamicHandle {
    * Example usage as an async iterable (streaming):
    *
    * ```typescript
-   * const history = [{ type: 'user', content: "When will The Winds of Winter be released?" }];
+   * const history = [{ role: 'user', content: "When will The Winds of Winter be released?" }];
    * for await (const fragment of model.respond(history)) {
    *   process.stdout.write(fragment);
    * }
@@ -231,7 +231,7 @@ export class LLMDynamicHandle {
    * you wish to get the prediction stats), you can use the following pattern:
    *
    * ```typescript
-   * const history = [{ type: 'user', content: "When will The Winds of Winter be released?" }];
+   * const history = [{ role: 'user', content: "When will The Winds of Winter be released?" }];
    * const prediction = model.respond(history);
    * for await (const fragment of prediction) {
    *   process.stdout.write(fragment);
