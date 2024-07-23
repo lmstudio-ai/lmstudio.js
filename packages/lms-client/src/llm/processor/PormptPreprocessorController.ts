@@ -45,6 +45,10 @@ interface PredictionStepController {
   [ensureEnded](): void;
 }
 
+function createId() {
+  return `${Date.now()}-${Math.random()}`;
+}
+
 export interface PromptCoPreprocessor {
   handleUpdate: (update: PromptPreprocessorUpdate) => void;
   // getLLM: (opts: GetModelOpts) => Promise<LLMDynamicHandle>;
@@ -59,9 +63,6 @@ export class PromptPreprocessController {
     private readonly userMessage: ProcessorInputMessage,
     public readonly abortSignal: AbortSignal,
   ) {}
-  private createId() {
-    return `${Date.now()}-${Math.random()}`;
-  }
   public sendUpdate(update: PromptPreprocessorUpdate) {
     if (this.hasEnded()) {
       throw new Error("Prediction process has ended.");
@@ -91,7 +92,7 @@ export class PromptPreprocessController {
   }
 
   public createStatus(initialState: StatusStepState): PredictionProcessStatusController {
-    const id = this.createId();
+    const id = createId();
     this.sendUpdate({
       type: "status.create",
       id,
@@ -106,7 +107,7 @@ export class PromptPreprocessController {
     citedText: string,
     source: CitationSource,
   ): PredictionProcessCitationBlockController {
-    const id = this.createId();
+    const id = createId();
     this.sendUpdate({
       type: "citationBlock.create",
       id,
@@ -119,7 +120,7 @@ export class PromptPreprocessController {
   }
 
   public createDebugInfoBlock(debugInfo: string): PredictionProcessDebugInfoBlockController {
-    const id = this.createId();
+    const id = createId();
     this.sendUpdate({
       type: "debugInfoBlock.create",
       id,
@@ -139,9 +140,11 @@ export class PredictionProcessStatusController implements PredictionStepControll
     private readonly controller: PromptPreprocessController,
     initialState: StatusStepState,
     private readonly id: string,
+    private readonly indentation: number = 0,
   ) {
     this.lastState = initialState;
   }
+  private lastSubStatus: PredictionProcessStatusController = this;
   private lastState: StatusStepState;
   public [ensureEnded]() {
     if (["loading", "waiting"].includes(this.lastState.status)) {
@@ -151,6 +154,14 @@ export class PredictionProcessStatusController implements PredictionStepControll
       });
     }
   }
+  public setText(text: string) {
+    this.lastState.text = text;
+    this.controller.sendUpdate({
+      type: "status.update",
+      id: this.id,
+      state: this.lastState,
+    });
+  }
   public setState(state: StatusStepState) {
     this.lastState = state;
     this.controller.sendUpdate({
@@ -158,6 +169,34 @@ export class PredictionProcessStatusController implements PredictionStepControll
       id: this.id,
       state,
     });
+  }
+  private getNestedLastSubStatusBlockId() {
+    let current = this.lastSubStatus;
+    while (current !== current.lastSubStatus) {
+      current = current.lastSubStatus;
+    }
+    return current.id;
+  }
+  public addSubStatus(initialState: StatusStepState): PredictionProcessStatusController {
+    const id = createId();
+    this.controller.sendUpdate({
+      type: "status.create",
+      id,
+      state: initialState,
+      location: {
+        type: "afterId",
+        id: this.getNestedLastSubStatusBlockId(),
+      },
+      indentation: this.indentation + 1,
+    });
+    const controller = new PredictionProcessStatusController(
+      this.controller,
+      initialState,
+      id,
+      this.indentation + 1,
+    );
+    this.lastSubStatus = controller;
+    return controller;
   }
 }
 

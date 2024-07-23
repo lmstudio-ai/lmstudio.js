@@ -1,5 +1,25 @@
 import { z } from "zod";
 
+export type BlockLocation =
+  | {
+      type: "beforeId";
+      id: string;
+    }
+  | {
+      type: "afterId";
+      id: string;
+    };
+export const blockLocationSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("beforeId"),
+    id: z.string(),
+  }),
+  z.object({
+    type: z.literal("afterId"),
+    id: z.string(),
+  }),
+]) as z.Schema<BlockLocation>;
+
 // Status
 
 export type StatusStepStatus = "waiting" | "loading" | "done" | "error" | "canceled";
@@ -20,23 +40,27 @@ export const statusStepStateSchema = z.object({
   text: z.string(),
 }) as z.Schema<StatusStepState>;
 
-type PromptPreprocessorUpdateStatusCreate = {
+export type PromptPreprocessorUpdateStatusCreate = {
   type: "status.create";
   id: string;
   state: StatusStepState;
+  location?: BlockLocation;
+  indentation?: number;
 };
-const promptPreprocessorUpdateStatusCreateSchema = z.object({
+export const promptPreprocessorUpdateStatusCreateSchema = z.object({
   type: z.literal("status.create"),
   id: z.string(),
   state: statusStepStateSchema,
+  location: blockLocationSchema.optional(),
+  indentation: z.number().optional(),
 });
 
-type PromptPreprocessorUpdateStatusUpdate = {
+export type PromptPreprocessorUpdateStatusUpdate = {
   type: "status.update";
   id: string;
   state: StatusStepState;
 };
-const promptPreprocessorUpdateStatusUpdateSchema = z.object({
+export const promptPreprocessorUpdateStatusUpdateSchema = z.object({
   type: z.literal("status.update"),
   id: z.string(),
   state: statusStepStateSchema,
@@ -57,13 +81,13 @@ export const citationSourceSchema = z.object({
   lineNumber: z.union([z.number(), z.array(z.number())]).optional(),
 }) as z.Schema<CitationSource>;
 
-type PromptPreprocessorUpdateCitationBlockCreate = {
+export type PromptPreprocessorUpdateCitationBlockCreate = {
   type: "citationBlock.create";
   id: string;
   citedText: string;
   source: CitationSource;
 };
-const promptPreprocessorUpdateCitationBlockCreateSchema = z.object({
+export const promptPreprocessorUpdateCitationBlockCreateSchema = z.object({
   type: z.literal("citationBlock.create"),
   id: z.string(),
   citedText: z.string(),
@@ -72,12 +96,12 @@ const promptPreprocessorUpdateCitationBlockCreateSchema = z.object({
 
 // Debug Info Block
 
-type PromptPreprocessorUpdateDebugInfoBlockCreate = {
+export type PromptPreprocessorUpdateDebugInfoBlockCreate = {
   type: "debugInfoBlock.create";
   id: string;
   debugInfo: string;
 };
-const promptPreprocessorUpdateDebugInfoBlockCreateSchema = z.object({
+export const promptPreprocessorUpdateDebugInfoBlockCreateSchema = z.object({
   type: z.literal("debugInfoBlock.create"),
   id: z.string(),
   debugInfo: z.string(),

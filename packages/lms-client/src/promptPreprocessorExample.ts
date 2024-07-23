@@ -12,7 +12,31 @@ class A implements PromptPreprocessor {
       status: "loading",
       text: "toUppercase...",
     });
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    const aaa = waiting.addSubStatus({
+      status: "waiting",
+      text: "aaa",
+    });
+    const bbb = aaa.addSubStatus({
+      status: "waiting",
+      text: "bbb",
+    });
+    const ccc = waiting.addSubStatus({
+      status: "waiting",
+      text: "ccc",
+    });
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    aaa.setState({
+      status: "done",
+      text: "aaa",
+    });
+    bbb.setState({
+      status: "done",
+      text: "bbb",
+    });
+    ccc.setState({
+      status: "done",
+      text: "ccc",
+    });
     waiting.setState({
       status: "done",
       text: "toUppercase..." + text,

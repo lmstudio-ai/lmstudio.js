@@ -103,7 +103,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             "checkboxNumeric",
             { min: 0, max: 1, slider: { min: 0.01, max: 1, step: 0.01 } },
             { checked: false, value: 0.95 },
-          )
+          ),
       ),
   )
   .scope("llm.load", builder =>
