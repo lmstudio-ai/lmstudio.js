@@ -23,6 +23,10 @@ export const llmChatHistoryMessageContentPartSchema = z.discriminatedUnion("type
   }),
 ]);
 
+/**
+ * Represents the content of a message in the history.
+ * @public
+ */
 export type LLMChatHistoryMessageContent = Array<LLMChatHistoryMessageContentPart>;
 export const llmChatHistoryMessageContentSchema = z.array(llmChatHistoryMessageContentPartSchema);
 
@@ -65,6 +69,11 @@ export const llmChatHistoryMessageSchema = z.object({
 export type LLMChatHistory = Array<LLMChatHistoryMessage>;
 export const llmChatHistorySchema = z.array(llmChatHistoryMessageSchema);
 
+/**
+ * Represents a raw context object that can be fed into the model.
+ *
+ * @public
+ */
 export interface LLMContext {
   history: LLMChatHistory;
 }
@@ -83,5 +92,11 @@ export const llmConversationContextInputSchema = z.array(
   }),
 );
 
+/**
+ * Represents the input context for a completion request. This is a string that represents the
+ * entire conversation history.
+ *
+ * @public
+ */
 export type LLMCompletionContextInput = string;
 export const llmCompletionContextInputSchema = z.string();

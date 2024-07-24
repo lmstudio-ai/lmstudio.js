@@ -9,6 +9,10 @@ export const kvConfigFieldSchema = z.object({
   value: z.any(),
 });
 
+/**
+ * TODO: Documentation
+ * @public
+ */
 export interface KVConfig {
   fields: Array<KVConfigField>;
 }

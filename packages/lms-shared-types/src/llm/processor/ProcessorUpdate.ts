@@ -64,15 +64,6 @@ export type ProcessorUpdateDebugInfoBlockCreate = PromptPreprocessorUpdateDebugI
 export const processorUpdateDebugInfoBlockCreateSchema =
   promptPreprocessorUpdateDebugInfoBlockCreateSchema;
 
-// Status clear (temp)
-
-export type ProcessorUpdateClearStatus = {
-  type: "clearStatus";
-};
-export const processorUpdateClearStatusSchema = z.object({
-  type: z.literal("clearStatus"),
-});
-
 // Combined
 
 export type ProcessorUpdate =
@@ -82,8 +73,7 @@ export type ProcessorUpdate =
   | ProcessorUpdateStatusCreate
   | ProcessorUpdateStatusUpdate
   | ProcessorUpdateCitationBlockCreate
-  | ProcessorUpdateDebugInfoBlockCreate
-  | ProcessorUpdateClearStatus;
+  | ProcessorUpdateDebugInfoBlockCreate;
 export const processorUpdateSchema = z.discriminatedUnion("type", [
   processorUpdateContentBlockCreateSchema,
   processorUpdateContentBlockAppendTextSchema,
@@ -92,7 +82,6 @@ export const processorUpdateSchema = z.discriminatedUnion("type", [
   processorUpdateStatusUpdateSchema,
   processorUpdateCitationBlockCreateSchema,
   processorUpdateDebugInfoBlockCreateSchema,
-  processorUpdateClearStatusSchema,
 ]) as z.Schema<ProcessorUpdate>;
 
 export type ProcessorUpdateOf<TType extends ProcessorUpdate["type"]> = Extract<

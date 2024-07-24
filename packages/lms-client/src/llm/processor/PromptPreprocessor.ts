@@ -1,5 +1,5 @@
 import { type ProcessorInputMessage } from "@lmstudio/lms-shared-types";
-import { type PromptPreprocessController } from "./PormptPreprocessorController";
+import { type PromptPreprocessController } from "./PromptPreprocessorController";
 
 export interface PromptPreprocessor {
   readonly identifier: string;

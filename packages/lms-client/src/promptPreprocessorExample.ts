@@ -1,5 +1,5 @@
-import { type PromptPreprocessController } from "./llm/processor/PormptPreprocessorController";
 import { type PromptPreprocessor } from "./llm/processor/PromptPreprocessor";
+import { type PromptPreprocessController } from "./llm/processor/PromptPreprocessorController";
 import { LMStudioClient } from "./LMStudioClient";
 
 class A implements PromptPreprocessor {

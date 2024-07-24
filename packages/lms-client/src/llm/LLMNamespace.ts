@@ -26,11 +26,11 @@ import {
 import { z } from "zod";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 import { LLMSpecificModel } from "./LLMSpecificModel";
+import { type PromptPreprocessor } from "./processor/PromptPreprocessor";
 import {
   PromptPreprocessController,
   type PromptCoPreprocessor,
-} from "./processor/PormptPreprocessorController";
-import { type PromptPreprocessor } from "./processor/PromptPreprocessor";
+} from "./processor/PromptPreprocessorController";
 
 /** @public */
 export interface LLMLoadModelOpts {

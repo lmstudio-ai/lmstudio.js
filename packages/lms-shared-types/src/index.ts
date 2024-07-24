@@ -121,8 +121,6 @@ export {
   ProcessorUpdate,
   ProcessorUpdateCitationBlockCreate,
   processorUpdateCitationBlockCreateSchema,
-  ProcessorUpdateClearStatus,
-  processorUpdateClearStatusSchema,
   ProcessorUpdateContentBlockAppendText,
   processorUpdateContentBlockAppendTextSchema,
   ProcessorUpdateContentBlockAttachGenInfo,
