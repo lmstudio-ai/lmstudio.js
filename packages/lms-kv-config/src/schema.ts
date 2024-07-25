@@ -132,6 +132,17 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field("tryMmap", "boolean", undefined, true),
       ),
   )
+  .scope("embedding.load", builder =>
+    builder
+      .field("contextLength", "numeric", { min: 1, int: true }, 2048)
+      .field("seed", "numeric", { int: true }, -1)
+      .scope("llama", builder =>
+        builder
+          .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
+          .field("keepModelInMemory", "boolean", undefined, true)
+          .field("tryMmap", "boolean", undefined, true),
+      ),
+  )
   .build();
 
 // ------------------------------------
@@ -180,6 +191,14 @@ const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoad.sliced("numExperts");
 
 export const llmLlamaMoeLoadConfigSchematics = llmLlamaLoadConfigSchematics.union(
   llmLlamaMoeAdditionalLoadConfigSchematics,
+);
+
+const embeddingLoad = globalConfigSchematics.scoped("embedding.load");
+
+export const embeddingSharedLoadConfigSchematics = embeddingLoad.sliced("contextLength", "seed");
+
+export const embeddingLlamaLoadConfigSchematics = embeddingSharedLoadConfigSchematics.union(
+  embeddingLoad.sliced("llama.*"),
 );
 
 export const emptyConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary).build();
