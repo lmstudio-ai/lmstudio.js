@@ -81,12 +81,7 @@ export {
   LLMPredictionStopReason,
   llmPredictionStopReasonSchema,
 } from "./llm/LLMPredictionStats";
-export {
-  LLMLegacyPromptTemplate,
-  llmLegacyPromptTemplateSchema,
-  LLMPromptTemplate,
-  llmPromptTemplateSchema,
-} from "./llm/LLMPromptTemplate";
+export { LLMPromptTemplate, llmPromptTemplateSchema } from "./llm/LLMPromptTemplate";
 export {
   LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,

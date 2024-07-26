@@ -1,25 +1,41 @@
 import { z } from "zod";
 
-/**
- * Currently not supported. We might remove it in the future.
- */
-export interface LLMLegacyPromptTemplate {
-  type: "legacy";
-  inputPrefix: string;
-  inputSuffix: string;
-  prePromptPrefix: string;
-  prePromptSuffix: string;
+export interface LLMManualPromptTemplate {
+  /**
+   * String to be prepended to the system prompt.
+   */
+  beforeSystem: string;
+  /**
+   * String to be appended to the system prompt.
+   */
+  afterSystem: string;
+  /**
+   * String to be prepended to a user message.
+   */
+  beforeUser: string;
+  /**
+   * String to be appended to a user message.
+   */
+  afterUser: string;
+  /**
+   * String to be prepended to an assistant message.
+   */
+  beforeAssistant: string;
+  /**
+   * String to be appended to an assistant message.
+   */
+  afterAssistant: string;
 }
-export const llmLegacyPromptTemplateSchema = z.object({
-  type: z.literal("legacy"),
-  inputPrefix: z.string(),
-  inputSuffix: z.string(),
-  prePromptPrefix: z.string(),
-  prePromptSuffix: z.string(),
+export const llmManualPromptTemplateSchema = z.object({
+  beforeSystem: z.string(),
+  afterSystem: z.string(),
+  beforeUser: z.string(),
+  afterUser: z.string(),
+  beforeAssistant: z.string(),
+  afterAssistant: z.string(),
 });
 
 export interface LLMJinjaPromptTemplate {
-  type: "jinja";
   template: string;
   /**
    * Required for applying Jinja template.
@@ -31,14 +47,21 @@ export interface LLMJinjaPromptTemplate {
   eosToken: string;
 }
 export const llmJinjaPromptTemplateSchema = z.object({
-  type: z.literal("jinja"),
   template: z.string(),
   bosToken: z.string(),
   eosToken: z.string(),
 });
 
-export type LLMPromptTemplate = LLMLegacyPromptTemplate | LLMJinjaPromptTemplate;
-export const llmPromptTemplateSchema = z.discriminatedUnion("type", [
-  llmLegacyPromptTemplateSchema,
-  llmJinjaPromptTemplateSchema,
-]);
+export type LLMPromptTemplateType = "manual" | "jinja";
+export const llmPromptTemplateTypeSchema = z.enum(["manual", "jinja"]);
+
+export interface LLMPromptTemplate {
+  type: LLMPromptTemplateType;
+  manualPromptTemplate?: LLMManualPromptTemplate;
+  jinjaPromptTemplate?: LLMJinjaPromptTemplate;
+}
+export const llmPromptTemplateSchema = z.object({
+  type: llmPromptTemplateTypeSchema,
+  manualPromptTemplate: llmManualPromptTemplateSchema.optional(),
+  jinjaPromptTemplate: llmJinjaPromptTemplateSchema.optional(),
+});

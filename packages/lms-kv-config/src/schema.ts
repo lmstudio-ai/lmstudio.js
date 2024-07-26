@@ -41,11 +41,15 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         type: "none",
       })
       .field("promptTemplate", "llmPromptTemplate", undefined, {
-        type: "legacy",
-        inputPrefix: "",
-        inputSuffix: "",
-        prePromptPrefix: "",
-        prePromptSuffix: "",
+        type: "manual",
+        manualPromptTemplate: {
+          beforeSystem: "Instruct: ",
+          afterSystem: "\n",
+          beforeAssistant: "AI: ",
+          afterAssistant: "\n",
+          beforeUser: "Human: ",
+          afterUser: "\n",
+        },
       })
       .field("systemPrompt", "string", {}, "")
       .field("seed", "numeric", { int: true }, -1)
