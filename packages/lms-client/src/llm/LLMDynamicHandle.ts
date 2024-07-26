@@ -290,9 +290,11 @@ export class LLMDynamicHandle {
             config: llmSharedPredictionConfigSchematics.buildPartialConfig({
               promptTemplate: {
                 type: "jinja",
-                bosToken: "",
-                eosToken: "",
-                template: noFormattingTemplate,
+                jinjaPromptTemplate: {
+                  bosToken: "",
+                  eosToken: "",
+                  template: noFormattingTemplate,
+                },
               },
             }),
           },
