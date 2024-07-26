@@ -54,5 +54,15 @@ class A implements PromptPreprocessor {
 
 (async () => {
   const client = new LMStudioClient();
-  client.llm.unstable_registerPromptPreprocessor(new A());
+  // client.llm.unstable_registerPromptPreprocessor(new A());
+
+  const a = await client.llm.unstable_getAny();
+  const b = a.complete(String(Math.random()) + "Hello ".repeat(2000), {
+    onPromptProcessingProgress: progress => {
+      console.info("progress", progress);
+    },
+  });
+  for await (const c of b) {
+    console.info(c);
+  }
 })();

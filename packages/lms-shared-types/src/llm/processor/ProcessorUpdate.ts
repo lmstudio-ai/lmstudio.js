@@ -7,6 +7,8 @@ import {
   promptPreprocessorUpdateDebugInfoBlockCreateSchema,
   type PromptPreprocessorUpdateStatusCreate,
   promptPreprocessorUpdateStatusCreateSchema,
+  type PromptPreprocessorUpdateStatusRemove,
+  promptPreprocessorUpdateStatusRemoveSchema,
   type PromptPreprocessorUpdateStatusUpdate,
   promptPreprocessorUpdateStatusUpdateSchema,
 } from "./PromptPreprocessorUpdate";
@@ -54,6 +56,9 @@ export const processorUpdateStatusCreateSchema = promptPreprocessorUpdateStatusC
 export type ProcessorUpdateStatusUpdate = PromptPreprocessorUpdateStatusUpdate;
 export const processorUpdateStatusUpdateSchema = promptPreprocessorUpdateStatusUpdateSchema;
 
+export type ProcessorUpdateStatusRemove = PromptPreprocessorUpdateStatusRemove;
+export const processorUpdateStatusRemoveSchema = promptPreprocessorUpdateStatusRemoveSchema;
+
 export type ProcessorUpdateCitationBlockCreate = PromptPreprocessorUpdateCitationBlockCreate;
 export const processorUpdateCitationBlockCreateSchema =
   promptPreprocessorUpdateCitationBlockCreateSchema;
@@ -72,6 +77,7 @@ export type ProcessorUpdate =
   | ProcessorUpdateContentBlockAttachGenInfo
   | ProcessorUpdateStatusCreate
   | ProcessorUpdateStatusUpdate
+  | ProcessorUpdateStatusRemove
   | ProcessorUpdateCitationBlockCreate
   | ProcessorUpdateDebugInfoBlockCreate;
 export const processorUpdateSchema = z.discriminatedUnion("type", [
@@ -80,6 +86,7 @@ export const processorUpdateSchema = z.discriminatedUnion("type", [
   processorUpdateContentBlockAttachGenInfoSchema,
   processorUpdateStatusCreateSchema,
   processorUpdateStatusUpdateSchema,
+  processorUpdateStatusRemoveSchema,
   processorUpdateCitationBlockCreateSchema,
   processorUpdateDebugInfoBlockCreateSchema,
 ]) as z.Schema<ProcessorUpdate>;

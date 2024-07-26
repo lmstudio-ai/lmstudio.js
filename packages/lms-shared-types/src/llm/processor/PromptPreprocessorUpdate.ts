@@ -66,6 +66,15 @@ export const promptPreprocessorUpdateStatusUpdateSchema = z.object({
   state: statusStepStateSchema,
 });
 
+export type PromptPreprocessorUpdateStatusRemove = {
+  type: "status.remove";
+  id: string;
+};
+export const promptPreprocessorUpdateStatusRemoveSchema = z.object({
+  type: z.literal("status.remove"),
+  id: z.string(),
+});
+
 // Citation Block
 
 export interface CitationSource {
@@ -112,11 +121,13 @@ export const promptPreprocessorUpdateDebugInfoBlockCreateSchema = z.object({
 export type PromptPreprocessorUpdate =
   | PromptPreprocessorUpdateStatusCreate
   | PromptPreprocessorUpdateStatusUpdate
+  | PromptPreprocessorUpdateStatusRemove
   | PromptPreprocessorUpdateCitationBlockCreate
   | PromptPreprocessorUpdateDebugInfoBlockCreate;
 export const promptPreprocessorUpdateSchema = z.discriminatedUnion("type", [
   promptPreprocessorUpdateStatusCreateSchema,
   promptPreprocessorUpdateStatusUpdateSchema,
+  promptPreprocessorUpdateStatusRemoveSchema,
   promptPreprocessorUpdateCitationBlockCreateSchema,
   promptPreprocessorUpdateDebugInfoBlockCreateSchema,
 ]) as z.Schema<PromptPreprocessorUpdate>;

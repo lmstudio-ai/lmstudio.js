@@ -28,7 +28,7 @@ export const llmContextOverflowPolicySchema = z.enum([
  *
  * @public
  */
-export interface LLMLlamaPredictionConfig {
+export interface LLMPredictionConfig {
   /**
    * Number of tokens to predict at most. If set to -1, the model will predict as many tokens as it
    * wants.
@@ -65,14 +65,32 @@ export interface LLMLlamaPredictionConfig {
    * - `rollingWindow`: Maintain a rolling window and truncate past messages.
    */
   contextOverflowPolicy?: LLMContextOverflowPolicy;
+  /**
+   * TODO: Documentation
+   */
   structured?: LLMStructuredPredictionSetting;
+  /**
+   * TODO: Documentation
+   */
   topKSampling?: number;
+  /**
+   * TODO: Documentation
+   */
   repeatPenalty?: number;
+  /**
+   * TODO: Documentation
+   */
   minPSampling?: number;
+  /**
+   * TODO: Documentation
+   */
   topPSampling?: number;
+  /**
+   * TODO: Documentation
+   */
   cpuThreads?: number;
 }
-export const llmLlamaPredictionConfigSchema = z.object({
+export const llmPredictionConfigSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional(),
   temperature: z.number().min(0).max(1).optional(),
   stopStrings: z.array(z.string()).optional(),
@@ -83,25 +101,6 @@ export const llmLlamaPredictionConfigSchema = z.object({
   minPSampling: z.number().optional(),
   topPSampling: z.number().optional(),
   cpuThreads: z.number().optional(),
-});
-
-export type LLMPredictionConfig = {
-  type: "llama";
-  content: LLMLlamaPredictionConfig;
-};
-export const llmPredictionConfigSchema = z.object({
-  type: z.literal("llama"),
-  content: llmLlamaPredictionConfigSchema,
-});
-
-/** @public */
-export type LLMResolvedPredictionConfig = {
-  type: "llama";
-  content: Required<LLMLlamaPredictionConfig>;
-};
-export const llmResolvedPredictionConfigSchema = z.object({
-  type: z.literal("llama"),
-  content: llmLlamaPredictionConfigSchema.required(),
 });
 
 export interface LLMLlamaMirostatSamplingConfig {

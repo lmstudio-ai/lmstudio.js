@@ -1,6 +1,7 @@
 import {
   BufferedEvent,
   getCurrentStack,
+  safeCallCallback,
   SimpleLogger,
   text,
   type Validator,
@@ -23,8 +24,8 @@ import {
   type LLMConversationContextInput,
   llmConversationContextInputSchema,
   type LLMDescriptor,
-  type LLMLlamaPredictionConfig,
-  llmLlamaPredictionConfigSchema,
+  type LLMPredictionConfig,
+  llmPredictionConfigSchema,
   type LLMPredictionStats,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
@@ -32,6 +33,42 @@ import { z } from "zod";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
+
+/**
+ * Shared options for any prediction methods (`.complete`/`.respond`).
+ *
+ * Note, this interface extends the `LLMPredictionConfig` interface, which contains parameters that
+ * you can override for the LLM. See {@link LLMPredictionConfig} for more information.
+ *
+ * @public
+ */
+export interface LLMPredictionOpts extends LLMPredictionConfig {
+  // verbose?: boolean | LogLevel;
+  /**
+   * A callback that is called when the model is processing the prompt. The callback is called with
+   * a number between 0 and 1, representing the progress of the prompt processing.
+   *
+   * Prompt processing progress callbacks will only be called before the first token is emitted.
+   */
+  onPromptProcessingProgress?: (progress: number) => void;
+  /**
+   * A callback that is called when the model has output the first token.
+   */
+  onFirstToken?: () => void;
+}
+export const llmPredictionOptsSchema = z.object({
+  ...llmPredictionConfigSchema.shape,
+  // verbose: z.union([z.boolean(), logLevelSchema]).optional(),
+  onPromptProcessingProgress: z.function().optional(),
+  onFirstToken: z.function().optional(),
+});
+
+type LLMPredictionExtraOpts = Omit<LLMPredictionOpts, keyof LLMPredictionConfig>;
+
+function splitOpts(opts: LLMPredictionOpts): [LLMPredictionConfig, LLMPredictionExtraOpts] {
+  const { onPromptProcessingProgress, onFirstToken, ...config } = opts;
+  return [config, { onPromptProcessingProgress, onFirstToken }];
+}
 
 const noFormattingTemplate = text`
   {% for message in messages %}{{ message['content'] }}{% endfor %}
@@ -60,7 +97,7 @@ function numberToCheckboxNumeric(
   }
 }
 
-function predictionConfigToKVConfig(predictionConfig: LLMLlamaPredictionConfig): KVConfig {
+function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVConfig {
   return llmLlamaPredictionConfigSchematics.buildPartialConfig({
     "temperature": predictionConfig.temperature,
     "contextOverflowPolicy": predictionConfig.contextOverflowPolicy,
@@ -113,6 +150,7 @@ export class LLMDynamicHandle {
     context: LLMContext,
     predictionConfigStack: KVConfigStack,
     cancelEvent: BufferedEvent<void>,
+    extraOpts: LLMPredictionExtraOpts,
     onFragment: (fragment: string) => void,
     onFinished: (
       stats: LLMPredictionStats,
@@ -123,6 +161,7 @@ export class LLMDynamicHandle {
     onError: (error: Error) => void,
   ) {
     let finished = false;
+    let firstTokenTriggered = false;
     const channel = this.llmPort.createChannel(
       "predict",
       {
@@ -133,7 +172,23 @@ export class LLMDynamicHandle {
       message => {
         switch (message.type) {
           case "fragment":
+            if (!firstTokenTriggered) {
+              firstTokenTriggered = true;
+              if (extraOpts.onFirstToken) {
+                safeCallCallback(this.logger, "onFirstToken", extraOpts.onFirstToken, []);
+              }
+            }
             onFragment(message.fragment);
+            break;
+          case "promptProcessingProgress":
+            if (extraOpts.onPromptProcessingProgress) {
+              safeCallCallback(
+                this.logger,
+                "onPromptProcessingProgress",
+                extraOpts.onPromptProcessingProgress,
+                [message.progress],
+              );
+            }
             break;
           case "success":
             finished = true;
@@ -202,16 +257,17 @@ export class LLMDynamicHandle {
    * @param prompt - The prompt to use for prediction.
    * @param opts - Options for the prediction.
    */
-  public complete(prompt: LLMCompletionContextInput, config: LLMLlamaPredictionConfig = {}) {
+  public complete(prompt: LLMCompletionContextInput, opts: LLMPredictionOpts = {}) {
     const stack = getCurrentStack(1);
-    [prompt, config] = this.validator.validateMethodParamsOrThrow(
+    [prompt, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "complete",
       ["prompt", "opts"],
-      [llmCompletionContextInputSchema, llmLlamaPredictionConfigSchema],
-      [prompt, config],
+      [llmCompletionContextInputSchema, llmPredictionConfigSchema],
+      [prompt, opts],
       stack,
     );
+    const [config, extraOpts] = splitOpts(opts);
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
     this.predictInternal(
@@ -243,6 +299,7 @@ export class LLMDynamicHandle {
         ],
       },
       cancelEvent,
+      extraOpts,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
         finished(stats, modelInfo, loadModelConfig, predictionConfig),
@@ -309,20 +366,21 @@ export class LLMDynamicHandle {
    * ```
    *
    * @param history - The LLMChatHistory array to use for generating a response.
-   * @param config - Options for the prediction.
+   * @param opts - Options for the prediction.
    */
-  public respond(history: LLMConversationContextInput, config: LLMLlamaPredictionConfig = {}) {
+  public respond(history: LLMConversationContextInput, opts: LLMPredictionOpts = {}) {
     const stack = getCurrentStack(1);
-    [history, config] = this.validator.validateMethodParamsOrThrow(
+    [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "respond",
       ["history", "opts"],
-      [llmConversationContextInputSchema, llmLlamaPredictionConfigSchema],
-      [history, config],
+      [llmConversationContextInputSchema, llmPredictionConfigSchema],
+      [history, opts],
       stack,
     );
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
+    const [config, extraOpts] = splitOpts(opts);
     this.predictInternal(
       this.specifier,
       this.resolveConversationContext(history),
@@ -336,6 +394,7 @@ export class LLMDynamicHandle {
         ],
       },
       cancelEvent,
+      extraOpts,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
         finished(stats, modelInfo, loadModelConfig, predictionConfig),
@@ -356,18 +415,19 @@ export class LLMDynamicHandle {
   /**
    * @alpha
    */
-  public predict(context: LLMContext, config: LLMLlamaPredictionConfig) {
+  public predict(context: LLMContext, opts: LLMPredictionOpts) {
     const stack = getCurrentStack(1);
-    [context, config] = this.validator.validateMethodParamsOrThrow(
+    [context, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "predict",
-      ["context", "config"],
-      [llmContextSchema, llmLlamaPredictionConfigSchema],
-      [context, config],
+      ["context", "opts"],
+      [llmContextSchema, llmPredictionConfigSchema],
+      [context, opts],
       stack,
     );
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
+    const [config, extraOpts] = splitOpts(opts);
     this.predictInternal(
       this.specifier,
       context,
@@ -381,6 +441,7 @@ export class LLMDynamicHandle {
         ],
       },
       cancelEvent,
+      extraOpts,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
         finished(stats, modelInfo, loadModelConfig, predictionConfig),

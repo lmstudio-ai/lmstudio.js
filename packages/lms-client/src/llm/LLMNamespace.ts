@@ -2,6 +2,7 @@ import {
   getCurrentStack,
   makePrettyError,
   makePromise,
+  safeCallCallback,
   SimpleLogger,
   text,
   Validator,
@@ -10,14 +11,13 @@ import {
 import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
-  llmLlamaLoadModelConfigSchema,
+  llmLoadModelConfigSchema,
   logLevelSchema,
   modelQuerySchema,
   processorInputMessageSchema,
   reasonableKeyStringSchema,
   serializeError,
   type LLMDescriptor,
-  type LLMLlamaLoadModelConfig,
   type LLMLoadModelConfig,
   type LogLevel,
   type ModelQuery,
@@ -67,7 +67,7 @@ export interface LLMLoadModelOpts {
    * My Models page. If no preset is selected for that model, the default preset for the operating
    * system is used. ("Default LM Studio macOS" or "Default LM Studio Windows).
    */
-  config?: LLMLlamaLoadModelConfig;
+  config?: LLMLoadModelConfig;
 
   /**
    * An `AbortSignal` to cancel the model loading. This is useful if you wish to add a functionality
@@ -131,14 +131,14 @@ export interface LLMLoadModelOpts {
 const llmLoadModelOptsSchema = z.object({
   preset: z.string().optional(),
   identifier: z.string().optional(),
-  config: llmLlamaLoadModelConfigSchema.optional(),
+  config: llmLoadModelConfigSchema.optional(),
   signal: z.instanceof(AbortSignal).optional(),
   verbose: z.union([z.boolean(), logLevelSchema]).optional(),
   onProgress: z.function().optional(),
   noHup: z.boolean().optional(),
 });
 
-function loadConfigToKVConfig(loadConfig: LLMLlamaLoadModelConfig) {
+function loadConfigToKVConfig(loadConfig: LLMLoadModelConfig) {
   return llmLlamaMoeLoadConfigSchematics.buildPartialConfig({
     "contextLength": loadConfig.contextLength,
     "llama.evalBatchSize": loadConfig.evalBatchSize,
@@ -270,7 +270,7 @@ export class LLMNamespace {
           case "progress": {
             const { progress } = message;
             if (onProgress !== undefined) {
-              onProgress(progress);
+              safeCallCallback(this.logger, "onProgress", onProgress, [progress]);
             } else if (verbose) {
               const now = Date.now();
               if (now - lastVerboseCallTime > 500 || progress === 1) {
@@ -411,6 +411,10 @@ export class LLMNamespace {
       this.validator,
       new SimpleLogger("LLMSpecificModel", this.logger),
     );
+  }
+
+  public async unstable_getAny() {
+    return await this.get({});
   }
 
   /**

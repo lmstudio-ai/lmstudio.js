@@ -58,12 +58,8 @@ export {
   llmLlamaAccelerationOffloadRatioSchema,
   LLMLlamaAccelerationSetting,
   llmLlamaAccelerationSettingSchema,
-  LLMLlamaLoadModelConfig,
-  llmLlamaLoadModelConfigSchema,
   LLMLoadModelConfig,
   llmLoadModelConfigSchema,
-  LLMResolvedLoadModelConfig,
-  llmResolvedLoadModelConfigSchema,
 } from "./llm/LLMLoadModelConfig";
 export {
   LLMContextOverflowPolicy,
@@ -72,14 +68,10 @@ export {
   llmLlamaLogitBiasConfigSchema,
   LLMLlamaMirostatSamplingConfig,
   llmLlamaMirostatSamplingConfigSchema,
-  LLMLlamaPredictionConfig,
-  llmLlamaPredictionConfigSchema,
   LLMLlamaSingleLogitBiasModification,
   llmLlamaSingleLogitBiasModificationSchema,
   LLMPredictionConfig,
   llmPredictionConfigSchema,
-  LLMResolvedPredictionConfig,
-  llmResolvedPredictionConfigSchema,
 } from "./llm/LLMPredictionConfig";
 export {
   LLMGenInfo,
@@ -150,6 +142,8 @@ export {
   promptPreprocessorUpdateSchema,
   PromptPreprocessorUpdateStatusCreate,
   promptPreprocessorUpdateStatusCreateSchema,
+  PromptPreprocessorUpdateStatusRemove,
+  promptPreprocessorUpdateStatusRemoveSchema,
   PromptPreprocessorUpdateStatusUpdate,
   promptPreprocessorUpdateStatusUpdateSchema,
   StatusStepState,

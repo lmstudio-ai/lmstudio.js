@@ -30,7 +30,7 @@ export const llmLlamaAccelerationSettingSchema = z.object({
 });
 
 /** @public */
-export interface LLMLlamaLoadModelConfig {
+export interface LLMLoadModelConfig {
   /**
    * How much of the model's work should be offloaded to the GPU. The value should be between 0 and 1.
    * A value of 0 means that no layers are offloaded to the GPU, while a value of 1 means that all
@@ -63,7 +63,7 @@ export interface LLMLlamaLoadModelConfig {
   tryMmap?: boolean;
   numExperts?: number;
 }
-export const llmLlamaLoadModelConfigSchema = z.object({
+export const llmLoadModelConfigSchema = z.object({
   gpuOffload: llmLlamaAccelerationSettingSchema.optional(),
   contextLength: z.number().int().min(1).optional(),
   ropeFrequencyBase: z.number().optional(),
@@ -75,23 +75,4 @@ export const llmLlamaLoadModelConfigSchema = z.object({
   useFp16ForKVCache: z.boolean().optional(),
   tryMmap: z.boolean().optional(),
   numExperts: z.number().int().optional(),
-});
-
-export type LLMLoadModelConfig = {
-  type: "llama";
-  content: LLMLlamaLoadModelConfig;
-};
-export const llmLoadModelConfigSchema = z.object({
-  type: z.literal("llama"),
-  content: llmLlamaLoadModelConfigSchema,
-});
-
-/** @public */
-export type LLMResolvedLoadModelConfig = {
-  type: "llama";
-  content: Required<LLMLlamaLoadModelConfig>;
-};
-export const llmResolvedLoadModelConfigSchema = z.object({
-  type: z.literal("llama"),
-  content: llmLlamaLoadModelConfigSchema.required(),
 });

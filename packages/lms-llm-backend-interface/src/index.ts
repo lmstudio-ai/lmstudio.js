@@ -68,6 +68,10 @@ export function createLlmBackendInterface() {
           fragment: z.string(),
         }),
         z.object({
+          type: z.literal("promptProcessingProgress"),
+          progress: z.number(),
+        }),
+        z.object({
           type: z.literal("success"),
           stats: llmPredictionStatsSchema,
           modelInfo: llmDescriptorSchema,
