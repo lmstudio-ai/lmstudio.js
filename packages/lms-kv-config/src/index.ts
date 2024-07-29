@@ -14,6 +14,8 @@ export {
   GlobalKVValueTypeMap,
   GlobalKVValueTypeParamTypeForKey,
   GlobalKVValueTypeValueTypeForKey,
+  embeddingLlamaLoadConfigSchematics,
+  embeddingSharedLoadConfigSchematics,
   emptyConfigSchematics,
   globalConfigSchematics,
   llmLlamaLoadConfigSchematics,
