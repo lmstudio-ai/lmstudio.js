@@ -29,7 +29,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 }, shortHand: "temp" },
         0.8,
       )
-      .field("contextOverflowPolicy", "contextOverflowPolicy", undefined, "truncateMiddle")
+      .field("contextOverflowPolicy", "contextOverflowPolicy", {}, "truncateMiddle")
       .field(
         "maxPredictedTokens",
         "checkboxNumeric",
@@ -37,20 +37,23 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         { checked: false, value: 100 },
       )
       .field("stopStrings", "stringArray", {}, [])
-      .field("structured", "llamaStructuredOutput", undefined, {
-        type: "none",
-      })
-      .field("promptTemplate", "llmPromptTemplate", undefined, {
-        type: "manual",
-        manualPromptTemplate: {
-          beforeSystem: "Instruct: ",
-          afterSystem: "\n",
-          beforeAssistant: "AI: ",
-          afterAssistant: "\n",
-          beforeUser: "Human: ",
-          afterUser: "\n",
+      .field("structured", "llamaStructuredOutput", {}, { type: "none" })
+      .field(
+        "promptTemplate",
+        "llmPromptTemplate",
+        { modelCentric: true },
+        {
+          type: "manual",
+          manualPromptTemplate: {
+            beforeSystem: "Instruct: ",
+            afterSystem: "\n",
+            beforeAssistant: "AI: ",
+            afterAssistant: "\n",
+            beforeUser: "Human: ",
+            afterUser: "\n",
+          },
         },
-      })
+      )
       .field("systemPrompt", "string", {}, "")
       .field("seed", "numeric", { int: true }, -1)
       .scope("llama", builder =>
@@ -72,12 +75,17 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field("cpuThreads", "numeric", { min: 1, int: true }, 4)
           .field("frequencyPenalty", "checkboxNumeric", {}, { checked: false, value: 0.0 })
           .field("presencePenalty", "checkboxNumeric", {}, { checked: false, value: 0.0 })
-          .field("mirostatSampling", "llamaMirostatSampling", undefined, {
-            // Disabled by default
-            version: 0,
-            learningRate: 0.1,
-            targetEntropy: 5,
-          })
+          .field(
+            "mirostatSampling",
+            "llamaMirostatSampling",
+            {},
+            {
+              // Disabled by default
+              version: 0,
+              learningRate: 0.1,
+              targetEntropy: 5,
+            },
+          )
           .field(
             "tailFreeSampling",
             "checkboxNumeric",
@@ -90,7 +98,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: false, value: 0.9 },
           )
-          .field("logitBias", "llamaLogitBias", undefined, []),
+          .field("logitBias", "llamaLogitBias", {}, []),
       )
       .scope("mlx", builder => builder.field("repeatPenalty", "numeric", { min: 1 }, 1.1))
       .scope("onnx", builder =>
@@ -128,12 +136,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
               tensorSplit: [0],
             },
           )
-          .field("flashAttention", "boolean", undefined, false)
+          .field("flashAttention", "boolean", {}, false)
           .field("ropeFrequencyBase", "numeric", {}, 0)
           .field("ropeFrequencyScale", "numeric", {}, 0)
-          .field("keepModelInMemory", "boolean", undefined, true)
-          .field("useFp16ForKVCache", "boolean", undefined, true)
-          .field("tryMmap", "boolean", undefined, true),
+          .field("keepModelInMemory", "boolean", {}, true)
+          .field("useFp16ForKVCache", "boolean", {}, true)
+          .field("tryMmap", "boolean", {}, true),
       ),
   )
   .scope("embedding.load", builder =>
@@ -143,8 +151,8 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .scope("llama", builder =>
         builder
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
-          .field("keepModelInMemory", "boolean", undefined, true)
-          .field("tryMmap", "boolean", undefined, true),
+          .field("keepModelInMemory", "boolean", {}, true)
+          .field("tryMmap", "boolean", {}, true),
       ),
   )
   .build();

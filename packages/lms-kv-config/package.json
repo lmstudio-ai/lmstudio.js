@@ -10,7 +10,10 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "zod": "^3.22.4",
-    "@lmstudio/lms-shared-types": "^0.4.5"
+    "@lmstudio/lms-shared-types": "^0.4.5",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "ts-toolbelt": "^9.6.0"
   }
 }

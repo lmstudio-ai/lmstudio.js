@@ -9,9 +9,25 @@ import {
 import { z } from "zod";
 import { KVFieldValueTypesLibraryBuilder, type InferKVValueTypeDef } from "./KVConfig";
 
-export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
+export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
+  /**
+   * A field can be marked as model centric when it loses its meaning when there is no model to
+   * reference.
+   *
+   * An example would be prompt template. There is no point to configure prompt template when there
+   * when there isn't a specific model.
+   */
+  modelCentric: z.boolean().optional(),
+  /**
+   * A field can be marked as non-configurable when it is only used as a means to carry information.
+   * As a result, it will not be shown in the UI.
+   *
+   * An example would be context length for MLX, as you cannot change it.
+   */
+  nonConfigurable: z.boolean().optional(),
+})
   .valueType("numeric", {
-    paramType: z.object({
+    paramType: {
       min: z.number().optional(),
       max: z.number().optional(),
       int: z.boolean().optional(),
@@ -22,9 +38,8 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
           step: z.number(),
         })
         .optional(),
-      hidden: z.boolean().optional(),
       shortHand: z.string().optional(),
-    }),
+    },
     schemaMaker: ({ min, max, int }) => {
       let schema = z.number();
       if (min !== undefined) {
@@ -40,7 +55,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
     },
   })
   .valueType("checkboxNumeric", {
-    paramType: z.object({
+    paramType: {
       min: z.number().optional(),
       max: z.number().optional(),
       int: z.boolean().optional(),
@@ -51,8 +66,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
           step: z.number(),
         })
         .optional(),
-      hidden: z.boolean().optional(),
-    }),
+    },
     schemaMaker: ({ min, max, int }) => {
       let numberSchema = z.number();
       if (min !== undefined) {
@@ -71,11 +85,10 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
     },
   })
   .valueType("string", {
-    paramType: z.object({
+    paramType: {
       minLength: z.number().optional(),
       maxLength: z.number().optional(),
-      hidden: z.boolean().optional(),
-    }),
+    },
     schemaMaker: ({ minLength, maxLength }) => {
       let schema = z.string();
       if (minLength !== undefined) {
@@ -88,20 +101,19 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
     },
   })
   .valueType("boolean", {
-    paramType: z.void(),
+    paramType: {},
     schemaMaker: () => {
       return z.boolean();
     },
   })
   .valueType("stringArray", {
-    paramType: z.object({
+    paramType: {
       maxNumItems: z.number().optional(),
       /**
        * Whether to allow empty strings in the array. Default is false.
        */
       allowEmptyStrings: z.boolean().optional(),
-      hidden: z.boolean().optional(),
-    }),
+    },
     schemaMaker: ({ maxNumItems, allowEmptyStrings }) => {
       let stringSchema = z.string();
       if (!allowEmptyStrings) {
@@ -115,40 +127,39 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder()
     },
   })
   .valueType("contextOverflowPolicy", {
-    paramType: z.void(),
+    paramType: {},
     schemaMaker: () => {
       return llmContextOverflowPolicySchema;
     },
   })
   .valueType("llmPromptTemplate", {
-    paramType: z.void(),
+    paramType: {},
     schemaMaker: () => {
       return llmPromptTemplateSchema;
     },
   })
   .valueType("llamaStructuredOutput", {
-    paramType: z.void(),
+    paramType: {},
     schemaMaker: () => {
       return llmStructuredPredictionSettingSchema;
     },
   })
   .valueType("llamaGpuOffload", {
-    paramType: z.object({
+    paramType: {
       numLayers: z.number().optional(),
-      hidden: z.boolean().optional(),
-    }),
+    },
     schemaMaker: () => {
       return llmLlamaAccelerationSettingSchema;
     },
   })
   .valueType("llamaMirostatSampling", {
-    paramType: z.void(),
+    paramType: {},
     schemaMaker: () => {
       return llmLlamaMirostatSamplingConfigSchema;
     },
   })
   .valueType("llamaLogitBias", {
-    paramType: z.void(),
+    paramType: {},
     schemaMaker: () => {
       return llmLlamaLogitBiasConfigSchema;
     },

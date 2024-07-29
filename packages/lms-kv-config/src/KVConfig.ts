@@ -1,5 +1,6 @@
 import { type KVConfig, type KVConfigStack } from "@lmstudio/lms-shared-types";
-import { type ZodSchema } from "zod";
+import { type Any } from "ts-toolbelt";
+import { z, type ZodSchema } from "zod";
 
 // KV Config is the idea of simply storing config as an array of key-value pairs. This file provides
 // type definitions and utility classes for working with KV Configs and schemas.
@@ -50,6 +51,22 @@ interface KVConcreteFieldValueType {
 }
 type KVConcreteFieldValueTypesMap = Map<string, KVConcreteFieldValueType>;
 
+type ExposedZodObject<TObject extends {}> = {
+  [TKey in keyof TObject]: ZodSchema<TObject[TKey]>;
+};
+
+type CanBeUndefinedKeys<TType extends {}> = {
+  [TKey in keyof TType]: undefined extends TType[TKey] ? TKey : never;
+}[keyof TType];
+
+type AllowOptionalForUndefined<TType extends {}> = Any.Compute<
+  {
+    [TKey in CanBeUndefinedKeys<TType>]?: TType[TKey];
+  } & {
+    [TKey in Exclude<keyof TType, CanBeUndefinedKeys<TType>>]: TType[TKey];
+  }
+>;
+
 /**
  * A builder for building a KVFieldValueTypeLibrary.
  *
@@ -57,31 +74,40 @@ type KVConcreteFieldValueTypesMap = Map<string, KVConcreteFieldValueType>;
  * types.
  */
 export class KVFieldValueTypesLibraryBuilder<
+  TKVFieldValueTypeBase extends {},
   TKVFieldValueTypeLibraryMap extends KVVirtualFieldValueTypesMapping = {},
 > {
   private readonly valueTypes: KVConcreteFieldValueTypesMap = new Map();
 
+  public constructor(public readonly baseSchema: ExposedZodObject<TKVFieldValueTypeBase>) {}
   /**
    * Define a new field value type.
    */
-  public valueType<TKey extends string, TValueTypeParams, TValue>(
+  public valueType<TKey extends string, TValueTypeParams extends {}, TValue>(
     key: TKey,
     param: {
-      paramType: ZodSchema<TValueTypeParams>;
+      paramType: ExposedZodObject<TValueTypeParams>;
       schemaMaker: (param: TValueTypeParams) => ZodSchema<TValue>;
     },
   ): KVFieldValueTypesLibraryBuilder<
+    TKVFieldValueTypeBase,
     TKVFieldValueTypeLibraryMap & {
       [key in TKey]: {
         value: TValue;
-        param: TValueTypeParams;
+        param: AllowOptionalForUndefined<TValueTypeParams & TKVFieldValueTypeBase>;
       };
     }
   > {
     if (this.valueTypes.has(key)) {
       throw new Error(`ValueType with key ${key} already exists`);
     }
-    this.valueTypes.set(key, param);
+    this.valueTypes.set(key, {
+      paramType: z.object({
+        ...this.baseSchema,
+        ...param.paramType,
+      }),
+      schemaMaker: param.schemaMaker,
+    });
     return this;
   }
   public build(): KVFieldValueTypeLibrary<TKVFieldValueTypeLibraryMap> {
@@ -162,7 +188,7 @@ export class KVConfigSchematicsBuilder<
     key: TKey,
     valueTypeKey: TValueTypeKey,
     valueTypeParams: TKVFieldValueTypeLibraryMap[TValueTypeKey]["param"],
-    defaultValue?: TKVFieldValueTypeLibraryMap[TValueTypeKey]["value"],
+    defaultValue: TKVFieldValueTypeLibraryMap[TValueTypeKey]["value"],
   ): KVConfigSchematicsBuilder<
     TKVFieldValueTypeLibraryMap,
     TKVConfigSchema & {
@@ -173,16 +199,14 @@ export class KVConfigSchematicsBuilder<
       };
     }
   > {
-    if (defaultValue !== undefined) {
-      const schema = this.valueTypeLibrary.getSchema(valueTypeKey, valueTypeParams);
-      const defaultValueParseResult = schema.safeParse(defaultValue);
-      if (!defaultValueParseResult.success) {
-        throw new Error(
-          `Invalid default value for field ${key}: ${defaultValueParseResult.error.message}`,
-        );
-      }
-      defaultValue = defaultValueParseResult.data;
+    const schema = this.valueTypeLibrary.getSchema(valueTypeKey, valueTypeParams);
+    const defaultValueParseResult = schema.safeParse(defaultValue);
+    if (!defaultValueParseResult.success) {
+      throw new Error(
+        `Invalid default value for field ${key}: ${defaultValueParseResult.error.message}`,
+      );
     }
+    defaultValue = defaultValueParseResult.data;
     this.fields.set(key, {
       valueTypeKey,
       valueTypeParams,
