@@ -4,7 +4,7 @@ import { isAvailable, type StripNotAvailable } from "./LazySignal";
 /**
  * A write tag is a tag that can be optionally passed to a setter to identify the update.
  */
-export type WriteTag = number | string;
+export type WriteTag = string;
 
 /**
  * Concatenate Writable Tags

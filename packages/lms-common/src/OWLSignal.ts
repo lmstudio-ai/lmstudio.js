@@ -308,7 +308,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
    * You must also provide an `optimistic` flag. If `optimistic` is true, the pending optimistic
    * updates will be applied to the value before returning it.
    */
-  public async pull({ optimistic }: { optimistic: boolean }) {
+  public async pull({ optimistic = true }: { optimistic?: boolean } = {}) {
     if (optimistic) {
       return this.applyOptimisticUpdates(await this.innerSignal.pull());
     } else {

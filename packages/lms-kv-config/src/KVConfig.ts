@@ -1,4 +1,4 @@
-import { type KVConfig, type KVConfigStack } from "@lmstudio/lms-shared-types";
+import { kvConfigSchema, type KVConfig, type KVConfigStack } from "@lmstudio/lms-shared-types";
 import { type Any } from "ts-toolbelt";
 import { z, type ZodSchema } from "zod";
 
@@ -505,6 +505,52 @@ export class KVConfigSchematics<
       ),
     });
     return clone;
+  }
+
+  /**
+   * Cached lenient zod schema
+   */
+  private lenientZodSchema: ZodSchema<KVConfig> | undefined = undefined;
+
+  private makeLenientZodSchema(): ZodSchema<KVConfig> {
+    return kvConfigSchema.transform(value => {
+      const seenKeys = new Set<string>();
+      return {
+        fields: value.fields.filter(field => {
+          if (seenKeys.has(field.key)) {
+            return false;
+          }
+          if (!field.key.startsWith(this.baseKey)) {
+            return false;
+          }
+          const key = field.key.substring(this.baseKey.length);
+          const fieldDef = this.fields.get(key);
+          if (fieldDef === undefined) {
+            return false;
+          }
+          const parsed = fieldDef.schema.safeParse(field.value);
+          if (!parsed.success) {
+            return false;
+          }
+          seenKeys.add(key);
+          return true;
+        }),
+      };
+    });
+  }
+
+  /**
+   * Makes a zod schema that parses a KVConfig which only allows fields with correct keys and types
+   * through.
+   *
+   * Will filter out any fields that are not in the schema.
+   */
+  public getLenientZodSchema(): ZodSchema<KVConfig> {
+    if (this.lenientZodSchema !== undefined) {
+      return this.lenientZodSchema;
+    }
+    this.lenientZodSchema = this.makeLenientZodSchema();
+    return this.lenientZodSchema;
   }
 }
 

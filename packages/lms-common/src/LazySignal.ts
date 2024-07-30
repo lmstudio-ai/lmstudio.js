@@ -46,6 +46,7 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
    */
   private readonly updateReceivedEvent: Event<void>;
   private readonly emitUpdateReceivedEvent: () => void;
+  private readonly updateReceivedSynchronousCallbacks = new Set<() => void>();
 
   public static create<TData>(
     initialValue: TData,
@@ -170,6 +171,9 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
         this.setValue.withPatchUpdater(updater, tags);
         this.dataIsStale = becameStale;
         this.emitUpdateReceivedEvent();
+        for (const callback of this.updateReceivedSynchronousCallbacks) {
+          callback();
+        }
       }),
       error => {
         if (!subscribed) {
@@ -232,6 +236,26 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
       promise.then(unsubscribe);
     }
     return promise;
+  }
+
+  /**
+   * If the data is not stale, the callback will be called synchronously with the current value.
+   *
+   * If the data is stale, it will pull the current value and call the callback with the value.
+   */
+  public runOnNextFreshData(callback: (value: StripNotAvailable<TData>) => void) {
+    if (!this.isStale()) {
+      callback(this.get() as StripNotAvailable<TData>);
+    } else {
+      let unsubscribe: (() => void) | null = null;
+      const updateCallback = () => {
+        this.updateReceivedSynchronousCallbacks.delete(updateCallback);
+        callback(this.get() as StripNotAvailable<TData>);
+        unsubscribe?.();
+      };
+      this.updateReceivedSynchronousCallbacks.add(updateCallback);
+      unsubscribe = this.subscribe(() => {});
+    }
   }
 
   public async ensureAvailable(): Promise<LazySignal<StripNotAvailable<TData>>> {

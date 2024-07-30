@@ -1,4 +1,5 @@
 import { type Patch } from "immer";
+import { type StripNotAvailable } from "./LazySignal";
 import { Subscribable } from "./Subscribable";
 import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter";
 
@@ -30,7 +31,7 @@ type InternalSubscriber<TValue> =
  * To create a signal, please use the `Signal.create` static method. It will return a signal
  * along with a function to update its value.
  */
-export class Signal<TValue> extends Subscribable<TValue> {
+export class Signal<TValue> extends Subscribable<TValue> implements SignalLike<TValue> {
   /**
    * Creates a signal.
    *
@@ -68,6 +69,9 @@ export class Signal<TValue> extends Subscribable<TValue> {
    */
   public get() {
     return this.value;
+  }
+  public pull() {
+    return this.value as StripNotAvailable<TValue>;
   }
   private queuedUpdaters: Array<[updater: Updater<TValue>, tags?: Array<WriteTag>]> = [];
   private isEmitting = false;
@@ -184,4 +188,5 @@ export interface SignalLike<TValue> extends Subscribable<TValue> {
   get(): TValue;
   subscribe(subscriber: Subscriber<TValue>): () => void;
   subscribeFull(subscriber: SignalFullSubscriber<TValue>): () => void;
+  pull(): Promise<StripNotAvailable<TValue>> | StripNotAvailable<TValue>;
 }
