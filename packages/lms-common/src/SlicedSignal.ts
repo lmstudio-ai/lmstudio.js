@@ -1,4 +1,4 @@
-import { type Patch } from "immer";
+import { applyPatches, type Patch } from "immer";
 import { isAvailable, LazySignal, type StripNotAvailable } from "./LazySignal";
 import { makeSetterWithPatches, type Setter } from "./makeSetter";
 import { type SignalLike } from "./Signal";
@@ -131,15 +131,17 @@ class SlicedSignalBuilder<TSource, TCurrent> {
       return unsubscribe;
     });
     const setter = makeSetterWithPatches<TCurrent>((updater, tags) => {
-      signal.runOnNextFreshData(oldValue => {
-        const [_newValue, patches] = updater(oldValue);
+      const newTags = tags?.map(tag => this.tagKey + tag);
+      this.sourceSetter.withPatchUpdater(oldValue => {
+        const slicedOldValue = drill(oldValue, this.path);
+        const [_newSlicedValue, patches] = updater(slicedOldValue);
         const newPatches = patches.map(patch => ({
           ...patch,
           path: [...this.path, ...patch.path],
         }));
-        const newTags = tags?.map(tag => this.tagKey + tag);
-        this.sourceSetter.withPatches(newPatches, newTags);
-      });
+        const newValue = applyPatches(oldValue as any, newPatches);
+        return [newValue, newPatches] as const;
+      }, newTags);
     });
     return [signal, setter];
   }
