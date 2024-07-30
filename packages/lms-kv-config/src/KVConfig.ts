@@ -484,6 +484,12 @@ export class KVConfigSchematics<
     };
   }
 
+  public createBuildPartialConfigInput(): {
+    [TKey in keyof TKVConfigSchema & string]?: TKVConfigSchema[TKey]["type"] | undefined;
+  } {
+    return {};
+  }
+
   public configBuilder(): KVConfigBuilder<TKVConfigSchema> {
     return new KVConfigBuilder(this.baseKey);
   }

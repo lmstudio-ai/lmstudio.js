@@ -5,15 +5,11 @@ import { z } from "zod";
  * A value of 0 means that no layers are offloaded to the GPU, while a value of 1 means that all
  * layers (that can be offloaded) are offloaded to the GPU.
  *
- * Alternatively, the value can be set to "auto", which means it will be determined automatically.
- * (Currently uses the value in the preset.)
- *
  * @public
  */
-export type LLMLlamaAccelerationOffloadRatio = number | "auto" | "max" | "off";
+export type LLMLlamaAccelerationOffloadRatio = number | "max" | "off";
 export const llmLlamaAccelerationOffloadRatioSchema = z.union([
   z.number().min(0).max(1),
-  z.literal("auto"),
   z.literal("max"),
   z.literal("off"),
 ]);

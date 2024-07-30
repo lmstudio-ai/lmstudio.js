@@ -21,6 +21,8 @@ export const kvConfigSchema = z.object({
 });
 
 export type KVConfigLayerName =
+  // Config that is currently loaded by the model
+  | "currentlyLoaded"
   // Override provided by the caller of the API
   | "apiOverride"
   // Chat specific config in chats
@@ -39,6 +41,7 @@ export type KVConfigLayerName =
   | "concreteModelDefault";
 
 export const kvConfigLayerNameSchema = z.enum([
+  "currentlyLoaded",
   "apiOverride",
   "conversationSpecific",
   "conversationGlobal",

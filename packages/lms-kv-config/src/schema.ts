@@ -131,7 +131,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             "llamaGpuOffload",
             {},
             {
-              ratio: "auto",
+              ratio: "max",
               mainGpu: 0,
               tensorSplit: [0],
             },
