@@ -66,7 +66,7 @@ const clientToServerMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("writableSignalUpdate"),
     subscribeId: z.number(),
     patches: z.array(z.any()),
-    tags: z.array(z.union([z.number(), z.string()])),
+    tags: z.array(z.string()),
   }),
 ]);
 
@@ -121,7 +121,7 @@ const serverToClientMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("signalUpdate"),
     subscribeId: z.number(),
     patches: z.array(z.any()),
-    tags: z.array(z.union([z.number(), z.string()])),
+    tags: z.array(z.string()),
   }),
   z.object({
     type: z.literal("signalError"),
@@ -134,7 +134,7 @@ const serverToClientMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("writableSignalUpdate"),
     subscribeId: z.number(),
     patches: z.array(z.any()),
-    tags: z.array(z.union([z.number(), z.string()])),
+    tags: z.array(z.string()),
   }),
   z.object({
     type: z.literal("writableSignalError"),
