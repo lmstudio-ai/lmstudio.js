@@ -1,5 +1,5 @@
 import { applyPatches, type Patch } from "immer";
-import { isAvailable, LazySignal, type StripNotAvailable } from "./LazySignal";
+import { isAvailable, LazySignal, type NotAvailable, type StripNotAvailable } from "./LazySignal";
 import { makeSetterWithPatches, type Setter } from "./makeSetter";
 import { type SignalLike } from "./Signal";
 
@@ -7,12 +7,13 @@ import { type SignalLike } from "./Signal";
  * A sliced signal is a writable signal that represents a portion of another writable signal.
  */
 export function makeSlicedSignalFrom<TSource>(
-  writableSignal: [signal: SignalLike<TSource>, setter: Setter<TSource>],
+  writableSignal: readonly [signal: SignalLike<TSource>, setter: Setter<TSource>],
 ) {
-  return new SlicedSignalBuilder<TSource, StripNotAvailable<TSource>>(
-    writableSignal[0],
-    writableSignal[1],
-  );
+  return new SlicedSignalBuilder<
+    TSource,
+    StripNotAvailable<TSource>,
+    TSource extends NotAvailable ? true : false
+  >(writableSignal[0], writableSignal[1]);
 }
 
 function drill(value: any, path: Array<string>) {
@@ -62,7 +63,7 @@ function pathStartsWith(path: Array<string | number>, prefix: Array<string | num
   return true;
 }
 
-class SlicedSignalBuilder<TSource, TCurrent> {
+class SlicedSignalBuilder<TSource, TCurrent, TCanBeNotAvailable extends boolean> {
   private readonly path: Array<string> = [];
   private readonly tagKey = String(Math.random());
   public constructor(
@@ -71,16 +72,21 @@ class SlicedSignalBuilder<TSource, TCurrent> {
   ) {}
   public access<TKey extends keyof TCurrent>(
     key: TKey,
-  ): SlicedSignalBuilder<TSource, TCurrent[TKey]> {
+  ): SlicedSignalBuilder<TSource, TCurrent[TKey], TCanBeNotAvailable> {
     this.path.push(key as string);
     return this as any;
   }
-  public done(): readonly [signal: LazySignal<TCurrent>, setter: Setter<TCurrent>] {
+  public done(): readonly [
+    signal: LazySignal<TCurrent | (TCanBeNotAvailable extends true ? NotAvailable : never)>,
+    setter: Setter<TCurrent | (TCanBeNotAvailable extends true ? NotAvailable : never)>,
+  ] {
     const sourceInitialValue = this.sourceSignal.get();
     const initialValue = isAvailable(sourceInitialValue)
       ? drill(sourceInitialValue, this.path)
       : LazySignal.NOT_AVAILABLE;
-    const signal = LazySignal.create<TCurrent>(initialValue, setDownstream => {
+    const signal = LazySignal.create<
+      TCurrent | (TCanBeNotAvailable extends true ? NotAvailable : never)
+    >(initialValue, setDownstream => {
       const unsubscribe = this.sourceSignal.subscribeFull((value, patches, tags) => {
         const newPatches: Array<Patch> = [];
         // Transform patches
@@ -92,6 +98,7 @@ class SlicedSignalBuilder<TSource, TCurrent> {
               throw new Error("Only replace patches are supported for ancestor relationships");
             }
             newPatches.length = 0;
+            drill(patch.value!, this.path.slice(patch.path.length));
             newPatches.push({
               op: "replace",
               path: [],
@@ -130,7 +137,9 @@ class SlicedSignalBuilder<TSource, TCurrent> {
 
       return unsubscribe;
     });
-    const setter = makeSetterWithPatches<TCurrent>((updater, tags) => {
+    const setter = makeSetterWithPatches<
+      TCurrent | (TCanBeNotAvailable extends true ? NotAvailable : never)
+    >((updater, tags) => {
       const newTags = tags?.map(tag => this.tagKey + tag);
       this.sourceSetter.withPatchUpdater(oldValue => {
         const slicedOldValue = drill(oldValue, this.path);

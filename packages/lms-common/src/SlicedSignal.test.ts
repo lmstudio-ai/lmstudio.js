@@ -309,7 +309,7 @@ describe("SlicedSignal", () => {
     expect(setterUpdateFn).not.toHaveBeenCalled();
 
     setSliced.withProducer(draft => {
-      draft.c = 2;
+      (draft as any).c = 2;
     });
 
     expect(setterUpdateFn).toHaveBeenCalled();

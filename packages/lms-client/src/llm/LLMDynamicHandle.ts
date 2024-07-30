@@ -11,6 +11,7 @@ import {
   llmSharedLoadConfigSchematics,
   llmSharedPredictionConfigSchematics,
 } from "@lmstudio/lms-kv-config";
+import { addKVConfigToStack } from "@lmstudio/lms-kv-config/dist/KVConfig";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   type KVConfig,
@@ -277,7 +278,7 @@ export class LLMDynamicHandle {
         layers: [
           ...this.internalKVConfigStack.layers,
           {
-            layerName: "inlineOverride",
+            layerName: "apiOverride",
             config: predictionConfigToKVConfig({
               // If the user did not specify `stopStrings`, we default to an empty array. This is to
               // prevent the model from using the value set in the preset.
@@ -386,15 +387,11 @@ export class LLMDynamicHandle {
     this.predictInternal(
       this.specifier,
       this.resolveConversationContext(history),
-      {
-        layers: [
-          ...this.internalKVConfigStack.layers,
-          {
-            layerName: "inlineOverride",
-            config: predictionConfigToKVConfig(config),
-          },
-        ],
-      },
+      addKVConfigToStack(
+        this.internalKVConfigStack,
+        "apiOverride",
+        predictionConfigToKVConfig(config),
+      ),
       cancelEvent,
       extraOpts,
       fragment => push(fragment),
@@ -433,15 +430,11 @@ export class LLMDynamicHandle {
     this.predictInternal(
       this.specifier,
       context,
-      {
-        layers: [
-          ...this.internalKVConfigStack.layers,
-          {
-            layerName: "inlineOverride",
-            config: predictionConfigToKVConfig(config),
-          },
-        ],
-      },
+      addKVConfigToStack(
+        this.internalKVConfigStack,
+        "apiOverride",
+        predictionConfigToKVConfig(config),
+      ),
       cancelEvent,
       extraOpts,
       fragment => push(fragment),

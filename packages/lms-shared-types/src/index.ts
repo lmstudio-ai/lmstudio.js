@@ -24,6 +24,8 @@ export {
   KVConfig,
   KVConfigField,
   kvConfigFieldSchema,
+  KVConfigLayerName,
+  kvConfigLayerNameSchema,
   kvConfigSchema,
   KVConfigStack,
   KVConfigStackLayer,

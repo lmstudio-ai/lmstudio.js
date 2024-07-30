@@ -8,7 +8,10 @@ import {
   Validator,
   type LoggerInterface,
 } from "@lmstudio/lms-common";
-import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
+import {
+  llmLlamaMoeLoadConfigSchematics,
+  singleLayerKVConfigStackOf,
+} from "@lmstudio/lms-kv-config";
 import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   llmLoadModelConfigSchema,
@@ -240,9 +243,10 @@ export class LLMNamespace {
         path,
         identifier,
         preset,
-        loadConfigStack: {
-          layers: [{ layerName: "inlineOverride", config: loadConfigToKVConfig(config ?? {}) }],
-        },
+        loadConfigStack: singleLayerKVConfigStackOf(
+          "apiOverride",
+          loadConfigToKVConfig(config ?? {}),
+        ),
         noHup: noHup ?? false,
       },
       message => {

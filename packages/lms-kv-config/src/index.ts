@@ -4,6 +4,10 @@ export {
   collapseKVStackRaw,
   combineKVStack,
   emptyKVConfig,
+  emptyKVConfigStack,
+  kvConfigEquals,
+  kvConfigToMap,
+  singleLayerKVConfigStackOf,
 } from "./KVConfig";
 export {
   GlobalConfigSchemaKeys,

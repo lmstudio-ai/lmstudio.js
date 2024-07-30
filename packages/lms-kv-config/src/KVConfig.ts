@@ -1,4 +1,9 @@
-import { kvConfigSchema, type KVConfig, type KVConfigStack } from "@lmstudio/lms-shared-types";
+import {
+  kvConfigSchema,
+  type KVConfig,
+  type KVConfigLayerName,
+  type KVConfigStack,
+} from "@lmstudio/lms-shared-types";
 import { type Any } from "ts-toolbelt";
 import { z, type ZodSchema } from "zod";
 
@@ -629,6 +634,40 @@ export function collapseKVStackRaw(configs: Array<KVConfig>): KVConfig {
 export const emptyKVConfig: KVConfig = {
   fields: [],
 };
+
+export const emptyKVConfigStack: KVConfigStack = {
+  layers: [],
+};
+
+export function singleLayerKVConfigStackOf(
+  name: KVConfigLayerName,
+  config: KVConfig,
+): KVConfigStack {
+  return {
+    layers: [
+      {
+        layerName: name,
+        config,
+      },
+    ],
+  };
+}
+
+export function addKVConfigToStack(
+  stack: KVConfigStack,
+  newLayerName: KVConfigLayerName,
+  newLayerConfig: KVConfig,
+): KVConfigStack {
+  return {
+    layers: [
+      ...stack.layers,
+      {
+        layerName: newLayerName,
+        config: newLayerConfig,
+      },
+    ],
+  };
+}
 
 export function combineKVStack(stacks: Array<KVConfigStack>): KVConfigStack {
   return {
