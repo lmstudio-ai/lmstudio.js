@@ -150,7 +150,18 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("seed", "numeric", { int: true }, -1)
       .scope("llama", builder =>
         builder
-          .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
+          .field(
+            "gpuOffload",
+            "llamaGpuOffload",
+            {},
+            {
+              ratio: "max",
+              mainGpu: 0,
+              tensorSplit: [0],
+            },
+          )
+          .field("ropeFrequencyBase", "numeric", {}, 0)
+          .field("ropeFrequencyScale", "numeric", {}, 0)
           .field("keepModelInMemory", "boolean", {}, true)
           .field("tryMmap", "boolean", {}, true),
       ),

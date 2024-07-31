@@ -8,6 +8,7 @@ enableMapSet();
 export { LazySignal, NotAvailable } from "./LazySignal";
 
 export { BufferedEvent } from "./BufferedEvent";
+export { Cleaner } from "./Cleaner";
 export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
 export { Event } from "./Event";
 export { doesFileNameIndicateModel, modelExtensions } from "./fileName";
