@@ -1,9 +1,9 @@
 import { StreamablePromise } from "@lmstudio/lms-common";
 import {
   type KVConfig,
-  type LLMDescriptor,
   type LLMPredictionStats,
   type LLMPredictionStopReason,
+  type ModelDescriptor,
 } from "@lmstudio/lms-shared-types";
 import { PredictionResult } from "./PredictionResult";
 
@@ -41,7 +41,7 @@ import { PredictionResult } from "./PredictionResult";
  */
 export class OngoingPrediction extends StreamablePromise<string, PredictionResult> {
   private stats: LLMPredictionStats | null = null;
-  private modelInfo: LLMDescriptor | null = null;
+  private modelInfo: ModelDescriptor | null = null;
   private loadModelConfig: KVConfig | null = null;
   private predictionConfig: KVConfig | null = null;
 
@@ -76,7 +76,7 @@ export class OngoingPrediction extends StreamablePromise<string, PredictionResul
     const ongoingPrediction = new OngoingPrediction(onCancel);
     const finished = (
       stats: LLMPredictionStats,
-      modelInfo: LLMDescriptor,
+      modelInfo: ModelDescriptor,
       loadModelConfig: KVConfig,
       predictionConfig: KVConfig,
     ) => {

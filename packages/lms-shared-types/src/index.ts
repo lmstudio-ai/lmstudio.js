@@ -11,6 +11,10 @@ export {
 } from "./diagnostics/DiagnosticsLogEvent";
 export { DownloadedModel, downloadedModelSchema } from "./DownloadedModel";
 export {
+  EmbeddingLoadModelConfig,
+  embeddingLoadModelConfigSchema,
+} from "./embedding/EmbeddingLoadModelConfig";
+export {
   attachSerializedErrorData,
   ErrorDisplayData,
   errorDisplayDataSchema,
@@ -54,7 +58,6 @@ export {
   LLMConversationContextInput,
   llmConversationContextInputSchema,
 } from "./llm/LLMChatHistory";
-export { LLMDescriptor, llmDescriptorSchema } from "./llm/LLMDescriptor";
 export {
   LLMLlamaAccelerationOffloadRatio,
   llmLlamaAccelerationOffloadRatioSchema,
@@ -157,10 +160,8 @@ export {
   StatusStepStatus,
   statusStepStatusSchema,
 } from "./llm/processor/PromptPreprocessorUpdate";
-export {
-  ModelDomainType as ModelDomain,
-  modelDomainTypeSchema as modelDomainSchema,
-} from "./ModelDomainType";
+export { ModelDescriptor, modelDescriptorSchema } from "./ModelDescriptor";
+export { ModelDomainType, modelDomainTypeSchema } from "./ModelDomainType";
 export {
   ModelQuery,
   modelQuerySchema,

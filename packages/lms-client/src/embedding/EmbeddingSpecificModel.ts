@@ -1,31 +1,34 @@
 import { SimpleLogger, type Validator } from "@lmstudio/lms-common";
-import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
+import { type EmbeddingPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type ModelDescriptor, type ModelSpecifier } from "@lmstudio/lms-shared-types";
 import { type SpecificModel } from "../modelShared/SpecificModel";
-import { LLMDynamicHandle } from "./LLMDynamicHandle";
+import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle";
 
 /**
- * Represents a specific loaded LLM. Most LLM related operations are inherited from
- * {@link LLMDynamicHandle}.
+ * Represents a specific loaded Embedding. Most Embedding related operations are inherited from
+ * {@link EmbeddingDynamicHandle}.
  *
  * @public
  */
-export class LLMSpecificModel extends LLMDynamicHandle implements SpecificModel<LLMPort> {
+export class EmbeddingSpecificModel
+  extends EmbeddingDynamicHandle
+  implements SpecificModel<EmbeddingPort>
+{
   public readonly identifier: string;
   public readonly path: string;
   /** @internal */
   public constructor(
-    llmPort: LLMPort,
+    embeddingPort: EmbeddingPort,
     instanceReference: string,
     descriptor: ModelDescriptor,
     validator: Validator,
-    logger: SimpleLogger = new SimpleLogger(`LLMSpecificModel`),
+    logger: SimpleLogger = new SimpleLogger(`EmbeddingSpecificModel`),
   ) {
     const specifier: ModelSpecifier = {
       type: "instanceReference",
       instanceReference,
     };
-    super(llmPort, specifier, validator, logger);
+    super(embeddingPort, specifier, validator, logger);
     this.identifier = descriptor.identifier;
     this.path = descriptor.path;
   }

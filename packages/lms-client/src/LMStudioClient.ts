@@ -12,8 +12,13 @@ import {
   createDiagnosticsBackendInterface,
   type DiagnosticsPort,
 } from "@lmstudio/lms-diagnostics-backend-interface";
+import {
+  createEmbeddingBackendInterface,
+  createLlmBackendInterface,
+  type EmbeddingPort,
+  type LLMPort,
+} from "@lmstudio/lms-external-backend-interfaces";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
-import { createLlmBackendInterface, type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   createSystemBackendInterface,
   type SystemPort,
@@ -23,6 +28,7 @@ import process from "process";
 import { z } from "zod";
 import { createAuthenticatedClientPort } from "./createAuthenticatedClientPort";
 import { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
+import { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
 import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
 import { LLMNamespace } from "./llm/LLMNamespace";
 import { SystemNamespace } from "./system/SystemNamespace";
@@ -84,6 +90,7 @@ const constructorOptsSchema = z
     // Internal testing options
     disableConnection: z.boolean().optional(),
     llmPort: z.any().optional(),
+    embeddingPort: z.any().optional(),
     systemPort: z.any().optional(),
     diagnosticsPort: z.any().optional(),
   })
@@ -101,11 +108,14 @@ export class LMStudioClient {
   /** @internal */
   private readonly llmPort: LLMPort;
   /** @internal */
+  private readonly embeddingPort: EmbeddingPort;
+  /** @internal */
   private readonly systemPort: SystemPort;
   /** @internal */
   private readonly diagnosticsPort: DiagnosticsPort;
 
   public readonly llm: LLMNamespace;
+  public readonly embedding: EmbeddingNamespace;
   public readonly system: SystemNamespace;
   public readonly diagnostics: DiagnosticsNamespace;
 
@@ -214,6 +224,7 @@ export class LMStudioClient {
       clientPasskey,
       disableConnection,
       llmPort,
+      embeddingPort,
       systemPort,
       diagnosticsPort,
     } = new Validator().validateConstructorParamOrThrow(
@@ -254,6 +265,21 @@ export class LMStudioClient {
         },
       );
 
+    this.embeddingPort =
+      embeddingPort ??
+      createAuthenticatedClientPort(
+        createEmbeddingBackendInterface(),
+        resolvingBaseUrl,
+        "embedding",
+        this.clientIdentifier,
+        this.clientPasskey,
+        new SimpleLogger("Embedding", this.logger),
+        {
+          errorDeserializer: friendlyErrorDeserializer,
+          verboseErrorMessage: verboseErrorMessages ?? false,
+        },
+      );
+
     this.systemPort =
       systemPort ??
       createAuthenticatedClientPort(
@@ -286,7 +312,12 @@ export class LMStudioClient {
 
     const validator = new Validator();
 
-    this.llm = new LLMNamespace(this.llmPort, validator, this.logger);
+    this.llm = new LLMNamespace(this.llmPort, new SimpleLogger("LLM", this.logger), validator);
+    this.embedding = new EmbeddingNamespace(
+      this.embeddingPort,
+      new SimpleLogger("Embedding", this.logger),
+      validator,
+    );
     this.system = new SystemNamespace(this.systemPort, this.logger);
     this.diagnostics = new DiagnosticsNamespace(this.diagnosticsPort, validator, this.logger);
   }

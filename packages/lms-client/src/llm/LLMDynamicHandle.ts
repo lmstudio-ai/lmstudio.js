@@ -6,13 +6,13 @@ import {
   text,
   type Validator,
 } from "@lmstudio/lms-common";
+import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
   llmLlamaPredictionConfigSchematics,
   llmSharedLoadConfigSchematics,
   llmSharedPredictionConfigSchematics,
 } from "@lmstudio/lms-kv-config";
 import { addKVConfigToStack } from "@lmstudio/lms-kv-config/dist/KVConfig";
-import { type LLMPort } from "@lmstudio/lms-llm-backend-interface";
 import {
   type KVConfig,
   type KVConfigStack,
@@ -24,13 +24,14 @@ import {
   llmContextSchema,
   type LLMConversationContextInput,
   llmConversationContextInputSchema,
-  type LLMDescriptor,
   type LLMPredictionConfig,
   llmPredictionConfigSchema,
   type LLMPredictionStats,
+  type ModelDescriptor,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
+import { DynamicHandle } from "../modelShared/DynamicHandle";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
@@ -124,7 +125,7 @@ function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVCo
  *
  * @public
  */
-export class LLMDynamicHandle {
+export class LLMDynamicHandle extends DynamicHandle<LLMPort> {
   /**
    * Don't construct this on your own. Use {@link LLMNamespace#get} or {@link LLMNamespace#load}
    * instead.
@@ -133,14 +134,16 @@ export class LLMDynamicHandle {
    */
   public constructor(
     /** @internal */
-    private readonly llmPort: LLMPort,
+    port: LLMPort,
     /** @internal */
-    private readonly specifier: ModelSpecifier,
+    specifier: ModelSpecifier,
     /** @internal */
     private readonly validator: Validator,
     /** @internal */
     private readonly logger: SimpleLogger = new SimpleLogger(`LLMModel`),
-  ) {}
+  ) {
+    super(port, specifier);
+  }
 
   /** @internal */
   private readonly internalKVConfigStack: KVConfigStack = { layers: [] };
@@ -155,7 +158,7 @@ export class LLMDynamicHandle {
     onFragment: (fragment: string) => void,
     onFinished: (
       stats: LLMPredictionStats,
-      modelInfo: LLMDescriptor,
+      modelInfo: ModelDescriptor,
       loadModelConfig: KVConfig,
       predictionConfig: KVConfig,
     ) => void,
@@ -163,7 +166,7 @@ export class LLMDynamicHandle {
   ) {
     let finished = false;
     let firstTokenTriggered = false;
-    const channel = this.llmPort.createChannel(
+    const channel = this.port.createChannel(
       "predict",
       {
         modelSpecifier,
@@ -445,34 +448,6 @@ export class LLMDynamicHandle {
     return ongoingPrediction;
   }
 
-  /**
-   * Gets the information of the model that is currently associated with this `LLMModel`. If no
-   * model is currently associated, this will return `undefined`.
-   *
-   * Note: As models are loaded/unloaded, the model associated with this `LLMModel` may change at
-   * any moment.
-   */
-  public async getModelInfo(): Promise<LLMDescriptor | undefined> {
-    const info = await this.llmPort.callRpc(
-      "getModelInfo",
-      { specifier: this.specifier, throwIfNotFound: false },
-      { stack: getCurrentStack(1) },
-    );
-    if (info === undefined) {
-      return undefined;
-    }
-    return info.descriptor;
-  }
-
-  private async getLoadConfig(stack: string): Promise<KVConfig> {
-    const loadConfig = await this.llmPort.callRpc(
-      "getLoadConfig",
-      { specifier: this.specifier },
-      { stack },
-    );
-    return loadConfig;
-  }
-
   public async unstable_getContextLength(): Promise<number> {
     const stack = getCurrentStack(1);
     const loadConfig = await this.getLoadConfig(stack);
@@ -493,7 +468,7 @@ export class LLMDynamicHandle {
       stack,
     );
     return (
-      await this.llmPort.callRpc(
+      await this.port.callRpc(
         "applyPromptTemplate",
         {
           specifier: this.specifier,
@@ -519,7 +494,7 @@ export class LLMDynamicHandle {
       stack,
     );
     return (
-      await this.llmPort.callRpc(
+      await this.port.callRpc(
         "tokenize",
         {
           specifier: this.specifier,

@@ -35,9 +35,7 @@ export type WritableSignalEndpointHandler<TContext = any, TCreationParameter = a
   | readonly [signal: SignalLike<TData>, setter: Setter<TData>]
   | Promise<readonly [signal: SignalLike<TData>, setter: Setter<TData>]>
   | readonly [signal: SignalLike<TData | NotAvailable>, setter: Setter<TData>]
-  | Promise<
-      readonly [signal: SignalLike<TData | NotAvailable>, setter: Setter<TData>]
-    >;
+  | Promise<readonly [signal: SignalLike<TData | NotAvailable>, setter: Setter<TData>]>;
 
 export interface RpcEndpoint {
   name: string;
@@ -470,3 +468,20 @@ export class BackendInterface<
     return [...this.writableSignalEndpoints.values()];
   }
 }
+
+export type BackendInterfaceWithContext<TBackendInterface extends BackendInterface, TContext> =
+  TBackendInterface extends BackendInterface<
+    infer _ROriginalContext,
+    infer RRpcEndpoints,
+    infer RChannelEndpoints,
+    infer RSignalEndpoints,
+    infer RWritableSignalEndpoints
+  >
+    ? BackendInterface<
+        TContext,
+        RRpcEndpoints,
+        RChannelEndpoints,
+        RSignalEndpoints,
+        RWritableSignalEndpoints
+      >
+    : never;

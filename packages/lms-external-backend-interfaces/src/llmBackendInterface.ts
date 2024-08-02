@@ -1,12 +1,11 @@
-import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
   llmContextSchema,
-  llmDescriptorSchema,
   llmPredictionStatsSchema,
+  modelDescriptorSchema,
   modelSpecifierSchema,
   processorInputContextSchema,
   processorInputMessageSchema,
@@ -14,48 +13,10 @@ import {
   serializedLMSExtendedErrorSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
+import { createBaseModelBackendInterface } from "./baseModelBackendInterface";
 
 export function createLlmBackendInterface() {
-  return new BackendInterface()
-    .addRpcEndpoint("echo", {
-      parameter: z.string(),
-      returns: z.string(),
-    })
-    .addChannelEndpoint("loadModel", {
-      creationParameter: z.object({
-        path: z.string(),
-        identifier: z.string().optional(),
-        preset: z.string().optional(),
-        loadConfigStack: kvConfigStackSchema,
-        noHup: z.boolean(),
-      }),
-      toClientPacket: z.discriminatedUnion("type", [
-        z.object({
-          type: z.literal("progress"),
-          progress: z.number(),
-        }),
-        z.object({
-          type: z.literal("ambiguous"),
-          paths: z.array(z.string()),
-        }),
-        z.object({
-          type: z.literal("success"),
-          identifier: z.string(),
-          instanceReference: z.string(),
-        }),
-      ]),
-      toServerPacket: z.discriminatedUnion("type", [
-        z.object({
-          type: z.literal("cancel"),
-        }),
-      ]),
-    })
-    .addRpcEndpoint("unloadModel", {
-      parameter: z.object({
-        identifier: z.string(),
-      }),
-      returns: z.void(),
-    })
+  return createBaseModelBackendInterface()
     .addChannelEndpoint("predict", {
       creationParameter: z.object({
         modelSpecifier: modelSpecifierSchema,
@@ -74,7 +35,7 @@ export function createLlmBackendInterface() {
         z.object({
           type: z.literal("success"),
           stats: llmPredictionStatsSchema,
-          modelInfo: llmDescriptorSchema,
+          modelInfo: modelDescriptorSchema,
           loadModelConfig: kvConfigSchema,
           predictionConfig: kvConfigSchema,
         }),
@@ -84,28 +45,6 @@ export function createLlmBackendInterface() {
           type: z.literal("cancel"),
         }),
       ]),
-    })
-    .addRpcEndpoint("listLoaded", {
-      parameter: z.undefined(),
-      returns: z.array(llmDescriptorSchema),
-    })
-    .addRpcEndpoint("getModelInfo", {
-      parameter: z.object({
-        specifier: modelSpecifierSchema,
-        throwIfNotFound: z.boolean(),
-      }),
-      returns: z
-        .object({
-          instanceReference: z.string(),
-          descriptor: llmDescriptorSchema,
-        })
-        .optional(),
-    })
-    .addRpcEndpoint("getLoadConfig", {
-      parameter: z.object({
-        specifier: modelSpecifierSchema,
-      }),
-      returns: kvConfigSchema,
     })
     .addRpcEndpoint("applyPromptTemplate", {
       parameter: z.object({

@@ -1,7 +1,7 @@
 import {
   type KVConfig,
-  type LLMDescriptor,
   type LLMPredictionStats,
+  type ModelDescriptor,
 } from "@lmstudio/lms-shared-types";
 
 /**
@@ -26,7 +26,7 @@ export class PredictionResult {
     /**
      * Information about the model used for the prediction.
      */
-    public readonly modelInfo: LLMDescriptor,
+    public readonly modelInfo: ModelDescriptor,
     /**
      * The configuration used to load the model.
      */

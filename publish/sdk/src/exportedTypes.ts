@@ -1,7 +1,6 @@
 export type {
   DiagnosticsNamespace,
   LLMDynamicHandle,
-  LLMLoadModelOpts,
   LLMNamespace,
   LLMSpecificModel,
   LMStudioClientConstructorOpts,
@@ -28,7 +27,6 @@ export type {
   LLMContext,
   LLMContextOverflowPolicy,
   LLMConversationContextInput,
-  LLMDescriptor,
   LLMLlamaAccelerationSetting,
   LLMLoadModelConfig,
   LLMPredictionConfig,
@@ -36,5 +34,6 @@ export type {
   LLMPredictionStopReason,
   LLMStructuredPredictionSetting,
   LogLevel,
+  ModelDescriptor,
   ModelQuery,
 } from "@lmstudio/lms-shared-types";

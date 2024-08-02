@@ -78,7 +78,7 @@ class SlicedSignalBuilder<TSource, TCurrent, TCanBeNotAvailable extends boolean>
   }
   public done(): readonly [
     signal: LazySignal<TCurrent | (TCanBeNotAvailable extends true ? NotAvailable : never)>,
-    setter: Setter<TCurrent | (TCanBeNotAvailable extends true ? NotAvailable : never)>,
+    setter: Setter<TCurrent>,
   ] {
     const sourceInitialValue = this.sourceSignal.get();
     const initialValue = isAvailable(sourceInitialValue)
@@ -137,9 +137,7 @@ class SlicedSignalBuilder<TSource, TCurrent, TCanBeNotAvailable extends boolean>
 
       return unsubscribe;
     });
-    const setter = makeSetterWithPatches<
-      TCurrent | (TCanBeNotAvailable extends true ? NotAvailable : never)
-    >((updater, tags) => {
+    const setter = makeSetterWithPatches<TCurrent>((updater, tags) => {
       const newTags = tags?.map(tag => this.tagKey + tag);
       this.sourceSetter.withPatchUpdater(oldValue => {
         const slicedOldValue = drill(oldValue, this.path);

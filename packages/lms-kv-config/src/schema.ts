@@ -194,34 +194,37 @@ export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchema
   llmPrediction.sliced("onnx.*"),
 );
 
-const llmLoad = globalConfigSchematics.scoped("llm.load");
+export const llmLoadSchematics = globalConfigSchematics.scoped("llm.load");
 
-export const llmSharedLoadConfigSchematics = llmLoad.sliced("contextLength", "seed");
+export const llmSharedLoadConfigSchematics = llmLoadSchematics.sliced("contextLength", "seed");
 
 export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
-  llmLoad.sliced("llama.*"),
+  llmLoadSchematics.sliced("llama.*"),
 );
 
 export const llmMlxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
-  llmLoad.sliced("mlx.*"),
+  llmLoadSchematics.sliced("mlx.*"),
 );
 
 export const llmOnnxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
-  llmLoad.sliced("onnx.*"),
+  llmLoadSchematics.sliced("onnx.*"),
 );
 
-const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoad.sliced("numExperts");
+const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoadSchematics.sliced("numExperts");
 
 export const llmLlamaMoeLoadConfigSchematics = llmLlamaLoadConfigSchematics.union(
   llmLlamaMoeAdditionalLoadConfigSchematics,
 );
 
-const embeddingLoad = globalConfigSchematics.scoped("embedding.load");
+export const embeddingLoadSchematics = globalConfigSchematics.scoped("embedding.load");
 
-export const embeddingSharedLoadConfigSchematics = embeddingLoad.sliced("contextLength", "seed");
+export const embeddingSharedLoadConfigSchematics = embeddingLoadSchematics.sliced(
+  "contextLength",
+  "seed",
+);
 
 export const embeddingLlamaLoadConfigSchematics = embeddingSharedLoadConfigSchematics.union(
-  embeddingLoad.sliced("llama.*"),
+  embeddingLoadSchematics.sliced("llama.*"),
 );
 
 export const emptyConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary).build();

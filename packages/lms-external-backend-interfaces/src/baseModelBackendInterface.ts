@@ -1,0 +1,75 @@
+import { BackendInterface } from "@lmstudio/lms-communication";
+import { type InferClientPort } from "@lmstudio/lms-communication-client";
+import {
+  kvConfigSchema,
+  kvConfigStackSchema,
+  modelDescriptorSchema,
+  modelSpecifierSchema,
+} from "@lmstudio/lms-shared-types";
+import { z } from "zod";
+
+/**
+ * Create a base model backend interface that are used by all domain-specific model backend
+ * interfaces.
+ */
+export function createBaseModelBackendInterface() {
+  return new BackendInterface()
+    .addChannelEndpoint("loadModel", {
+      creationParameter: z.object({
+        path: z.string(),
+        identifier: z.string().optional(),
+        loadConfigStack: kvConfigStackSchema,
+      }),
+      toClientPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("progress"),
+          progress: z.number(),
+        }),
+        z.object({
+          type: z.literal("ambiguous"),
+          paths: z.array(z.string()),
+        }),
+        z.object({
+          type: z.literal("success"),
+          identifier: z.string(),
+          instanceReference: z.string(),
+        }),
+      ]),
+      toServerPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("cancel"),
+        }),
+      ]),
+    })
+    .addRpcEndpoint("unloadModel", {
+      parameter: z.object({
+        identifier: z.string(),
+      }),
+      returns: z.void(),
+    })
+    .addRpcEndpoint("listLoaded", {
+      parameter: z.undefined(),
+      returns: z.array(modelDescriptorSchema),
+    })
+    .addRpcEndpoint("getModelInfo", {
+      parameter: z.object({
+        specifier: modelSpecifierSchema,
+        throwIfNotFound: z.boolean(),
+      }),
+      returns: z
+        .object({
+          instanceReference: z.string(),
+          descriptor: modelDescriptorSchema,
+        })
+        .optional(),
+    })
+    .addRpcEndpoint("getLoadConfig", {
+      parameter: z.object({
+        specifier: modelSpecifierSchema,
+      }),
+      returns: kvConfigSchema,
+    });
+}
+
+export type BaseModelPort = InferClientPort<typeof createBaseModelBackendInterface>;
+export type BaseModelBackendInterface = ReturnType<typeof createBaseModelBackendInterface>;

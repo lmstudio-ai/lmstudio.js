@@ -15,7 +15,7 @@
     "@lmstudio/lms-common",
     "@lmstudio/lms-communication",
     "@lmstudio/lms-communication-client",
-    "@lmstudio/lms-llm-backend-interface",
+    "@lmstudio/lms-external-backend-interfaces",
     "@lmstudio/lms-llm-sdk",
     "@lmstudio/lms-platform-backend-interface",
     "@lmstudio/lms-platform-sdk",
