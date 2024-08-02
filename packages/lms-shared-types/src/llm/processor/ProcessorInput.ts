@@ -17,6 +17,10 @@ export const processorInputFileTypeSchema = z.enum([
   "unknown",
 ]);
 
+/**
+ * TODO: documentation
+ * @public
+ */
 export interface ProcessorInputFile {
   identifier: string;
   type: ProcessorInputFileType;

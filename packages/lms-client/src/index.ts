@@ -1,4 +1,7 @@
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
+export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle";
+export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
+export type { EmbeddingSpecificModel } from "./embedding/EmbeddingSpecificModel";
 export type { LLMDynamicHandle } from "./llm/LLMDynamicHandle";
 export type { LLMNamespace } from "./llm/LLMNamespace";
 export type { LLMSpecificModel } from "./llm/LLMSpecificModel";

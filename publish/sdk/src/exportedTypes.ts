@@ -1,5 +1,8 @@
 export type {
   DiagnosticsNamespace,
+  EmbeddingDynamicHandle,
+  EmbeddingNamespace,
+  EmbeddingSpecificModel,
   LLMDynamicHandle,
   LLMNamespace,
   LLMSpecificModel,
@@ -9,6 +12,7 @@ export type {
   PredictionProcessDebugInfoBlockController,
   PredictionProcessStatusController,
   PredictionResult,
+  PromptPreprocessController,
   PromptPreprocessor,
   SystemNamespace,
 } from "@lmstudio/lms-client";
@@ -36,4 +40,5 @@ export type {
   LogLevel,
   ModelDescriptor,
   ModelQuery,
+  ProcessorInputFile,
 } from "@lmstudio/lms-shared-types";
