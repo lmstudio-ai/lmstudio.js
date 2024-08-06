@@ -52,7 +52,7 @@ export function createMockedPorts<
     BufferedEvent.create<ServerToClientMessage>();
   const [toServerMessageEvent, emitToServerMessageEvent] =
     BufferedEvent.create<ClientToServerMessage>();
-  const [clientCloseEvent, _emitCloseEvent] = BufferedEvent.create<void>();
+  const [clientCloseEvent, _emitClientCloseEvent] = BufferedEvent.create<void>();
   const [serverCloseEvent, _emitServerCloseEvent] = BufferedEvent.create<void>();
 
   const clientTransportFactory = GenericClientTransport.createFactory(

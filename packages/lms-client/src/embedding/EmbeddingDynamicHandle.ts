@@ -59,4 +59,26 @@ export class EmbeddingDynamicHandle extends DynamicHandle<EmbeddingPort> {
     const loadConfig = await this.getLoadConfig(stack);
     return embeddingSharedLoadConfigSchematics.access(loadConfig, "contextLength");
   }
+
+  public async unstable_tokenize(inputString: string): Promise<number[]> {
+    const stack = getCurrentStack(1);
+    inputString = this.validator.validateMethodParamOrThrow(
+      "model",
+      "unstable_tokenize",
+      "inputString",
+      z.string(),
+      inputString,
+      stack,
+    );
+    return (
+      await this.port.callRpc(
+        "tokenize",
+        {
+          specifier: this.specifier,
+          inputString,
+        },
+        { stack },
+      )
+    ).tokens;
+  }
 }
