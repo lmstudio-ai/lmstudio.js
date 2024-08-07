@@ -60,7 +60,7 @@ export class EmbeddingDynamicHandle extends DynamicHandle<EmbeddingPort> {
     return embeddingSharedLoadConfigSchematics.access(loadConfig, "contextLength");
   }
 
-  public async unstable_getBatch(): Promise<number> {
+  public async unstable_getEvalBatchSize(): Promise<number> {
     const stack = getCurrentStack(1);
     const loadConfig = await this.getLoadConfig(stack);
     return globalConfigSchematics.access(loadConfig, "embedding.load.llama.evalBatchSize");
