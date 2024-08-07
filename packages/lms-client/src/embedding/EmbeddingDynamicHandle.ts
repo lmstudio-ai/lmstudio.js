@@ -1,6 +1,6 @@
 import { getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type EmbeddingPort } from "@lmstudio/lms-external-backend-interfaces";
-import { embeddingSharedLoadConfigSchematics } from "@lmstudio/lms-kv-config";
+import { embeddingSharedLoadConfigSchematics, globalConfigSchematics } from "@lmstudio/lms-kv-config";
 import { type ModelSpecifier } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { DynamicHandle } from "../modelShared/DynamicHandle";
@@ -58,6 +58,12 @@ export class EmbeddingDynamicHandle extends DynamicHandle<EmbeddingPort> {
     const stack = getCurrentStack(1);
     const loadConfig = await this.getLoadConfig(stack);
     return embeddingSharedLoadConfigSchematics.access(loadConfig, "contextLength");
+  }
+
+  public async unstable_getBatch(): Promise<number> {
+    const stack = getCurrentStack(1);
+    const loadConfig = await this.getLoadConfig(stack);
+    return globalConfigSchematics.access(loadConfig, "embedding.load.llama.evalBatchSize");
   }
 
   public async unstable_tokenize(inputString: string): Promise<number[]> {
