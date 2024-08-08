@@ -192,6 +192,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
    * The main write loop, it will keep running until there are no more updates to process.
    */
   private async writeLoop() {
+    const unsubscribe = this.innerSignal.subscribe(() => {});
     if (this.innerSignal.get() === OWLSignal.NOT_AVAILABLE) {
       await this.innerSignal.pull();
     }
@@ -255,6 +256,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
       });
     }
     this.isWriteLoopRunning = false;
+    unsubscribe();
   }
 
   /**
