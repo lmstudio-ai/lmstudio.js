@@ -299,6 +299,7 @@ export class LLMDynamicHandle extends DynamicHandle<LLMPort> {
                   eosToken: "",
                   template: noFormattingTemplate,
                 },
+                stopStrings: [],
               },
             }),
           },

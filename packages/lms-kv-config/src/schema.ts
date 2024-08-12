@@ -52,6 +52,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             beforeUser: "Human: ",
             afterUser: "\n",
           },
+          stopStrings: [],
         },
       )
       .field("systemPrompt", "string", {}, "")

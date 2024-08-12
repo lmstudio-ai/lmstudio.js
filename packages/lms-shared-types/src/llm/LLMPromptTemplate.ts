@@ -59,9 +59,14 @@ export interface LLMPromptTemplate {
   type: LLMPromptTemplateType;
   manualPromptTemplate?: LLMManualPromptTemplate;
   jinjaPromptTemplate?: LLMJinjaPromptTemplate;
+  /**
+   * Additional stop strings to be used with this template.
+   */
+  stopStrings: Array<string>;
 }
 export const llmPromptTemplateSchema = z.object({
   type: llmPromptTemplateTypeSchema,
   manualPromptTemplate: llmManualPromptTemplateSchema.optional(),
   jinjaPromptTemplate: llmJinjaPromptTemplateSchema.optional(),
+  stopStrings: z.array(z.string()),
 });

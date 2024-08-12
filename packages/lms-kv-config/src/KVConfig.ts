@@ -304,18 +304,17 @@ export class KVConfigSchematics<
     return field.schema;
   }
 
-  private parseField(fieldSchema: KVConcreteFieldSchema, key: string, value: any) {
+  private parseField(fieldSchema: KVConcreteFieldSchema, fullKey: string, value: any) {
     if (value === undefined) {
       if (fieldSchema.defaultValue === undefined) {
-        throw new Error(`Field with key ${this.baseKey + key} is missing and has no default value`);
+        throw new Error(`Field with key ${fullKey} is missing and has no default value`);
       }
       return fieldSchema.defaultValue;
     }
     const parseResult = fieldSchema.schema.safeParse(value);
     if (!parseResult.success) {
       throw new Error(
-        `Field with key ${this.baseKey + key} does not satisfy the schema:` +
-          parseResult.error.message,
+        `Field with key ${fullKey} does not satisfy the schema:` + parseResult.error.message,
       );
     }
     return parseResult.data;

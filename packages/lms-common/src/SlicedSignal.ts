@@ -9,7 +9,7 @@ import { type SignalLike } from "./Signal";
 export function makeSlicedSignalFrom<TSource>(
   writableSignal: readonly [signal: SignalLike<TSource>, setter: Setter<TSource>],
 ) {
-  return new SlicedSignalBuilder<
+  return new SlicedSignalBuilderImpl<
     TSource,
     StripNotAvailable<TSource>,
     TSource extends NotAvailable ? true : false
@@ -63,7 +63,7 @@ function pathStartsWith(path: Array<string | number>, prefix: Array<string | num
   return true;
 }
 
-class SlicedSignalBuilder<TSource, TCurrent, TCanBeNotAvailable extends boolean> {
+class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends boolean> {
   private readonly path: Array<string> = [];
   private readonly tagKey = String(Math.random());
   public constructor(
@@ -72,7 +72,7 @@ class SlicedSignalBuilder<TSource, TCurrent, TCanBeNotAvailable extends boolean>
   ) {}
   public access<TKey extends keyof TCurrent>(
     key: TKey,
-  ): SlicedSignalBuilder<TSource, TCurrent[TKey], TCanBeNotAvailable> {
+  ): SlicedSignalBuilderImpl<TSource, TCurrent[TKey], TCanBeNotAvailable> {
     this.path.push(key as string);
     return this as any;
   }
@@ -153,3 +153,9 @@ class SlicedSignalBuilder<TSource, TCurrent, TCanBeNotAvailable extends boolean>
     return [signal, setter];
   }
 }
+
+export type SlicedSignalBuilder<
+  TSource,
+  TCurrent,
+  TCanBeNotAvailable extends boolean,
+> = SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable>;
