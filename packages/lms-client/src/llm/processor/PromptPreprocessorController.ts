@@ -134,6 +134,12 @@ export class PromptPreprocessController {
   public debug(...messages: Array<any>) {
     this.createDebugInfoBlock(concatenateDebugMessages(...messages));
   }
+
+  public guardAbort() {
+    if (this.abortSignal.aborted) {
+      throw this.abortSignal.reason;
+    }
+  }
 }
 export class PredictionProcessStatusController implements PredictionStepController {
   public constructor(
