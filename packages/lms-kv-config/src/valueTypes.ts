@@ -1,5 +1,6 @@
 import {
   llmContextOverflowPolicySchema,
+  llmContextReferenceSchema,
   llmLlamaAccelerationSettingSchema,
   llmLlamaLogitBiasConfigSchema,
   llmLlamaMirostatSamplingConfigSchema,
@@ -25,6 +26,14 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
    * An example would be context length for MLX, as you cannot change it.
    */
   nonConfigurable: z.boolean().optional(),
+  /**
+   * A field can be marked as machine dependent when its value is highly dependent on the machine
+   * that is being used. When exporting the config, one may decide to not include machine dependent
+   * fields by default.
+   *
+   * An example would be GPU offload settings.
+   */
+  machineDependent: z.boolean().optional(),
 })
   .valueType("numeric", {
     paramType: {
@@ -130,6 +139,12 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     paramType: {},
     schemaMaker: () => {
       return llmContextOverflowPolicySchema;
+    },
+  })
+  .valueType("context", {
+    paramType: {},
+    schemaMaker: () => {
+      return z.array(llmContextReferenceSchema);
     },
   })
   .valueType("llmPromptTemplate", {

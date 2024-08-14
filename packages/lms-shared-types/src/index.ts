@@ -59,6 +59,14 @@ export {
   llmConversationContextInputSchema,
 } from "./llm/LLMChatHistory";
 export {
+  LLMContextReference,
+  LLMContextReferenceJsonFile,
+  llmContextReferenceJsonFileSchema,
+  llmContextReferenceSchema,
+  LLMContextReferenceYamlFile,
+  llmContextReferenceYamlFileSchema,
+} from "./llm/LLMContextReference";
+export {
   LLMLlamaAccelerationOffloadRatio,
   llmLlamaAccelerationOffloadRatioSchema,
   LLMLlamaAccelerationSetting,
@@ -177,3 +185,4 @@ export {
   Runtime,
   runtimeSchema,
 } from "./Runtime";
+export { VirtualModelManifest, virtualModelManifestSchema } from "./VirtualModelManifest";

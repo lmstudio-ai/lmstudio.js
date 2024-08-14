@@ -341,7 +341,7 @@ export class KVConfigSchematics<
    * - `some.namespace.key`: Matches exactly `some.namespace.key`
    * - `some.namespace.*`: Matches anything that starts with `some.namespace.`
    */
-  public sliced<TKeyPattern extends string>(
+  public sliced<TKeyPattern extends (keyof TKVConfigSchema & string) | `${string}.*` | "*">(
     ...patterns: TKeyPattern[]
   ): KVConfigSchematics<
     TKVFieldValueTypeLibraryMap,
@@ -562,6 +562,30 @@ export class KVConfigSchematics<
     this.lenientZodSchema = this.makeLenientZodSchema();
     return this.lenientZodSchema;
   }
+
+  public getValueType<TKey extends (keyof TKVConfigSchema & string) | string>(
+    key: TKey,
+  ): TKey extends keyof TKVConfigSchema & string
+    ? TKVConfigSchema[TKey]["valueTypeKey"]
+    : null | TKVConfigSchema[keyof TKVConfigSchema]["valueTypeKey"] {
+    const field = this.fields.get(key);
+    if (field === undefined) {
+      return null as any;
+    }
+    return field.valueTypeKey as any;
+  }
+
+  public getValueTypeParam<TKey extends (keyof TKVConfigSchema & string) | string>(
+    key: TKey,
+  ): TKey extends keyof TKVConfigSchema & string
+    ? TKVFieldValueTypeLibraryMap[TKVConfigSchema[TKey]["valueTypeKey"]]["param"]
+    : null | TKVFieldValueTypeLibraryMap[keyof TKVFieldValueTypeLibraryMap]["param"] {
+    const field = this.fields.get(key);
+    if (field === undefined) {
+      return null as any;
+    }
+    return field.valueTypeParams as any;
+  }
 }
 
 export class KVConfigBuilder<TKVConfigSchema extends KVVirtualConfigSchema> {
@@ -677,6 +701,15 @@ export function addKVConfigToStack(
 export function combineKVStack(stacks: Array<KVConfigStack>): KVConfigStack {
   return {
     layers: stacks.flatMap(s => s.layers),
+  };
+}
+
+export function filterKVConfig(
+  config: KVConfig,
+  predicate: (key: string, value: any) => boolean,
+): KVConfig {
+  return {
+    fields: config.fields.filter(f => predicate(f.key, f.value)),
   };
 }
 

@@ -35,10 +35,12 @@ export type KVConfigLayerName =
   | "completeModeFormatting"
   // Instance specific config (set in the server tab)
   | "instance"
-  // User editable per concrete model defaults
-  | "userConcreteModelDefault"
-  // LM Studio provided per concrete model defaults
-  | "concreteModelDefault";
+  // User editable per model defaults
+  | "userModelDefault"
+  // Virtual model baked in configs
+  | "virtualModel"
+  // LM Studio provided per model defaults
+  | "modelDefault";
 
 export const kvConfigLayerNameSchema = z.enum([
   "currentlyLoaded",
@@ -48,8 +50,9 @@ export const kvConfigLayerNameSchema = z.enum([
   "httpServerRequestOverride",
   "completeModeFormatting",
   "instance",
-  "userConcreteModelDefault",
-  "concreteModelDefault",
+  "userModelDefault",
+  "virtualModel",
+  "modelDefault",
 ]);
 
 export interface KVConfigStackLayer {

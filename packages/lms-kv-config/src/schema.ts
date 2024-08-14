@@ -57,6 +57,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       )
       .field("systemPrompt", "string", {}, "")
       .field("seed", "numeric", { int: true }, -1)
+      .field("contextPrefill", "context", {}, [])
       .scope("llama", builder =>
         builder
           .field("topKSampling", "numeric", { min: -1, max: 500, int: true }, 40)
@@ -121,7 +122,16 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
   )
   .scope("llm.load", builder =>
     builder
-      .field("contextLength", "numeric", { min: 1, int: true }, 2048)
+      .field(
+        "contextLength",
+        "numeric",
+        {
+          machineDependent: true,
+          min: 1,
+          int: true,
+        },
+        2048,
+      )
       .field("numExperts", "numeric", { min: 0, int: true }, 0)
       .field("seed", "numeric", { int: true }, -1)
       .scope("llama", builder =>
@@ -130,7 +140,9 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field(
             "gpuOffload",
             "llamaGpuOffload",
-            {},
+            {
+              machineDependent: true,
+            },
             {
               ratio: "max",
               mainGpu: 0,
@@ -154,7 +166,9 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field(
             "gpuOffload",
             "llamaGpuOffload",
-            {},
+            {
+              machineDependent: true,
+            },
             {
               ratio: "max",
               mainGpu: 0,
@@ -182,6 +196,7 @@ export const llmSharedPredictionConfigSchematics = llmPrediction.sliced(
   "promptTemplate",
   "systemPrompt",
   "seed",
+  "contextPrefill",
 );
 
 export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
