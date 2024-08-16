@@ -26,7 +26,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field(
         "temperature",
         "numeric",
-        { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 }, shortHand: "temp" },
+        { min: 0, slider: { min: 0, max: 1, step: 0.01 }, shortHand: "temp" },
         0.8,
       )
       .field("contextOverflowPolicy", "contextOverflowPolicy", {}, "truncateMiddle")
