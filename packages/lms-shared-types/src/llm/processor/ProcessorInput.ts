@@ -6,12 +6,14 @@ export const processorInputMessageRoleSchema = z.enum(["system", "user", "assist
 export type ProcessorInputFileType =
   | "image"
   | "text/plain"
+  | "text/other"
   | "application/pdf"
   | "application/word"
   | "unknown";
 export const processorInputFileTypeSchema = z.enum([
   "image",
   "text/plain",
+  "text/other",
   "application/pdf",
   "application/word",
   "unknown",
