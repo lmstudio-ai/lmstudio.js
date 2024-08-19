@@ -10,7 +10,12 @@ import { LLMDynamicHandle } from "./LLMDynamicHandle";
  *
  * @public
  */
-export class LLMSpecificModel extends LLMDynamicHandle implements SpecificModel<LLMPort> {
+export class LLMSpecificModel
+  extends LLMDynamicHandle
+  implements
+    SpecificModel<// prettier-ignore
+    /** @internal */ LLMPort>
+{
   public readonly identifier: string;
   public readonly path: string;
   /** @internal */

@@ -17,7 +17,10 @@ import {
  *
  * @public
  */
-export abstract class DynamicHandle<TClientPort extends BaseModelPort> {
+export abstract class DynamicHandle<
+  /** @internal */
+  TClientPort extends BaseModelPort,
+> {
   /**
    * Don't construct this on your own. Use {@link LLMNamespace#get} or {@link LLMNamespace#load}
    * instead.

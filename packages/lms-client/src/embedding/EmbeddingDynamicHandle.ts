@@ -1,6 +1,9 @@
 import { getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type EmbeddingPort } from "@lmstudio/lms-external-backend-interfaces";
-import { embeddingSharedLoadConfigSchematics, globalConfigSchematics } from "@lmstudio/lms-kv-config";
+import {
+  embeddingSharedLoadConfigSchematics,
+  globalConfigSchematics,
+} from "@lmstudio/lms-kv-config";
 import { type ModelSpecifier } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { DynamicHandle } from "../modelShared/DynamicHandle";
@@ -16,7 +19,8 @@ import { DynamicHandle } from "../modelShared/DynamicHandle";
  *
  * @public
  */
-export class EmbeddingDynamicHandle extends DynamicHandle<EmbeddingPort> {
+export class EmbeddingDynamicHandle extends DynamicHandle<// prettier-ignore
+/** @internal */ EmbeddingPort> {
   /**
    * Don't construct this on your own. Use {@link EmbeddingNamespace#get} or
    * {@link EmbeddingNamespace#load}

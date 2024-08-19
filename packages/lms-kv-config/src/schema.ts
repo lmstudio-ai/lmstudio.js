@@ -136,19 +136,20 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("seed", "numeric", { int: true }, -1)
       .scope("llama", builder =>
         builder
-          .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
-          .field(
-            "gpuOffload",
-            "llamaGpuOffload",
-            {
-              machineDependent: true,
-            },
-            {
-              ratio: "max",
-              mainGpu: 0,
-              tensorSplit: [0],
-            },
+          .scope("acceleration", builder =>
+            builder
+              .field(
+                "offloadRatio",
+                "llamaAccelerationOffloadRatio",
+                { machineDependent: true },
+                "max",
+              )
+              .field("mainGpu", "llamaAccelerationMainGpu", { machineDependent: true }, 0)
+              .field("tensorSplit", "llamaAccelerationTensorSplit", { machineDependent: true }, [
+                0,
+              ]),
           )
+          .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
           .field("flashAttention", "boolean", {}, false)
           .field("ropeFrequencyBase", "numeric", {}, 0)
           .field("ropeFrequencyScale", "numeric", {}, 0)
@@ -163,17 +164,18 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("seed", "numeric", { int: true }, -1)
       .scope("llama", builder =>
         builder
-          .field(
-            "gpuOffload",
-            "llamaGpuOffload",
-            {
-              machineDependent: true,
-            },
-            {
-              ratio: "max",
-              mainGpu: 0,
-              tensorSplit: [0],
-            },
+          .scope("acceleration", builder =>
+            builder
+              .field(
+                "offloadRatio",
+                "llamaAccelerationOffloadRatio",
+                { machineDependent: true },
+                "max",
+              )
+              .field("mainGpu", "llamaAccelerationMainGpu", { machineDependent: true }, 0)
+              .field("tensorSplit", "llamaAccelerationTensorSplit", { machineDependent: true }, [
+                0,
+              ]),
           )
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
           .field("ropeFrequencyBase", "numeric", {}, 0)

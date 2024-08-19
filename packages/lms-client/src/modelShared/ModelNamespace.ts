@@ -21,6 +21,8 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { type ModelDomainType } from "@lmstudio/lms-shared-types/dist/ModelDomainType";
 import { z, type ZodSchema } from "zod";
+import { type EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
+import { type LLMDynamicHandle } from "../llm/LLMDynamicHandle";
 import { type DynamicHandle } from "./DynamicHandle";
 
 /** @public */
@@ -102,26 +104,38 @@ function makeLoadModelOptsSchema<TLoadModelConfig>(
 
 /**
  * Abstract namespace for namespaces that deal with models.
+ *
+ * @public
  */
 export abstract class ModelNamespace<
+  /** @internal */
   TClientPort extends BaseModelPort,
   TLoadModelConfig,
-  TDynamicHandle extends DynamicHandle<TClientPort>,
+  TDynamicHandle extends DynamicHandle<// prettier-ignore
+  /** @internal */ TClientPort>,
   TSpecificModel,
 > {
   /**
    * The actual namespace name.
+   *
+   * @internal
    */
   protected abstract readonly namespace: ModelDomainType;
+  /** @internal */
   protected abstract readonly defaultLoadConfig: TLoadModelConfig;
   /**
    * The schema for parsing load model config.
+   *
+   * @internal
    */
   protected abstract readonly loadModelConfigSchema: ZodSchema<TLoadModelConfig>;
   /**
    * Method for converting the domain-specific load config to KVConfig.
+   *
+   * @internal
    */
   protected abstract loadConfigToKVConfig(config: TLoadModelConfig): KVConfig;
+  /** @internal */
   protected abstract createDomainSpecificModel(
     port: TClientPort,
     instanceReference: string,
@@ -129,13 +143,16 @@ export abstract class ModelNamespace<
     validator: Validator,
     logger: SimpleLogger,
   ): TSpecificModel;
+  /** @internal */
   protected abstract createDomainDynamicHandle(
     port: TClientPort,
     specifier: ModelSpecifier,
     validator: Validator,
     logger: SimpleLogger,
   ): TDynamicHandle;
+  /** @internal */
   private loadModelOptsSchema: ZodSchema<BaseLoadModelOpts<TLoadModelConfig>> | null = null;
+  /** @internal */
   private getLoadModelOptsSchema() {
     if (this.loadModelOptsSchema === null) {
       this.loadModelOptsSchema = makeLoadModelOptsSchema(this.loadModelConfigSchema);
@@ -145,13 +162,16 @@ export abstract class ModelNamespace<
 
   /** @internal */
   public constructor(
+    /** @internal */
     protected readonly port: TClientPort,
+    /** @internal */
     protected readonly logger: SimpleLogger,
-    private readonly validator: Validator,
+    /** @internal */
+    protected readonly validator: Validator,
   ) {}
   /**
-   * Load a model for inferencing. The first parameter is the model path. The second parameter is
-   * an optional object with additional options. By default, the model is loaded with the default
+   * Load a model for inferencing. The first parameter is the model path. The second parameter is an
+   * optional object with additional options. By default, the model is loaded with the default
    * preset (as selected in LM Studio) and the verbose option is set to true.
    *
    * When specifying the model path, you can use the following format:
@@ -182,12 +202,11 @@ export abstract class ModelNamespace<
    * client with the same `clientIdentifier` disconnects, all models loaded by that client will be
    * automatically unloaded.
    *
-   * Once loaded, see {@link LLMDynamicHandle} for how to use the model for inferencing or other things you
-   * can do with the model.
+   * Once loaded, see {@link LLMDynamicHandle} or {@link EmbeddingDynamicHandle} for how to use the
+   * model for inferencing or other things you can do with the model.
    *
-   * @param path - The path of the model to load. See {@link LLMLoadModelOpts} for
-   * details.
-   * @param opts - Options for loading the model. See {@link LLMLoadModelOpts} for details.
+   * @param path - The path of the model to load.
+   * @param opts - Options for loading the model.
    * @returns A promise that resolves to the model that can be used for inferencing
    */
   public async load(

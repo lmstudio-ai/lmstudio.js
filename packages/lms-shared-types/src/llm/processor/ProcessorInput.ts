@@ -1,8 +1,14 @@
 import { z } from "zod";
 
+/**
+ * @public
+ */
 export type ProcessorInputMessageRole = "system" | "user" | "assistant";
 export const processorInputMessageRoleSchema = z.enum(["system", "user", "assistant"]);
 
+/**
+ * @public
+ */
 export type ProcessorInputFileType =
   | "image"
   | "text/plain"
@@ -34,6 +40,9 @@ export const processorInputFileSchema = z.object({
   sizeBytes: z.number(),
 });
 
+/**
+ * @public
+ */
 export interface ProcessorInputMessage {
   role: ProcessorInputMessageRole;
   text: string;
@@ -48,6 +57,9 @@ export const processorInputMessageSchema = z.object({
   files: z.array(processorInputFileSchema),
 });
 
+/**
+ * @public
+ */
 export interface ProcessorInputContext {
   history: Array<ProcessorInputMessage>;
 }

@@ -4,6 +4,9 @@ import {
   type LLMLlamaAccelerationSetting,
 } from "../llm/LLMLoadModelConfig";
 
+/**
+ * @public
+ */
 export interface EmbeddingLoadModelConfig {
   // TODO: Fix type
   gpuOffload?: LLMLlamaAccelerationSetting;

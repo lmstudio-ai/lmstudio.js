@@ -2,6 +2,8 @@ import { z } from "zod";
 
 /**
  * Represents a part of the content of a message in the history.
+ *
+ * @public
  */
 export type LLMChatHistoryMessageContentPart =
   | {
@@ -81,6 +83,12 @@ export const llmContextSchema = z.object({
   history: llmChatHistorySchema,
 });
 
+/**
+ * Represents the input context for a conversation request. This is an array of objects, where each
+ * object represents a single message in the conversation.
+ *
+ * @public
+ */
 export type LLMConversationContextInput = Array<{
   role: LLMChatHistoryRole;
   content: string;

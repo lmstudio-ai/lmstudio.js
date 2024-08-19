@@ -22,6 +22,9 @@ export const blockLocationSchema = z.discriminatedUnion("type", [
 
 // Status
 
+/**
+ * @public
+ */
 export type StatusStepStatus = "waiting" | "loading" | "done" | "error" | "canceled";
 export const statusStepStatusSchema = z.enum([
   "waiting",
@@ -31,6 +34,9 @@ export const statusStepStatusSchema = z.enum([
   "canceled",
 ]) as z.Schema<StatusStepStatus>;
 
+/**
+ * @public
+ */
 export interface StatusStepState {
   status: StatusStepStatus;
   text: string;
@@ -75,8 +81,11 @@ export const promptPreprocessorUpdateStatusRemoveSchema = z.object({
   id: z.string(),
 });
 
-// Citation Block
-
+/**
+ * Represents a source of a citation.
+ *
+ * @public
+ */
 export interface CitationSource {
   fileName: string;
   absoluteFilePath: string;

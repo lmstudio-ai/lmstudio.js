@@ -125,7 +125,8 @@ function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVCo
  *
  * @public
  */
-export class LLMDynamicHandle extends DynamicHandle<LLMPort> {
+export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
+/** @internal */ LLMPort> {
   /**
    * Don't construct this on your own. Use {@link LLMNamespace#get} or {@link LLMNamespace#load}
    * instead.

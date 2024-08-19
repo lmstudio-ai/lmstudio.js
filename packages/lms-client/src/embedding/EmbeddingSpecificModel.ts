@@ -12,7 +12,9 @@ import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle";
  */
 export class EmbeddingSpecificModel
   extends EmbeddingDynamicHandle
-  implements SpecificModel<EmbeddingPort>
+  implements
+    SpecificModel<// prettier-ignore
+    /** @internal */ EmbeddingPort>
 {
   public readonly identifier: string;
   public readonly path: string;

@@ -15,7 +15,7 @@ import { z } from "zod";
 import { ModelNamespace } from "../modelShared/ModelNamespace";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 import { LLMSpecificModel } from "./LLMSpecificModel";
-import { type PromptPreprocessor } from "./processor/PromptPreprocessor";
+import { promptPreprocessorSchema, type PromptPreprocessor } from "./processor/PromptPreprocessor";
 import {
   PromptPreprocessController,
   type PromptCoPreprocessor,
@@ -23,19 +23,26 @@ import {
 
 /** @public */
 export class LLMNamespace extends ModelNamespace<
+  /** @internal */
   LLMPort,
   LLMLoadModelConfig,
   LLMDynamicHandle,
   LLMSpecificModel
 > {
+  /** @internal */
   protected override readonly namespace = "llm";
+  /** @internal */
   protected override readonly defaultLoadConfig = {};
+  /** @internal */
   protected override readonly loadModelConfigSchema = llmLoadModelConfigSchema;
+  /** @internal */
   protected override loadConfigToKVConfig(config: LLMLoadModelConfig): KVConfig {
     return llmLlamaMoeLoadConfigSchematics.buildPartialConfig({
       "contextLength": config.contextLength,
       "llama.evalBatchSize": config.evalBatchSize,
-      "llama.gpuOffload": config.gpuOffload,
+      "llama.acceleration.offloadRatio": config.gpuOffload?.ratio,
+      "llama.acceleration.mainGpu": config.gpuOffload?.mainGpu,
+      "llama.acceleration.tensorSplit": config.gpuOffload?.tensorSplit,
       "llama.flashAttention": config.flashAttention,
       "llama.ropeFrequencyBase": config.ropeFrequencyBase,
       "llama.ropeFrequencyScale": config.ropeFrequencyScale,
@@ -46,6 +53,7 @@ export class LLMNamespace extends ModelNamespace<
       "numExperts": config.numExperts,
     });
   }
+  /** @internal */
   protected override createDomainSpecificModel(
     port: LLMPort,
     instanceReference: string,
@@ -55,6 +63,7 @@ export class LLMNamespace extends ModelNamespace<
   ): LLMSpecificModel {
     return new LLMSpecificModel(port, instanceReference, descriptor, validator, logger);
   }
+  /** @internal */
   protected override createDomainDynamicHandle(
     port: LLMPort,
     specifier: ModelSpecifier,
@@ -64,9 +73,17 @@ export class LLMNamespace extends ModelNamespace<
     return new LLMDynamicHandle(port, specifier, validator, logger);
   }
 
-  public unstable_registerPromptPreprocessor(promptPreprocessor: PromptPreprocessor) {
-    // TODO: Check types of promptPreprocessor
+  public registerPromptPreprocessor(promptPreprocessor: PromptPreprocessor) {
     const stack = getCurrentStack(1);
+
+    this.validator.validateMethodParamOrThrow(
+      "llm",
+      "registerPromptPreprocessor",
+      "promptPreprocessor",
+      promptPreprocessorSchema,
+      promptPreprocessor,
+      stack,
+    );
 
     const logger = new SimpleLogger(
       `Prompt Preprocessor - ${promptPreprocessor.identifier}`,

@@ -14,17 +14,24 @@ import { EmbeddingSpecificModel } from "./EmbeddingSpecificModel";
 
 /** @public */
 export class EmbeddingNamespace extends ModelNamespace<
+  /** @internal */
   EmbeddingPort,
   EmbeddingLoadModelConfig,
   EmbeddingDynamicHandle,
   EmbeddingSpecificModel
 > {
+  /** @internal */
   protected override readonly namespace = "embedding";
+  /** @internal */
   protected override readonly defaultLoadConfig = {};
+  /** @internal */
   protected override readonly loadModelConfigSchema = embeddingLoadModelConfigSchema;
+  /** @internal */
   protected override loadConfigToKVConfig(config: EmbeddingLoadModelConfig): KVConfig {
     return embeddingLoadSchematics.buildPartialConfig({
-      "llama.gpuOffload": config.gpuOffload,
+      "llama.acceleration.offloadRatio": config.gpuOffload?.ratio,
+      "llama.acceleration.mainGpu": config.gpuOffload?.mainGpu,
+      "llama.acceleration.tensorSplit": config.gpuOffload?.tensorSplit,
       "contextLength": config.contextLength,
       "llama.ropeFrequencyBase": config.ropeFrequencyBase,
       "llama.ropeFrequencyScale": config.ropeFrequencyScale,
@@ -32,6 +39,7 @@ export class EmbeddingNamespace extends ModelNamespace<
       "llama.tryMmap": config.tryMmap,
     });
   }
+  /** @internal */
   protected override createDomainSpecificModel(
     port: EmbeddingPort,
     instanceReference: string,
@@ -41,6 +49,7 @@ export class EmbeddingNamespace extends ModelNamespace<
   ): EmbeddingSpecificModel {
     return new EmbeddingSpecificModel(port, instanceReference, descriptor, validator, logger);
   }
+  /** @internal */
   protected override createDomainDynamicHandle(
     port: EmbeddingPort,
     specifier: ModelSpecifier,

@@ -1,7 +1,7 @@
 import {
   llmContextOverflowPolicySchema,
   llmContextReferenceSchema,
-  llmLlamaAccelerationSettingSchema,
+  llmLlamaAccelerationOffloadRatioSchema,
   llmLlamaLogitBiasConfigSchema,
   llmLlamaMirostatSamplingConfigSchema,
   llmPromptTemplateSchema,
@@ -159,12 +159,24 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return llmStructuredPredictionSettingSchema;
     },
   })
-  .valueType("llamaGpuOffload", {
+  .valueType("llamaAccelerationOffloadRatio", {
     paramType: {
       numLayers: z.number().optional(),
     },
     schemaMaker: () => {
-      return llmLlamaAccelerationSettingSchema;
+      return llmLlamaAccelerationOffloadRatioSchema;
+    },
+  })
+  .valueType("llamaAccelerationMainGpu", {
+    paramType: {},
+    schemaMaker: () => {
+      return z.number().int().nonnegative();
+    },
+  })
+  .valueType("llamaAccelerationTensorSplit", {
+    paramType: {},
+    schemaMaker: () => {
+      return z.array(z.number().nonnegative());
     },
   })
   .valueType("llamaMirostatSampling", {

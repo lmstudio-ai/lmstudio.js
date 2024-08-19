@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+/**
+ * TODO: Documentation
+ *
+ * @public
+ */
 export interface KVConfigField {
   key: string;
   value?: any;
@@ -11,6 +16,7 @@ export const kvConfigFieldSchema = z.object({
 
 /**
  * TODO: Documentation
+ *
  * @public
  */
 export interface KVConfig {

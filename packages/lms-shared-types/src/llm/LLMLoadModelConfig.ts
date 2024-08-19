@@ -14,6 +14,11 @@ export const llmLlamaAccelerationOffloadRatioSchema = z.union([
   z.literal("off"),
 ]);
 
+/**
+ * Settings related to offloading work to the GPU.
+ *
+ * @public
+ */
 export type LLMLlamaAccelerationSetting = {
   ratio: LLMLlamaAccelerationOffloadRatio;
   mainGpu: number;
