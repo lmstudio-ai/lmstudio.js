@@ -48,7 +48,7 @@ function formatAvailableLLMs(availablePathsSample: Array<string>, totalModels: n
 }
 
 registerErrorDeserializer(
-  "llm.pathNotFound",
+  "generic.pathNotFound",
   ({ availablePathsSample, path, totalModels }, stack) => {
     return makeTitledPrettyError(
       `Cannot find an LLM with path "${chalk.yellowBright(path)}"`,
@@ -80,7 +80,7 @@ function formatLoadedLLMs(loadedModelsSample: Array<string>, totalLoadedModels: 
 }
 
 registerErrorDeserializer(
-  "llm.identifierNotFound",
+  "generic.identifierNotFound",
   ({ loadedModelsSample, identifier, totalLoadedModels }, stack) => {
     return makeTitledPrettyError(
       `Cannot find an LLM with identifier "${chalk.yellowBright(identifier)}"`,

@@ -22,12 +22,13 @@ export function createBaseModelBackendInterface() {
       }),
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
-          type: z.literal("progress"),
-          progress: z.number(),
+          type: z.literal("resolved"),
+          fullPath: z.string(),
+          ambiguous: z.array(z.string()).optional(),
         }),
         z.object({
-          type: z.literal("ambiguous"),
-          paths: z.array(z.string()),
+          type: z.literal("progress"),
+          progress: z.number(),
         }),
         z.object({
           type: z.literal("success"),

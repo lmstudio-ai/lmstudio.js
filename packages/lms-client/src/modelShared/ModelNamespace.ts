@@ -239,6 +239,8 @@ export abstract class ModelNamespace<
       );
     }
 
+    let fullPath: string = path;
+
     const channel = this.port.createChannel(
       "loadModel",
       {
@@ -251,12 +253,31 @@ export abstract class ModelNamespace<
       },
       message => {
         switch (message.type) {
+          case "resolved": {
+            fullPath = message.fullPath;
+            if (message.ambiguous !== undefined) {
+              this.logger.warn(text`
+                Multiple models found for path ${path}:
+
+                ${message.ambiguous.map(x => ` - ${x}`).join("\n")}
+
+                Using the first one.
+              `);
+            }
+            this.logger.logAtLevel(
+              verboseLevel,
+              text`
+                Start loading model ${fullPath}...
+              `,
+            );
+            break;
+          }
           case "success": {
             if (verbose) {
               this.logger.logAtLevel(
                 verboseLevel,
                 text`
-                  Successfully loaded model ${path} in ${Date.now() - startTime}ms
+                  Successfully loaded model ${fullPath} in ${Date.now() - startTime}ms
                 `,
               );
             }
@@ -281,7 +302,7 @@ export abstract class ModelNamespace<
                 const progressText = (progress * 100).toFixed(1);
                 this.logger.logAtLevel(
                   verboseLevel,
-                  `Loading model ${path}, progress: ${progressText}%`,
+                  `Loading the model, progress: ${progressText}%`,
                 );
                 lastVerboseCallTime = now;
               }
