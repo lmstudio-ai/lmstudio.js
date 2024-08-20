@@ -586,6 +586,34 @@ export class KVConfigSchematics<
     }
     return field.valueTypeParams as any;
   }
+
+  /**
+   * Given a KVConfig, filter it to only include fields that are in the schematics.
+   */
+  public filterConfig(config: KVConfig): KVConfig {
+    return {
+      fields: config.fields.filter(field => {
+        if (!field.key.startsWith(this.baseKey)) {
+          return false;
+        }
+        const key = field.key.substring(this.baseKey.length);
+        return this.fields.has(key);
+      }),
+    };
+  }
+
+  /**
+   * Given a list of keys, filter it to only include keys that are in the schematics.
+   */
+  public filterFullKeys(keys: ReadonlyArray<string>): Array<string> {
+    return keys.filter(key => {
+      if (!key.startsWith(this.baseKey)) {
+        return false;
+      }
+      const innerKey = key.substring(this.baseKey.length);
+      return this.fields.has(innerKey);
+    });
+  }
 }
 
 export class KVConfigBuilder<TKVConfigSchema extends KVVirtualConfigSchema> {
