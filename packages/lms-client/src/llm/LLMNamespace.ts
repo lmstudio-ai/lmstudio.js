@@ -73,6 +73,9 @@ export class LLMNamespace extends ModelNamespace<
     return new LLMDynamicHandle(port, specifier, validator, logger);
   }
 
+  /**
+   * @internal
+   */
   public registerPromptPreprocessor(promptPreprocessor: PromptPreprocessor) {
     const stack = getCurrentStack(1);
 

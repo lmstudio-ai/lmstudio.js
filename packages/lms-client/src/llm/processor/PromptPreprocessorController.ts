@@ -104,6 +104,8 @@ export class PromptPreprocessController {
 
   /**
    * Whether the prediction process has ended.
+   *
+   * @internal
    */
   public hasEnded(): boolean {
     return this.endedFlag;
@@ -146,6 +148,9 @@ export class PromptPreprocessController {
     return citationBlockController;
   }
 
+  /**
+   * @internal
+   */
   public createDebugInfoBlock(debugInfo: string): PredictionProcessDebugInfoBlockController {
     const id = createId();
     this[sendUpdate]({
@@ -162,7 +167,11 @@ export class PromptPreprocessController {
     this.createDebugInfoBlock(concatenateDebugMessages(...messages));
   }
 
-  public guardAbort() {
+  /**
+   * Throws an error if the prediction process has been aborted. Sprinkle this throughout your code
+   * to ensure that the prediction process is aborted as soon as possible.
+   */
+  public abortGuard() {
     if (this.abortSignal.aborted) {
       throw this.abortSignal.reason;
     }
