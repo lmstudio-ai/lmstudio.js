@@ -34,7 +34,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         "maxPredictedTokens",
         "checkboxNumeric",
         { min: 1, int: true },
-        { checked: false, value: 100 },
+        { checked: false, value: 1000 },
       )
       .field("stopStrings", "stringArray", {}, [])
       .field("structured", "llamaStructuredOutput", {}, { type: "none" })
