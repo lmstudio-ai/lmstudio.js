@@ -124,11 +124,9 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
     builder
       .field(
         "contextLength",
-        "numeric",
+        "contextLength",
         {
           machineDependent: true,
-          min: 1,
-          int: true,
         },
         2048,
       )
@@ -160,7 +158,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
   )
   .scope("embedding.load", builder =>
     builder
-      .field("contextLength", "numeric", { min: 1, int: true }, 2048)
+      .field("contextLength", "contextLength", { machineDependent: true }, 2048)
       .field("seed", "numeric", { int: true }, -1)
       .scope("llama", builder =>
         builder

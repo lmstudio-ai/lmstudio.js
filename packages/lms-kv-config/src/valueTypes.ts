@@ -147,6 +147,14 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return z.array(llmContextReferenceSchema);
     },
   })
+  .valueType("contextLength", {
+    paramType: {
+      max: z.number().optional(),
+    },
+    schemaMaker: () => {
+      return z.number().int().positive();
+    },
+  })
   .valueType("llmPromptTemplate", {
     paramType: {},
     schemaMaker: () => {
