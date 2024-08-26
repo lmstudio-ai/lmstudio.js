@@ -148,7 +148,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
               ]),
           )
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
-          .field("flashAttention", "boolean", {}, false)
+          .field(
+            "flashAttention",
+            "boolean",
+            { isExperimental: true, warning: "config:flashAttentionWarning" },
+            false,
+          )
           .field("ropeFrequencyBase", "numeric", {}, 0)
           .field("ropeFrequencyScale", "numeric", {}, 0)
           .field("keepModelInMemory", "boolean", {}, true)

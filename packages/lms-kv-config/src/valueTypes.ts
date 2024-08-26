@@ -34,6 +34,8 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
    * An example would be GPU offload settings.
    */
   machineDependent: z.boolean().optional(),
+  warning: z.string().optional(),
+  isExperimental: z.boolean().optional(),
 })
   .valueType("numeric", {
     paramType: {
