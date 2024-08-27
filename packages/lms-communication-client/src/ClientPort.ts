@@ -269,17 +269,11 @@ export class ClientPort<
   private receivedSignalUpdate(message: ServerToClientMessage & { type: "signalUpdate" }) {
     const openSignalSubscription = this.openSignalSubscriptions.get(message.subscribeId);
     if (openSignalSubscription === undefined) {
-      // As described in the comments below, this is caused by update and unsubscribe event
-      // happening at the same time. By the time the update has arrived at the client side, as far
-      // as the client is considered, the signal is already unsubscribed. This is a normal behavior
-      // and is especially prevalent when React StrictMode is enabled, because components are
-      // rendered twice where signals are oftentimes subscribed and then unsubscribed immediately
-      // after.
-      // this.logger.debugText`
-      //   Received signalUpdate for unknown signal, subscribeId = ${message.subscribeId}. This is
-      //   likely caused by the update being sent after the signal was unsubscribed. (Usually not an
-      //   error and can be safely ignored unless some signal is not updating.)
-      // `;
+      // This is caused by update and unsubscribe event happening at the same time. By the time the
+      // update has arrived at the client side, as far as the client is considered, the signal is
+      // already unsubscribed. This is a normal behavior and is especially prevalent when React
+      // StrictMode is enabled, because components are rendered twice where signals are oftentimes
+      // subscribed and then unsubscribed immediately after.
       return;
     }
     const patches = message.patches.map(patch =>
@@ -345,17 +339,11 @@ export class ClientPort<
   ) {
     const openSignalSubscription = this.openWritableSignalSubscriptions.get(message.subscribeId);
     if (openSignalSubscription === undefined) {
-      // As described in the comments below, this is caused by update and unsubscribe event
-      // happening at the same time. By the time the update has arrived at the client side, as far
-      // as the client is considered, the signal is already unsubscribed. This is a normal behavior
-      // and is especially prevalent when React StrictMode is enabled, because components are
-      // rendered twice where signals are oftentimes subscribed and then unsubscribed immediately
-      // after.
-      // this.logger.debugText`
-      //   Received writableSignalUpdate for unknown signal, subscribeId = ${message.subscribeId}. This
-      //   is likely caused by the update being sent after the signal was unsubscribed. (Usually not an
-      //   error and can be safely ignored unless some signal is not updating.)
-      // `;
+      // This is caused by update and unsubscribe event happening at the same time. By the time the
+      // update has arrived at the client side, as far as the client is considered, the signal is
+      // already unsubscribed. This is a normal behavior and is especially prevalent when React
+      // StrictMode is enabled, because components are rendered twice where signals are oftentimes
+      // subscribed and then unsubscribed immediately after.
       return;
     }
     const patches = message.patches.map(patch =>
