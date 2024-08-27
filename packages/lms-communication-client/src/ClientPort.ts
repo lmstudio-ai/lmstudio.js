@@ -19,7 +19,7 @@ import type {
   RpcEndpoint,
   ServerToClientMessage,
 } from "@lmstudio/lms-communication";
-import { Channel } from "@lmstudio/lms-communication";
+import { Channel, deserialize, serialize } from "@lmstudio/lms-communication";
 import {
   type ChannelEndpointsSpecBase,
   type RpcEndpointsSpecBase,
@@ -172,11 +172,12 @@ export class ClientPort<
       );
       return;
     }
-    const parsed = openChannel.endpoint.toClientPacket.safeParse(message.message);
+    const deserializedMessage = deserialize(openChannel.endpoint.serialization, message.message);
+    const parsed = openChannel.endpoint.toClientPacket.safeParse(deserializedMessage);
     if (!parsed.success) {
       this.communicationWarning(text`
         Received invalid message for channel: endpointName = ${openChannel.endpoint.name}, message =
-        ${message.message}. Zod error:
+        ${deserializedMessage}. Zod error:
 
         ${Validator.prettyPrintZod("message", parsed.error)}
       `);
@@ -233,11 +234,12 @@ export class ClientPort<
       this.communicationWarning(`Received rpcResult for unknown rpc, callId = ${message.callId}`);
       return;
     }
-    const parsed = ongoingRpc.endpoint.returns.safeParse(message.result);
+    const deserializedResult = deserialize(ongoingRpc.endpoint.serialization, message.result);
+    const parsed = ongoingRpc.endpoint.returns.safeParse(deserializedResult);
     if (!parsed.success) {
       this.communicationWarning(text`
         Received invalid result for rpc, endpointName = ${ongoingRpc.endpoint.name}, result =
-        ${message.result}. Zod error:
+        ${deserializedResult}. Zod error:
 
         ${Validator.prettyPrintZod("result", parsed.error)}
       `);
@@ -267,20 +269,16 @@ export class ClientPort<
   private receivedSignalUpdate(message: ServerToClientMessage & { type: "signalUpdate" }) {
     const openSignalSubscription = this.openSignalSubscriptions.get(message.subscribeId);
     if (openSignalSubscription === undefined) {
-      // As described in the comments below, this is caused by update and unsubscribe event
-      // happening at the same time. By the time the update has arrived at the client side, as far
-      // as the client is considered, the signal is already unsubscribed. This is a normal behavior
-      // and is especially prevalent when React StrictMode is enabled, because components are
-      // rendered twice where signals are oftentimes subscribed and then unsubscribed immediately
-      // after.
-      this.logger.debugText`
-        Received signalUpdate for unknown signal, subscribeId = ${message.subscribeId}. This is
-        likely caused by the update being sent after the signal was unsubscribed. (Usually not an
-        error and can be safely ignored unless some signal is not updating.)
-      `;
+      // This is caused by update and unsubscribe event happening at the same time. By the time the
+      // update has arrived at the client side, as far as the client is considered, the signal is
+      // already unsubscribed. This is a normal behavior and is especially prevalent when React
+      // StrictMode is enabled, because components are rendered twice where signals are oftentimes
+      // subscribed and then unsubscribed immediately after.
       return;
     }
-    const patches = message.patches;
+    const patches = message.patches.map(patch =>
+      deserialize(openSignalSubscription.endpoint.serialization, patch),
+    );
     const beforeValue = openSignalSubscription.getValue();
     let afterValue: any;
     try {
@@ -315,7 +313,7 @@ export class ClientPort<
       return;
     }
     // Don't use the parsed value, as it loses the substructure identities
-    openSignalSubscription.receivedPatches(afterValue, message.patches, message.tags);
+    openSignalSubscription.receivedPatches(afterValue, patches, message.tags);
   }
 
   private receivedSignalError(message: ServerToClientMessage & { type: "signalError" }) {
@@ -341,20 +339,16 @@ export class ClientPort<
   ) {
     const openSignalSubscription = this.openWritableSignalSubscriptions.get(message.subscribeId);
     if (openSignalSubscription === undefined) {
-      // As described in the comments below, this is caused by update and unsubscribe event
-      // happening at the same time. By the time the update has arrived at the client side, as far
-      // as the client is considered, the signal is already unsubscribed. This is a normal behavior
-      // and is especially prevalent when React StrictMode is enabled, because components are
-      // rendered twice where signals are oftentimes subscribed and then unsubscribed immediately
-      // after.
-      this.logger.debugText`
-        Received writableSignalUpdate for unknown signal, subscribeId = ${message.subscribeId}. This
-        is likely caused by the update being sent after the signal was unsubscribed. (Usually not an
-        error and can be safely ignored unless some signal is not updating.)
-      `;
+      // This is caused by update and unsubscribe event happening at the same time. By the time the
+      // update has arrived at the client side, as far as the client is considered, the signal is
+      // already unsubscribed. This is a normal behavior and is especially prevalent when React
+      // StrictMode is enabled, because components are rendered twice where signals are oftentimes
+      // subscribed and then unsubscribed immediately after.
       return;
     }
-    const patches = message.patches;
+    const patches = message.patches.map(patch =>
+      deserialize(openSignalSubscription.endpoint.serialization, patch),
+    );
     const beforeValue = openSignalSubscription.getValue();
     let afterValue: any;
     try {
@@ -500,6 +494,7 @@ export class ClientPort<
       throw new Error(`No Rpc endpoint with name ${endpointName}`);
     }
     const parameter = endpoint.parameter.parse(param);
+    const serializedParameter = serialize(endpoint.serialization, parameter);
 
     const callId = this.nextChannelId;
     this.nextChannelId++;
@@ -518,7 +513,7 @@ export class ClientPort<
       type: "rpcCall",
       endpoint: endpointName,
       callId,
-      parameter,
+      parameter: serializedParameter,
     });
 
     this.updateOpenCommunicationsCount();
@@ -539,6 +534,7 @@ export class ClientPort<
       throw new Error(`No channel endpoint with name ${endpointName}`);
     }
     const creationParameter = channelEndpoint.creationParameter.parse(param);
+    const serializedCreationParameter = serialize(channelEndpoint.serialization, creationParameter);
 
     const channelId = this.nextChannelId;
     this.nextChannelId++;
@@ -547,7 +543,7 @@ export class ClientPort<
       type: "channelCreate",
       endpoint: endpointName,
       channelId,
-      creationParameter,
+      creationParameter: serializedCreationParameter,
     });
 
     stack = stack ?? getCurrentStack(1);
@@ -556,11 +552,12 @@ export class ClientPort<
       endpoint: channelEndpoint,
       stack,
       ...Channel.create(packet => {
-        const result = channelEndpoint.toServerPacket.parse(packet);
+        const parsed = channelEndpoint.toServerPacket.parse(packet);
+        const serializedMessage = serialize(channelEndpoint.serialization, parsed);
         this.transport.send({
           type: "channelSend",
           channelId,
-          message: result,
+          message: serializedMessage,
         });
       }),
     };
@@ -586,6 +583,7 @@ export class ClientPort<
       throw new Error(`No signal endpoint with name ${endpointName}`);
     }
     const creationParameter = signalEndpoint.creationParameter.parse(param);
+    const serializedCreationParameter = serialize(signalEndpoint.serialization, creationParameter);
 
     stack = stack ?? getCurrentStack(1);
 
@@ -596,7 +594,7 @@ export class ClientPort<
         type: "signalSubscribe",
         endpoint: endpointName,
         subscribeId,
-        creationParameter,
+        creationParameter: serializedCreationParameter,
       });
       this.openSignalSubscriptions.set(subscribeId, {
         endpoint: signalEndpoint,
@@ -631,6 +629,7 @@ export class ClientPort<
       throw new Error(`No writable signal endpoint with name ${endpointName}`);
     }
     const creationParameter = signalEndpoint.creationParameter.parse(param);
+    const serializedCreationParameter = serialize(signalEndpoint.serialization, creationParameter);
 
     stack = stack ?? getCurrentStack(1);
 
@@ -647,7 +646,7 @@ export class ClientPort<
       this.transport.send({
         type: "writableSignalUpdate",
         subscribeId: currentSubscribeId as any,
-        patches,
+        patches: patches.map(patch => serialize(signalEndpoint.serialization, patch)),
         tags,
       });
       return true;
@@ -661,7 +660,7 @@ export class ClientPort<
         type: "writableSignalSubscribe",
         endpoint: endpointName,
         subscribeId,
-        creationParameter,
+        creationParameter: serializedCreationParameter,
       });
       this.openWritableSignalSubscriptions.set(subscribeId, {
         endpoint: signalEndpoint,

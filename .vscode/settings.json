@@ -1,8 +1,8 @@
 {
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "editor.codeActionsOnSave": {
-    "source.organizeImports": "explicit",
-    "source.fixAll.eslint": "explicit"
+    "source.organizeImports": "always",
+    "source.fixAll.eslint": "always"
   },
   "editor.rulers": [100],
   "cSpell.words": [
@@ -20,6 +20,7 @@
     "proxying",
     "Rpcs",
     "Streamable",
+    "superjson",
     "uncategorized",
     "unsubscriber"
   ],

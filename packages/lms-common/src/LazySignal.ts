@@ -110,10 +110,10 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
       derive(),
       setDownstream => {
         const unsubscriber = sourceSignals.map(signal =>
-          signal.subscribeFull((_values, _patches, tags) => {
+          signal.subscribe(() => {
             const value = derive();
             if (isAvailable(value)) {
-              setDownstream(value, tags);
+              setDownstream(value);
             }
           }),
         );

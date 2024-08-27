@@ -15,7 +15,7 @@ import type {
   ServerTransport,
   ServerTransportFactory,
 } from "@lmstudio/lms-communication";
-import { Channel } from "@lmstudio/lms-communication";
+import { Channel, deserialize, serialize } from "@lmstudio/lms-communication";
 import {
   type ChannelEndpointsSpecBase,
   type RpcEndpointsSpecBase,
@@ -141,11 +141,15 @@ export class ServerPort<
       );
       return;
     }
-    const parseResult = endpoint.creationParameter.safeParse(message.creationParameter);
+    const deserializedCreationParameter = deserialize(
+      endpoint.serialization,
+      message.creationParameter,
+    );
+    const parseResult = endpoint.creationParameter.safeParse(deserializedCreationParameter);
     if (!parseResult.success) {
       this.communicationWarning(text`
         Received invalid creationParameter for channel, endpointName = ${endpoint.name},
-        creationParameter = ${message.creationParameter}. Zod error:
+        creationParameter = ${deserializedCreationParameter}. Zod error:
 
         ${Validator.prettyPrintZod("creationParameter", parseResult.error)}
       `);
@@ -166,10 +170,11 @@ export class ServerPort<
           `);
           return;
         }
+        const serializedMessage = serialize(endpoint.serialization, result.data);
         this.transport.send({
           type: "channelSend",
           channelId,
-          message: result.data,
+          message: serializedMessage,
           ackId: ackId,
         });
       }),
@@ -210,7 +215,8 @@ export class ServerPort<
       );
       return;
     }
-    const parsed = openChannel.endpoint.toServerPacket.safeParse(message.message);
+    const deserializedMessage = deserialize(openChannel.endpoint.serialization, message.message);
+    const parsed = openChannel.endpoint.toServerPacket.safeParse(deserializedMessage);
     if (!parsed.success) {
       this.communicationWarning(text`
         Received invalid message for channel, endpointName = ${openChannel.endpoint.name},
@@ -248,7 +254,8 @@ export class ServerPort<
       );
       return;
     }
-    const parseResult = endpoint.parameter.safeParse(message.parameter);
+    const deserializedParameter = deserialize(endpoint.serialization, message.parameter);
+    const parseResult = endpoint.parameter.safeParse(deserializedParameter);
     if (!parseResult.success) {
       this.communicationWarning(text`
         Received invalid parameter for rpcCall, endpointName = ${endpoint.name},
@@ -268,7 +275,7 @@ export class ServerPort<
         this.transport.send({
           type: "rpcResult",
           callId: message.callId,
-          result: value,
+          result: serialize(endpoint.serialization, value),
         });
       })
       .catch(error => {
@@ -302,11 +309,15 @@ export class ServerPort<
       `);
       return;
     }
-    const parseResult = endpoint.creationParameter.safeParse(message.creationParameter);
+    const deserializedCreationParameter = deserialize(
+      endpoint.serialization,
+      message.creationParameter,
+    );
+    const parseResult = endpoint.creationParameter.safeParse(deserializedCreationParameter);
     if (!parseResult.success) {
       this.communicationWarning(text`
         Received invalid parameter for signalSubscribe, endpointName = ${endpoint.name},
-        creationParameter = ${message.creationParameter}. Zod error:
+        creationParameter = ${deserializedCreationParameter}. Zod error:
 
         ${Validator.prettyPrintZod("creationParameter", parseResult.error)}
       `);
@@ -329,7 +340,7 @@ export class ServerPort<
               this.transport.send({
                 type: "signalUpdate",
                 subscribeId: message.subscribeId,
-                patches,
+                patches: patches.map(patch => serialize(endpoint.serialization, patch)),
                 tags,
               });
             } else {
@@ -337,11 +348,11 @@ export class ServerPort<
                 type: "signalUpdate",
                 subscribeId: message.subscribeId,
                 patches: [
-                  {
+                  serialize(endpoint.serialization, {
                     op: "replace",
                     path: [],
                     value,
-                  },
+                  }),
                 ],
                 tags,
               });
@@ -360,11 +371,11 @@ export class ServerPort<
               type: "signalUpdate",
               subscribeId: message.subscribeId,
               patches: [
-                {
+                serialize(endpoint.serialization, {
                   op: "replace",
                   path: [],
                   value: signal.get(),
-                },
+                }),
               ],
               tags: [],
             });
@@ -417,11 +428,15 @@ export class ServerPort<
       `);
       return;
     }
-    const parseResult = endpoint.creationParameter.safeParse(message.creationParameter);
+    const deserializedCreationParameter = deserialize(
+      endpoint.serialization,
+      message.creationParameter,
+    );
+    const parseResult = endpoint.creationParameter.safeParse(deserializedCreationParameter);
     if (!parseResult.success) {
       this.communicationWarning(text`
         Received invalid parameter for writableSignalSubscribe, endpointName = ${endpoint.name},
-        creationParameter = ${message.creationParameter}. Zod error:
+        creationParameter = ${deserializedCreationParameter}. Zod error:
 
         ${Validator.prettyPrintZod("creationParameter", parseResult.error)}
       `);
@@ -444,7 +459,7 @@ export class ServerPort<
               this.transport.send({
                 type: "writableSignalUpdate",
                 subscribeId: message.subscribeId,
-                patches,
+                patches: patches.map(patch => serialize(endpoint.serialization, patch)),
                 tags,
               });
             } else {
@@ -452,11 +467,11 @@ export class ServerPort<
                 type: "writableSignalUpdate",
                 subscribeId: message.subscribeId,
                 patches: [
-                  {
+                  serialize(endpoint.serialization, {
                     op: "replace",
                     path: [],
                     value,
-                  },
+                  }),
                 ],
                 tags,
               });
@@ -477,7 +492,10 @@ export class ServerPort<
                 });
                 return;
               }
-              const result = applyPatches(data, patches);
+              const deserializedPatches = patches.map(patch =>
+                deserialize(endpoint.serialization, patch),
+              ) as any;
+              const result = applyPatches(data, deserializedPatches);
               const parseResult = endpoint.signalData.safeParse(result);
               if (!parseResult.success) {
                 this.communicationWarning(text`
@@ -488,7 +506,7 @@ export class ServerPort<
                 `);
                 return;
               }
-              setter.withValueAndPatches(parseResult.data, patches, tags);
+              setter.withValueAndPatches(parseResult.data, deserializedPatches, tags);
             } catch (error: any) {
               this.communicationWarning(text`
                 Error in receivedPatches for writable signal, endpointName = ${endpoint.name},
@@ -511,11 +529,11 @@ export class ServerPort<
               type: "writableSignalUpdate",
               subscribeId: message.subscribeId,
               patches: [
-                {
+                serialize(endpoint.serialization, {
                   op: "replace",
                   path: [],
                   value: signal.get(),
-                },
+                }),
               ],
               tags: [],
             });

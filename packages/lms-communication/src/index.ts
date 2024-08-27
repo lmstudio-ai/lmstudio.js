@@ -9,6 +9,13 @@ export {
   WritableSignalEndpointsSpecBase,
 } from "./BackendInterface";
 export { Channel } from "./Channel";
+export {
+  SerializationType,
+  SerializedOpaque,
+  deserialize,
+  serialize,
+  serializedOpaqueSchema,
+} from "./serialization";
 export { KEEP_ALIVE_INTERVAL, KEEP_ALIVE_TIMEOUT } from "./timeoutConstants";
 export {
   ClientToServerMessage,
