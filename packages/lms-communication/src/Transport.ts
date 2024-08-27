@@ -1,6 +1,7 @@
 import { type LoggerInterface } from "@lmstudio/lms-common";
 import { serializedLMSExtendedErrorSchema } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
+import { serializedOpaqueSchema } from "./serialization";
 
 const clientToServerMessageSchema = z.discriminatedUnion("type", [
   // Communication
@@ -17,12 +18,12 @@ const clientToServerMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("channelCreate"),
     endpoint: z.string(),
     channelId: z.number(),
-    creationParameter: z.any(),
+    creationParameter: serializedOpaqueSchema,
   }),
   z.object({
     type: z.literal("channelSend"),
     channelId: z.number(),
-    message: z.any(),
+    message: serializedOpaqueSchema,
     ackId: z.number().optional(),
   }),
   z.object({
@@ -36,13 +37,13 @@ const clientToServerMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("rpcCall"),
     endpoint: z.string(),
     callId: z.number(),
-    parameter: z.any(),
+    parameter: serializedOpaqueSchema,
   }),
 
   // Readonly signal
   z.object({
     type: z.literal("signalSubscribe"),
-    creationParameter: z.any(),
+    creationParameter: serializedOpaqueSchema,
     endpoint: z.string(),
     subscribeId: z.number(),
   }),
@@ -54,7 +55,7 @@ const clientToServerMessageSchema = z.discriminatedUnion("type", [
   // Writable signal
   z.object({
     type: z.literal("writableSignalSubscribe"),
-    creationParameter: z.any(),
+    creationParameter: serializedOpaqueSchema,
     endpoint: z.string(),
     subscribeId: z.number(),
   }),
@@ -65,7 +66,7 @@ const clientToServerMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("writableSignalUpdate"),
     subscribeId: z.number(),
-    patches: z.array(z.any()),
+    patches: z.array(serializedOpaqueSchema),
     tags: z.array(z.string()),
   }),
 ]);
@@ -86,7 +87,7 @@ const serverToClientMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("channelSend"),
     channelId: z.number(),
-    message: z.any(),
+    message: serializedOpaqueSchema,
     ackId: z.number().optional(),
   }),
   z.object({
@@ -108,7 +109,7 @@ const serverToClientMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("rpcResult"),
     callId: z.number(),
-    result: z.any(),
+    result: serializedOpaqueSchema,
   }),
   z.object({
     type: z.literal("rpcError"),
@@ -120,7 +121,7 @@ const serverToClientMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("signalUpdate"),
     subscribeId: z.number(),
-    patches: z.array(z.any()),
+    patches: z.array(serializedOpaqueSchema),
     tags: z.array(z.string()),
   }),
   z.object({
@@ -133,7 +134,7 @@ const serverToClientMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("writableSignalUpdate"),
     subscribeId: z.number(),
-    patches: z.array(z.any()),
+    patches: z.array(serializedOpaqueSchema),
     tags: z.array(z.string()),
   }),
   z.object({

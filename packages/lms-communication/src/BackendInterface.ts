@@ -2,6 +2,7 @@
 import { type NotAvailable, type Setter, type SignalLike } from "@lmstudio/lms-common";
 import { type z, type ZodType } from "zod";
 import type { Channel } from "./Channel";
+import { type SerializationType } from "./serialization";
 
 export type RpcEndpointHandler<TContext = any, TParameter = any, TReturns = any> = (
   ctx: TContext,
@@ -41,6 +42,7 @@ export interface RpcEndpoint {
   name: string;
   parameter: z.ZodType;
   returns: z.ZodType;
+  serialization: SerializationType;
   handler: RpcEndpointHandler | null;
 }
 
@@ -49,6 +51,7 @@ export interface ChannelEndpoint {
   creationParameter: z.ZodType;
   toServerPacket: z.ZodType;
   toClientPacket: z.ZodType;
+  serialization: SerializationType;
   handler: ChannelEndpointHandler | null;
 }
 
@@ -56,6 +59,7 @@ export interface SignalEndpoint {
   name: string;
   creationParameter: z.ZodType;
   signalData: z.ZodType;
+  serialization: SerializationType;
   handler: SignalEndpointHandler | null;
 }
 
@@ -63,6 +67,7 @@ export interface WritableSignalEndpoint {
   name: string;
   creationParameter: z.ZodType;
   signalData: z.ZodType;
+  serialization: SerializationType;
   handler: WritableSignalEndpointHandler | null;
 }
 
@@ -147,9 +152,11 @@ export class BackendInterface<
     {
       parameter,
       returns,
+      serialization = "raw",
     }: {
       parameter: TParametersZod;
       returns: TReturnsZod;
+      serialization?: SerializationType;
     },
   ): BackendInterface<
     TContext,
@@ -169,6 +176,7 @@ export class BackendInterface<
       name: endpointName,
       parameter,
       returns,
+      serialization,
       handler: null,
     });
     return this;
@@ -185,10 +193,12 @@ export class BackendInterface<
       creationParameter,
       toServerPacket,
       toClientPacket,
+      serialization = "raw",
     }: {
       creationParameter: TCreationParameterZod;
       toServerPacket: TToServerPacketZod;
       toClientPacket: TToClientPacketZod;
+      serialization?: SerializationType;
     },
   ): BackendInterface<
     TContext,
@@ -210,6 +220,7 @@ export class BackendInterface<
       creationParameter,
       toServerPacket,
       toClientPacket,
+      serialization,
       handler: null,
     });
     return this;
@@ -224,9 +235,11 @@ export class BackendInterface<
     {
       creationParameter,
       signalData,
+      serialization = "raw",
     }: {
       creationParameter: TCreationParameterZod;
       signalData: TSignalDataZod;
+      serialization?: SerializationType;
     },
   ): BackendInterface<
     TContext,
@@ -246,6 +259,7 @@ export class BackendInterface<
       name: endpointName,
       creationParameter,
       signalData,
+      serialization,
       handler: null,
     });
     return this;
@@ -260,9 +274,11 @@ export class BackendInterface<
     {
       creationParameter,
       signalData,
+      serialization = "raw",
     }: {
       creationParameter: TCreationParameterZod;
       signalData: TSignalDataZod;
+      serialization?: SerializationType;
     },
   ): BackendInterface<
     TContext,
@@ -282,6 +298,7 @@ export class BackendInterface<
       name: endpointName,
       creationParameter,
       signalData,
+      serialization,
       handler: null,
     });
     return this;
