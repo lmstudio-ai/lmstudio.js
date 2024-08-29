@@ -177,6 +177,9 @@ export {
   modelSpecifierSchema,
 } from "./ModelSpecifier";
 export { reasonableKeyStringSchema } from "./reasonable";
+export { Chunk, chunkSchema } from "./retrieval/Chunk";
+export { ProcessingStep, processingStepSchema } from "./retrieval/ProcessingStep";
+export { RetrievalConfig, retrievalConfigSchema } from "./retrieval/RetrievalConfig";
 export {
   Accelerator,
   acceleratorSchema,
