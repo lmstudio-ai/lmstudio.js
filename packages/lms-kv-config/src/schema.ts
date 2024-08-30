@@ -187,11 +187,21 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field("tryMmap", "boolean", {}, true),
       ),
   )
-  .scope(
-    "retrieval",
-    builder => builder.field("databaseFile", "string", { machineDependent: true }, ""),
-    // .scope("chunking", builder => {})
-    // .field(),
+  .scope("retrieval", builder =>
+    builder
+      .field("databaseFile", "string", { machineDependent: true }, "")
+      .field(
+        "chunkingMethod",
+        "retrievalChunkingMethod",
+        {},
+        {
+          type: "recursive-v1",
+          chunkSize: 512,
+          chunkOverlap: 100,
+        },
+      )
+      .field("limit", "numeric", { min: 1, int: true }, 5)
+      .field("embeddingModel", "modelIdentifier", { domain: ["embedding"] }, ""),
   )
   .build();
 
@@ -250,6 +260,8 @@ export const embeddingSharedLoadConfigSchematics = embeddingLoadSchematics.slice
   "contextLength",
   "seed",
 );
+
+export const retrievalSchematics = globalConfigSchematics.scoped("retrieval");
 
 export const embeddingLlamaLoadConfigSchematics = embeddingSharedLoadConfigSchematics.union(
   embeddingLoadSchematics.sliced("llama.*"),

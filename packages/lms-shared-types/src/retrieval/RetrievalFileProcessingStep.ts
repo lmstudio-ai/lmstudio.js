@@ -3,10 +3,5 @@ import { z } from "zod";
 /**
  * @public
  */
-export type RetrievalFileProcessingStep = "querying" | "loading" | "chunking" | "embedding";
-export const retrievalFileProcessingStepSchema = z.enum([
-  "querying",
-  "loading",
-  "chunking",
-  "embedding",
-]);
+export type RetrievalFileProcessingStep = "loading" | "chunking" | "embedding";
+export const retrievalFileProcessingStepSchema = z.enum(["loading", "chunking", "embedding"]);

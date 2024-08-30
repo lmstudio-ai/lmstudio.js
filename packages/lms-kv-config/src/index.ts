@@ -33,5 +33,6 @@ export {
   llmOnnxPredictionConfigSchematics,
   llmSharedLoadConfigSchematics,
   llmSharedPredictionConfigSchematics,
+  retrievalSchematics,
 } from "./schema";
 export { kvValueTypesLibrary } from "./valueTypes";

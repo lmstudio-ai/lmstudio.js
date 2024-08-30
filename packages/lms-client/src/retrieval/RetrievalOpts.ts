@@ -110,11 +110,16 @@ export type RetrievalOpts = RetrievalCallbacks & {
    * The path to the database.
    */
   databasePath?: string;
+  /**
+   * The signal to abort the retrieval
+   */
+  signal?: AbortSignal;
 };
 export const retrievalOptsSchema = z.object({
   chunkingMethod: retrievalChunkingMethodSchema.optional(),
   limit: z.number().optional(),
   embeddingModel: z.string().optional(),
   databasePath: z.string().optional(),
+  signal: z.instanceof(AbortSignal).optional(),
   ...retrievalCallbacksSchema.shape,
 });
