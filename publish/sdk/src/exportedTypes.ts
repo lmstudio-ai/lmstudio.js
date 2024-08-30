@@ -18,6 +18,9 @@ export type {
   PredictionResult,
   PredictionStepController,
   PromptPreprocessor,
+  RetrievalCallbacks,
+  RetrievalNamespace,
+  RetrievalOpts,
   SpecificModel,
   SystemNamespace,
 } from "@lmstudio/lms-client";

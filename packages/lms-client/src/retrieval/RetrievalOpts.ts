@@ -6,28 +6,7 @@ import {
 import { z } from "zod";
 import { type EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
 
-/**
- * @public
- * N.B.: onProgress returns progress as a float taking values from 0 to 1, 1 being completed
- */
-export interface RetrievalOpts {
-  /**
-   * The chunking method to use. By default uses recursive-v1 with chunk size 512 and chunk overlap
-   * 100.
-   */
-  chunkingMethod?: RetrievalChunkingMethod;
-  /**
-   * The number of results to return.
-   */
-  limit?: number;
-  /**
-   * The embedding model to use.
-   */
-  embeddingModel?: EmbeddingDynamicHandle | string;
-  /**
-   * The path to the database.
-   */
-  databasePath?: string;
+export interface RetrievalCallbacks {
   /**
    * Callback when the list of files to process is available. This list can be shorter than the list
    * passed in because some files may already have cached embeddings.
@@ -89,15 +68,42 @@ export interface RetrievalOpts {
    */
   onFileProcessingStepEnd?: (filePath: string, step: RetrievalFileProcessingStep) => void;
 }
-export const retrievalOptsSchema = z.object({
-  chunkingMethod: retrievalChunkingMethodSchema.optional(),
-  limit: z.number().optional(),
-  embeddingModel: z.string().optional(),
-  databasePath: z.string().optional(),
+export const retrievalCallbacksSchema = z.object({
   onFileProcessList: z.function().optional(),
   onFileProcessingStart: z.function().optional(),
   onFileProcessingEnd: z.function().optional(),
   onFileProcessingStepStart: z.function().optional(),
   onFileProcessingStepProgress: z.function().optional(),
   onFileProcessingStepEnd: z.function().optional(),
+});
+
+/**
+ * @public
+ * N.B.: onProgress returns progress as a float taking values from 0 to 1, 1 being completed
+ */
+export type RetrievalOpts = RetrievalCallbacks & {
+  /**
+   * The chunking method to use. By default uses recursive-v1 with chunk size 512 and chunk overlap
+   * 100.
+   */
+  chunkingMethod?: RetrievalChunkingMethod;
+  /**
+   * The number of results to return.
+   */
+  limit?: number;
+  /**
+   * The embedding model to use.
+   */
+  embeddingModel?: EmbeddingDynamicHandle | string;
+  /**
+   * The path to the database.
+   */
+  databasePath?: string;
+};
+export const retrievalOptsSchema = z.object({
+  chunkingMethod: retrievalChunkingMethodSchema.optional(),
+  limit: z.number().optional(),
+  embeddingModel: z.string().optional(),
+  databasePath: z.string().optional(),
+  ...retrievalCallbacksSchema.shape,
 });
