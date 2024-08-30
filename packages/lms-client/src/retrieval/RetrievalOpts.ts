@@ -65,29 +65,29 @@ export interface RetrievalOpts {
    * Callback when starting a processing step for a file. LM Studio process files one at a time and
    * processing each file involves multiple steps. This callback is called when starting a step.
    *
-   * @param filename - The name of the file being processed.
+   * @param filePath - The path of the file being processed.
    * @param step - The step being started.
    */
-  onFileProcessingStepStart?: (filename: string, step: RetrievalFileProcessingStep) => void;
+  onFileProcessingStepStart?: (filePath: string, step: RetrievalFileProcessingStep) => void;
   /**
    * Granular progress callback for a processing step.
    *
-   * @param filename - The name of the file being processed.
+   * @param filePath - The path of the file being processed.
    * @param step - The step being started.
    * @param progressInStep - The progress in the step for the step. This value is between 0 and 1.
    */
   onFileProcessingStepProgress?: (
-    filename: string,
+    filePath: string,
     step: RetrievalFileProcessingStep,
     progressInStep: number,
   ) => void;
   /**
    * Callback when a processing step has ended.
    *
-   * @param filename - The name of the file being processed.
+   * @param filePath - The path of the file being processed.
    * @param step - The step that has ended.
    */
-  onFileProcessingStepEnd?: (filename: string, step: RetrievalFileProcessingStep) => void;
+  onFileProcessingStepEnd?: (filePath: string, step: RetrievalFileProcessingStep) => void;
 }
 export const retrievalOptsSchema = z.object({
   chunkingMethod: retrievalChunkingMethodSchema.optional(),
