@@ -4,7 +4,7 @@ import {
   type RetrievalFileProcessingStep,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { type EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
+import { EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
 
 export interface RetrievalCallbacks {
   /**
@@ -105,7 +105,7 @@ export type RetrievalOpts = RetrievalCallbacks & {
   /**
    * The embedding model to use.
    */
-  embeddingModel?: EmbeddingDynamicHandle | string;
+  embeddingModel?: EmbeddingDynamicHandle;
   /**
    * The path to the database.
    */
@@ -118,7 +118,7 @@ export type RetrievalOpts = RetrievalCallbacks & {
 export const retrievalOptsSchema = z.object({
   chunkingMethod: retrievalChunkingMethodSchema.optional(),
   limit: z.number().optional(),
-  embeddingModel: z.string().optional(),
+  embeddingModel: z.instanceof(EmbeddingDynamicHandle).optional(),
   databasePath: z.string().optional(),
   signal: z.instanceof(AbortSignal).optional(),
   ...retrievalCallbacksSchema.shape,

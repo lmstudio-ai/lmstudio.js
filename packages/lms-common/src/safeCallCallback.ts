@@ -7,9 +7,12 @@ import { type SimpleLogger } from "./SimpleLogger";
 export function safeCallCallback<TArgs extends Array<unknown>>(
   logger: SimpleLogger,
   name: string,
-  callback: (...args: TArgs) => void,
+  callback: ((...args: TArgs) => void) | undefined,
   args: TArgs,
 ) {
+  if (callback === undefined) {
+    return;
+  }
   try {
     const maybePromise = callback(...args) as any;
     if (typeof maybePromise === "object" && typeof maybePromise.catch === "function") {

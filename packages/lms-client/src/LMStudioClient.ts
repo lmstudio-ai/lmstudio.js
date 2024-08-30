@@ -15,8 +15,10 @@ import {
 import {
   createEmbeddingBackendInterface,
   createLlmBackendInterface,
+  createRetrievalBackendInterface,
   type EmbeddingPort,
   type LLMPort,
+  type RetrievalPort,
 } from "@lmstudio/lms-external-backend-interfaces";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
 import {
@@ -94,6 +96,7 @@ const constructorOptsSchema = z
     embeddingPort: z.any().optional(),
     systemPort: z.any().optional(),
     diagnosticsPort: z.any().optional(),
+    retrievalPort: z.any().optional(),
   })
   .strict();
 
@@ -114,6 +117,8 @@ export class LMStudioClient {
   private readonly systemPort: SystemPort;
   /** @internal */
   private readonly diagnosticsPort: DiagnosticsPort;
+  /** @internal */
+  private readonly retrievalPort: RetrievalPort;
 
   public readonly llm: LLMNamespace;
   public readonly embedding: EmbeddingNamespace;
@@ -229,6 +234,7 @@ export class LMStudioClient {
       embeddingPort,
       systemPort,
       diagnosticsPort,
+      retrievalPort,
     } = new Validator().validateConstructorParamOrThrow(
       "LMStudioClient",
       "opts",
@@ -312,6 +318,21 @@ export class LMStudioClient {
         },
       );
 
+    this.retrievalPort =
+      retrievalPort ??
+      createAuthenticatedClientPort(
+        createRetrievalBackendInterface(),
+        resolvingBaseUrl,
+        "retrieval",
+        this.clientIdentifier,
+        this.clientPasskey,
+        new SimpleLogger("Retrieval", this.logger),
+        {
+          errorDeserializer: friendlyErrorDeserializer,
+          verboseErrorMessage: verboseErrorMessages ?? false,
+        },
+      );
+
     const validator = new Validator();
 
     this.llm = new LLMNamespace(this.llmPort, new SimpleLogger("LLM", this.logger), validator);
@@ -322,6 +343,6 @@ export class LMStudioClient {
     );
     this.system = new SystemNamespace(this.systemPort, this.logger);
     this.diagnostics = new DiagnosticsNamespace(this.diagnosticsPort, validator, this.logger);
-    this.retrieval = new RetrievalNamespace();
+    this.retrieval = new RetrievalNamespace(this.retrievalPort, validator, this.logger);
   }
 }
