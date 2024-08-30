@@ -7,12 +7,12 @@ import {
 /**
  * @public
  */
-export interface Chunk {
+export interface RetrievalChunk {
   content: string;
   score: number;
   citation: CitationSource;
 }
-export const chunkSchema = z.object({
+export const retrievalChunkSchema = z.object({
   content: z.string(),
   score: z.number(),
   citation: citationSourceSchema,

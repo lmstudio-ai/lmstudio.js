@@ -31,6 +31,7 @@ import { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
 import { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
 import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
 import { LLMNamespace } from "./llm/LLMNamespace";
+import { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
 import { SystemNamespace } from "./system/SystemNamespace";
 
 /** @public */
@@ -118,6 +119,7 @@ export class LMStudioClient {
   public readonly embedding: EmbeddingNamespace;
   public readonly system: SystemNamespace;
   public readonly diagnostics: DiagnosticsNamespace;
+  public readonly retrieval: RetrievalNamespace;
 
   /** @internal */
   private validateBaseUrlOrThrow(baseUrl: string) {
@@ -320,5 +322,6 @@ export class LMStudioClient {
     );
     this.system = new SystemNamespace(this.systemPort, this.logger);
     this.diagnostics = new DiagnosticsNamespace(this.diagnosticsPort, validator, this.logger);
+    this.retrieval = new RetrievalNamespace();
   }
 }

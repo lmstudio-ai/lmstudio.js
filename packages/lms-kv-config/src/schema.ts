@@ -187,6 +187,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field("tryMmap", "boolean", {}, true),
       ),
   )
+  .scope(
+    "retrieval",
+    builder => builder.field("databaseFile", "string", { machineDependent: true }, ""),
+    // .scope("chunking", builder => {})
+    // .field(),
+  )
   .build();
 
 // ------------------------------------
