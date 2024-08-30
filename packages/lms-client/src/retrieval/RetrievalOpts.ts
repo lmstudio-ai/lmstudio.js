@@ -43,7 +43,20 @@ export interface RetrievalOpts {
    * @param filePathsToProcess - The list of files that will be processed. This will be the same as
    * the list passed to `onFileProcessList`.
    */
-  onStartProcessingFile?: (
+  onFileProcessingStart?: (
+    filePath: string,
+    index: number,
+    filePathsToProcess: Array<string>,
+  ) => void;
+  /**
+   * Callback when processing a file has ended.
+   *
+   * @param filePath - The path to the file being processed.
+   * @param index - The index of the file in the list of files to process.
+   * @param filePathsToProcess - The list of files that will be processed. This will be the same as
+   * the list passed to `onFileProcessList`.
+   */
+  onFileProcessingEnd?: (
     filePath: string,
     index: number,
     filePathsToProcess: Array<string>,
@@ -55,7 +68,7 @@ export interface RetrievalOpts {
    * @param filename - The name of the file being processed.
    * @param step - The step being started.
    */
-  onStartFileProcessingStep?: (filename: string, step: RetrievalFileProcessingStep) => void;
+  onFileProcessingStepStart?: (filename: string, step: RetrievalFileProcessingStep) => void;
   /**
    * Granular progress callback for a processing step.
    *
@@ -68,14 +81,23 @@ export interface RetrievalOpts {
     step: RetrievalFileProcessingStep,
     progressInStep: number,
   ) => void;
+  /**
+   * Callback when a processing step has ended.
+   *
+   * @param filename - The name of the file being processed.
+   * @param step - The step that has ended.
+   */
+  onFileProcessingStepEnd?: (filename: string, step: RetrievalFileProcessingStep) => void;
 }
 export const retrievalOptsSchema = z.object({
   chunkingMethod: retrievalChunkingMethodSchema.optional(),
   limit: z.number().optional(),
   embeddingModel: z.string().optional(),
   databasePath: z.string().optional(),
-  onFileProcessList: z.function(),
-  onStartProcessingFile: z.function(),
-  onStartFileProcessingStep: z.function(),
-  onFileProcessingStepProgress: z.function(),
+  onFileProcessList: z.function().optional(),
+  onFileProcessingStart: z.function().optional(),
+  onFileProcessingEnd: z.function().optional(),
+  onFileProcessingStepStart: z.function().optional(),
+  onFileProcessingStepProgress: z.function().optional(),
+  onFileProcessingStepEnd: z.function().optional(),
 });
