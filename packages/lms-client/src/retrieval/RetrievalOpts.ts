@@ -69,11 +69,13 @@ export interface RetrievalCallbacks {
   onFileProcessingStepEnd?: (filePath: string, step: RetrievalFileProcessingStep) => void;
   /**
    * Callback when we have embedded all the files and are starting to search in the vector database.
-   *
-   * There is no matching `onSearchingEnd` callback because this is the last step, When the
-   * searching is done, you will get the resulting chunks.
    */
   onSearchingStart?: () => void;
+  /**
+   * Callback when we have finished searching in the vector database. The chunk usually will be
+   * returned immediately after this callback.
+   */
+  onSearchingEnd?: () => void;
 }
 export const retrievalCallbacksSchema = z.object({
   onFileProcessList: z.function().optional(),
@@ -83,6 +85,7 @@ export const retrievalCallbacksSchema = z.object({
   onFileProcessingStepProgress: z.function().optional(),
   onFileProcessingStepEnd: z.function().optional(),
   onSearchingStart: z.function().optional(),
+  onSearchingEnd: z.function().optional(),
 });
 
 /**
