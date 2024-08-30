@@ -343,6 +343,11 @@ export class LMStudioClient {
     );
     this.system = new SystemNamespace(this.systemPort, this.logger);
     this.diagnostics = new DiagnosticsNamespace(this.diagnosticsPort, validator, this.logger);
-    this.retrieval = new RetrievalNamespace(this.retrievalPort, validator, this.logger);
+    this.retrieval = new RetrievalNamespace(
+      this.retrievalPort,
+      validator,
+      this.embedding,
+      this.logger,
+    );
   }
 }
