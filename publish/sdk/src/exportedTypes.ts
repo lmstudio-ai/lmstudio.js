@@ -59,6 +59,9 @@ export type {
   ProcessorInputFileType,
   ProcessorInputMessage,
   ProcessorInputMessageRole,
+  RetrievalChunk,
+  RetrievalChunkingMethod,
+  RetrievalFileProcessingStep,
   StatusStepState,
   StatusStepStatus,
 } from "@lmstudio/lms-shared-types";
