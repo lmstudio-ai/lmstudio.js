@@ -209,7 +209,7 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
 );
 
 export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPrediction.sliced("mlx.*"),
+  llmPrediction.sliced("mlx.*", "contextOverflowPolicy"),
 );
 
 export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
