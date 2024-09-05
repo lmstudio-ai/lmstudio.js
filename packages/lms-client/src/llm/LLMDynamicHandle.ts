@@ -8,7 +8,7 @@ import {
 } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
-  llmLlamaPredictionConfigSchematics,
+  llmPredictionConfigSchematics,
   llmSharedLoadConfigSchematics,
   llmSharedPredictionConfigSchematics,
 } from "@lmstudio/lms-kv-config";
@@ -100,7 +100,7 @@ function numberToCheckboxNumeric(
 }
 
 function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVConfig {
-  return llmLlamaPredictionConfigSchematics.buildPartialConfig({
+  return llmPredictionConfigSchematics.buildPartialConfig({
     "temperature": predictionConfig.temperature,
     "contextOverflowPolicy": predictionConfig.contextOverflowPolicy,
     "maxPredictedTokens": numberToCheckboxNumeric(predictionConfig.maxPredictedTokens, -1, 1),
@@ -111,6 +111,8 @@ function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVCo
     "llama.minPSampling": numberToCheckboxNumeric(predictionConfig.minPSampling, 0, 0.05),
     "llama.topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
     "llama.cpuThreads": predictionConfig.cpuThreads,
+    "mlx.repeatPenalty": numberToCheckboxNumeric(predictionConfig.repeatPenalty, 1, 1.1),
+    "mlx.topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
   });
 }
 

@@ -31,6 +31,7 @@ export {
   llmMlxPredictionConfigSchematics,
   llmOnnxLoadConfigSchematics,
   llmOnnxPredictionConfigSchematics,
+  llmPredictionConfigSchematics,
   llmSharedLoadConfigSchematics,
   llmSharedPredictionConfigSchematics,
   retrievalSchematics,
