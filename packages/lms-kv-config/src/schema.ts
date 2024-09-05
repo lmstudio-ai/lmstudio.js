@@ -102,7 +102,16 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           )
           .field("logitBias", "llamaLogitBias", {}, []),
       )
-      .scope("mlx", builder => builder.field("repeatPenalty", "numeric", { min: 1 }, 1.1))
+      .scope("mlx", builder =>
+        builder
+          .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
+          .field(
+            "topPSampling",
+            "checkboxNumeric",
+            { min: 0, max: 1, slider: { min: 0.01, max: 1, step: 0.01 } },
+            { checked: false, value: 0.95 },
+          ),
+      )
       .scope("onnx", builder =>
         builder
           .field(
@@ -111,7 +120,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { min: 0, max: 5000, slider: { min: 1, max: 5000, step: 1 } },
             { checked: false, value: 40 },
           )
-          .field("repeatPenalty", "numeric", { min: 1 }, 1.1)
+          .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
           .field(
             "topPSampling",
             "checkboxNumeric",
@@ -193,9 +202,9 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
 //  2. Functionality scope definitions
 // ------------------------------------
 
-const llmPrediction = globalConfigSchematics.scoped("llm.prediction");
+export const llmPredictionConfigSchematics = globalConfigSchematics.scoped("llm.prediction");
 
-export const llmSharedPredictionConfigSchematics = llmPrediction.sliced(
+export const llmSharedPredictionConfigSchematics = llmPredictionConfigSchematics.sliced(
   "temperature",
   "maxPredictedTokens",
   "promptTemplate",
@@ -205,15 +214,20 @@ export const llmSharedPredictionConfigSchematics = llmPrediction.sliced(
 );
 
 export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPrediction.sliced("llama.*", "contextOverflowPolicy", "stopStrings", "structured"),
+  llmPredictionConfigSchematics.sliced(
+    "llama.*",
+    "contextOverflowPolicy",
+    "stopStrings",
+    "structured",
+  ),
 );
 
 export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPrediction.sliced("mlx.*", "contextOverflowPolicy"),
+  llmPredictionConfigSchematics.sliced("mlx.*", "contextOverflowPolicy"),
 );
 
 export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPrediction.sliced("onnx.*"),
+  llmPredictionConfigSchematics.sliced("onnx.*"),
 );
 
 export const llmLoadSchematics = globalConfigSchematics.scoped("llm.load");
