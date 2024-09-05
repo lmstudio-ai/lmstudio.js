@@ -66,3 +66,21 @@ export async function unwrapPromiseOfResult<T>(promise: Promise<Result<T>>): Pro
     return Promise.reject(fromSerializedError(result.error));
   }
 }
+export function unwrapResult<T>(result: Result<T>): T {
+  if (result.success) {
+    return result.result;
+  } else {
+    throw fromSerializedError(result.error);
+  }
+}
+export function routeResultToCallbacks<T>(
+  result: Result<T>,
+  resolve: (result: T) => void,
+  reject: (error: Error) => void,
+) {
+  if (result.success) {
+    resolve(result.result);
+  } else {
+    reject(fromSerializedError(result.error));
+  }
+}

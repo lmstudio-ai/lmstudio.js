@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  citationSourceSchema,
-  type CitationSource,
-} from "../llm/processor/PromptPreprocessorUpdate";
+import { citationSourceSchema, type CitationSource } from "../CitationSource";
 
 /**
  * @public

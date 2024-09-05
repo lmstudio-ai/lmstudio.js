@@ -1,5 +1,8 @@
+import { createResultSchema } from "@lmstudio/lms-common";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
+  chatHistoryDataSchema,
+  chatMessageDataSchema,
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
@@ -7,9 +10,7 @@ import {
   llmPredictionStatsSchema,
   modelDescriptorSchema,
   modelSpecifierSchema,
-  processorInputContextSchema,
-  processorInputMessageSchema,
-  promptPreprocessorUpdateSchema,
+  preprocessorUpdateSchema,
   serializedLMSExtendedErrorSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
@@ -76,7 +77,7 @@ export function createLlmBackendInterface() {
         tokenCount: z.number(),
       }),
     })
-    .addChannelEndpoint("registerPromptPreprocessor", {
+    .addChannelEndpoint("registerPreprocessor", {
       creationParameter: z.object({
         identifier: z.string(),
       }),
@@ -84,24 +85,34 @@ export function createLlmBackendInterface() {
         z.object({
           type: z.literal("preprocess"),
           taskId: z.string(),
-          context: processorInputContextSchema,
-          userInput: processorInputMessageSchema,
+          userMessage: chatMessageDataSchema,
         }),
         z.object({
           type: z.literal("cancel"),
           taskId: z.string(),
+        }),
+        z.object({
+          type: z.literal("getContextResult"),
+          taskId: z.string(),
+          requestId: z.string(),
+          result: createResultSchema(chatHistoryDataSchema),
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
         z.object({
           type: z.literal("update"),
           taskId: z.string(),
-          update: promptPreprocessorUpdateSchema,
+          update: preprocessorUpdateSchema,
         }),
         z.object({
           type: z.literal("complete"),
           taskId: z.string(),
-          processed: processorInputMessageSchema,
+          processed: chatMessageDataSchema,
+        }),
+        z.object({
+          type: z.literal("getContext"),
+          taskId: z.string(),
+          requestId: z.string(),
         }),
         z.object({
           type: z.literal("error"),

@@ -1,26 +1,33 @@
-import { getCurrentStack, SimpleLogger, Validator } from "@lmstudio/lms-common";
+import {
+  ChatHistory,
+  ChatMessage,
+  getCurrentStack,
+  makePromise,
+  SimpleLogger,
+  Validator,
+} from "@lmstudio/lms-common";
+import { routeResultToCallbacks } from "@lmstudio/lms-common/dist/resultTypes";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
   llmLoadModelConfigSchema,
-  processorInputMessageSchema,
   serializeError,
+  type ChatHistoryData,
+  type ChatMessageData,
   type KVConfig,
   type LLMLoadModelConfig,
   type ModelDescriptor,
   type ModelSpecifier,
-  type ProcessorInputMessage,
+  type PreprocessorUpdate,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { ModelNamespace } from "../modelShared/ModelNamespace";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 import { LLMSpecificModel } from "./LLMSpecificModel";
-import { promptPreprocessorSchema, type PromptPreprocessor } from "./processor/PromptPreprocessor";
-import {
-  PromptPreprocessController,
-  type PromptCoPreprocessor,
-} from "./processor/PromptPreprocessorController";
+import { promptPreprocessorSchema, type Preprocessor } from "./processing/Preprocessor";
+import { type ProcessingConnector } from "./processing/ProcessingController";
+import { PromptPreprocessController } from "./processor/PromptPreprocessorController";
 
 /** @public */
 export class LLMNamespace extends ModelNamespace<
@@ -77,7 +84,7 @@ export class LLMNamespace extends ModelNamespace<
   /**
    * @internal
    */
-  public registerPromptPreprocessor(promptPreprocessor: PromptPreprocessor) {
+  public registerPreprocessor(promptPreprocessor: Preprocessor) {
     const stack = getCurrentStack(1);
 
     this.validator.validateMethodParamOrThrow(
@@ -96,12 +103,25 @@ export class LLMNamespace extends ModelNamespace<
     logger.info("Register to LM Studio");
 
     interface OngoingPreprocessTask {
+      /**
+       * Function to cancel the preprocess task
+       */
       cancel: () => void;
+      /**
+       * Mapping from getContext requestId to the corresponding resolve/reject functions
+       */
+      getContextRequests: Map<
+        string,
+        {
+          resolve: (result: ChatHistoryData) => void;
+          reject: (error: Error) => void;
+        }
+      >;
     }
 
     const tasks = new Map<string, OngoingPreprocessTask>();
     const channel = this.port.createChannel(
-      "registerPromptPreprocessor",
+      "registerPreprocessor",
       {
         identifier: promptPreprocessor.identifier,
       },
@@ -109,33 +129,49 @@ export class LLMNamespace extends ModelNamespace<
         switch (message.type) {
           case "preprocess": {
             logger.info(`Received preprocess request ${message.taskId}`);
-            const coPreprocessor: PromptCoPreprocessor = {
+            const abortController = new AbortController();
+            const connector: ProcessingConnector = {
+              abortSignal: abortController.signal,
+              getContext: async () => {
+                const { promise, resolve, reject } = makePromise<ChatHistoryData>();
+                const requestId = `${Date.now()}-${Math.random()}`;
+                const task = tasks.get(message.taskId);
+                if (task === undefined) {
+                  throw new Error("Preprocess task not found");
+                }
+                task.getContextRequests.set(requestId, { resolve, reject });
+                channel.send({
+                  type: "getContext",
+                  taskId: message.taskId,
+                  requestId,
+                });
+                const chatHistoryData = await promise;
+                return ChatHistory.createRaw(chatHistoryData, false);
+              },
               handleUpdate: update => {
                 channel.send({
                   type: "update",
                   taskId: message.taskId,
-                  update,
+                  // If the user is not using hidden methods of the controller, the updates will be
+                  // of type PreprocessorUpdate.
+                  update: update as PreprocessorUpdate,
                 });
               },
             };
-            const abortController = new AbortController();
-            const controller = new PromptPreprocessController(
-              coPreprocessor,
-              message.context,
-              message.userInput,
-              abortController.signal,
-            );
+            const controller = new PromptPreprocessController(connector);
             tasks.set(message.taskId, {
               cancel: () => {
                 abortController.abort();
               },
+              getContextRequests: new Map(),
             });
+            const userMessage = ChatMessage.createRaw(message.userMessage, false);
             promptPreprocessor
-              .preprocess(controller)
+              .preprocess(controller, userMessage)
               .then(result => {
                 logger.info(`Preprocess request ${message.taskId} completed`);
                 const parsedReturned = z
-                  .union([z.string(), processorInputMessageSchema])
+                  .union([z.string(), z.custom<ChatMessage>(v => v instanceof ChatMessage)])
                   .safeParse(result);
                 if (!parsedReturned.success) {
                   throw new Error(
@@ -144,15 +180,13 @@ export class LLMNamespace extends ModelNamespace<
                   );
                 }
                 const returned = parsedReturned.data;
-                let processed: ProcessorInputMessage;
+                let processed: ChatMessageData;
                 if (typeof returned === "string") {
-                  processed = {
-                    role: "user",
-                    text: returned,
-                    files: message.userInput.files,
-                  };
+                  const messageCopy = userMessage.asMutableCopy();
+                  messageCopy.replaceText(returned);
+                  processed = messageCopy.getRaw();
                 } else {
-                  processed = returned;
+                  processed = returned.getRaw();
                 }
 
                 channel.send({
@@ -185,6 +219,17 @@ export class LLMNamespace extends ModelNamespace<
             if (task !== undefined) {
               task.cancel();
               tasks.delete(message.taskId);
+            }
+            break;
+          }
+          case "getContextResult": {
+            const task = tasks.get(message.taskId);
+            if (task !== undefined) {
+              const request = task.getContextRequests.get(message.requestId);
+              if (request !== undefined) {
+                routeResultToCallbacks(message.result, request.resolve, request.reject);
+                task.getContextRequests.delete(message.requestId);
+              }
             }
             break;
           }

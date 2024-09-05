@@ -7,7 +7,7 @@ export type { LLMNamespace } from "./llm/LLMNamespace";
 export type { LLMSpecificModel } from "./llm/LLMSpecificModel";
 export type { OngoingPrediction } from "./llm/OngoingPrediction";
 export type { PredictionResult } from "./llm/PredictionResult";
-export { PromptPreprocessor } from "./llm/processor/PromptPreprocessor";
+export { PromptPreprocessor } from "./llm/processing/Preprocessor";
 export {
   PredictionProcessCitationBlockController,
   PredictionProcessDebugInfoBlockController,

@@ -7,8 +7,10 @@ enableMapSet();
 // Export lazy signal first to avoid circular dependency issues
 export { AsyncDeriveFromStrategy, isAvailable, LazySignal, NotAvailable } from "./LazySignal";
 
+export { ChatHistory, ChatMessage } from "../../lms-client/src/ChatHistory";
 export { BufferedEvent } from "./BufferedEvent";
 export { Cleaner } from "./Cleaner";
+export { deepFreeze } from "./deepFreeze";
 export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
 export { Event } from "./Event";
 export { doesFileNameIndicateModel, modelExtensions } from "./fileName";

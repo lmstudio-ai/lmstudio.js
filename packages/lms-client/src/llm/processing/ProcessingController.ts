@@ -1,10 +1,12 @@
+import { type ChatHistory } from "@lmstudio/lms-common";
 import {
   type CitationSource,
-  type ProcessorInputContext,
-  type ProcessorInputMessage,
-  type PromptPreprocessorUpdate,
+  type LLMGenInfo,
+  type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
+import { type OngoingPrediction } from "../OngoingPrediction";
+import { type PredictionResult } from "../PredictionResult";
 
 function stringifyAny(message: any) {
   switch (typeof message) {
@@ -39,96 +41,61 @@ function concatenateDebugMessages(...messages: Array<any>) {
   return messages.map(stringifyAny).join(" ");
 }
 
-/**
- * @public
- */
-export interface PredictionStepController {}
-
 function createId() {
   return `${Date.now()}-${Math.random()}`;
 }
 
-export interface PromptCoPreprocessor {
-  handleUpdate: (update: PromptPreprocessorUpdate) => void;
-  // getLLM: (opts: GetModelOpts) => Promise<LLMDynamicHandle>;
+export interface ProcessingConnector {
+  abortSignal: AbortSignal;
+  handleUpdate: (update: ProcessingUpdate) => void;
+  getContext(): Promise<ChatHistory>;
 }
 
-const sendUpdate = Symbol("sendUpdate");
+interface ProcessingControllerHandle {
+  abortSignal: AbortSignal;
+  sendUpdate: (update: ProcessingUpdate) => void;
+}
+
+export interface CreateContentBlockOpts {
+  includeInContext?: boolean;
+}
 
 /**
- * Controller for a prompt preprocessing session. Controller can be used to show status, debug info,
- * and/or citation blocks to the user in LM Studio.
- *
  * @public
  */
-export class PromptPreprocessController {
-  private endedFlag: boolean = false;
-  private stepControllers: Array<PredictionStepController> = [];
+export class ProcessingController {
+  private readonly processingControllerHandle: ProcessingControllerHandle;
+  public readonly abortSignal;
 
   /** @internal */
-  public constructor(
-    /** @internal */
-    private readonly coprocessor: PromptCoPreprocessor,
-    /** @internal */
-    private readonly context: ProcessorInputContext,
-    /** @internal */
-    private readonly userMessage: ProcessorInputMessage,
-    public readonly abortSignal: AbortSignal,
-  ) {}
-
-  /**
-   * Send an update to LM Studio.
-   *
-   * @internal
-   */
-  public [sendUpdate](update: PromptPreprocessorUpdate) {
-    if (this.hasEnded()) {
-      throw new Error("Prediction process has ended.");
-    }
-    this.coprocessor.handleUpdate(update);
+  public constructor(private readonly connector: ProcessingConnector) {
+    this.abortSignal = connector.abortSignal;
+    this.processingControllerHandle = {
+      abortSignal: connector.abortSignal,
+      sendUpdate: update => connector.handleUpdate(update),
+    };
   }
 
-  /**
-   * Get the previous context. Does not include the current user message.
-   */
-  public getContext() {
-    return this.context;
+  private sendUpdate(update: ProcessingUpdate) {
+    this.processingControllerHandle.sendUpdate(update);
   }
 
-  /**
-   * Get the current user message. i.e. the message that this preprocessor needs to process.
-   */
-  public getUserMessage() {
-    return this.userMessage;
-  }
-
-  /**
-   * Whether the prediction process has ended.
-   *
-   * @internal
-   */
-  public hasEnded(): boolean {
-    return this.endedFlag;
-  }
-
-  /**
-   * Ends the prediction process. Used internally.
-   *
-   * @internal
-   */
-  public end() {
-    this.endedFlag = true;
+  public async getContext() {
+    return await this.connector.getContext();
   }
 
   public createStatus(initialState: StatusStepState): PredictionProcessStatusController {
     const id = createId();
-    this[sendUpdate]({
+    this.sendUpdate({
       type: "status.create",
       id,
       state: initialState,
     });
-    const statusController = new PredictionProcessStatusController(this, initialState, id);
-    this.stepControllers.push(statusController);
+    const statusController = new PredictionProcessStatusController(
+      this.processingControllerHandle,
+      initialState,
+      id,
+    );
     return statusController;
   }
 
@@ -137,14 +104,16 @@ export class PromptPreprocessController {
     source: CitationSource,
   ): PredictionProcessCitationBlockController {
     const id = createId();
-    this[sendUpdate]({
+    this.sendUpdate({
       type: "citationBlock.create",
       id,
       citedText,
       source,
     });
-    const citationBlockController = new PredictionProcessCitationBlockController(this, id);
-    this.stepControllers.push(citationBlockController);
+    const citationBlockController = new PredictionProcessCitationBlockController(
+      this.processingControllerHandle,
+      id,
+    );
     return citationBlockController;
   }
 
@@ -153,14 +122,32 @@ export class PromptPreprocessController {
    */
   public createDebugInfoBlock(debugInfo: string): PredictionProcessDebugInfoBlockController {
     const id = createId();
-    this[sendUpdate]({
+    this.sendUpdate({
       type: "debugInfoBlock.create",
       id,
       debugInfo,
     });
-    const debugInfoBlockController = new PredictionProcessDebugInfoBlockController(this, id);
-    this.stepControllers.push(debugInfoBlockController);
+    const debugInfoBlockController = new PredictionProcessDebugInfoBlockController(
+      this.processingControllerHandle,
+      id,
+    );
     return debugInfoBlockController;
+  }
+
+  public createContentBlock({
+    includeInContext = true,
+  }: CreateContentBlockOpts): PredictionProcessContentBlockController {
+    const id = createId();
+    this.sendUpdate({
+      type: "contentBlock.create",
+      id,
+      includeInContext,
+    });
+    const contentBlockController = new PredictionProcessContentBlockController(
+      this.processingControllerHandle,
+      id,
+    );
+    return contentBlockController;
   }
 
   public debug(...messages: Array<any>) {
@@ -178,14 +165,17 @@ export class PromptPreprocessController {
   }
 }
 
+export type PreprocessorController = Omit<ProcessingController, "createContentBlock">;
+export type GeneratorController = Omit<ProcessingController, never>;
+
 /**
  * Controller for a status block in the prediction process.
  *
  * @public
  */
-export class PredictionProcessStatusController implements PredictionStepController {
+export class PredictionProcessStatusController {
   public constructor(
-    private readonly controller: PromptPreprocessController,
+    private readonly handle: ProcessingControllerHandle,
     initialState: StatusStepState,
     private readonly id: string,
     private readonly indentation: number = 0,
@@ -196,7 +186,7 @@ export class PredictionProcessStatusController implements PredictionStepControll
   private lastState: StatusStepState;
   public setText(text: string) {
     this.lastState.text = text;
-    this.controller[sendUpdate]({
+    this.handle.sendUpdate({
       type: "status.update",
       id: this.id,
       state: this.lastState,
@@ -204,7 +194,7 @@ export class PredictionProcessStatusController implements PredictionStepControll
   }
   public setState(state: StatusStepState) {
     this.lastState = state;
-    this.controller[sendUpdate]({
+    this.handle.sendUpdate({
       type: "status.update",
       id: this.id,
       state,
@@ -219,7 +209,7 @@ export class PredictionProcessStatusController implements PredictionStepControll
   }
   public addSubStatus(initialState: StatusStepState): PredictionProcessStatusController {
     const id = createId();
-    this.controller[sendUpdate]({
+    this.handle.sendUpdate({
       type: "status.create",
       id,
       state: initialState,
@@ -230,7 +220,7 @@ export class PredictionProcessStatusController implements PredictionStepControll
       indentation: this.indentation + 1,
     });
     const controller = new PredictionProcessStatusController(
-      this.controller,
+      this.handle,
       initialState,
       id,
       this.indentation + 1,
@@ -245,9 +235,9 @@ export class PredictionProcessStatusController implements PredictionStepControll
  *
  * @public
  */
-export class PredictionProcessCitationBlockController implements PredictionStepController {
+export class PredictionProcessCitationBlockController {
   public constructor(
-    private readonly controller: PromptPreprocessController,
+    private readonly handle: ProcessingControllerHandle,
     private readonly id: string,
   ) {}
 }
@@ -257,9 +247,47 @@ export class PredictionProcessCitationBlockController implements PredictionStepC
  *
  * @public
  */
-export class PredictionProcessDebugInfoBlockController implements PredictionStepController {
+export class PredictionProcessDebugInfoBlockController {
   public constructor(
-    private readonly controller: PromptPreprocessController,
+    private readonly handle: ProcessingControllerHandle,
     private readonly id: string,
   ) {}
+}
+
+export class PredictionProcessContentBlockController {
+  public constructor(
+    private readonly handle: ProcessingControllerHandle,
+    private readonly id: string,
+  ) {}
+  public appendText(text: string) {
+    this.handle.sendUpdate({
+      type: "contentBlock.appendText",
+      id: this.id,
+      text,
+    });
+  }
+  public attachGenInfo(genInfo: LLMGenInfo) {
+    this.handle.sendUpdate({
+      type: "contentBlock.attachGenInfo",
+      id: this.id,
+      genInfo,
+    });
+  }
+  public async pipeFrom(prediction: OngoingPrediction): Promise<PredictionResult> {
+    this.handle.abortSignal.addEventListener("abort", () => {
+      prediction.cancel();
+    });
+    for await (const text of prediction) {
+      this.appendText(text);
+    }
+    const result = await prediction;
+    this.attachGenInfo({
+      indexedModelIdentifier: result.modelInfo.path,
+      identifier: result.modelInfo.identifier,
+      loadModelConfig: result.loadConfig,
+      predictionConfig: result.predictionConfig,
+      stats: result.stats,
+    });
+    return result;
+  }
 }
