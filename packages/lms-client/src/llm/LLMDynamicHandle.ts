@@ -112,7 +112,8 @@ function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVCo
     "llama.topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
     "llama.cpuThreads": predictionConfig.cpuThreads,
     "mlx.repeatPenalty": numberToCheckboxNumeric(predictionConfig.repeatPenalty, 1, 1.1),
-    "mlx.topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
+    "mlx.topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 1),
+    "mlx.minPSampling": numberToCheckboxNumeric(predictionConfig.minPSampling, 0, 0),
   });
 }
 
