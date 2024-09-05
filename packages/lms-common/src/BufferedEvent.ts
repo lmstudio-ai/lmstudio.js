@@ -1,3 +1,4 @@
+import { Event } from "./Event";
 import { Subscribable } from "./Subscribable";
 
 type Listener<TData> = (data: TData) => void;
@@ -60,5 +61,14 @@ export class BufferedEvent<TData> extends Subscribable<TData> {
     return () => {
       this.subscriber = null;
     };
+  }
+  /**
+   * Convert this buffered event to an event by stop buffering and triggering events on the new
+   * returned event.
+   */
+  public flow(): Event<TData> {
+    const [event, emit] = Event.create<TData>();
+    this.subscribe(emit);
+    return event;
   }
 }

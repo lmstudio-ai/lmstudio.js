@@ -171,7 +171,7 @@ export class PromptPreprocessController {
    * Throws an error if the prediction process has been aborted. Sprinkle this throughout your code
    * to ensure that the prediction process is aborted as soon as possible.
    */
-  public abortGuard() {
+  public guardAbort() {
     if (this.abortSignal.aborted) {
       throw this.abortSignal.reason;
     }

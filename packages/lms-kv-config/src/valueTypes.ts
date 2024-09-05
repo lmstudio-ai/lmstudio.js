@@ -6,6 +6,8 @@ import {
   llmLlamaMirostatSamplingConfigSchema,
   llmPromptTemplateSchema,
   llmStructuredPredictionSettingSchema,
+  modelDomainTypeSchema,
+  retrievalChunkingMethodSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { KVFieldValueTypesLibraryBuilder, type InferKVValueTypeDef } from "./KVConfig";
@@ -157,6 +159,14 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return z.number().int().positive();
     },
   })
+  .valueType("modelIdentifier", {
+    paramType: {
+      domain: z.array(modelDomainTypeSchema).optional(),
+    },
+    schemaMaker: () => {
+      return z.string();
+    },
+  })
   .valueType("llmPromptTemplate", {
     paramType: {},
     schemaMaker: () => {
@@ -199,6 +209,12 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     paramType: {},
     schemaMaker: () => {
       return llmLlamaLogitBiasConfigSchema;
+    },
+  })
+  .valueType("retrievalChunkingMethod", {
+    paramType: {},
+    schemaMaker: () => {
+      return retrievalChunkingMethodSchema;
     },
   })
   .build();

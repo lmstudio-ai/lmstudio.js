@@ -20,4 +20,6 @@ export type { LMStudioClientConstructorOpts } from "./LMStudioClient";
 export type { DynamicHandle } from "./modelShared/DynamicHandle";
 export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace";
 export type { SpecificModel } from "./modelShared/SpecificModel";
+export type { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
+export type { RetrievalCallbacks, RetrievalOpts } from "./retrieval/RetrievalOpts";
 export type { SystemNamespace } from "./system/SystemNamespace";

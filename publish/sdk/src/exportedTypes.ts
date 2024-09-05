@@ -18,6 +18,9 @@ export type {
   PredictionResult,
   PredictionStepController,
   PromptPreprocessor,
+  RetrievalCallbacks,
+  RetrievalNamespace,
+  RetrievalOpts,
   SpecificModel,
   SystemNamespace,
 } from "@lmstudio/lms-client";
@@ -56,6 +59,9 @@ export type {
   ProcessorInputFileType,
   ProcessorInputMessage,
   ProcessorInputMessageRole,
+  RetrievalChunk,
+  RetrievalChunkingMethod,
+  RetrievalFileProcessingStep,
   StatusStepState,
   StatusStepStatus,
 } from "@lmstudio/lms-shared-types";
