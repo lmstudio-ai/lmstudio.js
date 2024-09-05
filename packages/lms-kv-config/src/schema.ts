@@ -109,7 +109,13 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             "topPSampling",
             "checkboxNumeric",
             { min: 0, max: 1, slider: { min: 0.01, max: 1, step: 0.01 } },
-            { checked: false, value: 0.95 },
+            { checked: false, value: 1 },
+          )
+          .field(
+            "minPSampling",
+            "checkboxNumeric",
+            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+            { checked: false, value: 0 },
           ),
       )
       .scope("onnx", builder =>
