@@ -5,7 +5,7 @@ enablePatches();
 enableMapSet();
 
 // Export lazy signal first to avoid circular dependency issues
-export { LazySignal, NotAvailable } from "./LazySignal";
+export { AsyncDeriveFromStrategy, LazySignal, NotAvailable } from "./LazySignal";
 
 export { BufferedEvent } from "./BufferedEvent";
 export { Cleaner } from "./Cleaner";

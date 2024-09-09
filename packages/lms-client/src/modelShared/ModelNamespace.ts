@@ -538,6 +538,32 @@ export abstract class ModelNamespace<
   }
 
   /**
+   * Create a dynamic handle from the internal instance reference.
+   *
+   * @alpha
+   */
+  public createDynamicHandleFromInstanceReference(instanceReference: string): TDynamicHandle {
+    const stack = getCurrentStack(1);
+    this.validator.validateMethodParamOrThrow(
+      `client.${this.namespace}`,
+      "createDynamicHandleFromInstanceReference",
+      "instanceReference",
+      z.string(),
+      instanceReference,
+      stack,
+    );
+    return this.createDomainDynamicHandle(
+      this.port,
+      {
+        type: "instanceReference",
+        instanceReference,
+      },
+      this.validator,
+      new SimpleLogger("DynamicHandle", this.logger),
+    );
+  }
+
+  /**
    * Extremely early alpha. Will cause errors in console. Can potentially throw if called in
    * parallel. Do not use in production yet.
    */
