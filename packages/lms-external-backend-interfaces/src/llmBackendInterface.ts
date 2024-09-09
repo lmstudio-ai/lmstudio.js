@@ -3,12 +3,14 @@ import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
   chatHistoryDataSchema,
   chatMessageDataSchema,
+  getModelOptsSchema,
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
   llmContextSchema,
   llmPredictionStatsSchema,
   modelDescriptorSchema,
+  modelDomainTypeSchema,
   modelSpecifierSchema,
   preprocessorUpdateSchema,
   serializedLMSExtendedErrorSchema,
@@ -97,6 +99,17 @@ export function createLlmBackendInterface() {
           requestId: z.string(),
           result: createResultSchema(chatHistoryDataSchema),
         }),
+        z.object({
+          type: z.literal("getModelResult"),
+          result: createResultSchema(
+            z
+              .object({
+                domain: modelDomainTypeSchema,
+                identifier: z.string(),
+              })
+              .optional(),
+          ),
+        }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
         z.object({
@@ -113,6 +126,12 @@ export function createLlmBackendInterface() {
           type: z.literal("getContext"),
           taskId: z.string(),
           requestId: z.string(),
+        }),
+        z.object({
+          type: z.literal("getModel"),
+          taskId: z.string(),
+          requestId: z.string(),
+          getModelOpts: getModelOptsSchema,
         }),
         z.object({
           type: z.literal("error"),

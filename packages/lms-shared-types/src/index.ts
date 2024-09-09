@@ -40,6 +40,13 @@ export {
   serializeError,
 } from "./Error";
 export {
+  FileNamespace,
+  fileNamespaceSchema,
+  ParsedFileIdentifier,
+  parsedFileIdentifierSchema,
+} from "./files/FileIdentifier";
+export { FileType, fileTypeSchema } from "./files/FileType";
+export {
   KVConfig,
   KVConfigField,
   kvConfigFieldSchema,
@@ -153,6 +160,7 @@ export {
   StatusStepStatus,
   statusStepStatusSchema,
 } from "./llm/processing/ProcessingUpdate";
+export { GetModelOpts, getModelOptsSchema } from "./llm/processing/Processor";
 export { ModelDescriptor, modelDescriptorSchema } from "./ModelDescriptor";
 export { ModelDomainType, modelDomainTypeSchema } from "./ModelDomainType";
 export {

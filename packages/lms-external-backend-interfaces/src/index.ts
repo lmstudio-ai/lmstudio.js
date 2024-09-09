@@ -8,6 +8,11 @@ export {
   EmbeddingPort,
   createEmbeddingBackendInterface,
 } from "./embeddingBackendInterface";
+export {
+  FilesBackendInterface,
+  FilesPort,
+  createFilesBackendInterface,
+} from "./filesBackendInterface";
 export { LLMBackendInterface, LLMPort, createLlmBackendInterface } from "./llmBackendInterface";
 export {
   RetrievalBackendInterface,

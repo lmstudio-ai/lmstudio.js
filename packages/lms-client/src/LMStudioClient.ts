@@ -7,7 +7,14 @@ import {
   Validator,
   type LoggerInterface,
 } from "@lmstudio/lms-common";
-import { getHostedEnv } from "@lmstudio/lms-communication-client";
+import {
+  type BackendInterface,
+  type ChannelEndpointsSpecBase,
+  type RpcEndpointsSpecBase,
+  type SignalEndpointsSpecBase,
+  type WritableSignalEndpointsSpecBase,
+} from "@lmstudio/lms-communication";
+import { getHostedEnv, type ClientPort } from "@lmstudio/lms-communication-client";
 import {
   createDiagnosticsBackendInterface,
   type DiagnosticsPort,
@@ -20,6 +27,10 @@ import {
   type LLMPort,
   type RetrievalPort,
 } from "@lmstudio/lms-external-backend-interfaces";
+import {
+  createFilesBackendInterface,
+  type FilesPort,
+} from "@lmstudio/lms-external-backend-interfaces/dist/filesBackendInterface";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
 import {
   createSystemBackendInterface,
@@ -31,6 +42,7 @@ import { z } from "zod";
 import { createAuthenticatedClientPort } from "./createAuthenticatedClientPort";
 import { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
 import { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
+import { FilesNamespace } from "./files/FilesNamespace";
 import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
 import { LLMNamespace } from "./llm/LLMNamespace";
 import { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
@@ -97,6 +109,7 @@ const constructorOptsSchema = z
     systemPort: z.any().optional(),
     diagnosticsPort: z.any().optional(),
     retrievalPort: z.any().optional(),
+    filesPort: z.any().optional(),
   })
   .strict();
 
@@ -119,12 +132,18 @@ export class LMStudioClient {
   private readonly diagnosticsPort: DiagnosticsPort;
   /** @internal */
   private readonly retrievalPort: RetrievalPort;
+  /** @internal */
+  private readonly filesPort: FilesPort;
 
   public readonly llm: LLMNamespace;
   public readonly embedding: EmbeddingNamespace;
   public readonly system: SystemNamespace;
   public readonly diagnostics: DiagnosticsNamespace;
   public readonly retrieval: RetrievalNamespace;
+  /**
+   * Private for now because we don't have any public APIs for it yet.
+   */
+  private readonly files: FilesNamespace;
 
   /** @internal */
   private validateBaseUrlOrThrow(baseUrl: string) {
@@ -222,6 +241,39 @@ export class LMStudioClient {
     );
   }
 
+  private createPort<
+    TRpcEndpoints extends RpcEndpointsSpecBase,
+    TChannelEndpoints extends ChannelEndpointsSpecBase,
+    TSignalEndpoints extends SignalEndpointsSpecBase,
+    TWritableSignalEndpoints extends WritableSignalEndpointsSpecBase,
+  >(
+    namespace: string,
+    name: string,
+    backendInterface: BackendInterface<
+      never,
+      TRpcEndpoints,
+      TChannelEndpoints,
+      TSignalEndpoints,
+      TWritableSignalEndpoints
+    >,
+  ): ClientPort<TRpcEndpoints, TChannelEndpoints, TSignalEndpoints, TWritableSignalEndpoints> {
+    return createAuthenticatedClientPort(
+      backendInterface,
+      this.resolvingBaseUrl,
+      namespace,
+      this.clientIdentifier,
+      this.clientPasskey,
+      new SimpleLogger(name, this.logger),
+      {
+        errorDeserializer: friendlyErrorDeserializer,
+        verboseErrorMessage: this.verboseErrorMessages,
+      },
+    );
+  }
+
+  private resolvingBaseUrl: string | Promise<string>;
+  private verboseErrorMessages: boolean;
+
   public constructor(opts: LMStudioClientConstructorOpts = {}) {
     const {
       logger,
@@ -235,6 +287,7 @@ export class LMStudioClient {
       systemPort,
       diagnosticsPort,
       retrievalPort,
+      filesPort,
     } = new Validator().validateConstructorParamOrThrow(
       "LMStudioClient",
       "opts",
@@ -246,92 +299,29 @@ export class LMStudioClient {
     this.clientPasskey = clientPasskey ?? generateRandomBase64(18);
 
     const stack = getCurrentStack(1);
-    let resolvingBaseUrl: string | Promise<string>;
     if (disableConnection) {
-      resolvingBaseUrl = new Promise(() => undefined);
+      this.resolvingBaseUrl = new Promise(() => undefined);
     } else {
       if (baseUrl === undefined) {
-        resolvingBaseUrl = this.guessBaseUrl(verboseErrorMessages ? stack : undefined);
+        this.resolvingBaseUrl = this.guessBaseUrl(verboseErrorMessages ? stack : undefined);
       } else {
         this.validateBaseUrlOrThrow(baseUrl);
-        resolvingBaseUrl = baseUrl;
+        this.resolvingBaseUrl = baseUrl;
       }
     }
+    this.verboseErrorMessages = verboseErrorMessages ?? false;
 
-    this.llmPort =
-      llmPort ??
-      createAuthenticatedClientPort(
-        createLlmBackendInterface(),
-        resolvingBaseUrl,
-        "llm",
-        this.clientIdentifier,
-        this.clientPasskey,
-        new SimpleLogger("LLM", this.logger),
-        {
-          errorDeserializer: friendlyErrorDeserializer,
-          verboseErrorMessage: verboseErrorMessages ?? false,
-        },
-      );
-
+    this.llmPort = llmPort ?? this.createPort("llm", "LLM", createLlmBackendInterface());
     this.embeddingPort =
-      embeddingPort ??
-      createAuthenticatedClientPort(
-        createEmbeddingBackendInterface(),
-        resolvingBaseUrl,
-        "embedding",
-        this.clientIdentifier,
-        this.clientPasskey,
-        new SimpleLogger("Embedding", this.logger),
-        {
-          errorDeserializer: friendlyErrorDeserializer,
-          verboseErrorMessage: verboseErrorMessages ?? false,
-        },
-      );
-
+      embeddingPort ?? this.createPort("embedding", "Embedding", createEmbeddingBackendInterface());
     this.systemPort =
-      systemPort ??
-      createAuthenticatedClientPort(
-        createSystemBackendInterface(),
-        resolvingBaseUrl,
-        "system",
-        this.clientIdentifier,
-        this.clientPasskey,
-        new SimpleLogger("System", this.logger),
-        {
-          errorDeserializer: friendlyErrorDeserializer,
-          verboseErrorMessage: verboseErrorMessages ?? false,
-        },
-      );
-
+      systemPort ?? this.createPort("system", "System", createSystemBackendInterface());
     this.diagnosticsPort =
       diagnosticsPort ??
-      createAuthenticatedClientPort(
-        createDiagnosticsBackendInterface(),
-        resolvingBaseUrl,
-        "diagnostics",
-        this.clientIdentifier,
-        this.clientPasskey,
-        new SimpleLogger("Diagnostics", this.logger),
-        {
-          errorDeserializer: friendlyErrorDeserializer,
-          verboseErrorMessage: verboseErrorMessages ?? false,
-        },
-      );
-
+      this.createPort("diagnostics", "Diagnostics", createDiagnosticsBackendInterface());
     this.retrievalPort =
-      retrievalPort ??
-      createAuthenticatedClientPort(
-        createRetrievalBackendInterface(),
-        resolvingBaseUrl,
-        "retrieval",
-        this.clientIdentifier,
-        this.clientPasskey,
-        new SimpleLogger("Retrieval", this.logger),
-        {
-          errorDeserializer: friendlyErrorDeserializer,
-          verboseErrorMessage: verboseErrorMessages ?? false,
-        },
-      );
+      retrievalPort ?? this.createPort("retrieval", "Retrieval", createRetrievalBackendInterface());
+    this.filesPort = filesPort ?? this.createPort("files", "Files", createFilesBackendInterface());
 
     const validator = new Validator();
 
@@ -349,5 +339,6 @@ export class LMStudioClient {
       this.embedding,
       this.logger,
     );
+    this.files = new FilesNamespace(this.filesPort, validator, this.logger);
   }
 }

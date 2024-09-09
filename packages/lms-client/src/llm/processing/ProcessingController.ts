@@ -49,6 +49,7 @@ export interface ProcessingConnector {
   abortSignal: AbortSignal;
   handleUpdate: (update: ProcessingUpdate) => void;
   getContext(): Promise<ChatHistory>;
+  // getModel():
 }
 
 interface ProcessingControllerHandle {

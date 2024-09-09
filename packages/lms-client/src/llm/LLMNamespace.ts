@@ -25,9 +25,12 @@ import { ModelNamespace } from "../modelShared/ModelNamespace";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 import { LLMSpecificModel } from "./LLMSpecificModel";
-import { promptPreprocessorSchema, type Preprocessor } from "./processing/Preprocessor";
-import { type ProcessingConnector } from "./processing/ProcessingController";
-import { PromptPreprocessController } from "./processor/PromptPreprocessorController";
+import { preprocessorSchema, type Preprocessor } from "./processing/Preprocessor";
+import {
+  ProcessingController,
+  type PreprocessorController,
+  type ProcessingConnector,
+} from "./processing/ProcessingController";
 
 /** @public */
 export class LLMNamespace extends ModelNamespace<
@@ -84,20 +87,20 @@ export class LLMNamespace extends ModelNamespace<
   /**
    * @internal
    */
-  public registerPreprocessor(promptPreprocessor: Preprocessor) {
+  public registerPreprocessor(preprocessor: Preprocessor) {
     const stack = getCurrentStack(1);
 
     this.validator.validateMethodParamOrThrow(
       "llm",
-      "registerPromptPreprocessor",
-      "promptPreprocessor",
-      promptPreprocessorSchema,
-      promptPreprocessor,
+      "registerPreprocessor",
+      "preprocessor",
+      preprocessorSchema,
+      preprocessor,
       stack,
     );
 
     const logger = new SimpleLogger(
-      `Prompt Preprocessor - ${promptPreprocessor.identifier}`,
+      `Prompt Preprocessor - ${preprocessor.identifier}`,
       this.logger,
     );
     logger.info("Register to LM Studio");
@@ -123,13 +126,14 @@ export class LLMNamespace extends ModelNamespace<
     const channel = this.port.createChannel(
       "registerPreprocessor",
       {
-        identifier: promptPreprocessor.identifier,
+        identifier: preprocessor.identifier,
       },
       message => {
         switch (message.type) {
           case "preprocess": {
             logger.info(`Received preprocess request ${message.taskId}`);
             const abortController = new AbortController();
+            let ended = false;
             const connector: ProcessingConnector = {
               abortSignal: abortController.signal,
               getContext: async () => {
@@ -149,6 +153,9 @@ export class LLMNamespace extends ModelNamespace<
                 return ChatHistory.createRaw(chatHistoryData, false);
               },
               handleUpdate: update => {
+                if (ended) {
+                  throw new Error("Cannot send updates after the preprocess task has ended.");
+                }
                 channel.send({
                   type: "update",
                   taskId: message.taskId,
@@ -158,7 +165,7 @@ export class LLMNamespace extends ModelNamespace<
                 });
               },
             };
-            const controller = new PromptPreprocessController(connector);
+            const controller: PreprocessorController = new ProcessingController(connector);
             tasks.set(message.taskId, {
               cancel: () => {
                 abortController.abort();
@@ -166,7 +173,7 @@ export class LLMNamespace extends ModelNamespace<
               getContextRequests: new Map(),
             });
             const userMessage = ChatMessage.createRaw(message.userMessage, false);
-            promptPreprocessor
+            preprocessor
               .preprocess(controller, userMessage)
               .then(result => {
                 logger.info(`Preprocess request ${message.taskId} completed`);
@@ -209,7 +216,7 @@ export class LLMNamespace extends ModelNamespace<
               })
               .finally(() => {
                 tasks.delete(message.taskId);
-                controller.end();
+                ended = true;
               });
             break;
           }

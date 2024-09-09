@@ -7,7 +7,6 @@ enableMapSet();
 // Export lazy signal first to avoid circular dependency issues
 export { AsyncDeriveFromStrategy, isAvailable, LazySignal, NotAvailable } from "./LazySignal";
 
-export { ChatHistory, ChatMessage } from "../../lms-client/src/ChatHistory";
 export { BufferedEvent } from "./BufferedEvent";
 export { Cleaner } from "./Cleaner";
 export { deepFreeze } from "./deepFreeze";
@@ -21,6 +20,7 @@ export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";
 export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter";
 export { OWLSignal } from "./OWLSignal";
+export { parseFileIdentifier } from "./parseFileIdentifier";
 export { removeUndefinedValues } from "./removeUndefinedValues";
 export {
   createResultSchema,

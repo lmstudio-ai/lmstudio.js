@@ -1,0 +1,42 @@
+import { parseFileIdentifier } from "@lmstudio/lms-common";
+import { type FileType, type ParsedFileIdentifier } from "@lmstudio/lms-shared-types";
+import { type FilesNamespace } from "./FilesNamespace";
+
+export class FileHandle {
+  /**
+   * @internal
+   */
+  public constructor(
+    public readonly filesNamespace: FilesNamespace,
+    public readonly identifier: string,
+    public readonly type: FileType,
+    public readonly sizeBytes: number,
+  ) {
+    this.parsedIdentifier = parseFileIdentifier(identifier);
+  }
+  private readonly parsedIdentifier: ParsedFileIdentifier;
+
+  /**
+   * Gets the absolute file path of this file.
+   */
+  public async getFilePath() {
+    switch (this.parsedIdentifier.type) {
+      case "local": {
+        return await this.filesNamespace.getLocalFileAbsolutePath(this.parsedIdentifier.fileName);
+      }
+      case "base64": {
+        throw new Error(
+          "Not implemented. Please open an issue on GitHub if you encountered this error.",
+        );
+      }
+      default: {
+        const _exhaustiveCheck: never = this.parsedIdentifier;
+        throw new Error(`Unexpected file identifier type: ${JSON.stringify(_exhaustiveCheck)}`);
+      }
+    }
+  }
+
+  public isImage() {
+    return this.type === "image";
+  }
+}

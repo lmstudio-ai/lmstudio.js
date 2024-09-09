@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type FileType, fileTypeSchema } from "./files/FileType";
 
 export interface ChatMessagePartTextData {
   type: "text";
@@ -23,12 +24,17 @@ export interface ChatMessagePartFileData {
    * Size of the file in bytes.
    */
   sizeBytes: number;
+  /**
+   * Type of the file.
+   */
+  fileType: FileType;
 }
 export const chatMessagePartFileDataSchema = z.object({
   type: z.literal("file"),
   name: z.string(),
   identifier: z.string(),
   sizeBytes: z.number(),
+  fileType: fileTypeSchema,
 });
 
 export type ChatMessagePartData = ChatMessagePartTextData | ChatMessagePartFileData;
