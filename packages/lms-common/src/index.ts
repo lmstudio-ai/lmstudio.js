@@ -12,6 +12,7 @@ export { Cleaner } from "./Cleaner";
 export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
 export { Event } from "./Event";
 export { doesFileNameIndicateModel, modelExtensions } from "./fileName";
+export { HandledEvent } from "./HandledEvent";
 export { lmsDefaultPorts } from "./lmsDefaultPorts";
 export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";
