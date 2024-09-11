@@ -106,14 +106,11 @@ function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVCo
     "maxPredictedTokens": numberToCheckboxNumeric(predictionConfig.maxPredictedTokens, -1, 1),
     "stopStrings": predictionConfig.stopStrings,
     "structured": predictionConfig.structured,
-    "llama.topKSampling": predictionConfig.topKSampling,
-    "llama.repeatPenalty": numberToCheckboxNumeric(predictionConfig.repeatPenalty, 1, 1.1),
-    "llama.minPSampling": numberToCheckboxNumeric(predictionConfig.minPSampling, 0, 0.05),
-    "llama.topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
+    "topKSampling": predictionConfig.topKSampling,
+    "repeatPenalty": numberToCheckboxNumeric(predictionConfig.repeatPenalty, 1, 1.1),
+    "minPSampling": numberToCheckboxNumeric(predictionConfig.minPSampling, 0, 0.05),
+    "topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
     "llama.cpuThreads": predictionConfig.cpuThreads,
-    "mlx.repeatPenalty": numberToCheckboxNumeric(predictionConfig.repeatPenalty, 1, 1.1),
-    "mlx.topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 1),
-    "mlx.minPSampling": numberToCheckboxNumeric(predictionConfig.minPSampling, 0, 0),
   });
 }
 
