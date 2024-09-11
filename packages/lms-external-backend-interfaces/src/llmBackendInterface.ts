@@ -66,6 +66,15 @@ export function createLlmBackendInterface() {
         tokens: z.array(z.number()),
       }),
     })
+    .addRpcEndpoint("countTokens", {
+      parameter: z.object({
+        specifier: modelSpecifierSchema,
+        inputString: z.string(),
+      }),
+      returns: z.object({
+        tokenCount: z.number(),
+      }),
+    })
     .addChannelEndpoint("registerPromptPreprocessor", {
       creationParameter: z.object({
         identifier: z.string(),

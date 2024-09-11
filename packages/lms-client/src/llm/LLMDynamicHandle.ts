@@ -509,4 +509,26 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
       )
     ).tokens;
   }
+
+  public async unstable_countTokens(inputString: string): Promise<number> {
+    const stack = getCurrentStack(1);
+    inputString = this.validator.validateMethodParamOrThrow(
+      "model",
+      "unstable_countTokens",
+      "inputString",
+      z.string(),
+      inputString,
+      stack,
+    );
+    return (
+      await this.port.callRpc(
+        "countTokens",
+        {
+          specifier: this.specifier,
+          inputString,
+        },
+        { stack },
+      )
+    ).tokenCount;
+  }
 }

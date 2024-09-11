@@ -10,6 +10,13 @@ export function isAvailable<T>(data: T): data is StripNotAvailable<T> {
   return data !== LazySignal.NOT_AVAILABLE;
 }
 
+/**
+ * When deriving with an async function, how to reconcile multiple updates coming in out of order.
+ *
+ * - "eager": Always apply the change as long as the update is newer than the last one.
+ */
+export type AsyncDeriveFromStrategy = "eager";
+
 export type SubscribeUpstream<TData> = (
   /**
    * The setter function that should be called whenever the upstream emits a new value. The setter
@@ -127,6 +134,72 @@ export class LazySignal<TData> extends Subscribable<TData> implements SignalLike
       },
       fullEqualsPredicate,
     ) as any;
+  }
+
+  public static asyncDeriveFrom<TSource extends Array<unknown>, TData>(
+    strategy: AsyncDeriveFromStrategy,
+    sourceSignals: { [TKey in keyof TSource]: SignalLike<TSource[TKey]> },
+    deriver: (
+      ...sourceValues: {
+        [TKey in keyof TSource]: StripNotAvailable<TSource[TKey]>;
+      }
+    ) => Promise<TData>,
+    outputEqualsPredicate?: (a: TData, b: TData) => boolean,
+  ): LazySignal<TData | NotAvailable> {
+    let fullEqualsPredicate:
+      | ((a: TData | NotAvailable, b: TData | NotAvailable) => boolean)
+      | undefined = undefined;
+    if (outputEqualsPredicate !== undefined) {
+      fullEqualsPredicate = (a, b) => {
+        if (a === LazySignal.NOT_AVAILABLE || b === LazySignal.NOT_AVAILABLE) {
+          return a === b;
+        }
+        return outputEqualsPredicate(a, b);
+      };
+    }
+    let lastAppliedUpdateId = -1;
+    let lastIssuedUpdateId = -1;
+    return new LazySignal<TData | NotAvailable>(
+      LazySignal.NOT_AVAILABLE,
+      setDownstream => {
+        const deriveAndUpdate = () => {
+          lastIssuedUpdateId++;
+          const updateId = lastIssuedUpdateId;
+          const sourceValues = sourceSignals.map(signal => signal.get());
+          if (sourceValues.some(value => value === LazySignal.NOT_AVAILABLE)) {
+            return;
+          }
+          deriver(...(sourceValues as any)).then(result => {
+            if (!isAvailable(result)) {
+              return;
+            }
+            switch (strategy) {
+              case "eager": {
+                if (updateId > lastAppliedUpdateId) {
+                  lastAppliedUpdateId = updateId;
+                  setDownstream(result);
+                }
+                break;
+              }
+              default: {
+                const exhaustiveCheck: never = strategy;
+                throw new Error(`Unknown strategy: ${exhaustiveCheck}`);
+              }
+            }
+          });
+        };
+        const unsubscriber = sourceSignals.map(signal =>
+          signal.subscribe(() => {
+            deriveAndUpdate();
+          }),
+        );
+        deriveAndUpdate();
+        return () => {
+          unsubscriber.forEach(unsub => unsub());
+        };
+      },
+      fullEqualsPredicate,
+    );
   }
 
   protected constructor(
