@@ -58,22 +58,22 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("systemPrompt", "string", {}, "")
       .field("seed", "numeric", { int: true }, -1)
       .field("contextPrefill", "context", {}, [])
+      .field("topKSampling", "numeric", { min: -1, max: 500, int: true }, 40)
+      .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
+      .field(
+        "minPSampling",
+        "checkboxNumeric",
+        { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+        { checked: true, value: 0.05 },
+      )
+      .field(
+        "topPSampling",
+        "checkboxNumeric",
+        { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+        { checked: true, value: 0.95 },
+      )
       .scope("llama", builder =>
         builder
-          .field("topKSampling", "numeric", { min: -1, max: 500, int: true }, 40)
-          .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
-          .field(
-            "minPSampling",
-            "checkboxNumeric",
-            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
-            { checked: true, value: 0.05 },
-          )
-          .field(
-            "topPSampling",
-            "checkboxNumeric",
-            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
-            { checked: true, value: 0.95 },
-          )
           .field("cpuThreads", "numeric", { min: 1, int: true }, 4)
           .field("frequencyPenalty", "checkboxNumeric", {}, { checked: false, value: 0.0 })
           .field("presencePenalty", "checkboxNumeric", {}, { checked: false, value: 0.0 })
@@ -101,22 +101,6 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { checked: false, value: 0.9 },
           )
           .field("logitBias", "llamaLogitBias", {}, []),
-      )
-      .scope("mlx", builder =>
-        builder
-          .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
-          .field(
-            "topPSampling",
-            "checkboxNumeric",
-            { min: 0, max: 1, slider: { min: 0.01, max: 1, step: 0.01 } },
-            { checked: false, value: 1 },
-          )
-          .field(
-            "minPSampling",
-            "checkboxNumeric",
-            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
-            { checked: false, value: 0 },
-          ),
       )
       .scope("onnx", builder =>
         builder
@@ -241,11 +225,22 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
     "contextOverflowPolicy",
     "stopStrings",
     "structured",
+    "topKSampling",
+    "repeatPenalty",
+    "minPSampling",
+    "topPSampling",
   ),
 );
 
 export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPredictionConfigSchematics.sliced("mlx.*", "contextOverflowPolicy"),
+  llmPredictionConfigSchematics.sliced(
+    "mlx.*",
+    "contextOverflowPolicy",
+    "topKSampling",
+    "repeatPenalty",
+    "minPSampling",
+    "topPSampling",
+  ),
 );
 
 export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
