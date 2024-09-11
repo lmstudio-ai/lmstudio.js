@@ -40,7 +40,7 @@ const shellInstallationInfo: Array<ShellInstallationInfo> = [
   {
     shellName: "zsh",
     configFileName: ".zshrc",
-    commandToAddComment: "echo '' >> a && echo '# Added by LM Studio CLI tool (lms)' >> ~/.zshrc",
+    commandToAddComment: "echo '' >> ~/.zshrc && echo '# Added by LM Studio CLI tool (lms)' >> ~/.zshrc",
     commandToAddPath: "echo 'export PATH=\"$PATH:<TARGET>\"' >> ~/.zshrc",
   },
   {
