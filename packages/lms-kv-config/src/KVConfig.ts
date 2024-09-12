@@ -7,6 +7,42 @@ import {
 import { type Any } from "ts-toolbelt";
 import { z, type ZodSchema } from "zod";
 
+/**
+ * Stringify options passed to actual implementations of stringify.
+ */
+interface InnerFieldStringifyOpts {
+  /**
+   * Translate function.
+   */
+  t: (key: string, fallback: string) => string;
+
+  /**
+   * If exists, a soft cap on how long the stringified value should be.
+   *
+   * This does not have to be followed. Mostly used for fields like promptFormatTemplate where it
+   * can grow very large.
+   */
+  desiredLength?: number;
+}
+
+/**
+ * Stringify options.
+ */
+interface FieldStringifyOpts {
+  /**
+   * Translate function. If not provided, inline fallback will be used.
+   */
+  t?: (key: string) => string;
+
+  /**
+   * If exists, a soft cap on how long the stringified value should be.
+   *
+   * Will not be followed strictly. Mostly used for fields like promptFormatTemplate where it
+   * can grow very large.
+   */
+  desiredLength?: number;
+}
+
 // KV Config is the idea of simply storing config as an array of key-value pairs. This file provides
 // type definitions and utility classes for working with KV Configs and schemas.
 //
@@ -53,6 +89,8 @@ type KVVirtualFieldValueTypesMapping = {
 interface KVConcreteFieldValueType {
   paramType: ZodSchema;
   schemaMaker: (param: any) => ZodSchema;
+  effectiveEquals: (a: any, b: any, typeParam: any) => boolean;
+  stringify: (value: any, typeParam: any, opts: InnerFieldStringifyOpts) => string;
 }
 type KVConcreteFieldValueTypesMap = Map<string, KVConcreteFieldValueType>;
 
@@ -93,6 +131,12 @@ export class KVFieldValueTypesLibraryBuilder<
     param: {
       paramType: ExposedZodObject<TValueTypeParams>;
       schemaMaker: (param: TValueTypeParams) => ZodSchema<TValue>;
+      effectiveEquals: (a: TValue, b: TValue, typeParam: TValueTypeParams) => boolean;
+      stringify: (
+        value: TValue,
+        typeParam: TValueTypeParams,
+        opts: InnerFieldStringifyOpts,
+      ) => string;
     },
   ): KVFieldValueTypesLibraryBuilder<
     TKVFieldValueTypeBase,
@@ -112,6 +156,8 @@ export class KVFieldValueTypesLibraryBuilder<
         ...param.paramType,
       }),
       schemaMaker: param.schemaMaker,
+      effectiveEquals: param.effectiveEquals,
+      stringify: param.stringify,
     });
     return this;
   }
@@ -135,6 +181,24 @@ export class KVFieldValueTypeLibrary<
     param: TKVFieldValueTypeLibraryMap[TKey]["param"],
   ): ZodSchema<TKVFieldValueTypeLibraryMap[TKey]["value"]> {
     return this.valueTypes.get(key)!.schemaMaker(param);
+  }
+
+  public effectiveEquals<TKey extends keyof TKVFieldValueTypeLibraryMap & string>(
+    key: TKey,
+    typeParam: TKVFieldValueTypeLibraryMap[TKey]["param"],
+    a: TKVFieldValueTypeLibraryMap[TKey]["value"],
+    b: TKVFieldValueTypeLibraryMap[TKey]["value"],
+  ) {
+    return this.valueTypes.get(key)!.effectiveEquals(a, b, typeParam);
+  }
+
+  public stringify<TKey extends keyof TKVFieldValueTypeLibraryMap & string>(
+    key: TKey,
+    typeParam: TKVFieldValueTypeLibraryMap[TKey]["param"],
+    opts: InnerFieldStringifyOpts,
+    value: TKVFieldValueTypeLibraryMap[TKey]["value"],
+  ) {
+    return this.valueTypes.get(key)!.stringify(value, typeParam, opts);
   }
 }
 
@@ -614,6 +678,73 @@ export class KVConfigSchematics<
       return this.fields.has(innerKey);
     });
   }
+
+  /**
+   * Compares two KV config. Compare with "effective equals". Only compare fields in the schematics.
+   * Does not apply defaults.
+   */
+  public configEffectiveEquals(a: KVConfig, b: KVConfig) {
+    const aMap = kvConfigToMap(a);
+    const bMap = kvConfigToMap(b);
+
+    for (const [key, fieldSchema] of this.fields.entries()) {
+      const fullKey = this.baseKey + key;
+      const aValue = aMap.get(fullKey);
+      const bValue = bMap.get(fullKey);
+      if (aValue === undefined) {
+        if (bValue === undefined) {
+          // Both are missing, continue
+          continue;
+        } else {
+          return false;
+        }
+      }
+      this.valueTypeLibrary.effectiveEquals(
+        fieldSchema.valueTypeKey,
+        fieldSchema.valueTypeParams,
+        aValue,
+        bValue,
+      );
+    }
+
+    return true;
+  }
+
+  /**
+   * Compares two KV config field. Compare with "effective equals". Can only compare fields in the
+   * schematics.
+   */
+  public fieldEffectiveEquals<TKey extends keyof TKVConfigSchema & string>(
+    key: TKey,
+    a: TKVConfigSchema[TKey]["type"],
+    b: TKVConfigSchema[TKey]["type"],
+  ) {
+    const field = this.fields.get(key);
+    if (field === undefined) {
+      throw new Error(`Field with key ${this.baseKey + key} does not exist`);
+    }
+    return this.valueTypeLibrary.effectiveEquals(field.valueTypeKey, field.valueTypeParams, a, b);
+  }
+
+  public stringifyField<TKey extends keyof TKVConfigSchema & string>(
+    key: TKey,
+    value: TKVConfigSchema[TKey]["type"],
+    opts: FieldStringifyOpts = {},
+  ) {
+    const field = this.fields.get(key);
+    if (field === undefined) {
+      throw new Error(`Field with key ${this.baseKey + key} does not exist`);
+    }
+    return this.valueTypeLibrary.stringify(
+      field.valueTypeKey,
+      field.valueTypeParams,
+      {
+        t: opts.t ?? ((_key, fallback) => fallback),
+        desiredLength: opts.desiredLength,
+      },
+      value,
+    );
+  }
 }
 
 export class KVConfigBuilder<TKVConfigSchema extends KVVirtualConfigSchema> {
@@ -741,7 +872,7 @@ export function filterKVConfig(
   };
 }
 
-function deepEquals<T>(a: T, b: T) {
+export function deepEquals<T>(a: T, b: T) {
   if (a === b) {
     return true;
   }

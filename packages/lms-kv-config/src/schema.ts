@@ -13,6 +13,8 @@ import {
   type InferConfigSchemaMap,
   type InferValueTypeKeys,
   type InferValueTypeMap,
+  type KVConfigSchematics,
+  type KVFieldValueTypeLibrary,
 } from "./KVConfig";
 import { kvValueTypesLibrary } from "./valueTypes";
 
@@ -26,7 +28,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field(
         "temperature",
         "numeric",
-        { min: 0, slider: { min: 0, max: 1, step: 0.01 }, shortHand: "temp" },
+        { min: 0, slider: { min: 0, max: 1, step: 0.01 }, precision: 2, shortHand: "temp" },
         0.8,
       )
       .field("contextOverflowPolicy", "contextOverflowPolicy", {}, "truncateMiddle")
@@ -63,20 +65,30 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field(
         "minPSampling",
         "checkboxNumeric",
-        { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+        { min: 0, max: 1, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
         { checked: true, value: 0.05 },
       )
       .field(
         "topPSampling",
         "checkboxNumeric",
-        { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+        { min: 0, max: 1, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
         { checked: true, value: 0.95 },
       )
       .scope("llama", builder =>
         builder
           .field("cpuThreads", "numeric", { min: 1, int: true }, 4)
-          .field("frequencyPenalty", "checkboxNumeric", {}, { checked: false, value: 0.0 })
-          .field("presencePenalty", "checkboxNumeric", {}, { checked: false, value: 0.0 })
+          .field(
+            "frequencyPenalty",
+            "checkboxNumeric",
+            { precision: 2 },
+            { checked: false, value: 0.0 },
+          )
+          .field(
+            "presencePenalty",
+            "checkboxNumeric",
+            { precision: 2 },
+            { checked: false, value: 0.0 },
+          )
           .field(
             "mirostatSampling",
             "llamaMirostatSampling",
@@ -91,13 +103,13 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field(
             "tailFreeSampling",
             "checkboxNumeric",
-            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+            { min: 0, max: 1, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: false, value: 0.95 },
           )
           .field(
             "locallyTypicalSampling",
             "checkboxNumeric",
-            { min: 0, max: 1, slider: { min: 0, max: 1, step: 0.01 } },
+            { min: 0, max: 1, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: false, value: 0.9 },
           )
           .field("logitBias", "llamaLogitBias", {}, []),
@@ -287,6 +299,21 @@ export const emptyConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesL
 // ------------------
 //  3. Utility types
 // ------------------
+
+/**
+ * LM Studio recognized config schematics.
+ */
+export type GlobalConfigSchematics = typeof globalConfigSchematics;
+
+type ValueTypeMap =
+  typeof kvValueTypesLibrary extends KVFieldValueTypeLibrary<infer RValueTypeMap>
+    ? RValueTypeMap
+    : never;
+
+/**
+ * Any config schematics that uses the value types defined in the type library.
+ */
+export type TypedConfigSchematics = KVConfigSchematics<ValueTypeMap, any, any>;
 
 export type GlobalKVValueTypeMap = InferValueTypeMap<typeof kvValueTypesLibrary>;
 /**
