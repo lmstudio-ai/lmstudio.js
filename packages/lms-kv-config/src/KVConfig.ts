@@ -666,6 +666,24 @@ export class KVConfigSchematics<
     };
   }
 
+  public twoWayFilterConfig(config: KVConfig): readonly [included: KVConfig, excluded: KVConfig] {
+    const includedFields: Array<KVConfig["fields"][number]> = [];
+    const excludedFields: Array<KVConfig["fields"][number]> = [];
+    for (const field of config.fields) {
+      if (!field.key.startsWith(this.baseKey)) {
+        excludedFields.push(field);
+        continue;
+      }
+      const key = field.key.substring(this.baseKey.length);
+      if (this.fields.has(key)) {
+        includedFields.push(field);
+      } else {
+        excludedFields.push(field);
+      }
+    }
+    return [{ fields: includedFields }, { fields: excludedFields }];
+  }
+
   /**
    * Given a list of keys, filter it to only include keys that are in the schematics.
    */
@@ -726,6 +744,13 @@ export class KVConfigSchematics<
     return this.valueTypeLibrary.effectiveEquals(field.valueTypeKey, field.valueTypeParams, a, b);
   }
 
+  private makeInternalFieldStringifyOpts(opts: FieldStringifyOpts): InnerFieldStringifyOpts {
+    return {
+      t: opts.t ?? ((_key, fallback) => fallback),
+      desiredLength: opts.desiredLength,
+    };
+  }
+
   public stringifyField<TKey extends keyof TKVConfigSchema & string>(
     key: TKey,
     value: TKVConfigSchema[TKey]["type"],
@@ -738,12 +763,72 @@ export class KVConfigSchematics<
     return this.valueTypeLibrary.stringify(
       field.valueTypeKey,
       field.valueTypeParams,
-      {
-        t: opts.t ?? ((_key, fallback) => fallback),
-        desiredLength: opts.desiredLength,
-      },
+      this.makeInternalFieldStringifyOpts(opts),
       value,
     );
+  }
+
+  public tryStringifyFieldWithFullKey(
+    key: string,
+    value: any,
+    opts: FieldStringifyOpts,
+  ): string | null {
+    if (!key.startsWith(this.baseKey)) {
+      return null;
+    }
+    const innerKey = key.substring(this.baseKey.length);
+    const field = this.fields.get(innerKey);
+    if (field === undefined) {
+      return null;
+    }
+    return this.valueTypeLibrary.stringify(
+      field.valueTypeKey,
+      field.valueTypeParams,
+      this.makeInternalFieldStringifyOpts(opts),
+      value,
+    );
+  }
+
+  /**
+   * Apply config in patch to target. Only apply fields that are in the schematics.
+   */
+  public apply(target: KVConfig, patch: KVConfig) {
+    const filteredPatch = this.filterConfig(patch);
+    return collapseKVStackRaw([target, filteredPatch]);
+  }
+
+  /**
+   * Tries to un-apply the patch from the target. Will only un-apply fields that are in the
+   * schematics.
+   *
+   * If the value in the target is not effective equal to the value in the patch, it will not be
+   * removed.
+   */
+  public unApply(target: KVConfig, patch: KVConfig) {
+    const filteredPatch = this.filterConfig(patch);
+    const patchMap = kvConfigToMap(filteredPatch);
+    const newMap = new Map(kvConfigToMap(target));
+    for (const [key, value] of patchMap.entries()) {
+      const field = this.fields.get(key);
+      if (field === undefined) {
+        continue;
+      }
+      const targetValue = newMap.get(key);
+      if (targetValue !== undefined) {
+        if (
+          !this.valueTypeLibrary.effectiveEquals(
+            field.valueTypeKey,
+            field.valueTypeParams,
+            value,
+            targetValue,
+          )
+        ) {
+          continue;
+        }
+        newMap.delete(key);
+      }
+    }
+    return mapToKVConfig(newMap);
   }
 }
 
