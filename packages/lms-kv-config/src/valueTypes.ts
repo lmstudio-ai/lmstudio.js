@@ -277,6 +277,12 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       if (a.type !== b.type) {
         return false;
       }
+      if (a.stopStrings.length !== b.stopStrings.length) {
+        return false;
+      }
+      if (!a.stopStrings.every((v, i) => v === b.stopStrings[i])) {
+        return false;
+      }
       switch (a.type) {
         case "jinja":
           return (
