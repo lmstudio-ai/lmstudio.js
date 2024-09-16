@@ -190,3 +190,8 @@ export interface SignalLike<TValue> extends Subscribable<TValue> {
   subscribeFull(subscriber: SignalFullSubscriber<TValue>): () => void;
   pull(): Promise<StripNotAvailable<TValue>> | StripNotAvailable<TValue>;
 }
+
+export type WritableSignal<TValue> = readonly [
+  signal: SignalLike<TValue>,
+  setter: Setter<StripNotAvailable<TValue>>,
+];

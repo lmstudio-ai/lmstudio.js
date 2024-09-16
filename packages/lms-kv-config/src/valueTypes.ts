@@ -277,6 +277,12 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       if (a.type !== b.type) {
         return false;
       }
+      if (a.stopStrings.length !== b.stopStrings.length) {
+        return false;
+      }
+      if (!a.stopStrings.every((v, i) => v === b.stopStrings[i])) {
+        return false;
+      }
       switch (a.type) {
         case "jinja":
           return (
@@ -325,24 +331,23 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
             "..." +
             template.slice(-Math.ceil(remainingLength / 2))
           );
-          break;
         }
         case "manual":
           return (
             `${t("config:customInputs.llmPromptTemplate.type", "Type")}: ` +
             `${t("config:customInputs.llmPromptTemplate.types.manual/label", "Manual")}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.beforeSystem/label", "Before System")}: ` +
-            `${value.manualPromptTemplate?.beforeSystem}\n` +
+            `${value.manualPromptTemplate?.beforeSystem?.replaceAll("\n", "\\n")}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.afterSystem/label", "After System")}: ` +
-            `${value.manualPromptTemplate?.afterSystem}\n` +
+            `${value.manualPromptTemplate?.afterSystem?.replaceAll("\n", "\\n")}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.beforeUser/label", "Before User")}: ` +
-            `${value.manualPromptTemplate?.beforeUser}\n` +
+            `${value.manualPromptTemplate?.beforeUser?.replaceAll("\n", "\\n")}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.afterUser/label", "After User")}: ` +
-            `${value.manualPromptTemplate?.afterUser}\n` +
+            `${value.manualPromptTemplate?.afterUser?.replaceAll("\n", "\\n")}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.beforeAssistant/label", "Before Assistant")}: ` +
-            `${value.manualPromptTemplate?.beforeAssistant}\n` +
+            `${value.manualPromptTemplate?.beforeAssistant?.replaceAll("\n", "\\n")}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.afterAssistant/label", "After Assistant")}: ` +
-            `${value.manualPromptTemplate?.afterAssistant}`
+            `${value.manualPromptTemplate?.afterAssistant?.replaceAll("\n", "\\n")}`
           );
         default: {
           const exhaustiveCheck: never = value.type;

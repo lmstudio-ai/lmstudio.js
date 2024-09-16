@@ -31,7 +31,7 @@ export {
 } from "./resultTypes";
 export { runOnDispose } from "./runOnDispose";
 export { safeCallCallback } from "./safeCallCallback";
-export { Signal, SignalLike } from "./Signal";
+export { Signal, SignalLike, WritableSignal } from "./Signal";
 export { LoggerInterface, SimpleLogger, SimpleLoggerConstructorOpts } from "./SimpleLogger";
 export { makeSlicedSignalFrom, SlicedSignalBuilder } from "./SlicedSignal";
 export { StreamablePromise } from "./StreamablePromise";
