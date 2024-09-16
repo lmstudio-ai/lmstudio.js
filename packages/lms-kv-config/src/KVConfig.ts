@@ -1,6 +1,7 @@
 import {
   kvConfigSchema,
   type KVConfig,
+  type KVConfigField,
   type KVConfigLayerName,
   type KVConfigStack,
 } from "@lmstudio/lms-shared-types";
@@ -809,7 +810,7 @@ export class KVConfigSchematics<
     const patchMap = kvConfigToMap(filteredPatch);
     const newMap = new Map(kvConfigToMap(target));
     for (const [key, value] of patchMap.entries()) {
-      const field = this.fields.get(key);
+      const field = this.fields.get(key.slice(this.baseKey.length));
       if (field === undefined) {
         continue;
       }
@@ -829,6 +830,21 @@ export class KVConfigSchematics<
       }
     }
     return mapToKVConfig(newMap);
+  }
+
+  /**
+   * Given a KVConfig, iterate through all the fields that are in the schematics. Keys will be full
+   * keys (i.e. contains the base key).
+   */
+  public *iterateFieldsOfConfig(config: KVConfig): Generator<[string, any]> {
+    for (const { key, value } of config.fields) {
+      if (key.startsWith(this.baseKey)) {
+        const field = this.fields.get(key.substring(this.baseKey.length));
+        if (field !== undefined) {
+          yield [key, value];
+        }
+      }
+    }
   }
 }
 
@@ -872,6 +888,10 @@ export class ParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
   ): TKVConfigSchema[TKey]["type"] {
     return this.configMap.get(key);
   }
+}
+
+export function makeKVConfigFromFields(fields: Array<KVConfigField>): KVConfig {
+  return { fields };
 }
 
 export function kvConfigToMap(config: KVConfig): Map<string, any> {
