@@ -641,6 +641,7 @@ export class ClientPort<
       }
       const subscription = this.openWritableSignalSubscriptions.get(currentSubscribeId);
       if (!subscription?.firstUpdateReceived) {
+        console.warn("writeUpstream called before the first update is received");
         return false;
       }
       this.transport.send({
