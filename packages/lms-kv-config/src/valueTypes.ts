@@ -12,6 +12,23 @@ import {
 import { z } from "zod";
 import { deepEquals, KVFieldValueTypesLibraryBuilder, type InferKVValueTypeDef } from "./KVConfig";
 
+/**
+ * Quote a string.
+ */
+function quoteString(str: string | undefined, empty?: string) {
+  if (str === undefined || str === "") {
+    return empty ?? '""';
+  }
+  return JSON.stringify(str);
+}
+
+/**
+ * Quote a string that may include manual escape. (i.e. newlines represented with "\\n")
+ */
+function quoteStringWithManualEscape(str: string | undefined, empty?: string) {
+  return quoteString(str?.replace(/\\n/g, "\n"), empty);
+}
+
 export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   /**
    * A field can be marked as model centric when it loses its meaning when there is no model to
@@ -136,6 +153,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     paramType: {
       minLength: z.number().optional(),
       maxLength: z.number().optional(),
+      isParagraph: z.boolean().optional(),
     },
     schemaMaker: ({ minLength, maxLength }) => {
       let schema = z.string();
@@ -150,8 +168,16 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     effectiveEquals: (a, b) => {
       return a === b;
     },
-    stringify: value => {
-      return value;
+    stringify: (value, { isParagraph }, { t }) => {
+      if (isParagraph) {
+        if (value === "") {
+          return t("config:customInputs.string.emptyParagraph", "<Empty>");
+        } else {
+          return value;
+        }
+      } else {
+        return quoteString(value);
+      }
     },
   })
   .valueType("boolean", {
@@ -189,21 +215,22 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return a.length === b.length && a.every((v, i) => v === b[i]);
     },
     stringify: (value, _typeParam, { t, desiredLength }) => {
-      if (value.length === 0) {
-        return t("config:customInputs.stringArray.empty", "Empty");
+      const quoted = value.map(v => quoteString(v));
+      if (quoted.length === 0) {
+        return t("config:customInputs.stringArray.empty", "<Empty>");
       }
-      if (value.length <= 2 || desiredLength === undefined) {
-        return value.join(", ");
+      if (quoted.length <= 2 || desiredLength === undefined) {
+        return quoted.join(", ");
       }
       // Desired length does not need to be followed strictly. It is just a hint.
-      let currentLength = value[0].length + value[1].length + 6;
-      for (let i = 1; i < value.length - 1; i++) {
-        currentLength += value[i].length + 2;
+      let currentLength = quoted[0].length + quoted[1].length + 6;
+      for (let i = 1; i < quoted.length - 1; i++) {
+        currentLength += quoted[i].length + 2;
         if (currentLength >= desiredLength) {
-          return value.slice(0, i).join(", ") + ", ..." + value[value.length - 1];
+          return quoted.slice(0, i).join(", ") + ", ..." + quoted[quoted.length - 1];
         }
       }
-      return value.join(", ");
+      return quoted.join(", ");
     },
   })
   .valueType("contextOverflowPolicy", {
@@ -332,23 +359,24 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
             template.slice(-Math.ceil(remainingLength / 2))
           );
         }
-        case "manual":
+        case "manual": {
           return (
             `${t("config:customInputs.llmPromptTemplate.type", "Type")}: ` +
             `${t("config:customInputs.llmPromptTemplate.types.manual/label", "Manual")}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.beforeSystem/label", "Before System")}: ` +
-            `${value.manualPromptTemplate?.beforeSystem?.replaceAll("\n", "\\n")}\n` +
+            `${quoteStringWithManualEscape(value.manualPromptTemplate?.beforeSystem)}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.afterSystem/label", "After System")}: ` +
-            `${value.manualPromptTemplate?.afterSystem?.replaceAll("\n", "\\n")}\n` +
+            `${quoteStringWithManualEscape(value.manualPromptTemplate?.afterSystem)}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.beforeUser/label", "Before User")}: ` +
-            `${value.manualPromptTemplate?.beforeUser?.replaceAll("\n", "\\n")}\n` +
+            `${quoteStringWithManualEscape(value.manualPromptTemplate?.beforeUser)}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.afterUser/label", "After User")}: ` +
-            `${value.manualPromptTemplate?.afterUser?.replaceAll("\n", "\\n")}\n` +
+            `${quoteStringWithManualEscape(value.manualPromptTemplate?.afterUser)}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.beforeAssistant/label", "Before Assistant")}: ` +
-            `${value.manualPromptTemplate?.beforeAssistant?.replaceAll("\n", "\\n")}\n` +
+            `${quoteStringWithManualEscape(value.manualPromptTemplate?.beforeAssistant)}\n` +
             `${t("config:customInputs.llmPromptTemplate.manual.subfield.afterAssistant/label", "After Assistant")}: ` +
-            `${value.manualPromptTemplate?.afterAssistant?.replaceAll("\n", "\\n")}`
+            `${quoteStringWithManualEscape(value.manualPromptTemplate?.afterAssistant)}`
           );
+        }
         default: {
           const exhaustiveCheck: never = value.type;
           throw new Error("Unknown template type: " + exhaustiveCheck);
