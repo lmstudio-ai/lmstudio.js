@@ -1,12 +1,17 @@
 export {
+  KVConfigSchematics,
   KVFieldValueTypeLibrary,
+  addKVConfigToStack,
   collapseKVStack,
   collapseKVStackRaw,
   combineKVStack,
   emptyKVConfig,
   emptyKVConfigStack,
+  filterKVConfig,
   kvConfigEquals,
   kvConfigToMap,
+  makeKVConfigFromFields,
+  mapToKVConfig,
   singleLayerKVConfigStackOf,
 } from "./KVConfig";
 export {

@@ -1,6 +1,6 @@
 export { AuthenticatedIpcServer } from "./AuthenticatedIpcServer";
 export { AuthenticatedWsServer } from "./AuthenticatedWsServer";
-export { Context } from "./Authenticator";
+export { Context, ContextCreator } from "./Authenticator";
 export {
   FcfsAuthenticatedContext,
   FcfsAuthenticator,
@@ -8,5 +8,6 @@ export {
   FcfsClient,
 } from "./fcfsAuthenticator";
 export { GenericServerTransport } from "./GenericServerTransport";
-export { IpcServer } from "./IpcServer";
+export { IpcServer, RegisterIpcListener } from "./IpcServer";
+export { ServerPort } from "./ServerPort";
 export { WsServer } from "./WsServer";

@@ -1,6 +1,7 @@
 export { AuthPacket, authPacketSchema } from "./authentication";
 export {
   BackendInterface,
+  BackendInterfaceWithContext,
   ChannelEndpoint,
   ChannelEndpointsSpecBase,
   RpcEndpoint,

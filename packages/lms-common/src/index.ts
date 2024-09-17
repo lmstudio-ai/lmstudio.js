@@ -5,7 +5,7 @@ enablePatches();
 enableMapSet();
 
 // Export lazy signal first to avoid circular dependency issues
-export { AsyncDeriveFromStrategy, LazySignal, NotAvailable } from "./LazySignal";
+export { AsyncDeriveFromStrategy, isAvailable, LazySignal, NotAvailable } from "./LazySignal";
 
 export { BufferedEvent } from "./BufferedEvent";
 export { Cleaner } from "./Cleaner";
@@ -35,9 +35,16 @@ export { Signal, SignalLike, WritableSignal } from "./Signal";
 export { LoggerInterface, SimpleLogger, SimpleLoggerConstructorOpts } from "./SimpleLogger";
 export { makeSlicedSignalFrom, SlicedSignalBuilder } from "./SlicedSignal";
 export { StreamablePromise } from "./StreamablePromise";
+export { Subscribable } from "./Subscribable";
 export { text } from "./text";
 export { TimeoutTracker } from "./TimeoutTracker";
 export { toJSONSafeNumber } from "./toJSONSafeNumber";
 export { Validator } from "./Validator";
-export { PagerExitedError, QueueClearedError, WaitQueue } from "./WaitQueue";
+export {
+  PagerExitedError,
+  QueueClearedError,
+  WaitQueue,
+  type Holder,
+  type Pager,
+} from "./WaitQueue";
 export { failOk, filteredArray } from "./zodHelpers";
