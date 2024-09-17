@@ -667,6 +667,18 @@ export class KVConfigSchematics<
     };
   }
 
+  /**
+   * Given a KVConfigStack, filter it to only include fields that are in the schematics.
+   */
+  public filterStack(stack: KVConfigStack): KVConfigStack {
+    return {
+      layers: stack.layers.map(layer => ({
+        layerName: layer.layerName,
+        config: this.filterConfig(layer.config),
+      })),
+    };
+  }
+
   public twoWayFilterConfig(config: KVConfig): readonly [included: KVConfig, excluded: KVConfig] {
     const includedFields: Array<KVConfig["fields"][number]> = [];
     const excludedFields: Array<KVConfig["fields"][number]> = [];
