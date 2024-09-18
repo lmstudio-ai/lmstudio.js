@@ -193,9 +193,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
    */
   private async writeLoop() {
     const unsubscribe = this.innerSignal.subscribe(() => {});
-    if (this.innerSignal.get() === OWLSignal.NOT_AVAILABLE) {
-      await this.innerSignal.pull();
-    }
+    await this.innerSignal.pull();
     this.isWriteLoopRunning = true;
     while (this.queuedUpdates.length > 0) {
       const { updater, resolve, reject, tags } = this.queuedUpdates[0];

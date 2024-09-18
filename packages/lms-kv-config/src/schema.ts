@@ -57,7 +57,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           stopStrings: [],
         },
       )
-      .field("systemPrompt", "string", {}, "")
+      .field("systemPrompt", "string", { isParagraph: true }, "")
       .field("seed", "numeric", { int: true }, -1)
       .field("contextPrefill", "context", {}, [])
       .field("topKSampling", "numeric", { min: -1, max: 500, int: true }, 40)
