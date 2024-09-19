@@ -193,10 +193,33 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
    */
   private async writeLoop() {
     const unsubscribe = this.innerSignal.subscribe(() => {});
-    await this.innerSignal.pull();
     this.isWriteLoopRunning = true;
+    if (!this.isStale()) {
+      await this.innerSignal.pull();
+    }
     while (this.queuedUpdates.length > 0) {
-      const { updater, resolve, reject, tags } = this.queuedUpdates[0];
+      const numQueuedUpdatesToHandle = this.queuedUpdates.length;
+      const updater = (data: StripNotAvailable<TData>) => {
+        const patches: Array<Patch> = [];
+        for (let i = 0; i < numQueuedUpdatesToHandle; i++) {
+          const [newData, newPatches] = this.queuedUpdates[i].updater(data);
+          data = newData;
+          patches.push(...newPatches);
+        }
+        return [data, patches] as const;
+      };
+      const resolve = () => {
+        for (let i = 0; i < numQueuedUpdatesToHandle; i++) {
+          this.queuedUpdates[i].resolve();
+        }
+      };
+      const reject = (error: any) => {
+        for (let i = 0; i < numQueuedUpdatesToHandle; i++) {
+          this.queuedUpdates[i].reject(error);
+        }
+      };
+      const queuedUpdateTags = this.queuedUpdates.flatMap(update => update.tags);
+
       const tag = Date.now() + "-" + Math.random();
 
       await new Promise<void>(nextStep => {
@@ -217,7 +240,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
               resolve();
               // If this update is caused by the write, we need to remove the optimistic update
               // and apply the remaining optimistic updates
-              this.queuedUpdates.shift();
+              this.queuedUpdates.splice(0, numQueuedUpdatesToHandle);
               this.updateOptimisticValue(tags.filter(t => t !== tag));
             } else {
               // This update is not caused by the write, simply update the optimistic value
@@ -234,7 +257,7 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
             if (tags.includes(tag)) {
               settle();
               reject(error);
-              this.queuedUpdates.shift();
+              this.queuedUpdates.splice(0, numQueuedUpdatesToHandle);
             }
           }),
         );
@@ -243,13 +266,13 @@ export class OWLSignal<TData> extends Subscribable<TData> implements SignalLike<
         // StripNotAvailable<TData>.
         const sent = this.writeUpstream(
           ...updater(this.innerSignal.get() as StripNotAvailable<TData>),
-          [tag, ...tags],
+          [tag, ...queuedUpdateTags],
         );
         if (!sent) {
           settle();
           resolve();
-          this.queuedUpdates.shift();
-          this.updateOptimisticValue(tags.filter(t => t !== tag));
+          this.queuedUpdates.splice(0, numQueuedUpdatesToHandle);
+          this.updateOptimisticValue(queuedUpdateTags.filter(t => t !== tag));
         }
       });
     }

@@ -858,6 +858,52 @@ export class KVConfigSchematics<
       }
     }
   }
+
+  /**
+   * Given a KVConfig, iterate through all the fields that are in the schematics.
+   */
+  public *fullKeys(): Generator<string> {
+    for (const key of this.fields.keys()) {
+      yield this.baseKey + key;
+    }
+  }
+
+  /**
+   * Effectively compare two KV config, and return full keys of fields that are different.
+   */
+  public effectiveCompareConfig(a: KVConfig, b: KVConfig): Array<string> {
+    const aMap = kvConfigToMap(a);
+    const bMap = kvConfigToMap(b);
+    const diff: Array<string> = [];
+    for (const [key, fieldSchema] of this.fields.entries()) {
+      const fullKey = this.baseKey + key;
+      const aValue = aMap.get(fullKey);
+      const bValue = bMap.get(fullKey);
+      if (aValue === undefined) {
+        if (bValue === undefined) {
+          continue;
+        } else {
+          diff.push(fullKey);
+        }
+      } else {
+        if (bValue === undefined) {
+          diff.push(fullKey);
+        } else {
+          if (
+            !this.valueTypeLibrary.effectiveEquals(
+              fieldSchema.valueTypeKey,
+              fieldSchema.valueTypeParams,
+              aValue,
+              bValue,
+            )
+          ) {
+            diff.push(fullKey);
+          }
+        }
+      }
+    }
+    return diff;
+  }
 }
 
 export class KVConfigBuilder<TKVConfigSchema extends KVVirtualConfigSchema> {
