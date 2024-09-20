@@ -757,6 +757,14 @@ export class KVConfigSchematics<
     return this.valueTypeLibrary.effectiveEquals(field.valueTypeKey, field.valueTypeParams, a, b);
   }
 
+  public fieldEffectiveEqualsWithFullKey(fullKey: string, a: any, b: any) {
+    if (!fullKey.startsWith(this.baseKey)) {
+      throw new Error(`Field with key ${fullKey} does not exist`);
+    }
+    const innerKey = fullKey.substring(this.baseKey.length);
+    return this.fieldEffectiveEquals(innerKey, a, b);
+  }
+
   private makeInternalFieldStringifyOpts(opts: FieldStringifyOpts): InnerFieldStringifyOpts {
     return {
       t: opts.t ?? ((_key, fallback) => fallback),
