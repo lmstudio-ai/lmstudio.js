@@ -9,6 +9,7 @@ import {
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { ModelNamespace } from "../modelShared/ModelNamespace";
+import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle";
 import { EmbeddingSpecificModel } from "./EmbeddingSpecificModel";
 
@@ -33,8 +34,8 @@ export class EmbeddingNamespace extends ModelNamespace<
       "llama.acceleration.mainGpu": config.gpuOffload?.mainGpu,
       "llama.acceleration.tensorSplit": config.gpuOffload?.tensorSplit,
       "contextLength": config.contextLength,
-      "llama.ropeFrequencyBase": config.ropeFrequencyBase,
-      "llama.ropeFrequencyScale": config.ropeFrequencyScale,
+      "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
+      "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),
       "llama.keepModelInMemory": config.keepModelInMemory,
       "llama.tryMmap": config.tryMmap,
     });

@@ -13,6 +13,7 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { ModelNamespace } from "../modelShared/ModelNamespace";
+import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 import { LLMSpecificModel } from "./LLMSpecificModel";
 import { promptPreprocessorSchema, type PromptPreprocessor } from "./processor/PromptPreprocessor";
@@ -44,10 +45,10 @@ export class LLMNamespace extends ModelNamespace<
       "llama.acceleration.mainGpu": config.gpuOffload?.mainGpu,
       "llama.acceleration.tensorSplit": config.gpuOffload?.tensorSplit,
       "llama.flashAttention": config.flashAttention,
-      "llama.ropeFrequencyBase": config.ropeFrequencyBase,
-      "llama.ropeFrequencyScale": config.ropeFrequencyScale,
+      "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
+      "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),
       "llama.keepModelInMemory": config.keepModelInMemory,
-      "seed": config.seed,
+      "seed": numberToCheckboxNumeric(config.seed, -1, 0),
       "llama.useFp16ForKVCache": config.useFp16ForKVCache,
       "llama.tryMmap": config.tryMmap,
       "numExperts": config.numExperts,

@@ -32,6 +32,7 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { DynamicHandle } from "../modelShared/DynamicHandle";
+import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
@@ -75,29 +76,6 @@ function splitOpts(opts: LLMPredictionOpts): [LLMPredictionConfig, LLMPrediction
 const noFormattingTemplate = text`
   {% for message in messages %}{{ message['content'] }}{% endfor %}
 `;
-
-/**
- * Translate a number to a checkbox numeric value.
- *
- * @param value - The value to translate.
- * @param uncheckedValue - The value to use when the checkbox is unchecked.
- * @param valueWhenUnchecked - The value to use when the checkbox is unchecked.
- */
-function numberToCheckboxNumeric(
-  value: number | undefined,
-  uncheckedValue: number,
-  valueWhenUnchecked: number,
-): undefined | { checked: boolean; value: number } {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (value === uncheckedValue) {
-    return { checked: false, value: valueWhenUnchecked };
-  }
-  if (value !== uncheckedValue) {
-    return { checked: true, value };
-  }
-}
 
 function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVConfig {
   return llmPredictionConfigSchematics.buildPartialConfig({

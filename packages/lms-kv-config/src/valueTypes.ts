@@ -102,6 +102,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       min: z.number().optional(),
       max: z.number().optional(),
       int: z.boolean().optional(),
+      uncheckedHint: z.string().optional(),
       precision: z.number().int().nonnegative().optional(),
       slider: z
         .object({

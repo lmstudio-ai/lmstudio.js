@@ -58,7 +58,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         },
       )
       .field("systemPrompt", "string", { isParagraph: true }, "")
-      .field("seed", "numeric", { int: true }, -1)
+      .field(
+        "seed",
+        "checkboxNumeric",
+        { int: true, min: -1, uncheckedHint: "config:seedUncheckedHint" },
+        { checked: false, value: -1 },
+      )
       .field("contextPrefill", "context", {}, [])
       .field("topKSampling", "numeric", { min: -1, max: 500, int: true }, 40)
       .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
@@ -142,7 +147,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         2048,
       )
       .field("numExperts", "numeric", { min: 0, int: true }, 0)
-      .field("seed", "numeric", { int: true }, -1)
+      .field(
+        "seed",
+        "checkboxNumeric",
+        { int: true, min: -1, uncheckedHint: "config:seedUncheckedHint" },
+        { checked: false, value: -1 },
+      )
       .scope("llama", builder =>
         builder
           .scope("acceleration", builder =>
@@ -165,8 +175,18 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { isExperimental: true, warning: "config:flashAttentionWarning" },
             false,
           )
-          .field("ropeFrequencyBase", "numeric", {}, 0)
-          .field("ropeFrequencyScale", "numeric", {}, 0)
+          .field(
+            "ropeFrequencyBase",
+            "checkboxNumeric",
+            { min: 0, uncheckedHint: "config:ropeFrequencyBaseUncheckedHint" },
+            { checked: false, value: 0 },
+          )
+          .field(
+            "ropeFrequencyScale",
+            "checkboxNumeric",
+            { min: 0, uncheckedHint: "config:ropeFrequencyScaleUncheckedHint" },
+            { checked: false, value: 0 },
+          )
           .field("keepModelInMemory", "boolean", {}, true)
           .field("useFp16ForKVCache", "boolean", {}, true)
           .field("tryMmap", "boolean", {}, true),
@@ -175,7 +195,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
   .scope("embedding.load", builder =>
     builder
       .field("contextLength", "contextLength", { machineDependent: true }, 2048)
-      .field("seed", "numeric", { int: true }, -1)
+      .field(
+        "seed",
+        "checkboxNumeric",
+        { int: true, min: -1, uncheckedHint: "config:seedUncheckedHint" },
+        { checked: false, value: -1 },
+      )
       .scope("llama", builder =>
         builder
           .scope("acceleration", builder =>
@@ -192,8 +217,18 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
               ]),
           )
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
-          .field("ropeFrequencyBase", "numeric", {}, 0)
-          .field("ropeFrequencyScale", "numeric", {}, 0)
+          .field(
+            "ropeFrequencyBase",
+            "checkboxNumeric",
+            { min: 0, uncheckedHint: "config:ropeFrequencyBaseUncheckedHint" },
+            { checked: false, value: 0 },
+          )
+          .field(
+            "ropeFrequencyScale",
+            "checkboxNumeric",
+            { min: 0, uncheckedHint: "config:ropeFrequencyScaleUncheckedHint" },
+            { checked: false, value: 0 },
+          )
           .field("keepModelInMemory", "boolean", {}, true)
           .field("tryMmap", "boolean", {}, true),
       ),
