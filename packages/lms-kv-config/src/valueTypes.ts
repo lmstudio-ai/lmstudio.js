@@ -60,6 +60,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     paramType: {
       min: z.number().optional(),
       max: z.number().optional(),
+      step: z.number().optional(),
       int: z.boolean().optional(),
       precision: z.number().int().nonnegative().optional(),
       slider: z
@@ -101,6 +102,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     paramType: {
       min: z.number().optional(),
       max: z.number().optional(),
+      step: z.number().optional(),
       int: z.boolean().optional(),
       precision: z.number().int().nonnegative().optional(),
       slider: z

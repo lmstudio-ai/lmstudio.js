@@ -28,7 +28,13 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field(
         "temperature",
         "numeric",
-        { min: 0, slider: { min: 0, max: 1, step: 0.01 }, precision: 2, shortHand: "temp" },
+        {
+          min: 0,
+          step: 0.01,
+          slider: { min: 0, max: 1, step: 0.01 },
+          precision: 2,
+          shortHand: "temp",
+        },
         0.8,
       )
       .field("contextOverflowPolicy", "contextOverflowPolicy", {}, "truncateMiddle")
@@ -61,17 +67,22 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("seed", "numeric", { int: true }, -1)
       .field("contextPrefill", "context", {}, [])
       .field("topKSampling", "numeric", { min: -1, max: 500, int: true }, 40)
-      .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
+      .field(
+        "repeatPenalty",
+        "checkboxNumeric",
+        { min: -1, step: 0.01 },
+        { checked: true, value: 1.1 },
+      )
       .field(
         "minPSampling",
         "checkboxNumeric",
-        { min: 0, max: 1, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
+        { min: 0, max: 1, step: 0.01, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
         { checked: true, value: 0.05 },
       )
       .field(
         "topPSampling",
         "checkboxNumeric",
-        { min: 0, max: 1, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
+        { min: 0, max: 1, step: 0.01, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
         { checked: true, value: 0.95 },
       )
       .scope("llama", builder =>
@@ -103,13 +114,13 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field(
             "tailFreeSampling",
             "checkboxNumeric",
-            { min: 0, max: 1, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
+            { min: 0, max: 1, step: 0.01, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: false, value: 0.95 },
           )
           .field(
             "locallyTypicalSampling",
             "checkboxNumeric",
-            { min: 0, max: 1, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
+            { min: 0, max: 1, step: 0.01, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: false, value: 0.9 },
           )
           .field("logitBias", "llamaLogitBias", {}, []),
@@ -122,11 +133,16 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { min: 0, max: 5000, slider: { min: 1, max: 5000, step: 1 } },
             { checked: false, value: 40 },
           )
-          .field("repeatPenalty", "checkboxNumeric", { min: -1 }, { checked: true, value: 1.1 })
+          .field(
+            "repeatPenalty",
+            "checkboxNumeric",
+            { min: -1, step: 0.01 },
+            { checked: true, value: 1.1 },
+          )
           .field(
             "topPSampling",
             "checkboxNumeric",
-            { min: 0, max: 1, slider: { min: 0.01, max: 1, step: 0.01 } },
+            { min: 0, max: 1, step: 0.01, slider: { min: 0.01, max: 1, step: 0.01 } },
             { checked: false, value: 0.95 },
           ),
       ),
