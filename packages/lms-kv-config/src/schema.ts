@@ -299,10 +299,11 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
   llmPredictionConfigSchematics.sliced(
     "mlx.*",
     "contextOverflowPolicy",
+    "stopStrings",
+    "structured",
     "repeatPenalty",
     "minPSampling",
     "topPSampling",
-    "structured",
   ),
 );
 
