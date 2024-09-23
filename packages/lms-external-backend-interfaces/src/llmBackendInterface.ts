@@ -22,6 +22,7 @@ export function createLlmBackendInterface() {
         modelSpecifier: modelSpecifierSchema,
         context: llmContextSchema,
         predictionConfigStack: kvConfigStackSchema,
+        ignoreServerSessionConfig: z.boolean().optional(),
       }),
       toClientPacket: z.discriminatedUnion("type", [
         z.object({

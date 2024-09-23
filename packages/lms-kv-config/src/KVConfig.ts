@@ -1012,6 +1012,10 @@ export function singleLayerKVConfigStackOf(
   };
 }
 
+/**
+ * Given a KVConfigStack, add a new layer to the top of the stack. Does not mutate the original
+ * stack.
+ */
 export function addKVConfigToStack(
   stack: KVConfigStack,
   newLayerName: KVConfigLayerName,
@@ -1024,6 +1028,25 @@ export function addKVConfigToStack(
         layerName: newLayerName,
         config: newLayerConfig,
       },
+    ],
+  };
+}
+
+/**
+ * Given a KVConfig, add a new layer to the base of the stack. Does not mutate the original stack.
+ */
+export function addKVConfigToBaseOfStack(
+  stack: KVConfigStack,
+  newLayerName: KVConfigLayerName,
+  newLayerConfig: KVConfig,
+): KVConfigStack {
+  return {
+    layers: [
+      {
+        layerName: newLayerName,
+        config: newLayerConfig,
+      },
+      ...stack.layers,
     ],
   };
 }

@@ -6,6 +6,9 @@ import {
 import { z } from "zod";
 import { EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
 
+/**
+ * @public
+ */
 export interface RetrievalCallbacks {
   /**
    * Callback when the list of files to process is available. This list can be shorter than the list
