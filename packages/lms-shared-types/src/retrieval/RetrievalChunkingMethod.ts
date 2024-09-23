@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+/**
+ * @public
+ */
 export type RetrievalChunkingMethod = {
   type: "recursive-v1";
   chunkSize: number;

@@ -128,6 +128,9 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
   private readonly internalKVConfigStack: KVConfigStack = { layers: [] };
 
   /** @internal */
+  private readonly internalIgnoreServerSessionConfig: boolean | undefined = undefined;
+
+  /** @internal */
   private predictInternal(
     modelSpecifier: ModelSpecifier,
     context: LLMContext,
@@ -151,6 +154,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
         modelSpecifier,
         context,
         predictionConfigStack,
+        ignoreServerSessionConfig: this.internalIgnoreServerSessionConfig,
       },
       message => {
         switch (message.type) {
