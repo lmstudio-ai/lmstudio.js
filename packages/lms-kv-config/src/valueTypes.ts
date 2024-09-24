@@ -171,15 +171,33 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     effectiveEquals: (a, b) => {
       return a === b;
     },
-    stringify: (value, { isParagraph }, { t }) => {
+    stringify: (value, { isParagraph }, { t, desiredLength }) => {
+      console.info(desiredLength);
       if (isParagraph) {
         if (value === "") {
           return t("config:customInputs.string.emptyParagraph", "<Empty>");
         } else {
-          return value;
+          if (desiredLength === undefined || value.length <= desiredLength) {
+            return value;
+          } else {
+            return (
+              value.slice(0, Math.floor(desiredLength / 2)) +
+              " ... " +
+              value.slice(-Math.ceil(desiredLength / 2))
+            );
+          }
         }
       } else {
-        return quoteString(value);
+        const quoted = quoteString(value);
+        if (desiredLength === undefined || quoted.length <= desiredLength) {
+          return quoted;
+        } else {
+          return (
+            quoted.slice(0, Math.floor(desiredLength / 2)) +
+            "..." +
+            quoted.slice(-Math.ceil(desiredLength / 2))
+          );
+        }
       }
     },
   })
