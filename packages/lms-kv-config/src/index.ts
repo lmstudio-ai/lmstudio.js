@@ -9,6 +9,7 @@ export {
   emptyKVConfigStack,
   filterKVConfig,
   kvConfigEquals,
+  kvConfigToFields,
   kvConfigToMap,
   makeKVConfigFromFields,
   mapToKVConfig,

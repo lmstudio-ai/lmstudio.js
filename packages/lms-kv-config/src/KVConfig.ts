@@ -879,10 +879,15 @@ export class KVConfigSchematics<
   /**
    * Effectively compare two KV config, and return full keys of fields that are different.
    */
-  public effectiveCompareConfig(a: KVConfig, b: KVConfig): Array<string> {
+  public effectiveCompareConfig(
+    a: KVConfig,
+    b: KVConfig,
+  ): { onlyInA: Array<string>; onlyInB: Array<string>; inBothButDifferent: Array<string> } {
     const aMap = kvConfigToMap(a);
     const bMap = kvConfigToMap(b);
-    const diff: Array<string> = [];
+    const onlyInA: Array<string> = [];
+    const onlyInB: Array<string> = [];
+    const inBothButDifferent: Array<string> = [];
     for (const [key, fieldSchema] of this.fields.entries()) {
       const fullKey = this.baseKey + key;
       const aValue = aMap.get(fullKey);
@@ -891,11 +896,11 @@ export class KVConfigSchematics<
         if (bValue === undefined) {
           continue;
         } else {
-          diff.push(fullKey);
+          onlyInB.push(fullKey);
         }
       } else {
         if (bValue === undefined) {
-          diff.push(fullKey);
+          onlyInA.push(fullKey);
         } else {
           if (
             !this.valueTypeLibrary.effectiveEquals(
@@ -905,12 +910,12 @@ export class KVConfigSchematics<
               bValue,
             )
           ) {
-            diff.push(fullKey);
+            inBothButDifferent.push(fullKey);
           }
         }
       }
     }
-    return diff;
+    return { onlyInA, onlyInB, inBothButDifferent };
   }
 }
 
@@ -958,6 +963,10 @@ export class ParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
 
 export function makeKVConfigFromFields(fields: Array<KVConfigField>): KVConfig {
   return { fields };
+}
+
+export function kvConfigToFields(config: KVConfig): Array<KVConfigField> {
+  return config.fields;
 }
 
 export function kvConfigToMap(config: KVConfig): Map<string, any> {
