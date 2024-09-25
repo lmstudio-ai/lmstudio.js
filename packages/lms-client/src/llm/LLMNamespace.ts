@@ -1,11 +1,4 @@
-import {
-  ChatHistory,
-  ChatMessage,
-  getCurrentStack,
-  makePromise,
-  SimpleLogger,
-  Validator,
-} from "@lmstudio/lms-common";
+import { getCurrentStack, makePromise, SimpleLogger, Validator } from "@lmstudio/lms-common";
 import { routeResultToCallbacks } from "@lmstudio/lms-common/dist/resultTypes";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
@@ -21,6 +14,7 @@ import {
   type PreprocessorUpdate,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
+import { ChatHistory, ChatMessage } from "../ChatHistory";
 import { ModelNamespace } from "../modelShared/ModelNamespace";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";

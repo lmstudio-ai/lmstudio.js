@@ -140,10 +140,7 @@ export class LMStudioClient {
   public readonly system: SystemNamespace;
   public readonly diagnostics: DiagnosticsNamespace;
   public readonly retrieval: RetrievalNamespace;
-  /**
-   * Private for now because we don't have any public APIs for it yet.
-   */
-  private readonly files: FilesNamespace;
+  public readonly files: FilesNamespace;
 
   /** @internal */
   private validateBaseUrlOrThrow(baseUrl: string) {

@@ -14,15 +14,14 @@ import {
 } from "@lmstudio/lms-kv-config";
 import { addKVConfigToStack } from "@lmstudio/lms-kv-config/dist/KVConfig";
 import {
+  type ChatHistoryData,
   type KVConfig,
   type KVConfigStack,
   type LLMApplyPromptTemplateOpts,
   llmApplyPromptTemplateOptsSchema,
   type LLMCompletionContextInput,
   llmCompletionContextInputSchema,
-  type LLMContext,
   llmContextSchema,
-  type LLMConversationContextInput,
   llmConversationContextInputSchema,
   type LLMPredictionConfig,
   llmPredictionConfigSchema,
@@ -31,6 +30,7 @@ import {
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
+import { ChatHistory, type ChatHistoryLike } from "../ChatHistory";
 import { DynamicHandle } from "../modelShared/DynamicHandle";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { type LLMNamespace } from "./LLMNamespace";
@@ -133,7 +133,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
   /** @internal */
   private predictInternal(
     modelSpecifier: ModelSpecifier,
-    context: LLMContext,
+    history: ChatHistoryData,
     predictionConfigStack: KVConfigStack,
     cancelEvent: BufferedEvent<void>,
     extraOpts: LLMPredictionExtraOpts,
@@ -152,7 +152,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
       "predict",
       {
         modelSpecifier,
-        context,
+        history,
         predictionConfigStack,
         ignoreServerSessionConfig: this.internalIgnoreServerSessionConfig,
       },
@@ -298,9 +298,9 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     return ongoingPrediction;
   }
 
-  private resolveCompletionContext(contextInput: LLMCompletionContextInput): LLMContext {
+  private resolveCompletionContext(contextInput: LLMCompletionContextInput): ChatHistoryData {
     return {
-      history: [
+      messages: [
         {
           role: "user",
           content: [{ type: "text", text: contextInput }],
@@ -358,7 +358,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * @param history - The LLMChatHistory array to use for generating a response.
    * @param opts - Options for the prediction.
    */
-  public respond(history: LLMConversationContextInput, opts: LLMPredictionOpts = {}) {
+  public respond(history: ChatHistoryLike, opts: LLMPredictionOpts = {}) {
     const stack = getCurrentStack(1);
     [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
@@ -373,50 +373,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     const [config, extraOpts] = splitOpts(opts);
     this.predictInternal(
       this.specifier,
-      this.resolveConversationContext(history),
-      addKVConfigToStack(
-        this.internalKVConfigStack,
-        "apiOverride",
-        predictionConfigToKVConfig(config),
-      ),
-      cancelEvent,
-      extraOpts,
-      fragment => push(fragment),
-      (stats, modelInfo, loadModelConfig, predictionConfig) =>
-        finished(stats, modelInfo, loadModelConfig, predictionConfig),
-      error => failed(error),
-    );
-    return ongoingPrediction;
-  }
-
-  private resolveConversationContext(contextInput: LLMConversationContextInput): LLMContext {
-    return {
-      history: contextInput.map(({ role, content }) => ({
-        role,
-        content: [{ type: "text", text: content }],
-      })),
-    };
-  }
-
-  /**
-   * @alpha
-   */
-  public predict(context: LLMContext, opts: LLMPredictionOpts) {
-    const stack = getCurrentStack(1);
-    [context, opts] = this.validator.validateMethodParamsOrThrow(
-      "model",
-      "predict",
-      ["context", "opts"],
-      [llmContextSchema, llmPredictionConfigSchema],
-      [context, opts],
-      stack,
-    );
-    const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
-    const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
-    const [config, extraOpts] = splitOpts(opts);
-    this.predictInternal(
-      this.specifier,
-      context,
+      ChatHistory.from(history).internalGetData(),
       addKVConfigToStack(
         this.internalKVConfigStack,
         "apiOverride",
@@ -439,16 +396,16 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
   }
 
   public async unstable_applyPromptTemplate(
-    context: LLMContext,
+    history: ChatHistoryLike,
     opts: LLMApplyPromptTemplateOpts = {},
   ): Promise<string> {
     const stack = getCurrentStack(1);
-    [context, opts] = this.validator.validateMethodParamsOrThrow(
+    [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "unstable_applyPromptTemplate",
-      ["context", "opts"],
+      ["history", "opts"],
       [llmContextSchema, llmApplyPromptTemplateOptsSchema],
-      [context, opts],
+      [history, opts],
       stack,
     );
     return (
@@ -456,7 +413,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
         "applyPromptTemplate",
         {
           specifier: this.specifier,
-          context,
+          history: ChatHistory.from(history).internalGetData(),
           predictionConfigStack: this.internalKVConfigStack,
           opts,
         },

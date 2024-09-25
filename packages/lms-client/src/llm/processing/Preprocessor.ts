@@ -1,5 +1,5 @@
-import { type ChatMessage } from "@lmstudio/lms-common";
 import { z } from "zod";
+import { type ChatMessage } from "../../ChatHistory";
 import { type PreprocessorController } from "./ProcessingController";
 
 /**

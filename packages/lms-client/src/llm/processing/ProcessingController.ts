@@ -1,10 +1,10 @@
-import { type ChatHistory } from "@lmstudio/lms-common";
 import {
   type CitationSource,
   type LLMGenInfo,
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
+import { type ChatHistory } from "../../ChatHistory";
 import { type OngoingPrediction } from "../OngoingPrediction";
 import { type PredictionResult } from "../PredictionResult";
 

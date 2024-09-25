@@ -172,7 +172,6 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return a === b;
     },
     stringify: (value, { isParagraph }, { t, desiredLength }) => {
-      console.info(desiredLength);
       if (isParagraph) {
         if (value === "") {
           return t("config:customInputs.string.emptyParagraph", "<Empty>");

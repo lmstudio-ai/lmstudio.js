@@ -1,16 +1,18 @@
 import { MaybeMutable } from "@lmstudio/lms-common/src/MaybeMutable";
-import { deepFreeze } from "@lmstudio/lms-common/src/deepFreeze";
 import { text } from "@lmstudio/lms-common/src/text";
 import {
   type ChatHistoryData,
   chatHistoryDataSchema,
   type ChatMessageData,
   chatMessageDataSchema,
-  type ChatMessagePartFileData,
   type ChatMessagePartTextData,
   type ChatMessageRoleData,
   type LLMConversationContextInput,
+  llmConversationContextInputSchema,
 } from "@lmstudio/lms-shared-types";
+import { z } from "zod";
+import { type LMStudioClient } from "./LMStudioClient";
+import { FileHandle } from "./files/FileHandle";
 
 export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   protected override getClassName(): string {
@@ -22,6 +24,12 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   protected override cloneData(data: ChatHistoryData): ChatHistoryData {
     return chatHistoryDataSchema.parse(data); // Using zod to clone the data
   }
+  /**
+   * Don't use this constructor directly.
+   *
+   * - To create an empty chat history, use `ChatHistory.createEmpty()`.
+   * - To create a chat history with existing data, use `ChatHistory.from()`.
+   */
   protected constructor(data: ChatHistoryData, mutable: boolean) {
     super(data, mutable);
   }
@@ -34,9 +42,20 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   }
 
   /**
-   * Quickly create a mutable chat history with an array of { role, content } objects.
+   * Quickly create a mutable chat history with something that can be converted to a chat history.
+   *
+   * The created chat history will be a mutable copy of the input.
    */
-  public static create(initializer: LLMConversationContextInput) {
+  public static from(initializer: ChatHistoryLike) {
+    if (initializer instanceof ChatHistory) {
+      // ChatHistory
+      return initializer.asMutableCopy();
+    }
+    if (!Array.isArray(initializer)) {
+      // ChatHistoryData
+      return new ChatHistory(initializer, false).asMutableCopy();
+    }
+    // LLMConversationContextInput
     return new ChatHistory(
       chatHistoryDataSchema.parse({
         messages: initializer.map(({ role, content }) => ({
@@ -100,7 +119,7 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   }
 
   /**
-   * Remove the last message from the history. If the history is empty this method will throw.
+   * Remove the last message from the history. If the history is empty, this method will throw.
    */
   public pop(): ChatMessage {
     this.guardMutable();
@@ -112,12 +131,14 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   }
 
   /**
-   * Gets all text contained in this history.
+   * Gets all files contained in this history.
+   *
+   * @param client - LMStudio client
    */
-  public getAllFiles(): Array<ChatMessagePartFileData> {
-    return deepFreeze(
-      this.data.messages.flatMap(message => message.content.filter(part => part.type === "file")),
-    );
+  public getAllFiles(client: LMStudioClient): Array<FileHandle> {
+    return this.data.messages
+      .flatMap(message => message.content.filter(part => part.type === "file"))
+      .map(part => new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes));
   }
 
   /**
@@ -156,6 +177,20 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
     }
   }
 }
+
+/**
+ * Represents anything that can be converted to a ChatHistory.
+ *
+ * @public
+ */
+export type ChatHistoryLike = ChatHistory | ChatHistoryData | LLMConversationContextInput;
+export const chatHistoryLikeSchema = z.union([
+  z.instanceof(ChatHistory as any),
+  chatHistoryDataSchema,
+  llmConversationContextInputSchema,
+]) as z.ZodUnion<
+  [z.ZodType<ChatHistory>, z.ZodType<ChatHistoryData>, z.ZodType<LLMConversationContextInput>]
+>;
 
 export class ChatMessage extends MaybeMutable<ChatMessageData> {
   protected override getClassName(): string {
@@ -227,15 +262,19 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
 
   /**
    * Gets all files contained in this message.
+   *
+   * @param client - LMStudio client
    */
-  public getFiles() {
-    return deepFreeze(this.data.content.filter(part => part.type === "file"));
+  public getFiles(client: LMStudioClient) {
+    return this.data.content
+      .filter(part => part.type === "file")
+      .map(part => new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes));
   }
 
   /**
    * Returns true if this message contains any files.
    */
-  public hasFiles() {
+  public hasFiles(): boolean {
     return this.data.content.some(part => part.type === "file");
   }
 

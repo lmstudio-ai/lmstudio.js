@@ -7,7 +7,6 @@ import {
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
-  llmContextSchema,
   llmPredictionStatsSchema,
   modelDescriptorSchema,
   modelDomainTypeSchema,
@@ -23,7 +22,7 @@ export function createLlmBackendInterface() {
     .addChannelEndpoint("predict", {
       creationParameter: z.object({
         modelSpecifier: modelSpecifierSchema,
-        context: llmContextSchema,
+        history: chatHistoryDataSchema,
         predictionConfigStack: kvConfigStackSchema,
         ignoreServerSessionConfig: z.boolean().optional(),
       }),
@@ -53,7 +52,7 @@ export function createLlmBackendInterface() {
     .addRpcEndpoint("applyPromptTemplate", {
       parameter: z.object({
         specifier: modelSpecifierSchema,
-        context: llmContextSchema,
+        history: chatHistoryDataSchema,
         predictionConfigStack: kvConfigStackSchema,
         opts: llmApplyPromptTemplateOptsSchema,
       }),
