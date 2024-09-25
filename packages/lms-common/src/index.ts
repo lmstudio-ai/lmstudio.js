@@ -19,6 +19,7 @@ export { lmsDefaultPorts } from "./lmsDefaultPorts";
 export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";
 export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter";
+export { accessMaybeMutableInternals, MaybeMutable } from "./MaybeMutable";
 export { OWLSignal } from "./OWLSignal";
 export { parseFileIdentifier } from "./parseFileIdentifier";
 export { removeUndefinedValues } from "./removeUndefinedValues";

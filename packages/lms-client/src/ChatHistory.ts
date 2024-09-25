@@ -1,10 +1,10 @@
-import { MaybeMutable } from "@lmstudio/lms-common/src/MaybeMutable";
-import { text } from "@lmstudio/lms-common/src/text";
+import { accessMaybeMutableInternals, MaybeMutable, text } from "@lmstudio/lms-common";
 import {
   type ChatHistoryData,
   chatHistoryDataSchema,
   type ChatMessageData,
   chatMessageDataSchema,
+  type ChatMessagePartFileData,
   type ChatMessagePartTextData,
   type ChatMessageRoleData,
   type LLMConversationContextInput,
@@ -101,7 +101,8 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
     this.guardMutable();
     if (args.length === 1) {
       const [message] = args;
-      this.data.messages.push(message.toMutable().internalGetData());
+      const messageMutable = accessMaybeMutableInternals(message)._internalToMutable();
+      this.data.messages.push(accessMaybeMutableInternals(messageMutable)._internalGetData());
     } else {
       const [role, content] = args;
       this.data.messages.push({
@@ -137,7 +138,10 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
    */
   public getAllFiles(client: LMStudioClient): Array<FileHandle> {
     return this.data.messages
-      .flatMap(message => message.content.filter(part => part.type === "file"))
+      .flatMap(
+        message =>
+          message.content.filter(part => part.type === "file") as Array<ChatMessagePartFileData>,
+      )
       .map(part => new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes));
   }
 
@@ -250,6 +254,10 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
     this.data.role = role;
   }
 
+  private getTextParts(): Array<ChatMessagePartFileData> {
+    return this.data.content.filter(part => part.type === "file") as Array<ChatMessagePartFileData>;
+  }
+
   /**
    * Gets all text contained in this message.
    */
@@ -266,9 +274,9 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
    * @param client - LMStudio client
    */
   public getFiles(client: LMStudioClient) {
-    return this.data.content
-      .filter(part => part.type === "file")
-      .map(part => new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes));
+    return this.getTextParts().map(
+      part => new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes),
+    );
   }
 
   /**
@@ -300,39 +308,3 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
     ];
   }
 }
-
-// async function preprocess(ctl: Controller, userPrompt: ChatMessage, inputHistory: ChatHistory) {
-//   const prompt = userPrompt.asMutableCopy();
-
-//   const text = prompt.getText();
-//   const files = prompt.getFiles();
-
-//   // const pdfs = prompt.getFiles("*.pdf");
-
-//   // asd - [image] 12123
-//   // Hello[image]
-
-//   prompt.setText(text);
-//   prompt.append("asd");
-//   // prompt.addFile(...pdfs);
-
-//   const history = inputHistory.asMutableCopy();
-
-//   history.append(prompt);
-
-//   const firstMessage = history.at(0);
-//   const lastMessage = history.at(-1);
-
-//   const formatted = await model.applyPromptTemplate(history);
-//   const { content } = await model.respond(history);
-//   prompt.append(content);
-
-//   return content;
-
-//   return prompt;
-// }
-
-// // @param ctl: object that allows the extension to interact with the system
-// // @param response: the response object that is being generated
-// generate(ctl: Controller,
-//          response: AssistantMessage) => Promise<void>

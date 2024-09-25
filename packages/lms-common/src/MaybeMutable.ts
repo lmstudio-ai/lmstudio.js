@@ -11,8 +11,24 @@ export abstract class MaybeMutable<Data> {
    *
    * @internal
    */
-  public internalGetData(): Data {
+  public _internalGetData(): Data {
     return this.data;
+  }
+
+  /**
+   * If this instance is mutable, return as is.
+   *
+   * If this instance is immutable, return a mutable copy.
+   *
+   * Very easy to misuse, thus internal only for now.
+   *
+   * @internal
+   */
+  public _internalToMutable(): this {
+    if (this.mutable) {
+      return this;
+    }
+    return this.asMutableCopy();
   }
 
   /**
@@ -39,22 +55,6 @@ export abstract class MaybeMutable<Data> {
     return this;
   }
 
-  /**
-   * If this instance is mutable, return as is.
-   *
-   * If this instance is immutable, return a mutable copy.
-   *
-   * Very easy to misuse, thus internal only for now.
-   *
-   * @internal
-   */
-  public toMutable(): this {
-    if (this.mutable) {
-      return this;
-    }
-    return this.asMutableCopy();
-  }
-
   protected guardMutable(): void {
     if (!this.mutable) {
       throw new Error(text`
@@ -63,4 +63,13 @@ export abstract class MaybeMutable<Data> {
       `);
     }
   }
+}
+
+export interface MaybeMutableInternal<Data> extends MaybeMutable<Data> {
+  _internalGetData(): Data;
+  _internalToMutable(): this;
+}
+
+export function accessMaybeMutableInternals<TData>(maybeMutable: MaybeMutable<TData>) {
+  return maybeMutable as MaybeMutableInternal<TData>;
 }

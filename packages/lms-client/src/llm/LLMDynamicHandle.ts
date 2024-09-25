@@ -1,4 +1,5 @@
 import {
+  accessMaybeMutableInternals,
   BufferedEvent,
   getCurrentStack,
   safeCallCallback,
@@ -21,8 +22,6 @@ import {
   llmApplyPromptTemplateOptsSchema,
   type LLMCompletionContextInput,
   llmCompletionContextInputSchema,
-  llmContextSchema,
-  llmConversationContextInputSchema,
   type LLMPredictionConfig,
   llmPredictionConfigSchema,
   type LLMPredictionStats,
@@ -30,7 +29,7 @@ import {
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { ChatHistory, type ChatHistoryLike } from "../ChatHistory";
+import { ChatHistory, type ChatHistoryLike, chatHistoryLikeSchema } from "../ChatHistory";
 import { DynamicHandle } from "../modelShared/DynamicHandle";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { type LLMNamespace } from "./LLMNamespace";
@@ -364,7 +363,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
       "model",
       "respond",
       ["history", "opts"],
-      [llmConversationContextInputSchema, llmPredictionConfigSchema],
+      [chatHistoryLikeSchema, llmPredictionConfigSchema],
       [history, opts],
       stack,
     );
@@ -373,7 +372,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     const [config, extraOpts] = splitOpts(opts);
     this.predictInternal(
       this.specifier,
-      ChatHistory.from(history).internalGetData(),
+      accessMaybeMutableInternals(ChatHistory.from(history))._internalGetData(),
       addKVConfigToStack(
         this.internalKVConfigStack,
         "apiOverride",
@@ -404,7 +403,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
       "model",
       "unstable_applyPromptTemplate",
       ["history", "opts"],
-      [llmContextSchema, llmApplyPromptTemplateOptsSchema],
+      [chatHistoryLikeSchema, llmApplyPromptTemplateOptsSchema],
       [history, opts],
       stack,
     );
@@ -413,7 +412,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
         "applyPromptTemplate",
         {
           specifier: this.specifier,
-          history: ChatHistory.from(history).internalGetData(),
+          history: accessMaybeMutableInternals(ChatHistory.from(history))._internalGetData(),
           predictionConfigStack: this.internalKVConfigStack,
           opts,
         },

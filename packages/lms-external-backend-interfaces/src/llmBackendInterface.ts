@@ -1,17 +1,14 @@
-import { createResultSchema } from "@lmstudio/lms-common";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
   chatHistoryDataSchema,
   chatMessageDataSchema,
-  getModelOptsSchema,
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
   llmPredictionStatsSchema,
   modelDescriptorSchema,
-  modelDomainTypeSchema,
   modelSpecifierSchema,
-  preprocessorUpdateSchema,
+  ProcessingUpdateSchema,
   serializedLMSExtendedErrorSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
@@ -86,51 +83,21 @@ export function createLlmBackendInterface() {
         z.object({
           type: z.literal("preprocess"),
           taskId: z.string(),
-          userMessage: chatMessageDataSchema,
+          input: chatMessageDataSchema,
+          /** Processing Context Identifier */
+          pci: z.string(),
+          token: z.string(),
         }),
         z.object({
-          type: z.literal("cancel"),
+          type: z.literal("abort"),
           taskId: z.string(),
-        }),
-        z.object({
-          type: z.literal("getContextResult"),
-          taskId: z.string(),
-          requestId: z.string(),
-          result: createResultSchema(chatHistoryDataSchema),
-        }),
-        z.object({
-          type: z.literal("getModelResult"),
-          result: createResultSchema(
-            z
-              .object({
-                domain: modelDomainTypeSchema,
-                identifier: z.string(),
-              })
-              .optional(),
-          ),
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
         z.object({
-          type: z.literal("update"),
-          taskId: z.string(),
-          update: preprocessorUpdateSchema,
-        }),
-        z.object({
           type: z.literal("complete"),
           taskId: z.string(),
           processed: chatMessageDataSchema,
-        }),
-        z.object({
-          type: z.literal("getContext"),
-          taskId: z.string(),
-          requestId: z.string(),
-        }),
-        z.object({
-          type: z.literal("getModel"),
-          taskId: z.string(),
-          requestId: z.string(),
-          getModelOpts: getModelOptsSchema,
         }),
         z.object({
           type: z.literal("error"),
@@ -138,6 +105,53 @@ export function createLlmBackendInterface() {
           error: serializedLMSExtendedErrorSchema,
         }),
       ]),
+    })
+    .addChannelEndpoint("registerGenerator", {
+      creationParameter: z.object({
+        identifier: z.string(),
+      }),
+      toClientPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("generate"),
+          taskId: z.string(),
+          input: chatMessageDataSchema,
+          /** Processing Context Identifier */
+          pci: z.string(),
+          token: z.string(),
+        }),
+        z.object({
+          type: z.literal("abort"),
+          taskId: z.string(),
+        }),
+      ]),
+      toServerPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("complete"),
+          taskId: z.string(),
+        }),
+        z.object({
+          type: z.literal("error"),
+          taskId: z.string(),
+          error: serializedLMSExtendedErrorSchema,
+        }),
+      ]),
+    })
+    .addRpcEndpoint("processingHandleUpdate", {
+      parameter: z.object({
+        /** Processing Context Identifier */
+        pci: z.string(),
+        token: z.string(),
+        update: ProcessingUpdateSchema,
+      }),
+      returns: z.void(),
+    })
+    .addRpcEndpoint("processingGetHistory", {
+      parameter: z.object({
+        /** Processing Context Identifier */
+        pci: z.string(),
+        token: z.string(),
+      }),
+      returns: chatHistoryDataSchema,
     });
 }
 

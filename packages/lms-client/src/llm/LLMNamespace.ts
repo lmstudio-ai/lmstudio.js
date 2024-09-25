@@ -1,29 +1,28 @@
-import { getCurrentStack, makePromise, SimpleLogger, Validator } from "@lmstudio/lms-common";
-import { routeResultToCallbacks } from "@lmstudio/lms-common/dist/resultTypes";
+import { getCurrentStack, SimpleLogger, Validator } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
   llmLoadModelConfigSchema,
   serializeError,
-  type ChatHistoryData,
   type ChatMessageData,
   type KVConfig,
   type LLMLoadModelConfig,
   type ModelDescriptor,
   type ModelSpecifier,
-  type PreprocessorUpdate,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { ChatHistory, ChatMessage } from "../ChatHistory";
+import { ChatMessage } from "../ChatHistory";
 import { ModelNamespace } from "../modelShared/ModelNamespace";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 import { LLMSpecificModel } from "./LLMSpecificModel";
+import { generatorSchema, type Generator } from "./processing/Generator";
 import { preprocessorSchema, type Preprocessor } from "./processing/Preprocessor";
 import {
+  ProcessingConnector,
   ProcessingController,
+  type GeneratorController,
   type PreprocessorController,
-  type ProcessingConnector,
 } from "./processing/ProcessingController";
 
 /** @public */
@@ -78,9 +77,6 @@ export class LLMNamespace extends ModelNamespace<
     return new LLMDynamicHandle(port, specifier, validator, logger);
   }
 
-  /**
-   * @internal
-   */
   public registerPreprocessor(preprocessor: Preprocessor) {
     const stack = getCurrentStack(1);
 
@@ -93,10 +89,7 @@ export class LLMNamespace extends ModelNamespace<
       stack,
     );
 
-    const logger = new SimpleLogger(
-      `Prompt Preprocessor - ${preprocessor.identifier}`,
-      this.logger,
-    );
+    const logger = new SimpleLogger(`Preprocessor (${preprocessor.identifier})`, this.logger);
     logger.info("Register to LM Studio");
 
     interface OngoingPreprocessTask {
@@ -105,15 +98,9 @@ export class LLMNamespace extends ModelNamespace<
        */
       cancel: () => void;
       /**
-       * Mapping from getContext requestId to the corresponding resolve/reject functions
+       * Logger associated with this task.
        */
-      getContextRequests: Map<
-        string,
-        {
-          resolve: (result: ChatHistoryData) => void;
-          reject: (error: Error) => void;
-        }
-      >;
+      taskLogger: SimpleLogger;
     }
 
     const tasks = new Map<string, OngoingPreprocessTask>();
@@ -125,65 +112,43 @@ export class LLMNamespace extends ModelNamespace<
       message => {
         switch (message.type) {
           case "preprocess": {
-            logger.info(`Received preprocess request ${message.taskId}`);
+            const taskLogger = new SimpleLogger(`Request (${message.taskId})`, logger);
+            taskLogger.info(`New preprocess request received.`);
             const abortController = new AbortController();
-            let ended = false;
-            const connector: ProcessingConnector = {
-              abortSignal: abortController.signal,
-              getContext: async () => {
-                const { promise, resolve, reject } = makePromise<ChatHistoryData>();
-                const requestId = `${Date.now()}-${Math.random()}`;
-                const task = tasks.get(message.taskId);
-                if (task === undefined) {
-                  throw new Error("Preprocess task not found");
-                }
-                task.getContextRequests.set(requestId, { resolve, reject });
-                channel.send({
-                  type: "getContext",
-                  taskId: message.taskId,
-                  requestId,
-                });
-                const chatHistoryData = await promise;
-                return ChatHistory.createRaw(chatHistoryData, false);
-              },
-              handleUpdate: update => {
-                if (ended) {
-                  throw new Error("Cannot send updates after the preprocess task has ended.");
-                }
-                channel.send({
-                  type: "update",
-                  taskId: message.taskId,
-                  // If the user is not using hidden methods of the controller, the updates will be
-                  // of type PreprocessorUpdate.
-                  update: update as PreprocessorUpdate,
-                });
-              },
-            };
+            const connector = new ProcessingConnector(
+              this.port,
+              abortController.signal,
+              message.pci,
+              message.token,
+              taskLogger,
+            );
             const controller: PreprocessorController = new ProcessingController(connector);
             tasks.set(message.taskId, {
               cancel: () => {
                 abortController.abort();
               },
-              getContextRequests: new Map(),
+              taskLogger,
             });
-            const userMessage = ChatMessage.createRaw(message.userMessage, false);
+            // We know the input from the channel is immutable, so we can safely pass false as the
+            // second argument.
+            const input = ChatMessage.createRaw(message.input, /* mutable */ false);
             preprocessor
-              .preprocess(controller, userMessage)
+              .preprocess(controller, input)
               .then(result => {
-                logger.info(`Preprocess request ${message.taskId} completed`);
+                taskLogger.info(`Preprocess request completed.`);
                 const parsedReturned = z
                   .union([z.string(), z.custom<ChatMessage>(v => v instanceof ChatMessage)])
                   .safeParse(result);
                 if (!parsedReturned.success) {
                   throw new Error(
-                    "Prompt preprocessor returned an invalid value:" +
+                    "Preprocessor returned an invalid value:" +
                       Validator.prettyPrintZod("result", parsedReturned.error),
                   );
                 }
                 const returned = parsedReturned.data;
                 let processed: ChatMessageData;
                 if (typeof returned === "string") {
-                  const messageCopy = userMessage.asMutableCopy();
+                  const messageCopy = input.asMutableCopy();
                   messageCopy.replaceText(returned);
                   processed = messageCopy.getRaw();
                 } else {
@@ -198,10 +163,10 @@ export class LLMNamespace extends ModelNamespace<
               })
               .catch(error => {
                 if (error.name === "AbortError") {
-                  logger.info(`Preprocess request ${message.taskId} aborted`);
+                  logger.info(`Request successfully aborted.`);
                   return;
                 }
-                logger.warn(`Preprocess request ${message.taskId} failed`, error);
+                logger.warn(`Preprocessing failed.`, error);
                 channel.send({
                   type: "error",
                   taskId: message.taskId,
@@ -210,27 +175,109 @@ export class LLMNamespace extends ModelNamespace<
               })
               .finally(() => {
                 tasks.delete(message.taskId);
-                ended = true;
               });
             break;
           }
-          case "cancel": {
-            logger.info(`Received cancel request ${message.taskId}`);
+          case "abort": {
             const task = tasks.get(message.taskId);
             if (task !== undefined) {
+              task.taskLogger.info(`Received abort request.`);
               task.cancel();
               tasks.delete(message.taskId);
             }
             break;
           }
-          case "getContextResult": {
+        }
+      },
+      { stack },
+    );
+  }
+  public registerGenerator(generator: Generator) {
+    const stack = getCurrentStack(1);
+
+    this.validator.validateMethodParamOrThrow(
+      "llm",
+      "registerGenerator",
+      "generator",
+      generatorSchema,
+      generator,
+      stack,
+    );
+
+    const logger = new SimpleLogger(`Generator (${generator.identifier})`, this.logger);
+    logger.info("Register to LM Studio");
+
+    interface OngoingGenerateTask {
+      /**
+       * Function to cancel the generate task
+       */
+      cancel: () => void;
+      /**
+       * Logger associated with this task.
+       */
+      taskLogger: SimpleLogger;
+    }
+
+    const tasks = new Map<string, OngoingGenerateTask>();
+    const channel = this.port.createChannel(
+      "registerGenerator",
+      {
+        identifier: generator.identifier,
+      },
+      message => {
+        switch (message.type) {
+          case "generate": {
+            const taskLogger = new SimpleLogger(`Request (${message.taskId})`, logger);
+            taskLogger.info(`New generate request received.`);
+            const abortController = new AbortController();
+            const connector = new ProcessingConnector(
+              this.port,
+              abortController.signal,
+              message.pci,
+              message.token,
+              taskLogger,
+            );
+            const controller: GeneratorController = new ProcessingController(connector);
+            tasks.set(message.taskId, {
+              cancel: () => {
+                abortController.abort();
+              },
+              taskLogger,
+            });
+            // We know the input from the channel is immutable, so we can safely pass false as the
+            // second argument.
+            const input = ChatMessage.createRaw(message.input, /* mutable */ false);
+            generator
+              .generate(controller, input)
+              .then(() => {
+                channel.send({
+                  type: "complete",
+                  taskId: message.taskId,
+                });
+              })
+              .catch(error => {
+                if (error.name === "AbortError") {
+                  logger.info(`Request successfully aborted.`);
+                  return;
+                }
+                logger.warn(`Generation failed.`, error);
+                channel.send({
+                  type: "error",
+                  taskId: message.taskId,
+                  error: serializeError(error),
+                });
+              })
+              .finally(() => {
+                tasks.delete(message.taskId);
+              });
+            break;
+          }
+          case "abort": {
             const task = tasks.get(message.taskId);
             if (task !== undefined) {
-              const request = task.getContextRequests.get(message.requestId);
-              if (request !== undefined) {
-                routeResultToCallbacks(message.result, request.resolve, request.reject);
-                task.getContextRequests.delete(message.requestId);
-              }
+              task.taskLogger.info(`Received abort request.`);
+              task.cancel();
+              tasks.delete(message.taskId);
             }
             break;
           }

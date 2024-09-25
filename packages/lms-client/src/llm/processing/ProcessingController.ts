@@ -1,10 +1,12 @@
+import { type SimpleLogger } from "@lmstudio/lms-common";
+import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
   type CitationSource,
   type LLMGenInfo,
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
-import { type ChatHistory } from "../../ChatHistory";
+import { ChatHistory } from "../../ChatHistory";
 import { type OngoingPrediction } from "../OngoingPrediction";
 import { type PredictionResult } from "../PredictionResult";
 
@@ -45,11 +47,34 @@ function createId() {
   return `${Date.now()}-${Math.random()}`;
 }
 
-export interface ProcessingConnector {
-  abortSignal: AbortSignal;
-  handleUpdate: (update: ProcessingUpdate) => void;
-  getContext(): Promise<ChatHistory>;
-  // getModel():
+export class ProcessingConnector {
+  public constructor(
+    private readonly llmPort: LLMPort,
+    public readonly abortSignal: AbortSignal,
+    private readonly processingContextIdentifier: string,
+    private readonly token: string,
+    private readonly logger: SimpleLogger,
+  ) {}
+  public handleUpdate(update: ProcessingUpdate) {
+    this.llmPort
+      .callRpc("processingHandleUpdate", {
+        pci: this.processingContextIdentifier,
+        token: this.token,
+        update,
+      })
+      .catch(error => {
+        this.logger.error("Failed to send update", error);
+      });
+  }
+  public async getHistory(): Promise<ChatHistory> {
+    const chatHistoryData = await this.llmPort.callRpc("processingGetHistory", {
+      pci: this.processingContextIdentifier,
+      token: this.token,
+    });
+    // We know the result of callRpc is immutable, so we can safely pass false as the second
+    // argument.
+    return ChatHistory.createRaw(chatHistoryData, /* mutable */ false);
+  }
 }
 
 interface ProcessingControllerHandle {
@@ -81,8 +106,8 @@ export class ProcessingController {
     this.processingControllerHandle.sendUpdate(update);
   }
 
-  public async getContext() {
-    return await this.connector.getContext();
+  public async getHistory() {
+    return await this.connector.getHistory();
   }
 
   public createStatus(initialState: StatusStepState): PredictionProcessStatusController {
