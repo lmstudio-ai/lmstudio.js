@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+/**
+ * @public
+ *
+ * TODO: Documentation
+ */
 export type FileType =
   | "image"
   | "text/plain"

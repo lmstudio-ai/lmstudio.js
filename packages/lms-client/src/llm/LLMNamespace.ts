@@ -122,7 +122,8 @@ export class LLMNamespace extends ModelNamespace<
               message.token,
               taskLogger,
             );
-            const controller: PreprocessorController = new ProcessingController(connector);
+            const input = ChatMessage.createRaw(message.input, /* mutable */ false);
+            const controller: PreprocessorController = new ProcessingController(connector, input);
             tasks.set(message.taskId, {
               cancel: () => {
                 abortController.abort();
@@ -131,7 +132,6 @@ export class LLMNamespace extends ModelNamespace<
             });
             // We know the input from the channel is immutable, so we can safely pass false as the
             // second argument.
-            const input = ChatMessage.createRaw(message.input, /* mutable */ false);
             preprocessor
               .preprocess(controller, input)
               .then(result => {
@@ -237,7 +237,8 @@ export class LLMNamespace extends ModelNamespace<
               message.token,
               taskLogger,
             );
-            const controller: GeneratorController = new ProcessingController(connector);
+            const input = ChatMessage.createRaw(message.input, /* mutable */ false);
+            const controller: GeneratorController = new ProcessingController(connector, input);
             tasks.set(message.taskId, {
               cancel: () => {
                 abortController.abort();
@@ -246,7 +247,6 @@ export class LLMNamespace extends ModelNamespace<
             });
             // We know the input from the channel is immutable, so we can safely pass false as the
             // second argument.
-            const input = ChatMessage.createRaw(message.input, /* mutable */ false);
             generator
               .generate(controller, input)
               .then(() => {

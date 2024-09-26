@@ -3,11 +3,17 @@ import { type FilesPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type ChatMessagePartFileData } from "@lmstudio/lms-shared-types";
 import { FileHandle } from "./FileHandle";
 
+/**
+ * @public
+ *
+ * The namespace for file-related operations. Currently no public-facing methods.
+ */
 export class FilesNamespace {
   /** @internal */
   private readonly logger: SimpleLogger;
   /** @internal */
   public constructor(
+    /** @internal */
     private readonly filesPort: FilesPort,
     private readonly validator: Validator,
     parentLogger: LoggerInterface,

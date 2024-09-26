@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { type FileType, fileTypeSchema } from "./files/FileType";
 
+/**
+ * @public
+ */
 export interface ChatMessagePartTextData {
   type: "text";
   text: string;
@@ -10,6 +13,9 @@ export const chatMessagePartTextDataSchema = z.object({
   text: z.string(),
 });
 
+/**
+ * @public
+ */
 export interface ChatMessagePartFileData {
   type: "file";
   /**
@@ -37,15 +43,24 @@ export const chatMessagePartFileDataSchema = z.object({
   fileType: fileTypeSchema,
 });
 
+/**
+ * @public
+ */
 export type ChatMessagePartData = ChatMessagePartTextData | ChatMessagePartFileData;
 export const chatMessagePartDataSchema = z.discriminatedUnion("type", [
   chatMessagePartTextDataSchema,
   chatMessagePartFileDataSchema,
 ]);
 
+/**
+ * @public
+ */
 export type ChatMessageRoleData = "assistant" | "user" | "system";
 export const chatMessageRoleDataSchema = z.enum(["assistant", "user", "system"]);
 
+/**
+ * @public
+ */
 export interface ChatMessageData {
   role: ChatMessageRoleData;
   content: Array<ChatMessagePartData>;
@@ -55,6 +70,9 @@ export const chatMessageDataSchema = z.object({
   content: z.array(chatMessagePartDataSchema),
 });
 
+/**
+ * @public
+ */
 export interface ChatHistoryData {
   messages: Array<ChatMessageData>;
 }

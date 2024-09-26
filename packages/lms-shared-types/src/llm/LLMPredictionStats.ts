@@ -107,6 +107,9 @@ export const llmGenInfoSchema = z.object({
   predictionConfig: kvConfigSchema,
   stats: llmPredictionStatsSchema,
 });
+/**
+ * @public
+ */
 export interface LLMGenInfo {
   indexedModelIdentifier: string;
   identifier: string;

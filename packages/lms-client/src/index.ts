@@ -1,12 +1,18 @@
+export { ChatHistory, ChatMessage } from "./ChatHistory";
+export type { ChatHistoryLike } from "./ChatHistory";
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
 export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle";
 export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
 export type { EmbeddingSpecificModel } from "./embedding/EmbeddingSpecificModel";
+export type { FileHandle } from "./files/FileHandle";
+export type { FilesNamespace } from "./files/FilesNamespace";
 export type { LLMDynamicHandle, LLMPredictionOpts } from "./llm/LLMDynamicHandle";
 export type { LLMNamespace } from "./llm/LLMNamespace";
 export type { LLMSpecificModel } from "./llm/LLMSpecificModel";
 export type { OngoingPrediction } from "./llm/OngoingPrediction";
 export type { PredictionResult } from "./llm/PredictionResult";
+export type { Generator } from "./llm/processing/Generator";
+export type { Preprocessor } from "./llm/processing/Preprocessor";
 export type {
   CreateContentBlockOpts,
   GeneratorController,
@@ -15,7 +21,6 @@ export type {
   PredictionProcessDebugInfoBlockController,
   PredictionProcessStatusController,
   PreprocessorController,
-  ProcessingConnector,
   ProcessingController,
 } from "./llm/processing/ProcessingController";
 export { LMStudioClient } from "./LMStudioClient";

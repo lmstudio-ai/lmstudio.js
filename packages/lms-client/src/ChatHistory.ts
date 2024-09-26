@@ -14,6 +14,11 @@ import { z } from "zod";
 import { type LMStudioClient } from "./LMStudioClient";
 import { FileHandle } from "./files/FileHandle";
 
+/**
+ * Represents a chat history.
+ *
+ * @public
+ */
 export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   protected override getClassName(): string {
     return "ChatHistory";
@@ -146,6 +151,19 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   }
 
   /**
+   * Allows iterating over the files in the history.
+   */
+  public *files(client: LMStudioClient): Generator<FileHandle> {
+    for (const message of this.data.messages) {
+      for (const part of message.content) {
+        if (part.type === "file") {
+          yield new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes);
+        }
+      }
+    }
+  }
+
+  /**
    * Returns true if this history contains any files.
    */
   public hasFiles() {
@@ -180,6 +198,45 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
       yield ChatMessage.createRaw(message, this.mutable);
     }
   }
+
+  /**
+   * Given a predicate, the predicate is called for each file in the history.
+   *
+   * - If the predicate returns true, the file is removed from the history and is collected into the
+   *   returned array.
+   * - If the predicate returns false, the file is kept in the history.
+   *
+   * This method is useful if you are implementing a preprocessor that can handle certain type of
+   * files.
+   *
+   * If the predicate needs to be async, use the {@link consumeFilesAsync} method.
+   *
+   * @param client - LMStudio client
+   * @param predicate - The predicate to call for each file.
+   * @returns The files that were consumed.
+   */
+  public consumeFiles(client: LMStudioClient, predicate: (file: FileHandle) => boolean) {
+    this.guardMutable();
+    const consumedFiles: Array<FileHandle> = [];
+    for (const message of this.data.messages) {
+      consumedFiles.push(...ChatMessage.createRaw(message, true).consumeFiles(client, predicate));
+    }
+    return consumedFiles;
+  }
+
+  public async consumeFilesAsync(
+    client: LMStudioClient,
+    predicate: (file: FileHandle) => Promise<boolean>,
+  ) {
+    this.guardMutable();
+    const consumedFiles: Array<FileHandle> = [];
+    for (const message of this.data.messages) {
+      consumedFiles.push(
+        ...(await ChatMessage.createRaw(message, true).consumeFilesAsync(client, predicate)),
+      );
+    }
+    return consumedFiles;
+  }
 }
 
 /**
@@ -196,6 +253,11 @@ export const chatHistoryLikeSchema = z.union([
   [z.ZodType<ChatHistory>, z.ZodType<ChatHistoryData>, z.ZodType<LLMConversationContextInput>]
 >;
 
+/**
+ * Represents a single message in the history.
+ *
+ * @public
+ */
 export class ChatMessage extends MaybeMutable<ChatMessageData> {
   protected override getClassName(): string {
     return "ChatMessage";
@@ -277,6 +339,86 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
     return this.getTextParts().map(
       part => new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes),
     );
+  }
+
+  /**
+   * Allows iterating over the files in the message.
+   */
+  public *files(client: LMStudioClient): Generator<FileHandle> {
+    for (const part of this.getTextParts()) {
+      yield new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes);
+    }
+  }
+
+  /**
+   * Given a predicate, the predicate is called for each file in the message.
+   *
+   * - If the predicate returns true, the file is removed from the message and is collected into the
+   *   returned array.
+   * - If the predicate returns false, the file is kept in the message.
+   *
+   * This method is useful if you are implementing a preprocessor that can handle certain type of
+   * files.
+   *
+   * If the predicate needs to be async, use the {@link consumeFilesAsync} method.
+   *
+   * @param client - LMStudio client
+   * @param predicate - The predicate to call for each file.
+   * @returns The files that were consumed.
+   */
+  public consumeFiles(client: LMStudioClient, predicate: (file: FileHandle) => boolean) {
+    this.guardMutable();
+    const consumedFiles: Array<FileHandle> = [];
+    const partIndexesToRemove = new Set<number>();
+    for (const [index, part] of this.data.content.entries()) {
+      if (part.type !== "file") {
+        continue;
+      }
+      const file = new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes);
+      if (predicate(file)) {
+        consumedFiles.push(file);
+        partIndexesToRemove.add(index);
+      }
+    }
+    this.data.content = this.data.content.filter((_, index) => !partIndexesToRemove.has(index));
+    return consumedFiles;
+  }
+
+  /**
+   * Given an async predicate, the predicate is called for each file in the message.
+   *
+   * - If the predicate returns true, the file is removed from the message and is collected into the
+   *  returned array.
+   * - If the predicate returns false, the file is kept in the message.
+   *
+   * This method is useful if you are implementing a preprocessor that can handle certain type of
+   * files.
+   *
+   * If you need a synchronous version, use the {@link consumeFiles} method.
+   *
+   * @param client - LMStudio client
+   * @param predicate - The predicate to call for each file.
+   * @returns The files that were consumed.
+   */
+  public async consumeFilesAsync(
+    client: LMStudioClient,
+    predicate: (file: FileHandle) => Promise<boolean>,
+  ) {
+    this.guardMutable();
+    const consumedFiles: Array<FileHandle> = [];
+    const partIndexesToRemove = new Set<number>();
+    for (const [index, part] of this.data.content.entries()) {
+      if (part.type !== "file") {
+        continue;
+      }
+      const file = new FileHandle(client.files, part.identifier, part.fileType, part.sizeBytes);
+      if (await predicate(file)) {
+        consumedFiles.push(file);
+        partIndexesToRemove.add(index);
+      }
+    }
+    this.data.content = this.data.content.filter((_, index) => !partIndexesToRemove.has(index));
+    return consumedFiles;
   }
 
   /**

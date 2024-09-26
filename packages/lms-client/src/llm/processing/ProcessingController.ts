@@ -6,7 +6,7 @@ import {
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
-import { ChatHistory } from "../../ChatHistory";
+import { ChatHistory, type ChatMessage } from "../../ChatHistory";
 import { type OngoingPrediction } from "../OngoingPrediction";
 import { type PredictionResult } from "../PredictionResult";
 
@@ -82,6 +82,9 @@ interface ProcessingControllerHandle {
   sendUpdate: (update: ProcessingUpdate) => void;
 }
 
+/**
+ * @public
+ */
 export interface CreateContentBlockOpts {
   includeInContext?: boolean;
 }
@@ -90,11 +93,17 @@ export interface CreateContentBlockOpts {
  * @public
  */
 export class ProcessingController {
+  /** @internal */
   private readonly processingControllerHandle: ProcessingControllerHandle;
-  public readonly abortSignal;
+  public readonly abortSignal: AbortSignal;
 
   /** @internal */
-  public constructor(private readonly connector: ProcessingConnector) {
+  public constructor(
+    /** @internal */
+    private readonly connector: ProcessingConnector,
+    /** @internal */
+    private readonly input: ChatMessage,
+  ) {
     this.abortSignal = connector.abortSignal;
     this.processingControllerHandle = {
       abortSignal: connector.abortSignal,
@@ -106,8 +115,37 @@ export class ProcessingController {
     this.processingControllerHandle.sendUpdate(update);
   }
 
+  /**
+   * Gets the history of the current prediction process. Does not include the latest user input.
+   */
   public async getHistory() {
     return await this.connector.getHistory();
+  }
+
+  /**
+   * Gets a mutable copy of the current prediction process. This is mainly a convenience method.
+   * Changes made to the mutable copy will not be reflected in the original history.
+   */
+  public async getMutableCopyOfHistory() {
+    return (await this.getHistory()).asMutableCopy();
+  }
+
+  /**
+   * Gets the history of the current prediction process, including the latest user input.
+   */
+  public async getHistoryWithInput() {
+    return (await this.getMutableCopyOfHistoryWithInput()).asImmutableCopy();
+  }
+
+  /**
+   * Gets a mutable copy of the current prediction process, including the latest user input. This is
+   * mainly a convenience method. Changes made to the mutable copy will not be reflected in the
+   * original history.
+   */
+  public async getMutableCopyOfHistoryWithInput() {
+    const history = await this.getMutableCopyOfHistory();
+    history.append(this.input);
+    return history;
   }
 
   public createStatus(initialState: StatusStepState): PredictionProcessStatusController {
@@ -191,7 +229,13 @@ export class ProcessingController {
   }
 }
 
+/**
+ * @public
+ */
 export type PreprocessorController = Omit<ProcessingController, "createContentBlock">;
+/**
+ * @public
+ */
 export type GeneratorController = Omit<ProcessingController, never>;
 
 /**
@@ -200,7 +244,9 @@ export type GeneratorController = Omit<ProcessingController, never>;
  * @public
  */
 export class PredictionProcessStatusController {
+  /** @internal */
   public constructor(
+    /** @internal */
     private readonly handle: ProcessingControllerHandle,
     initialState: StatusStepState,
     private readonly id: string,
@@ -262,7 +308,9 @@ export class PredictionProcessStatusController {
  * @public
  */
 export class PredictionProcessCitationBlockController {
+  /** @internal */
   public constructor(
+    /** @internal */
     private readonly handle: ProcessingControllerHandle,
     private readonly id: string,
   ) {}
@@ -274,14 +322,23 @@ export class PredictionProcessCitationBlockController {
  * @public
  */
 export class PredictionProcessDebugInfoBlockController {
+  /** @internal */
   public constructor(
+    /** @internal */
     private readonly handle: ProcessingControllerHandle,
     private readonly id: string,
   ) {}
 }
 
+/**
+ * @public
+ *
+ * TODO: Documentation
+ */
 export class PredictionProcessContentBlockController {
+  /** @internal */
   public constructor(
+    /** @internal */
     private readonly handle: ProcessingControllerHandle,
     private readonly id: string,
   ) {}

@@ -1,5 +1,10 @@
 import { text } from "./text";
 
+/**
+ * Represents some underlying data that may or may not be mutable.
+ *
+ * @public
+ */
 export abstract class MaybeMutable<Data> {
   protected constructor(
     protected readonly data: Data,
