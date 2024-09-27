@@ -7,7 +7,6 @@ export type {
   EmbeddingDynamicHandle,
   EmbeddingNamespace,
   EmbeddingSpecificModel,
-  FileHandle,
   FilesNamespace,
   Generator,
   GeneratorController,
@@ -29,6 +28,8 @@ export type {
   RetrievalCallbacks,
   RetrievalNamespace,
   RetrievalOpts,
+  RetrievalResult,
+  RetrievalResultEntry,
   SpecificModel,
   SystemNamespace,
 } from "@lmstudio/lms-client";

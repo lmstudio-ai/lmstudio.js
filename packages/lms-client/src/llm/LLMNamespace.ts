@@ -123,7 +123,13 @@ export class LLMNamespace extends ModelNamespace<
               taskLogger,
             );
             const input = ChatMessage.createRaw(message.input, /* mutable */ false);
-            const controller: PreprocessorController = new ProcessingController(connector, input);
+            const controller: PreprocessorController = new ProcessingController(
+              this.client,
+              connector,
+              input,
+              message.config,
+              /* shouldIncludeInputInHistory */ false,
+            );
             tasks.set(message.taskId, {
               cancel: () => {
                 abortController.abort();
@@ -133,7 +139,7 @@ export class LLMNamespace extends ModelNamespace<
             // We know the input from the channel is immutable, so we can safely pass false as the
             // second argument.
             preprocessor
-              .preprocess(controller, input)
+              .preprocess(controller, input.asMutableCopy())
               .then(result => {
                 taskLogger.info(`Preprocess request completed.`);
                 const parsedReturned = z
@@ -238,7 +244,13 @@ export class LLMNamespace extends ModelNamespace<
               taskLogger,
             );
             const input = ChatMessage.createRaw(message.input, /* mutable */ false);
-            const controller: GeneratorController = new ProcessingController(connector, input);
+            const controller: GeneratorController = new ProcessingController(
+              this.client,
+              connector,
+              input,
+              message.config,
+              /* shouldIncludeInputInHistory */ true,
+            );
             tasks.set(message.taskId, {
               cancel: () => {
                 abortController.abort();
@@ -248,7 +260,7 @@ export class LLMNamespace extends ModelNamespace<
             // We know the input from the channel is immutable, so we can safely pass false as the
             // second argument.
             generator
-              .generate(controller, input)
+              .generate(controller)
               .then(() => {
                 channel.send({
                   type: "complete",

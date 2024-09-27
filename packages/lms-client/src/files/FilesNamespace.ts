@@ -36,6 +36,6 @@ export class FilesNamespace {
    * @internal
    */
   public createFileHandleFromChatMessagePartFileData(data: ChatMessagePartFileData) {
-    return new FileHandle(this, data.identifier, data.fileType, data.sizeBytes);
+    return new FileHandle(this, data.identifier, data.fileType, data.sizeBytes, data.name);
   }
 }

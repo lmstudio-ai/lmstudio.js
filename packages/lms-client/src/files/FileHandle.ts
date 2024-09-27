@@ -16,6 +16,10 @@ export class FileHandle {
     public readonly identifier: string,
     public readonly type: FileType,
     public readonly sizeBytes: number,
+    /**
+     * Original file name
+     */
+    public readonly name: string,
   ) {
     this.parsedIdentifier = parseFileIdentifier(identifier);
   }
@@ -27,7 +31,8 @@ export class FileHandle {
   public async getFilePath() {
     switch (this.parsedIdentifier.type) {
       case "local": {
-        return await this.filesNamespace.getLocalFileAbsolutePath(this.parsedIdentifier.fileName);
+        return (await this.filesNamespace.getLocalFileAbsolutePath(this.parsedIdentifier.fileName))
+          .path;
       }
       case "base64": {
         throw new Error(

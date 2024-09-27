@@ -31,10 +31,28 @@ import {
 import { z } from "zod";
 import { ChatHistory, type ChatHistoryLike, chatHistoryLikeSchema } from "../ChatHistory";
 import { DynamicHandle } from "../modelShared/DynamicHandle";
-import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
+
+/**
+ * Convert a number that can be false to checkbox numeric value.
+ *
+ * @param maybeFalseNumber - The value to translate.
+ * @param valueWhenUnchecked - The value to use when the checkbox is unchecked.
+ */
+function maybeFalseNumberToCheckboxNumeric(
+  maybeFalseNumber: undefined | number | false,
+  valueWhenUnchecked: number,
+): undefined | { checked: boolean; value: number } {
+  if (maybeFalseNumber === undefined) {
+    return undefined;
+  }
+  if (maybeFalseNumber === false) {
+    return { checked: false, value: valueWhenUnchecked };
+  }
+  return { checked: true, value: maybeFalseNumber };
+}
 
 /**
  * Shared options for any prediction methods (`.complete`/`.respond`).
@@ -80,13 +98,13 @@ function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVCo
   return llmPredictionConfigSchematics.buildPartialConfig({
     "temperature": predictionConfig.temperature,
     "contextOverflowPolicy": predictionConfig.contextOverflowPolicy,
-    "maxPredictedTokens": numberToCheckboxNumeric(predictionConfig.maxPredictedTokens, -1, 1),
+    "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(predictionConfig.maxPredictedTokens, 1),
     "stopStrings": predictionConfig.stopStrings,
     "structured": predictionConfig.structured,
     "topKSampling": predictionConfig.topKSampling,
-    "repeatPenalty": numberToCheckboxNumeric(predictionConfig.repeatPenalty, 1, 1.1),
-    "minPSampling": numberToCheckboxNumeric(predictionConfig.minPSampling, 0, 0.05),
-    "topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
+    "repeatPenalty": maybeFalseNumberToCheckboxNumeric(predictionConfig.repeatPenalty, 1.1),
+    "minPSampling": maybeFalseNumberToCheckboxNumeric(predictionConfig.minPSampling, 0.05),
+    "topPSampling": maybeFalseNumberToCheckboxNumeric(predictionConfig.topPSampling, 0.95),
     "llama.cpuThreads": predictionConfig.cpuThreads,
   });
 }

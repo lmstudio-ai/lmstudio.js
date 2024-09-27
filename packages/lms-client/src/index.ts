@@ -30,4 +30,5 @@ export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNames
 export type { SpecificModel } from "./modelShared/SpecificModel";
 export type { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
 export type { RetrievalCallbacks, RetrievalOpts } from "./retrieval/RetrievalOpts";
+export type { RetrievalResult, RetrievalResultEntry } from "./retrieval/RetrievalResult";
 export type { SystemNamespace } from "./system/SystemNamespace";

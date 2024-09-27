@@ -14,6 +14,6 @@ export interface CitationSource {
 export const citationSourceSchema = z.object({
   fileName: z.string(),
   absoluteFilePath: z.string(),
-  pageNumber: z.union([z.number(), z.array(z.number())]).optional(),
-  lineNumber: z.union([z.number(), z.array(z.number())]).optional(),
+  pageNumber: z.union([z.number(), z.tuple([z.number(), z.number()])]).optional(),
+  lineNumber: z.union([z.number(), z.tuple([z.number(), z.number()])]).optional(),
 }) as z.Schema<CitationSource>;

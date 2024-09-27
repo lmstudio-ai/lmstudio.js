@@ -1,12 +1,18 @@
 import { type SimpleLogger } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
+import { globalConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
   type CitationSource,
+  type KVConfig,
   type LLMGenInfo,
+  type LLMPredictionConfig,
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
 import { ChatHistory, type ChatMessage } from "../../ChatHistory";
+import { type LMStudioClient } from "../../LMStudioClient";
+import { type RetrievalResult, type RetrievalResultEntry } from "../../retrieval/RetrievalResult";
+import { LLMDynamicHandle } from "../LLMDynamicHandle";
 import { type OngoingPrediction } from "../OngoingPrediction";
 import { type PredictionResult } from "../PredictionResult";
 
@@ -73,7 +79,33 @@ export class ProcessingConnector {
     });
     // We know the result of callRpc is immutable, so we can safely pass false as the second
     // argument.
-    return ChatHistory.createRaw(chatHistoryData, /* mutable */ false);
+    return ChatHistory.createRaw(chatHistoryData, /* mutable */ false).asMutableCopy();
+  }
+  public async temp_getCurrentlySelectedLLMIdentifier(): Promise<string> {
+    const result = await this.llmPort.callRpc("temp_processingGetCurrentlySelectedLLMIdentifier", {
+      pci: this.processingContextIdentifier,
+      token: this.token,
+    });
+    return result.identifier;
+  }
+  public async hasStatus(): Promise<boolean> {
+    return await this.llmPort.callRpc("processingHasStatus", {
+      pci: this.processingContextIdentifier,
+      token: this.token,
+    });
+  }
+  public async needsNaming(): Promise<boolean> {
+    return await this.llmPort.callRpc("processingNeedsNaming", {
+      pci: this.processingContextIdentifier,
+      token: this.token,
+    });
+  }
+  public async suggestName(name: string) {
+    await this.llmPort.callRpc("processingSuggestName", {
+      pci: this.processingContextIdentifier,
+      token: this.token,
+      name,
+    });
   }
 }
 
@@ -87,6 +119,7 @@ interface ProcessingControllerHandle {
  */
 export interface CreateContentBlockOpts {
   includeInContext?: boolean;
+  label?: string;
 }
 
 /**
@@ -100,9 +133,19 @@ export class ProcessingController {
   /** @internal */
   public constructor(
     /** @internal */
+    private readonly client: LMStudioClient,
+    /** @internal */
     private readonly connector: ProcessingConnector,
     /** @internal */
     private readonly input: ChatMessage,
+    /** @internal */
+    private readonly config: KVConfig,
+    /**
+     * When getting history, should the latest user input be included in the history?
+     *
+     * @internal
+     */
+    private readonly shouldIncludeInputInHistory: boolean,
   ) {
     this.abortSignal = connector.abortSignal;
     this.processingControllerHandle = {
@@ -116,36 +159,23 @@ export class ProcessingController {
   }
 
   /**
-   * Gets the history of the current prediction process. Does not include the latest user input.
+   * Gets a mutable copy of the current history. The returned history is a copy, so mutating it will
+   * not affect the actual history. It is mutable for convenience reasons.
+   *
+   * - If you are a preprocessor, this will not include the user message you are currently
+   *   preprocessing.
+   * - If you are a generator, this will include the user message, and can be fed into the
+   *   {@link LLMDynamicHandle#respond} directly.
    */
   public async getHistory() {
-    return await this.connector.getHistory();
-  }
-
-  /**
-   * Gets a mutable copy of the current prediction process. This is mainly a convenience method.
-   * Changes made to the mutable copy will not be reflected in the original history.
-   */
-  public async getMutableCopyOfHistory() {
-    return (await this.getHistory()).asMutableCopy();
-  }
-
-  /**
-   * Gets the history of the current prediction process, including the latest user input.
-   */
-  public async getHistoryWithInput() {
-    return (await this.getMutableCopyOfHistoryWithInput()).asImmutableCopy();
-  }
-
-  /**
-   * Gets a mutable copy of the current prediction process, including the latest user input. This is
-   * mainly a convenience method. Changes made to the mutable copy will not be reflected in the
-   * original history.
-   */
-  public async getMutableCopyOfHistoryWithInput() {
-    const history = await this.getMutableCopyOfHistory();
-    history.append(this.input);
-    return history;
+    if (this.shouldIncludeInputInHistory) {
+      const history = await this.connector.getHistory();
+      // Make a copy of the input.
+      history.append(this.input.asMutableCopy());
+      return history;
+    } else {
+      return await this.connector.getHistory();
+    }
   }
 
   public createStatus(initialState: StatusStepState): PredictionProcessStatusController {
@@ -161,6 +191,26 @@ export class ProcessingController {
       id,
     );
     return statusController;
+  }
+
+  public async addCitations(retrievalResult: RetrievalResult): Promise<void>;
+  public async addCitations(entries: Array<RetrievalResultEntry>): Promise<void>;
+  public async addCitations(arg: RetrievalResult | Array<RetrievalResultEntry>) {
+    if (Array.isArray(arg)) {
+      for (const entry of arg) {
+        this.createCitationBlock(entry.content, {
+          absoluteFilePath: await entry.source.getFilePath(),
+          fileName: entry.source.name,
+        });
+      }
+    } else {
+      for (const entry of arg.entries) {
+        this.createCitationBlock(entry.content, {
+          absoluteFilePath: await entry.source.getFilePath(),
+          fileName: entry.source.name,
+        });
+      }
+    }
   }
 
   public createCitationBlock(
@@ -200,12 +250,14 @@ export class ProcessingController {
 
   public createContentBlock({
     includeInContext = true,
-  }: CreateContentBlockOpts): PredictionProcessContentBlockController {
+    label = undefined,
+  }: CreateContentBlockOpts = {}): PredictionProcessContentBlockController {
     const id = createId();
     this.sendUpdate({
       type: "contentBlock.create",
       id,
       includeInContext,
+      label,
     });
     const contentBlockController = new PredictionProcessContentBlockController(
       this.processingControllerHandle,
@@ -218,14 +270,99 @@ export class ProcessingController {
     this.createDebugInfoBlock(concatenateDebugMessages(...messages));
   }
 
+  public getPredictionConfig(): LLMPredictionConfig {
+    const config = globalConfigSchematics.parsePartial(this.config);
+    const result: LLMPredictionConfig = {};
+
+    const maxPredictedTokens = config.get("llm.prediction.maxPredictedTokens");
+    if (maxPredictedTokens !== undefined) {
+      result.maxPredictedTokens = maxPredictedTokens.checked ? maxPredictedTokens.value : false;
+    }
+    const temperature = config.get("llm.prediction.temperature");
+    if (temperature !== undefined) {
+      result.temperature = temperature;
+    }
+
+    const stopStrings = config.get("llm.prediction.stopStrings");
+    if (stopStrings !== undefined) {
+      result.stopStrings = stopStrings;
+    }
+
+    const contextOverflowPolicy = config.get("llm.prediction.contextOverflowPolicy");
+    if (contextOverflowPolicy !== undefined) {
+      result.contextOverflowPolicy = contextOverflowPolicy;
+    }
+
+    const structured = config.get("llm.prediction.structured");
+    if (structured !== undefined) {
+      result.structured = structured;
+    }
+
+    const topKSampling = config.get("llm.prediction.topKSampling");
+    if (topKSampling !== undefined) {
+      result.topKSampling = topKSampling;
+    }
+
+    const repeatPenalty = config.get("llm.prediction.repeatPenalty");
+    if (repeatPenalty !== undefined) {
+      result.repeatPenalty = repeatPenalty ? repeatPenalty.value : false;
+    }
+
+    const minPSampling = config.get("llm.prediction.minPSampling");
+    if (minPSampling !== undefined) {
+      result.minPSampling = minPSampling ? minPSampling.value : false;
+    }
+
+    const topPSampling = config.get("llm.prediction.topPSampling");
+    if (topPSampling !== undefined) {
+      result.topPSampling = topPSampling ? topPSampling.value : false;
+    }
+
+    const cpuThreads = config.get("llm.prediction.llama.cpuThreads");
+    if (cpuThreads !== undefined) {
+      result.cpuThreads = cpuThreads;
+    }
+
+    return result;
+  }
+
+  /**
+   * Gets the currently selected LLM. This method will be removed in the future when preprocessor
+   * and generator can surface options to allow user to select models.
+   */
+  public async temp_getCurrentlySelectedLLM() {
+    return await this.client.llm.get({
+      identifier: await this.connector.temp_getCurrentlySelectedLLMIdentifier(),
+    });
+  }
+
   /**
    * Throws an error if the prediction process has been aborted. Sprinkle this throughout your code
    * to ensure that the prediction process is aborted as soon as possible.
    */
   public guardAbort() {
-    if (this.abortSignal.aborted) {
-      throw this.abortSignal.reason;
-    }
+    this.abortSignal.throwIfAborted();
+  }
+
+  /**
+   * Whether this prediction process has had any status.
+   */
+  public async hasStatus() {
+    return await this.connector.hasStatus();
+  }
+
+  /**
+   * Returns whether this conversation needs a name.
+   */
+  public async needsNaming() {
+    return await this.connector.needsNaming();
+  }
+
+  /**
+   * Suggests a name for this conversation.
+   */
+  public async suggestName(name: string) {
+    await this.connector.suggestName(name);
   }
 }
 
@@ -270,6 +407,12 @@ export class PredictionProcessStatusController {
       type: "status.update",
       id: this.id,
       state,
+    });
+  }
+  public remove() {
+    this.handle.sendUpdate({
+      type: "status.remove",
+      id: this.id,
     });
   }
   private getNestedLastSubStatusBlockId() {

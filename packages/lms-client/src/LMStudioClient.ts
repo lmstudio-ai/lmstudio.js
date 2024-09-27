@@ -322,8 +322,14 @@ export class LMStudioClient {
 
     const validator = new Validator();
 
-    this.llm = new LLMNamespace(this.llmPort, new SimpleLogger("LLM", this.logger), validator);
+    this.llm = new LLMNamespace(
+      this,
+      this.llmPort,
+      new SimpleLogger("LLM", this.logger),
+      validator,
+    );
     this.embedding = new EmbeddingNamespace(
+      this,
       this.embeddingPort,
       new SimpleLogger("Embedding", this.logger),
       validator,

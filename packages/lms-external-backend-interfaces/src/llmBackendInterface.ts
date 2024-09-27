@@ -84,6 +84,7 @@ export function createLlmBackendInterface() {
           type: z.literal("preprocess"),
           taskId: z.string(),
           input: chatMessageDataSchema,
+          config: kvConfigSchema,
           /** Processing Context Identifier */
           pci: z.string(),
           token: z.string(),
@@ -115,6 +116,7 @@ export function createLlmBackendInterface() {
           type: z.literal("generate"),
           taskId: z.string(),
           input: chatMessageDataSchema,
+          config: kvConfigSchema,
           /** Processing Context Identifier */
           pci: z.string(),
           token: z.string(),
@@ -152,6 +154,41 @@ export function createLlmBackendInterface() {
         token: z.string(),
       }),
       returns: chatHistoryDataSchema,
+    })
+    .addRpcEndpoint("temp_processingGetCurrentlySelectedLLMIdentifier", {
+      parameter: z.object({
+        /** Processing Context Identifier */
+        pci: z.string(),
+        token: z.string(),
+      }),
+      returns: z.object({
+        identifier: z.string(),
+      }),
+    })
+    .addRpcEndpoint("processingHasStatus", {
+      parameter: z.object({
+        /** Processing Context Identifier */
+        pci: z.string(),
+        token: z.string(),
+      }),
+      returns: z.boolean(),
+    })
+    .addRpcEndpoint("processingNeedsNaming", {
+      parameter: z.object({
+        /** Processing Context Identifier */
+        pci: z.string(),
+        token: z.string(),
+      }),
+      returns: z.boolean(),
+    })
+    .addRpcEndpoint("processingSuggestName", {
+      parameter: z.object({
+        /** Processing Context Identifier */
+        pci: z.string(),
+        token: z.string(),
+        name: z.string(),
+      }),
+      returns: z.void(),
     });
 }
 

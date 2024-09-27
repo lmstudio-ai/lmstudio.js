@@ -385,6 +385,23 @@ export class KVConfigSchematics<
     return parseResult.data;
   }
 
+  private parseFieldWithoutDefault(
+    fieldSchema: KVConcreteFieldSchema,
+    fullKey: string,
+    value: any,
+  ) {
+    if (value === undefined) {
+      return undefined;
+    }
+    const parseResult = fieldSchema.schema.safeParse(value);
+    if (!parseResult.success) {
+      throw new Error(
+        `Field with key ${fullKey} does not satisfy the schema:` + parseResult.error.message,
+      );
+    }
+    return parseResult.data;
+  }
+
   /**
    * Parse and access a field in the config.
    */
@@ -503,12 +520,30 @@ export class KVConfigSchematics<
     return parsedConfigMap;
   }
 
+  public parseToMapPartial(config: KVConfig) {
+    const rawConfigMap = kvConfigToMap(config);
+    const parsedConfigMap = new Map<string, any>();
+    for (const [key, fieldSchema] of this.fields.entries()) {
+      const fullKey = this.baseKey + key;
+      const value = rawConfigMap.get(fullKey);
+      const parsedValue = this.parseFieldWithoutDefault(fieldSchema, fullKey, value);
+      if (parsedValue !== undefined) {
+        parsedConfigMap.set(key, parsedValue);
+      }
+    }
+    return parsedConfigMap;
+  }
+
   /**
    * Parse the given config to a ParsedKVConfig. **Will throw** if the config does not satisfy the
    * schema.
    */
   public parse(config: KVConfig): ParsedKVConfig<TKVConfigSchema> {
     return ParsedKVConfig[createParsedKVConfig](this, this.parseToMap(config));
+  }
+
+  public parsePartial(config: KVConfig): PartialParsedKVConfig<TKVConfigSchema> {
+    return PartialParsedKVConfig[createParsedKVConfig](this, this.parseToMapPartial(config));
   }
 
   /**
@@ -937,6 +972,8 @@ export class KVConfigBuilder<TKVConfigSchema extends KVVirtualConfigSchema> {
 /**
  * This class can be only constructed via the `parse` method on `KVConfigSchema`. It is guaranteed
  * to satisfy the schema.
+ *
+ * All fields that exist on the schematics is guaranteed to exist here.
  */
 export class ParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
   private constructor(
@@ -958,6 +995,37 @@ export class ParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
     key: TKey,
   ): TKVConfigSchema[TKey]["type"] {
     return this.configMap.get(key);
+  }
+}
+
+/**
+ * This class can be constructed via the `parsePartial` method on `KVConfigSchema`. All existing
+ * fields are guaranteed to satisfy the schema. However, there may be missing fields.
+ */
+export class PartialParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
+  private constructor(
+    private readonly schema: KVConfigSchematics<any, TKVConfigSchema, string>,
+    /**
+     * Guaranteed to satisfy the schema.
+     */
+    private readonly configMap: Map<string, any>,
+  ) {}
+
+  public static [createParsedKVConfig]<TKVConfigSchema extends KVVirtualConfigSchema>(
+    schema: KVConfigSchematics<any, TKVConfigSchema, string>,
+    configMap: Map<string, any>,
+  ): PartialParsedKVConfig<TKVConfigSchema> {
+    return new PartialParsedKVConfig(schema, configMap);
+  }
+
+  public get<TKey extends keyof TKVConfigSchema & string>(
+    key: TKey,
+  ): TKVConfigSchema[TKey]["type"] | undefined {
+    return this.configMap.get(key);
+  }
+
+  public has<TKey extends keyof TKVConfigSchema & string>(key: TKey): boolean {
+    return this.configMap.has(key);
   }
 }
 

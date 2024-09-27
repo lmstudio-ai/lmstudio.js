@@ -9,7 +9,7 @@ import { type PreprocessorController } from "./ProcessingController";
  */
 export interface Preprocessor {
   readonly identifier: string;
-  preprocess(ctl: PreprocessorController, input: ChatMessage): Promise<string | ChatMessage>;
+  preprocess(ctl: PreprocessorController, userMessage: ChatMessage): Promise<string | ChatMessage>;
 }
 export const preprocessorSchema = z.object({
   identifier: z.string(),

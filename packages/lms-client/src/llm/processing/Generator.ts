@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { type ChatMessage } from "../../ChatHistory";
 import { type GeneratorController } from "./ProcessingController";
 
 /**
@@ -9,7 +8,7 @@ import { type GeneratorController } from "./ProcessingController";
  */
 export interface Generator {
   readonly identifier: string;
-  generate(ctl: GeneratorController, input: ChatMessage): Promise<void>;
+  generate(ctl: GeneratorController): Promise<void>;
 }
 export const generatorSchema = z.object({
   identifier: z.string(),

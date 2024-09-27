@@ -170,6 +170,12 @@ export {
   modelSpecifierSchema,
 } from "./ModelSpecifier";
 export { reasonableKeyStringSchema } from "./reasonable";
+export {
+  InternalRetrievalResult,
+  InternalRetrievalResultEntry,
+  internalRetrievalResultEntrySchema,
+  internalRetrievalResultSchema,
+} from "./retrieval/InternalRetrievalResult";
 export { RetrievalChunk, retrievalChunkSchema } from "./retrieval/RetrievalChunk";
 export {
   RetrievalChunkingMethod,

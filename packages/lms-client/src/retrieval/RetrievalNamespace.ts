@@ -7,10 +7,12 @@ import {
 } from "@lmstudio/lms-common";
 import { type RetrievalPort } from "@lmstudio/lms-external-backend-interfaces";
 import { retrievalSchematics } from "@lmstudio/lms-kv-config";
-import { type KVConfig, type RetrievalChunk } from "@lmstudio/lms-shared-types";
+import { type KVConfig } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { type EmbeddingNamespace } from "../embedding/EmbeddingNamespace";
+import { FileHandle } from "../files/FileHandle";
 import { retrievalOptsSchema, type RetrievalOpts } from "./RetrievalOpts";
+import { type RetrievalResult, type RetrievalResultEntry } from "./RetrievalResult";
 
 /** @public */
 export class RetrievalNamespace {
@@ -27,23 +29,34 @@ export class RetrievalNamespace {
   }
   public async retrieve(
     query: string,
-    filePaths: Array<string>,
+    files: Array<FileHandle>,
     opts: RetrievalOpts = {},
-  ): Promise<Array<RetrievalChunk>> {
+  ): Promise<RetrievalResult> {
     const logger = new SimpleLogger("Retrieve", this.logger);
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamsOrThrow(
       "client.retrieval",
       "retrieve",
       ["query", "filePaths", "opts"],
-      [z.string(), z.array(z.string()), retrievalOptsSchema],
-      [query, filePaths, opts],
+      [z.string(), z.array(z.instanceof(FileHandle)), retrievalOptsSchema],
+      [query, files, opts],
       stack,
     );
 
     if (opts.embeddingModel === undefined) {
       throw new Error("Embedding model currently is required.");
     }
+
+    const resolveFileIndex = (index: number) => {
+      const file = files[index];
+      if (file === undefined) {
+        throw new Error(`File not found: ${index}`);
+      }
+      return file;
+    };
+    const resolveFileIndices = (indices: Array<number>) => {
+      return indices.map(resolveFileIndex);
+    };
 
     const kvConfig: KVConfig = retrievalSchematics.buildPartialConfig({
       chunkingMethod: opts.chunkingMethod,
@@ -52,37 +65,50 @@ export class RetrievalNamespace {
       limit: opts.limit,
     });
 
-    return await new Promise<Array<RetrievalChunk>>((resolve, reject) => {
+    let filesToProcess: Array<FileHandle> | null;
+
+    return await new Promise<RetrievalResult>((resolve, reject) => {
       const channel = this.retrievalPort.createChannel(
         "retrieve",
-        { query, filePaths, config: kvConfig },
+        { query, fileIdentifiers: files.map(file => file.identifier), config: kvConfig },
         message => {
           switch (message.type) {
             case "onFileProcessList":
+              filesToProcess = resolveFileIndices(message.indices);
               safeCallCallback(logger, "onFileProcessList", opts.onFileProcessList, [
-                message.filePaths,
+                filesToProcess,
               ]);
               break;
-            case "onFileProcessingStart":
+            case "onFileProcessingStart": {
+              if (filesToProcess === null) {
+                throw new Error("onFileProcessList must be called before onFileProcessingStart");
+              }
+              const file = resolveFileIndex(message.index);
               safeCallCallback(logger, "onFileProcessingStart", opts.onFileProcessingStart, [
-                message.filePath,
-                message.index,
-                message.filePaths,
+                file,
+                filesToProcess.indexOf(file),
+                filesToProcess,
               ]);
               break;
-            case "onFileProcessingEnd":
+            }
+            case "onFileProcessingEnd": {
+              if (filesToProcess === null) {
+                throw new Error("onFileProcessList must be called before onFileProcessingEnd");
+              }
+              const file = resolveFileIndex(message.index);
               safeCallCallback(logger, "onFileProcessingEnd", opts.onFileProcessingEnd, [
-                message.filePath,
-                message.index,
-                message.filePaths,
+                file,
+                filesToProcess.indexOf(file),
+                filesToProcess,
               ]);
               break;
+            }
             case "onFileProcessingStepStart":
               safeCallCallback(
                 logger,
                 "onFileProcessingStepStart",
                 opts.onFileProcessingStepStart,
-                [message.filePath, message.step],
+                [resolveFileIndex(message.index), message.step],
               );
               break;
             case "onFileProcessingStepProgress":
@@ -90,12 +116,12 @@ export class RetrievalNamespace {
                 logger,
                 "onFileProcessingStepProgress",
                 opts.onFileProcessingStepProgress,
-                [message.filePath, message.step, message.progress],
+                [resolveFileIndex(message.index), message.step, message.progress],
               );
               break;
             case "onFileProcessingStepEnd":
               safeCallCallback(logger, "onFileProcessingStepEnd", opts.onFileProcessingStepEnd, [
-                message.filePath,
+                resolveFileIndex(message.index),
                 message.step,
               ]);
               break;
@@ -105,9 +131,19 @@ export class RetrievalNamespace {
             case "onSearchingEnd":
               safeCallCallback(logger, "onSearchingEnd", opts.onSearchingEnd, []);
               break;
-            case "result":
-              resolve(message.chunks);
+            case "result": {
+              resolve({
+                entries: message.result.entries.map(
+                  entry =>
+                    ({
+                      content: entry.content,
+                      score: entry.score,
+                      source: files[entry.sourceIndex],
+                    }) satisfies RetrievalResultEntry,
+                ),
+              });
               break;
+            }
           }
         },
       );
