@@ -152,6 +152,7 @@ export function createLlmBackendInterface() {
         /** Processing Context Identifier */
         pci: z.string(),
         token: z.string(),
+        includeCurrent: z.boolean(),
       }),
       returns: chatHistoryDataSchema,
     })

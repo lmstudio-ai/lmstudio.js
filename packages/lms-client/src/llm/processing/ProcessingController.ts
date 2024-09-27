@@ -72,10 +72,11 @@ export class ProcessingConnector {
         this.logger.error("Failed to send update", error);
       });
   }
-  public async getHistory(): Promise<ChatHistory> {
+  public async getHistory(includeCurrent: boolean): Promise<ChatHistory> {
     const chatHistoryData = await this.llmPort.callRpc("processingGetHistory", {
       pci: this.processingContextIdentifier,
       token: this.token,
+      includeCurrent,
     });
     // We know the result of callRpc is immutable, so we can safely pass false as the second
     // argument.
@@ -145,7 +146,7 @@ export class ProcessingController {
      *
      * @internal
      */
-    private readonly shouldIncludeInputInHistory: boolean,
+    private readonly shouldIncludeCurrentInHistory: boolean,
   ) {
     this.abortSignal = connector.abortSignal;
     this.processingControllerHandle = {
@@ -168,14 +169,7 @@ export class ProcessingController {
    *   {@link LLMDynamicHandle#respond} directly.
    */
   public async getHistory() {
-    if (this.shouldIncludeInputInHistory) {
-      const history = await this.connector.getHistory();
-      // Make a copy of the input.
-      history.append(this.input.asMutableCopy());
-      return history;
-    } else {
-      return await this.connector.getHistory();
-    }
+    return await this.connector.getHistory(this.shouldIncludeCurrentInHistory);
   }
 
   public createStatus(initialState: StatusStepState): PredictionProcessStatusController {
