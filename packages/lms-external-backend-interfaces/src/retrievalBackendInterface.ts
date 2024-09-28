@@ -1,8 +1,8 @@
 import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
+  internalRetrievalResultSchema,
   kvConfigSchema,
-  retrievalChunkSchema,
   retrievalFileProcessingStepSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
@@ -11,7 +11,7 @@ export function createRetrievalBackendInterface() {
   return new BackendInterface().addChannelEndpoint("retrieve", {
     creationParameter: z.object({
       query: z.string(),
-      filePaths: z.array(z.string()),
+      fileIdentifiers: z.array(z.string()),
       config: kvConfigSchema,
     }),
     toServerPacket: z.discriminatedUnion("type", [
@@ -22,34 +22,30 @@ export function createRetrievalBackendInterface() {
     toClientPacket: z.discriminatedUnion("type", [
       z.object({
         type: z.literal("onFileProcessList"),
-        filePaths: z.array(z.string()),
+        indices: z.array(z.number()),
       }),
       z.object({
         type: z.literal("onFileProcessingStart"),
-        filePath: z.string(),
         index: z.number(),
-        filePaths: z.array(z.string()),
       }),
       z.object({
         type: z.literal("onFileProcessingEnd"),
-        filePath: z.string(),
         index: z.number(),
-        filePaths: z.array(z.string()),
       }),
       z.object({
         type: z.literal("onFileProcessingStepStart"),
-        filePath: z.string(),
+        index: z.number(),
         step: retrievalFileProcessingStepSchema,
       }),
       z.object({
         type: z.literal("onFileProcessingStepProgress"),
-        filePath: z.string(),
+        index: z.number(),
         step: retrievalFileProcessingStepSchema,
         progress: z.number(),
       }),
       z.object({
         type: z.literal("onFileProcessingStepEnd"),
-        filePath: z.string(),
+        index: z.number(),
         step: retrievalFileProcessingStepSchema,
       }),
       z.object({
@@ -60,7 +56,7 @@ export function createRetrievalBackendInterface() {
       }),
       z.object({
         type: z.literal("result"),
-        chunks: z.array(retrievalChunkSchema),
+        result: internalRetrievalResultSchema,
       }),
     ]),
   });

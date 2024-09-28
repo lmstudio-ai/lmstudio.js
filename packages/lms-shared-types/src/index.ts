@@ -4,6 +4,21 @@ import { z } from "zod";
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export const logLevelSchema = z.enum(["debug", "info", "warn", "error"]);
 export {
+  ChatHistoryData,
+  chatHistoryDataSchema,
+  ChatMessageData,
+  chatMessageDataSchema,
+  ChatMessagePartData,
+  chatMessagePartDataSchema,
+  ChatMessagePartFileData,
+  chatMessagePartFileDataSchema,
+  ChatMessagePartTextData,
+  chatMessagePartTextDataSchema,
+  ChatMessageRoleData,
+  chatMessageRoleDataSchema,
+} from "./ChatHistoryData";
+export { CitationSource, citationSourceSchema } from "./CitationSource";
+export {
   DiagnosticsLogEvent,
   DiagnosticsLogEventData,
   diagnosticsLogEventDataSchema,
@@ -24,6 +39,13 @@ export {
   serializedLMSExtendedErrorSchema,
   serializeError,
 } from "./Error";
+export {
+  FileNamespace,
+  fileNamespaceSchema,
+  ParsedFileIdentifier,
+  parsedFileIdentifierSchema,
+} from "./files/FileIdentifier";
+export { FileType, fileTypeSchema } from "./files/FileType";
 export {
   KVConfig,
   KVConfigField,
@@ -108,66 +130,37 @@ export {
   LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,
 } from "./llm/LLMStructuredPredictionSetting";
-export {
-  GetModelOpts,
-  getModelOptsSchema,
-  ResolvedGetModelOpts,
-  resolvedGetModelOptsSchema,
-} from "./llm/processor/Processor";
-export {
-  ProcessorInputContext,
-  processorInputContextSchema,
-  ProcessorInputFile,
-  processorInputFileSchema,
-  ProcessorInputFileType,
-  processorInputFileTypeSchema,
-  ProcessorInputMessage,
-  ProcessorInputMessageRole,
-  processorInputMessageRoleSchema,
-  processorInputMessageSchema,
-} from "./llm/processor/ProcessorInput";
-export {
-  ProcessorUpdate,
-  ProcessorUpdateCitationBlockCreate,
-  processorUpdateCitationBlockCreateSchema,
-  ProcessorUpdateContentBlockAppendText,
-  processorUpdateContentBlockAppendTextSchema,
-  ProcessorUpdateContentBlockAttachGenInfo,
-  processorUpdateContentBlockAttachGenInfoSchema,
-  ProcessorUpdateContentBlockCreate,
-  processorUpdateContentBlockCreateSchema,
-  ProcessorUpdateDebugInfoBlockCreate,
-  processorUpdateDebugInfoBlockCreateSchema,
-  ProcessorUpdateOf,
-  processorUpdateSchema,
-  ProcessorUpdateStatusCreate,
-  processorUpdateStatusCreateSchema,
-  ProcessorUpdateStatusUpdate,
-  processorUpdateStatusUpdateSchema,
-} from "./llm/processor/ProcessorUpdate";
+export { GeneratorUpdate, generatorUpdateSchema } from "./llm/processing/GeneratorUpdate";
+export { PreprocessorUpdate, preprocessorUpdateSchema } from "./llm/processing/PreprocessorUpdate";
 export {
   BlockLocation,
   blockLocationSchema,
-  CitationSource,
-  citationSourceSchema,
-  PromptPreprocessorUpdate,
-  PromptPreprocessorUpdateCitationBlockCreate,
-  promptPreprocessorUpdateCitationBlockCreateSchema,
-  PromptPreprocessorUpdateDebugInfoBlockCreate,
-  promptPreprocessorUpdateDebugInfoBlockCreateSchema,
-  PromptPreprocessorUpdateOf,
-  promptPreprocessorUpdateSchema,
-  PromptPreprocessorUpdateStatusCreate,
-  promptPreprocessorUpdateStatusCreateSchema,
-  PromptPreprocessorUpdateStatusRemove,
-  promptPreprocessorUpdateStatusRemoveSchema,
-  PromptPreprocessorUpdateStatusUpdate,
-  promptPreprocessorUpdateStatusUpdateSchema,
+  ProcessingUpdate,
+  ProcessingUpdateCitationBlockCreate,
+  ProcessingUpdateCitationBlockCreateSchema,
+  ProcessingUpdateContentBlockAppendText,
+  ProcessingUpdateContentBlockAppendTextSchema,
+  ProcessingUpdateContentBlockAttachGenInfo,
+  ProcessingUpdateContentBlockAttachGenInfoSchema,
+  ProcessingUpdateContentBlockCreate,
+  ProcessingUpdateContentBlockCreateSchema,
+  ProcessingUpdateDebugInfoBlockCreate,
+  ProcessingUpdateDebugInfoBlockCreateSchema,
+  ProcessingUpdateOf,
+  ProcessingUpdateSchema,
+  ProcessingUpdateStatusCreate,
+  ProcessingUpdateStatusCreateSchema,
+  ProcessingUpdateStatusRemove,
+  ProcessingUpdateStatusRemoveSchema,
+  ProcessingUpdateStatusUpdate,
+  ProcessingUpdateStatusUpdateSchema,
+  ProcessingUpdateType,
   StatusStepState,
   statusStepStateSchema,
   StatusStepStatus,
   statusStepStatusSchema,
-} from "./llm/processor/PromptPreprocessorUpdate";
+} from "./llm/processing/ProcessingUpdate";
+export { GetModelOpts, getModelOptsSchema } from "./llm/processing/Processor";
 export { ModelDescriptor, modelDescriptorSchema } from "./ModelDescriptor";
 export { ModelDomainType, modelDomainTypeSchema } from "./ModelDomainType";
 export {
@@ -177,6 +170,12 @@ export {
   modelSpecifierSchema,
 } from "./ModelSpecifier";
 export { reasonableKeyStringSchema } from "./reasonable";
+export {
+  InternalRetrievalResult,
+  InternalRetrievalResultEntry,
+  internalRetrievalResultEntrySchema,
+  internalRetrievalResultSchema,
+} from "./retrieval/InternalRetrievalResult";
 export { RetrievalChunk, retrievalChunkSchema } from "./retrieval/RetrievalChunk";
 export {
   RetrievalChunkingMethod,

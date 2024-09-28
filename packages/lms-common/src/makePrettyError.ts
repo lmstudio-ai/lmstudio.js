@@ -24,6 +24,7 @@ export function makePrettyError(content: string, stack?: string) {
     const error = new Error(
       "\n" + boxen(content, { padding: 1, margin: 1, borderColor: "redBright", title: "Error" }),
     );
+    Object.defineProperty(error, "lmstudioRawError", { value: content, enumerable: false });
     changeErrorStackInPlace(error, "");
     return error;
   }

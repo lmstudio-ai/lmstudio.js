@@ -98,7 +98,6 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
               throw new Error("Only replace patches are supported for ancestor relationships");
             }
             newPatches.length = 0;
-            drill(patch.value!, this.path.slice(patch.path.length));
             newPatches.push({
               op: "replace",
               path: [],

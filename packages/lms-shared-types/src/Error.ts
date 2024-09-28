@@ -28,7 +28,7 @@ export const serializedLMSExtendedErrorSchema = z.object({
 export type SerializedLMSExtendedError = z.infer<typeof serializedLMSExtendedErrorSchema>;
 export function serializeError(error: any): SerializedLMSExtendedError {
   if (typeof error === "object") {
-    const title = error.title ?? error.message ?? "Unknown error";
+    const title = error.title ?? error.lmstudioRawError ?? error.message ?? "Unknown error";
     return serializedLMSExtendedErrorSchema.parse({
       title,
       cause: error.cause,

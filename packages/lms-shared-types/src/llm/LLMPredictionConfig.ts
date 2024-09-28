@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { llmPromptTemplateSchema, type LLMPromptTemplate } from "./LLMPromptTemplate";
 import {
-  type LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,
+  type LLMStructuredPredictionSetting,
 } from "./LLMStructuredPredictionSetting";
 
 /**
@@ -30,7 +31,7 @@ export const llmContextOverflowPolicySchema = z.enum([
  */
 export interface LLMPredictionConfig {
   /**
-   * Number of tokens to predict at most. If set to -1, the model will predict as many tokens as it
+   * Number of tokens to predict at most. If set to false, the model will predict as many tokens as it
    * wants.
    *
    * When the prediction is stopped because of this limit, the `stopReason` in the prediction stats
@@ -38,7 +39,7 @@ export interface LLMPredictionConfig {
    *
    * See {@link LLMPredictionStopReason} for other reasons that a prediction might stop.
    */
-  maxPredictedTokens?: number;
+  maxPredictedTokens?: number | false;
   /**
    * The temperature parameter for the prediction model. A higher value makes the predictions more
    * random, while a lower value makes the predictions more deterministic. The value should be
@@ -76,19 +77,25 @@ export interface LLMPredictionConfig {
   /**
    * TODO: Documentation
    */
-  repeatPenalty?: number;
+  repeatPenalty?: number | false;
   /**
    * TODO: Documentation
    */
-  minPSampling?: number;
+  minPSampling?: number | false;
   /**
    * TODO: Documentation
    */
-  topPSampling?: number;
+  topPSampling?: number | false;
   /**
    * TODO: Documentation
    */
   cpuThreads?: number;
+  /**
+   * This is WIP. Will have an easier to use type in the future.
+   *
+   * TODO: Documentation
+   */
+  promptTemplate?: LLMPromptTemplate;
 }
 export const llmPredictionConfigSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional(),
@@ -101,6 +108,7 @@ export const llmPredictionConfigSchema = z.object({
   minPSampling: z.number().optional(),
   topPSampling: z.number().optional(),
   cpuThreads: z.number().optional(),
+  promptTemplate: llmPromptTemplateSchema.optional(),
 });
 
 export interface LLMLlamaMirostatSamplingConfig {

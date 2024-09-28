@@ -5,6 +5,7 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
+import { type FileHandle } from "../files/FileHandle";
 
 /**
  * @public
@@ -16,60 +17,60 @@ export interface RetrievalCallbacks {
    *
    * @param filePathsToProcess - The list of files that will be processed.
    */
-  onFileProcessList?: (filePathsToProcess: Array<string>) => void;
+  onFileProcessList?: (filesToProcess: Array<FileHandle>) => void;
   /**
    * Callback when starting to process a file.
    *
-   * @param filePath - The path to the file being processed.
+   * @param file - The file being processed.
    * @param index - The index of the file in the list of files to process.
    * @param filePathsToProcess - The list of files that will be processed. This will be the same as
    * the list passed to `onFileProcessList`.
    */
   onFileProcessingStart?: (
-    filePath: string,
+    file: FileHandle,
     index: number,
-    filePathsToProcess: Array<string>,
+    filesToProcess: Array<FileHandle>,
   ) => void;
   /**
    * Callback when processing a file has ended.
    *
-   * @param filePath - The path to the file being processed.
+   * @param file - The file that has been processed.
    * @param index - The index of the file in the list of files to process.
    * @param filePathsToProcess - The list of files that will be processed. This will be the same as
    * the list passed to `onFileProcessList`.
    */
   onFileProcessingEnd?: (
-    filePath: string,
+    file: FileHandle,
     index: number,
-    filePathsToProcess: Array<string>,
+    filesToProcess: Array<FileHandle>,
   ) => void;
   /**
    * Callback when starting a processing step for a file. LM Studio process files one at a time and
    * processing each file involves multiple steps. This callback is called when starting a step.
    *
-   * @param filePath - The path of the file being processed.
+   * @param file - The file being processed.
    * @param step - The step being started.
    */
-  onFileProcessingStepStart?: (filePath: string, step: RetrievalFileProcessingStep) => void;
+  onFileProcessingStepStart?: (file: FileHandle, step: RetrievalFileProcessingStep) => void;
   /**
    * Granular progress callback for a processing step.
    *
-   * @param filePath - The path of the file being processed.
+   * @param file - The file being processed.
    * @param step - The step being started.
    * @param progressInStep - The progress in the step for the step. This value is between 0 and 1.
    */
   onFileProcessingStepProgress?: (
-    filePath: string,
+    file: FileHandle,
     step: RetrievalFileProcessingStep,
     progressInStep: number,
   ) => void;
   /**
    * Callback when a processing step has ended.
    *
-   * @param filePath - The path of the file being processed.
+   * @param file - The file being processed.
    * @param step - The step that has ended.
    */
-  onFileProcessingStepEnd?: (filePath: string, step: RetrievalFileProcessingStep) => void;
+  onFileProcessingStepEnd?: (file: FileHandle, step: RetrievalFileProcessingStep) => void;
   /**
    * Callback when we have embedded all the files and are starting to search in the vector database.
    */

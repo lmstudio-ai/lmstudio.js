@@ -1,20 +1,28 @@
+export { ChatHistory, ChatMessage } from "./ChatHistory";
+export type { ChatHistoryLike } from "./ChatHistory";
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
 export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle";
 export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
 export type { EmbeddingSpecificModel } from "./embedding/EmbeddingSpecificModel";
+export type { FileHandle } from "./files/FileHandle";
+export type { FilesNamespace } from "./files/FilesNamespace";
 export type { LLMDynamicHandle, LLMPredictionOpts } from "./llm/LLMDynamicHandle";
 export type { LLMNamespace } from "./llm/LLMNamespace";
 export type { LLMSpecificModel } from "./llm/LLMSpecificModel";
 export type { OngoingPrediction } from "./llm/OngoingPrediction";
 export type { PredictionResult } from "./llm/PredictionResult";
-export { PromptPreprocessor } from "./llm/processor/PromptPreprocessor";
-export {
+export type { Generator } from "./llm/processing/Generator";
+export type { Preprocessor } from "./llm/processing/Preprocessor";
+export type {
+  CreateContentBlockOpts,
+  GeneratorController,
   PredictionProcessCitationBlockController,
+  PredictionProcessContentBlockController,
   PredictionProcessDebugInfoBlockController,
   PredictionProcessStatusController,
-  PredictionStepController,
-  PromptPreprocessController,
-} from "./llm/processor/PromptPreprocessorController";
+  PreprocessorController,
+  ProcessingController,
+} from "./llm/processing/ProcessingController";
 export { LMStudioClient } from "./LMStudioClient";
 export type { LMStudioClientConstructorOpts } from "./LMStudioClient";
 export type { DynamicHandle } from "./modelShared/DynamicHandle";
@@ -22,4 +30,5 @@ export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNames
 export type { SpecificModel } from "./modelShared/SpecificModel";
 export type { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
 export type { RetrievalCallbacks, RetrievalOpts } from "./retrieval/RetrievalOpts";
+export type { RetrievalResult, RetrievalResultEntry } from "./retrieval/RetrievalResult";
 export type { SystemNamespace } from "./system/SystemNamespace";

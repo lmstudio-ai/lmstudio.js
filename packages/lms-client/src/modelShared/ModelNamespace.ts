@@ -23,6 +23,7 @@ import { type ModelDomainType } from "@lmstudio/lms-shared-types/dist/ModelDomai
 import { z, type ZodSchema } from "zod";
 import { type EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
 import { type LLMDynamicHandle } from "../llm/LLMDynamicHandle";
+import { type LMStudioClient } from "../LMStudioClient";
 import { type DynamicHandle } from "./DynamicHandle";
 
 /** @public */
@@ -162,6 +163,8 @@ export abstract class ModelNamespace<
 
   /** @internal */
   public constructor(
+    /** @internal */
+    protected readonly client: LMStudioClient,
     /** @internal */
     protected readonly port: TClientPort,
     /** @internal */

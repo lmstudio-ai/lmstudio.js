@@ -9,6 +9,7 @@ export { AsyncDeriveFromStrategy, isAvailable, LazySignal, NotAvailable } from "
 
 export { BufferedEvent } from "./BufferedEvent";
 export { Cleaner } from "./Cleaner";
+export { deepFreeze } from "./deepFreeze";
 export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
 export { Event } from "./Event";
 export { doesFileNameIndicateModel, modelExtensions } from "./fileName";
@@ -18,7 +19,9 @@ export { lmsDefaultPorts } from "./lmsDefaultPorts";
 export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";
 export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter";
+export { accessMaybeMutableInternals, MaybeMutable } from "./MaybeMutable";
 export { OWLSignal } from "./OWLSignal";
+export { parseFileIdentifier } from "./parseFileIdentifier";
 export { removeUndefinedValues } from "./removeUndefinedValues";
 export {
   createResultSchema,

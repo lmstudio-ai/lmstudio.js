@@ -1,4 +1,5 @@
 import {
+  accessMaybeMutableInternals,
   BufferedEvent,
   getCurrentStack,
   safeCallCallback,
@@ -14,16 +15,13 @@ import {
 } from "@lmstudio/lms-kv-config";
 import { addKVConfigToStack } from "@lmstudio/lms-kv-config/dist/KVConfig";
 import {
+  type ChatHistoryData,
   type KVConfig,
   type KVConfigStack,
   type LLMApplyPromptTemplateOpts,
   llmApplyPromptTemplateOptsSchema,
   type LLMCompletionContextInput,
   llmCompletionContextInputSchema,
-  type LLMContext,
-  llmContextSchema,
-  type LLMConversationContextInput,
-  llmConversationContextInputSchema,
   type LLMPredictionConfig,
   llmPredictionConfigSchema,
   type LLMPredictionStats,
@@ -31,11 +29,30 @@ import {
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
+import { ChatHistory, type ChatHistoryLike, chatHistoryLikeSchema } from "../ChatHistory";
 import { DynamicHandle } from "../modelShared/DynamicHandle";
-import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
+
+/**
+ * Convert a number that can be false to checkbox numeric value.
+ *
+ * @param maybeFalseNumber - The value to translate.
+ * @param valueWhenUnchecked - The value to use when the checkbox is unchecked.
+ */
+function maybeFalseNumberToCheckboxNumeric(
+  maybeFalseNumber: undefined | number | false,
+  valueWhenUnchecked: number,
+): undefined | { checked: boolean; value: number } {
+  if (maybeFalseNumber === undefined) {
+    return undefined;
+  }
+  if (maybeFalseNumber === false) {
+    return { checked: false, value: valueWhenUnchecked };
+  }
+  return { checked: true, value: maybeFalseNumber };
+}
 
 /**
  * Shared options for any prediction methods (`.complete`/`.respond`).
@@ -81,13 +98,13 @@ function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVCo
   return llmPredictionConfigSchematics.buildPartialConfig({
     "temperature": predictionConfig.temperature,
     "contextOverflowPolicy": predictionConfig.contextOverflowPolicy,
-    "maxPredictedTokens": numberToCheckboxNumeric(predictionConfig.maxPredictedTokens, -1, 1),
+    "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(predictionConfig.maxPredictedTokens, 1),
     "stopStrings": predictionConfig.stopStrings,
     "structured": predictionConfig.structured,
     "topKSampling": predictionConfig.topKSampling,
-    "repeatPenalty": numberToCheckboxNumeric(predictionConfig.repeatPenalty, 1, 1.1),
-    "minPSampling": numberToCheckboxNumeric(predictionConfig.minPSampling, 0, 0.05),
-    "topPSampling": numberToCheckboxNumeric(predictionConfig.topPSampling, 1, 0.95),
+    "repeatPenalty": maybeFalseNumberToCheckboxNumeric(predictionConfig.repeatPenalty, 1.1),
+    "minPSampling": maybeFalseNumberToCheckboxNumeric(predictionConfig.minPSampling, 0.05),
+    "topPSampling": maybeFalseNumberToCheckboxNumeric(predictionConfig.topPSampling, 0.95),
     "llama.cpuThreads": predictionConfig.cpuThreads,
   });
 }
@@ -133,7 +150,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
   /** @internal */
   private predictInternal(
     modelSpecifier: ModelSpecifier,
-    context: LLMContext,
+    history: ChatHistoryData,
     predictionConfigStack: KVConfigStack,
     cancelEvent: BufferedEvent<void>,
     extraOpts: LLMPredictionExtraOpts,
@@ -152,7 +169,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
       "predict",
       {
         modelSpecifier,
-        context,
+        history,
         predictionConfigStack,
         ignoreServerSessionConfig: this.internalIgnoreServerSessionConfig,
       },
@@ -298,9 +315,9 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     return ongoingPrediction;
   }
 
-  private resolveCompletionContext(contextInput: LLMCompletionContextInput): LLMContext {
+  private resolveCompletionContext(contextInput: LLMCompletionContextInput): ChatHistoryData {
     return {
-      history: [
+      messages: [
         {
           role: "user",
           content: [{ type: "text", text: contextInput }],
@@ -358,13 +375,13 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * @param history - The LLMChatHistory array to use for generating a response.
    * @param opts - Options for the prediction.
    */
-  public respond(history: LLMConversationContextInput, opts: LLMPredictionOpts = {}) {
+  public respond(history: ChatHistoryLike, opts: LLMPredictionOpts = {}) {
     const stack = getCurrentStack(1);
     [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "respond",
       ["history", "opts"],
-      [llmConversationContextInputSchema, llmPredictionConfigSchema],
+      [chatHistoryLikeSchema, llmPredictionConfigSchema],
       [history, opts],
       stack,
     );
@@ -373,50 +390,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     const [config, extraOpts] = splitOpts(opts);
     this.predictInternal(
       this.specifier,
-      this.resolveConversationContext(history),
-      addKVConfigToStack(
-        this.internalKVConfigStack,
-        "apiOverride",
-        predictionConfigToKVConfig(config),
-      ),
-      cancelEvent,
-      extraOpts,
-      fragment => push(fragment),
-      (stats, modelInfo, loadModelConfig, predictionConfig) =>
-        finished(stats, modelInfo, loadModelConfig, predictionConfig),
-      error => failed(error),
-    );
-    return ongoingPrediction;
-  }
-
-  private resolveConversationContext(contextInput: LLMConversationContextInput): LLMContext {
-    return {
-      history: contextInput.map(({ role, content }) => ({
-        role,
-        content: [{ type: "text", text: content }],
-      })),
-    };
-  }
-
-  /**
-   * @alpha
-   */
-  public predict(context: LLMContext, opts: LLMPredictionOpts) {
-    const stack = getCurrentStack(1);
-    [context, opts] = this.validator.validateMethodParamsOrThrow(
-      "model",
-      "predict",
-      ["context", "opts"],
-      [llmContextSchema, llmPredictionConfigSchema],
-      [context, opts],
-      stack,
-    );
-    const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
-    const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
-    const [config, extraOpts] = splitOpts(opts);
-    this.predictInternal(
-      this.specifier,
-      context,
+      accessMaybeMutableInternals(ChatHistory.from(history))._internalGetData(),
       addKVConfigToStack(
         this.internalKVConfigStack,
         "apiOverride",
@@ -439,16 +413,16 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
   }
 
   public async unstable_applyPromptTemplate(
-    context: LLMContext,
+    history: ChatHistoryLike,
     opts: LLMApplyPromptTemplateOpts = {},
   ): Promise<string> {
     const stack = getCurrentStack(1);
-    [context, opts] = this.validator.validateMethodParamsOrThrow(
+    [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "unstable_applyPromptTemplate",
-      ["context", "opts"],
-      [llmContextSchema, llmApplyPromptTemplateOptsSchema],
-      [context, opts],
+      ["history", "opts"],
+      [chatHistoryLikeSchema, llmApplyPromptTemplateOptsSchema],
+      [history, opts],
       stack,
     );
     return (
@@ -456,7 +430,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
         "applyPromptTemplate",
         {
           specifier: this.specifier,
-          context,
+          history: accessMaybeMutableInternals(ChatHistory.from(history))._internalGetData(),
           predictionConfigStack: this.internalKVConfigStack,
           opts,
         },

@@ -87,6 +87,8 @@ export const llmContextSchema = z.object({
  * Represents the input context for a conversation request. This is an array of objects, where each
  * object represents a single message in the conversation.
  *
+ * @deprecated Usage of this type is deprecated. Will soon be replaced with a superset of this type.
+ *
  * @public
  */
 export type LLMConversationContextInput = Array<{
