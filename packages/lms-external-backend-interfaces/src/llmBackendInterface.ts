@@ -115,7 +115,6 @@ export function createLlmBackendInterface() {
         z.object({
           type: z.literal("generate"),
           taskId: z.string(),
-          input: chatMessageDataSchema,
           config: kvConfigSchema,
           /** Processing Context Identifier */
           pci: z.string(),

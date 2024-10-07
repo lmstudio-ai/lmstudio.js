@@ -417,6 +417,22 @@ export class KVConfigSchematics<
     return this.parseField(fieldSchema, fullKey, config.fields.find(f => f.key === fullKey)?.value);
   }
 
+  public accessPartial<TKey extends keyof TKVConfigSchema & string>(
+    config: KVConfig,
+    key: TKey,
+  ): TKVConfigSchema[TKey]["type"] | undefined {
+    const fullKey = this.baseKey + key;
+    const fieldSchema = this.fields.get(key);
+    if (fieldSchema === undefined) {
+      throw new Error(`Field with key ${fullKey} does not exist`);
+    }
+    return this.parseFieldWithoutDefault(
+      fieldSchema,
+      fullKey,
+      config.fields.find(f => f.key === fullKey)?.value,
+    );
+  }
+
   /**
    * Gets a slice of the config schema with the given key patterns. Support syntax:
    *

@@ -1,6 +1,6 @@
 import { type SimpleLogger } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
-import { globalConfigSchematics } from "@lmstudio/lms-kv-config";
+import { kvConfigToLLMPredictionConfig } from "@lmstudio/lms-kv-config";
 import {
   type CitationSource,
   type KVConfig,
@@ -9,7 +9,7 @@ import {
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
-import { ChatHistory, type ChatMessage } from "../../ChatHistory";
+import { ChatHistory } from "../../ChatHistory";
 import { type LMStudioClient } from "../../LMStudioClient";
 import { type RetrievalResult, type RetrievalResultEntry } from "../../retrieval/RetrievalResult";
 import { LLMDynamicHandle } from "../LLMDynamicHandle";
@@ -138,8 +138,6 @@ export class ProcessingController {
     /** @internal */
     private readonly connector: ProcessingConnector,
     /** @internal */
-    private readonly input: ChatMessage,
-    /** @internal */
     private readonly config: KVConfig,
     /**
      * When getting history, should the latest user input be included in the history?
@@ -265,59 +263,7 @@ export class ProcessingController {
   }
 
   public getPredictionConfig(): LLMPredictionConfig {
-    const config = globalConfigSchematics.parsePartial(this.config);
-    const result: LLMPredictionConfig = {};
-
-    const maxPredictedTokens = config.get("llm.prediction.maxPredictedTokens");
-    if (maxPredictedTokens !== undefined) {
-      result.maxPredictedTokens = maxPredictedTokens.checked ? maxPredictedTokens.value : false;
-    }
-    const temperature = config.get("llm.prediction.temperature");
-    if (temperature !== undefined) {
-      result.temperature = temperature;
-    }
-
-    const stopStrings = config.get("llm.prediction.stopStrings");
-    if (stopStrings !== undefined) {
-      result.stopStrings = stopStrings;
-    }
-
-    const contextOverflowPolicy = config.get("llm.prediction.contextOverflowPolicy");
-    if (contextOverflowPolicy !== undefined) {
-      result.contextOverflowPolicy = contextOverflowPolicy;
-    }
-
-    const structured = config.get("llm.prediction.structured");
-    if (structured !== undefined) {
-      result.structured = structured;
-    }
-
-    const topKSampling = config.get("llm.prediction.topKSampling");
-    if (topKSampling !== undefined) {
-      result.topKSampling = topKSampling;
-    }
-
-    const repeatPenalty = config.get("llm.prediction.repeatPenalty");
-    if (repeatPenalty !== undefined) {
-      result.repeatPenalty = repeatPenalty ? repeatPenalty.value : false;
-    }
-
-    const minPSampling = config.get("llm.prediction.minPSampling");
-    if (minPSampling !== undefined) {
-      result.minPSampling = minPSampling ? minPSampling.value : false;
-    }
-
-    const topPSampling = config.get("llm.prediction.topPSampling");
-    if (topPSampling !== undefined) {
-      result.topPSampling = topPSampling ? topPSampling.value : false;
-    }
-
-    const cpuThreads = config.get("llm.prediction.llama.cpuThreads");
-    if (cpuThreads !== undefined) {
-      result.cpuThreads = cpuThreads;
-    }
-
-    return result;
+    return kvConfigToLLMPredictionConfig(this.config);
   }
 
   /**

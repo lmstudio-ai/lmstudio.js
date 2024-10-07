@@ -126,7 +126,6 @@ export class LLMNamespace extends ModelNamespace<
             const controller: PreprocessorController = new ProcessingController(
               this.client,
               connector,
-              input,
               message.config,
               /* shouldIncludeInputInHistory */ false,
             );
@@ -243,11 +242,9 @@ export class LLMNamespace extends ModelNamespace<
               message.token,
               taskLogger,
             );
-            const input = ChatMessage.createRaw(message.input, /* mutable */ false);
             const controller: GeneratorController = new ProcessingController(
               this.client,
               connector,
-              input,
               message.config,
               /* shouldIncludeInputInHistory */ true,
             );
