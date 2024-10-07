@@ -32,10 +32,14 @@ export function text(strings: TemplateStringsArray, ...values: ReadonlyArray<Tex
   // being accessed by any other code.
   for (let i = 0; i < values.length; i++) {
     if (typeof values[i] === "object") {
-      try {
-        compiled[i * 2 + 1] = JSON.stringify(values[i]);
-      } catch (error) {
-        compiled[i * 2 + 1] = "[Object failed to stringify]";
+      if (typeof (values[i] as any).stack === "string") {
+        compiled[i * 2 + 1] = (values[i] as any).stack;
+      } else {
+        try {
+          compiled[i * 2 + 1] = JSON.stringify(values[i]);
+        } catch (error) {
+          compiled[i * 2 + 1] = "[Object failed to stringify]";
+        }
       }
     } else {
       compiled[i * 2 + 1] = String(values[i]);
