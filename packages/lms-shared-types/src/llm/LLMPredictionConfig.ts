@@ -99,7 +99,7 @@ export interface LLMPredictionConfig {
 }
 export const llmPredictionConfigSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional(),
-  temperature: z.number().min(0).max(1).optional(),
+  temperature: z.number().min(0).optional(),
   stopStrings: z.array(z.string()).optional(),
   contextOverflowPolicy: llmContextOverflowPolicySchema.optional(),
   structured: llmStructuredPredictionSettingSchema.optional(),
