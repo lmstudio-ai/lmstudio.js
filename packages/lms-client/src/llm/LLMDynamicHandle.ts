@@ -9,11 +9,11 @@ import {
 } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
-  llmPredictionConfigSchematics,
+  addKVConfigToStack,
+  llmPredictionConfigToKVConfig,
   llmSharedLoadConfigSchematics,
   llmSharedPredictionConfigSchematics,
 } from "@lmstudio/lms-kv-config";
-import { addKVConfigToStack } from "@lmstudio/lms-kv-config/dist/KVConfig";
 import {
   type ChatHistoryData,
   type KVConfig,
@@ -34,25 +34,6 @@ import { DynamicHandle } from "../modelShared/DynamicHandle";
 import { type LLMNamespace } from "./LLMNamespace";
 import { OngoingPrediction } from "./OngoingPrediction";
 import { type PredictionResult } from "./PredictionResult";
-
-/**
- * Convert a number that can be false to checkbox numeric value.
- *
- * @param maybeFalseNumber - The value to translate.
- * @param valueWhenUnchecked - The value to use when the checkbox is unchecked.
- */
-function maybeFalseNumberToCheckboxNumeric(
-  maybeFalseNumber: undefined | number | false,
-  valueWhenUnchecked: number,
-): undefined | { checked: boolean; value: number } {
-  if (maybeFalseNumber === undefined) {
-    return undefined;
-  }
-  if (maybeFalseNumber === false) {
-    return { checked: false, value: valueWhenUnchecked };
-  }
-  return { checked: true, value: maybeFalseNumber };
-}
 
 /**
  * Shared options for any prediction methods (`.complete`/`.respond`).
@@ -93,21 +74,6 @@ function splitOpts(opts: LLMPredictionOpts): [LLMPredictionConfig, LLMPrediction
 const noFormattingTemplate = text`
   {% for message in messages %}{{ message['content'] }}{% endfor %}
 `;
-
-function predictionConfigToKVConfig(predictionConfig: LLMPredictionConfig): KVConfig {
-  return llmPredictionConfigSchematics.buildPartialConfig({
-    "temperature": predictionConfig.temperature,
-    "contextOverflowPolicy": predictionConfig.contextOverflowPolicy,
-    "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(predictionConfig.maxPredictedTokens, 1),
-    "stopStrings": predictionConfig.stopStrings,
-    "structured": predictionConfig.structured,
-    "topKSampling": predictionConfig.topKSampling,
-    "repeatPenalty": maybeFalseNumberToCheckboxNumeric(predictionConfig.repeatPenalty, 1.1),
-    "minPSampling": maybeFalseNumberToCheckboxNumeric(predictionConfig.minPSampling, 0.05),
-    "topPSampling": maybeFalseNumberToCheckboxNumeric(predictionConfig.topPSampling, 0.95),
-    "llama.cpuThreads": predictionConfig.cpuThreads,
-  });
-}
 
 /**
  * This represents a set of requirements for a model. It is not tied to a specific model, but rather
@@ -282,7 +248,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
           ...this.internalKVConfigStack.layers,
           {
             layerName: "apiOverride",
-            config: predictionConfigToKVConfig({
+            config: llmPredictionConfigToKVConfig({
               // If the user did not specify `stopStrings`, we default to an empty array. This is to
               // prevent the model from using the value set in the preset.
               stopStrings: [],
@@ -394,7 +360,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
       addKVConfigToStack(
         this.internalKVConfigStack,
         "apiOverride",
-        predictionConfigToKVConfig(config),
+        llmPredictionConfigToKVConfig(config),
       ),
       cancelEvent,
       extraOpts,
