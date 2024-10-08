@@ -1,5 +1,6 @@
 import { type KVConfig, type LLMPredictionConfig } from "@lmstudio/lms-shared-types";
-import { globalConfigSchematics } from "../schema";
+import { globalConfigSchematics, llmPredictionConfigSchematics } from "../schema";
+import { maybeFalseNumberToCheckboxNumeric } from "./utils";
 
 export function kvConfigToLLMPredictionConfig(config: KVConfig) {
   const result: LLMPredictionConfig = {};
@@ -54,5 +55,26 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.cpuThreads = cpuThreads;
   }
 
+  const promptTemplate = parsed.get("llm.prediction.promptTemplate");
+  if (promptTemplate !== undefined) {
+    result.promptTemplate = promptTemplate;
+  }
+
   return result;
+}
+
+export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVConfig {
+  return llmPredictionConfigSchematics.buildPartialConfig({
+    "temperature": config.temperature,
+    "contextOverflowPolicy": config.contextOverflowPolicy,
+    "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(config.maxPredictedTokens, 1),
+    "stopStrings": config.stopStrings,
+    "structured": config.structured,
+    "topKSampling": config.topKSampling,
+    "repeatPenalty": maybeFalseNumberToCheckboxNumeric(config.repeatPenalty, 1.1),
+    "minPSampling": maybeFalseNumberToCheckboxNumeric(config.minPSampling, 0.05),
+    "topPSampling": maybeFalseNumberToCheckboxNumeric(config.topPSampling, 0.95),
+    "llama.cpuThreads": config.cpuThreads,
+    "promptTemplate": config.promptTemplate,
+  });
 }

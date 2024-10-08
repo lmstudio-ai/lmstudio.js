@@ -1,4 +1,7 @@
-export { kvConfigToLLMPredictionConfig } from "./conversion/llmPredictionConfig";
+export {
+  kvConfigToLLMPredictionConfig,
+  llmPredictionConfigToKVConfig,
+} from "./conversion/llmPredictionConfig";
 export {
   KVConfigSchematics,
   KVFieldValueTypeLibrary,
