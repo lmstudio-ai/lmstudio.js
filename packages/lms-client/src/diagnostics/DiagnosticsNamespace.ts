@@ -4,7 +4,7 @@ import {
   type LoggerInterface,
   type Validator,
 } from "@lmstudio/lms-common";
-import { type DiagnosticsPort } from "@lmstudio/lms-diagnostics-backend-interface";
+import { type DiagnosticsPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type DiagnosticsLogEvent } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 

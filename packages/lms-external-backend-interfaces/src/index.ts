@@ -4,6 +4,11 @@ export {
   createBaseModelBackendInterface,
 } from "./baseModelBackendInterface";
 export {
+  DiagnosticsBackendInterface,
+  DiagnosticsPort,
+  createDiagnosticsBackendInterface,
+} from "./diagnosticsBackendInterface";
+export {
   EmbeddingBackendInterface,
   EmbeddingPort,
   createEmbeddingBackendInterface,
@@ -19,3 +24,8 @@ export {
   RetrievalPort,
   createRetrievalBackendInterface,
 } from "./retrievalBackendInterface";
+export {
+  SystemBackendInterface,
+  SystemPort,
+  createSystemBackendInterface,
+} from "./systemBackendInterface";

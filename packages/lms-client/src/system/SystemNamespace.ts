@@ -1,6 +1,6 @@
 import { getCurrentStack, SimpleLogger, type LoggerInterface } from "@lmstudio/lms-common";
+import { type SystemPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type DownloadedModel } from "@lmstudio/lms-shared-types";
-import { type SystemPort } from "@lmstudio/lms-system-backend-interface";
 
 /** @public */
 export class SystemNamespace {
