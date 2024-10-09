@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-communication-mock",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,11 +8,11 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@lmstudio/lms-communication": "^0.5.0",
-    "@lmstudio/lms-communication-client": "^0.5.0",
-    "@lmstudio/lms-communication-server": "^0.5.0"
+    "@lmstudio/lms-communication": "^0.5.1",
+    "@lmstudio/lms-communication-client": "^0.5.1",
+    "@lmstudio/lms-communication-server": "^0.5.1"
   },
   "author": "",
   "license": "Apache-2.0",
-  "gitHead": "ab025759dd55d60eee6c4682bdd0210ad71a57cd"
+  "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
 }
