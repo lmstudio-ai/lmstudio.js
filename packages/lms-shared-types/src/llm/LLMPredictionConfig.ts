@@ -98,15 +98,15 @@ export interface LLMPredictionConfig {
   promptTemplate?: LLMPromptTemplate;
 }
 export const llmPredictionConfigSchema = z.object({
-  maxPredictedTokens: z.number().int().min(-1).optional(),
+  maxPredictedTokens: z.number().int().min(-1).optional().or(z.literal(false)),
   temperature: z.number().min(0).optional(),
   stopStrings: z.array(z.string()).optional(),
   contextOverflowPolicy: llmContextOverflowPolicySchema.optional(),
   structured: llmStructuredPredictionSettingSchema.optional(),
   topKSampling: z.number().optional(),
-  repeatPenalty: z.number().optional(),
-  minPSampling: z.number().optional(),
-  topPSampling: z.number().optional(),
+  repeatPenalty: z.number().optional().or(z.literal(false)),
+  minPSampling: z.number().optional().or(z.literal(false)),
+  topPSampling: z.number().optional().or(z.literal(false)),
   cpuThreads: z.number().optional(),
   promptTemplate: llmPromptTemplateSchema.optional(),
 });

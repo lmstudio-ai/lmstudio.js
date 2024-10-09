@@ -37,17 +37,17 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
 
   const repeatPenalty = parsed.get("llm.prediction.repeatPenalty");
   if (repeatPenalty !== undefined) {
-    result.repeatPenalty = repeatPenalty ? repeatPenalty.value : false;
+    result.repeatPenalty = repeatPenalty.checked ? repeatPenalty.value : false;
   }
 
   const minPSampling = parsed.get("llm.prediction.minPSampling");
   if (minPSampling !== undefined) {
-    result.minPSampling = minPSampling ? minPSampling.value : false;
+    result.minPSampling = minPSampling.checked ? minPSampling.value : false;
   }
 
   const topPSampling = parsed.get("llm.prediction.topPSampling");
   if (topPSampling !== undefined) {
-    result.topPSampling = topPSampling ? topPSampling.value : false;
+    result.topPSampling = topPSampling.checked ? topPSampling.value : false;
   }
 
   const cpuThreads = parsed.get("llm.prediction.llama.cpuThreads");
