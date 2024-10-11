@@ -157,7 +157,7 @@ export class ServerPort<
       return;
     }
     const channelId = message.channelId;
-    const openChannel = {
+    const openChannel: OpenChannel = {
       endpoint,
       ...Channel.create((message, ackId) => {
         const result = endpoint.toClientPacket.safeParse(message);
@@ -192,6 +192,7 @@ export class ServerPort<
             type: "channelClose",
             channelId: channelId,
           });
+          openChannel.closed();
         },
         error => {
           this.transport.send({
@@ -199,6 +200,7 @@ export class ServerPort<
             channelId: channelId,
             error: serializeError(error),
           });
+          openChannel.errored(error);
           context.logger.error("Error in channel handler:", error);
         },
       )

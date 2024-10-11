@@ -17,25 +17,23 @@ import {
 import { getHostedEnv, type ClientPort } from "@lmstudio/lms-communication-client";
 import {
   createDiagnosticsBackendInterface,
-  type DiagnosticsPort,
-} from "@lmstudio/lms-diagnostics-backend-interface";
-import {
   createEmbeddingBackendInterface,
   createLlmBackendInterface,
+  createRepositoryBackendInterface,
   createRetrievalBackendInterface,
+  createSystemBackendInterface,
+  type DiagnosticsPort,
   type EmbeddingPort,
   type LLMPort,
+  type RepositoryPort,
   type RetrievalPort,
+  type SystemPort,
 } from "@lmstudio/lms-external-backend-interfaces";
 import {
   createFilesBackendInterface,
   type FilesPort,
 } from "@lmstudio/lms-external-backend-interfaces/dist/filesBackendInterface";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
-import {
-  createSystemBackendInterface,
-  type SystemPort,
-} from "@lmstudio/lms-system-backend-interface";
 import chalk from "chalk";
 import process from "process";
 import { z } from "zod";
@@ -45,6 +43,7 @@ import { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
 import { FilesNamespace } from "./files/FilesNamespace";
 import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
 import { LLMNamespace } from "./llm/LLMNamespace";
+import { RepositoryNamespace } from "./repository/RepositoryNamespace";
 import { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
 import { SystemNamespace } from "./system/SystemNamespace";
 
@@ -110,6 +109,7 @@ const constructorOptsSchema = z
     diagnosticsPort: z.any().optional(),
     retrievalPort: z.any().optional(),
     filesPort: z.any().optional(),
+    repositoryPort: z.any().optional(),
   })
   .strict();
 
@@ -134,6 +134,8 @@ export class LMStudioClient {
   private readonly retrievalPort: RetrievalPort;
   /** @internal */
   private readonly filesPort: FilesPort;
+  /** @internal */
+  private readonly repositoryPort: RepositoryPort;
 
   public readonly llm: LLMNamespace;
   public readonly embedding: EmbeddingNamespace;
@@ -141,6 +143,7 @@ export class LMStudioClient {
   public readonly diagnostics: DiagnosticsNamespace;
   public readonly retrieval: RetrievalNamespace;
   public readonly files: FilesNamespace;
+  public readonly repository: RepositoryNamespace;
 
   /** @internal */
   private validateBaseUrlOrThrow(baseUrl: string) {
@@ -285,6 +288,7 @@ export class LMStudioClient {
       diagnosticsPort,
       retrievalPort,
       filesPort,
+      repositoryPort,
     } = new Validator().validateConstructorParamOrThrow(
       "LMStudioClient",
       "opts",
@@ -319,6 +323,9 @@ export class LMStudioClient {
     this.retrievalPort =
       retrievalPort ?? this.createPort("retrieval", "Retrieval", createRetrievalBackendInterface());
     this.filesPort = filesPort ?? this.createPort("files", "Files", createFilesBackendInterface());
+    this.repositoryPort =
+      repositoryPort ??
+      this.createPort("repository", "Repository", createRepositoryBackendInterface());
 
     const validator = new Validator();
 
@@ -343,5 +350,6 @@ export class LMStudioClient {
       this.logger,
     );
     this.files = new FilesNamespace(this.filesPort, validator, this.logger);
+    this.repository = new RepositoryNamespace(this.repositoryPort, validator, this.logger);
   }
 }

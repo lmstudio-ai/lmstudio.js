@@ -5,23 +5,10 @@ import { downloadedModelSchema } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 
 export function createSystemBackendInterface() {
-  return new BackendInterface()
-    .addRpcEndpoint("echo", {
-      parameter: z.string(),
-      returns: z.string(),
-    })
-    .addRpcEndpoint("listDownloadedModels", {
-      parameter: z.void(),
-      returns: filteredArray(downloadedModelSchema),
-    })
-    .addWritableSignalEndpoint("test", {
-      creationParameter: z.string(),
-      signalData: z.object({
-        timeSeconds: z.number(),
-        someString: z.string(),
-        obj: z.object({}),
-      }),
-    });
+  return new BackendInterface().addRpcEndpoint("listDownloadedModels", {
+    parameter: z.void(),
+    returns: filteredArray(downloadedModelSchema),
+  });
 }
 
 export type SystemPort = InferClientPort<typeof createSystemBackendInterface>;
