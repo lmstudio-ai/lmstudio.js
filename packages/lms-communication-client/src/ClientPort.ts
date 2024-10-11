@@ -483,6 +483,12 @@ export class ClientPort<
     for (const ongoingRpc of this.ongoingRpcs.values()) {
       ongoingRpc.reject(error);
     }
+    for (const openSignalSubscription of this.openSignalSubscriptions.values()) {
+      openSignalSubscription.errored(error);
+    }
+    for (const openWritableSignalSubscription of this.openWritableSignalSubscriptions.values()) {
+      openWritableSignalSubscription.errored(error);
+    }
   };
   public async callRpc<TEndpointName extends keyof TRpcEndpoints & string>(
     endpointName: TEndpointName,

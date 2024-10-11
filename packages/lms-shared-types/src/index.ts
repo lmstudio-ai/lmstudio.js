@@ -161,6 +161,7 @@ export {
   statusStepStatusSchema,
 } from "./llm/processing/ProcessingUpdate";
 export { GetModelOpts, getModelOptsSchema } from "./llm/processing/Processor";
+export { ModelCompatibilityType, modelCompatibilityTypeSchema } from "./ModelCompatibilityType";
 export { ModelDescriptor, modelDescriptorSchema } from "./ModelDescriptor";
 export { ModelDomainType, modelDomainTypeSchema } from "./ModelDomainType";
 export {
@@ -170,6 +171,16 @@ export {
   modelSpecifierSchema,
 } from "./ModelSpecifier";
 export { reasonableKeyStringSchema } from "./reasonable";
+export {
+  ModelSearchOpts,
+  modelSearchOptsSchema,
+  ModelSearchResultDownloadOptionData,
+  modelSearchResultDownloadOptionDataSchema,
+  ModelSearchResultEntryData,
+  modelSearchResultEntryDataSchema,
+  ModelSearchResultIdentifier,
+  modelSearchResultIdentifierSchema,
+} from "./repository/ModelSearch";
 export {
   InternalRetrievalResult,
   InternalRetrievalResultEntry,
