@@ -38,6 +38,10 @@ export const llmManualPromptTemplateSchema = z.object({
   afterAssistant: z.string(),
 });
 
+// use union of string literals to represent enum
+export type LLMJinjaInputFormat = "promptOnly" | "messageWithNumberedImageTokensAbrv";
+export const llmJinjaInputFormatSchema = z.enum(["promptOnly", "messageWithNumberedImageTokensAbrv"]);
+
 /**
  * @public
  */
@@ -51,11 +55,16 @@ export interface LLMJinjaPromptTemplate {
    * Required for applying Jinja template.
    */
   eosToken: string;
+  /**
+   * Format of the input to the Jinja template.
+   */
+  inputFormat?: LLMJinjaInputFormat;
 }
 export const llmJinjaPromptTemplateSchema = z.object({
   template: z.string(),
   bosToken: z.string(),
   eosToken: z.string(),
+  inputFormat: llmJinjaInputFormatSchema.optional(),
 });
 
 /** @public */
