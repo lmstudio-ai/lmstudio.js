@@ -38,9 +38,22 @@ export const llmManualPromptTemplateSchema = z.object({
   afterAssistant: z.string(),
 });
 
-// use union of string literals to represent enum
-export type LLMJinjaInputFormat = "promptOnly" | "messageWithNumberedImageTokensAbrv";
-export const llmJinjaInputFormatSchema = z.enum(["promptOnly", "messageWithNumberedImageTokensAbrv"]);
+// TODO(matt): document well
+export type LLMJinjaInputFormat =
+  | "promptOnly"
+  | "promptWithImages"
+  | "promptWithImagesNewline"
+  | "promptWithNumberedImages1"
+  | "messageListWithImageType1"
+  | "messageListWithImageType2";
+export const llmJinjaInputFormatSchema = z.enum([
+  "promptOnly",
+  "promptWithImages",
+  "promptWithImagesNewline",
+  "promptWithNumberedImages1",
+  "messageListWithImageType1",
+  "messageListWithImageType2",
+]);
 
 /**
  * @public
