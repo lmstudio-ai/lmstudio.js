@@ -176,6 +176,7 @@ export {
   modelSearchOptsSchema,
   ModelSearchResultDownloadOptionData,
   modelSearchResultDownloadOptionDataSchema,
+  ModelSearchResultDownloadOptionFitEstimation,
   ModelSearchResultEntryData,
   modelSearchResultEntryDataSchema,
   ModelSearchResultIdentifier,

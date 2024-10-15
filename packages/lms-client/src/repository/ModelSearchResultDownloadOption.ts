@@ -10,6 +10,7 @@ import { type ModelSearchResultDownloadOptionData } from "@lmstudio/lms-shared-t
 import { type ModelSearchResultDownloadOptionFitEstimation } from "@lmstudio/lms-shared-types/dist/repository/ModelSearch";
 import { z } from "zod";
 
+/** @public */
 export interface DownloadOpts {
   onProgress?: (downloadedBytes: number, totalBytes: number) => void;
   onStartFinalizing?: () => void;

@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+/**
+ * @public
+ */
 export interface LLMManualPromptTemplate {
   /**
    * String to be prepended to the system prompt.
@@ -35,6 +38,9 @@ export const llmManualPromptTemplateSchema = z.object({
   afterAssistant: z.string(),
 });
 
+/**
+ * @public
+ */
 export interface LLMJinjaPromptTemplate {
   template: string;
   /**
@@ -52,9 +58,13 @@ export const llmJinjaPromptTemplateSchema = z.object({
   eosToken: z.string(),
 });
 
+/** @public */
 export type LLMPromptTemplateType = "manual" | "jinja";
 export const llmPromptTemplateTypeSchema = z.enum(["manual", "jinja"]);
 
+/**
+ * @public
+ */
 export interface LLMPromptTemplate {
   type: LLMPromptTemplateType;
   manualPromptTemplate?: LLMManualPromptTemplate;

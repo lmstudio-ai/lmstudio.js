@@ -28,7 +28,10 @@ export type { LMStudioClientConstructorOpts } from "./LMStudioClient";
 export type { DynamicHandle } from "./modelShared/DynamicHandle";
 export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace";
 export type { SpecificModel } from "./modelShared/SpecificModel";
-export type { ModelSearchResultDownloadOption } from "./repository/ModelSearchResultDownloadOption";
+export type {
+  DownloadOpts,
+  ModelSearchResultDownloadOption,
+} from "./repository/ModelSearchResultDownloadOption";
 export type { ModelSearchResultEntry } from "./repository/ModelSearchResultEntry";
 export type { RepositoryNamespace } from "./repository/RepositoryNamespace";
 export type { RetrievalNamespace } from "./retrieval/RetrievalNamespace";

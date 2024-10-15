@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build-webpack": "webpack --config ./webpack.config.js --mode production",
-    "build": "npm run build-webpack",
+    "build-inject-current-version": "node ./injectCurrentVersion.js",
+    "build": "npm run build-webpack && npm run build-inject-current-version",
     "make-bin:win32": "powershell -File make-bin-win32.ps1",
     "make-bin:linux": "bash make-bin-linux.sh",
     "make-bin:darwin": "bash make-bin-darwin.sh",
