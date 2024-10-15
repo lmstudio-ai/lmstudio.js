@@ -21,6 +21,6 @@
     },
     { "type": "command", "text": "cd <PROJECT_NAME>" },
     { "type": "regular", "text": "Then you can run the project with:" },
-    { "type": "command", "text": "lms server start\nnpm start" }
+    { "type": "command", "text": "npm start" }
   ]
 }

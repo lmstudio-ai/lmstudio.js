@@ -7,6 +7,7 @@ enableMapSet();
 // Export lazy signal first to avoid circular dependency issues
 export { AsyncDeriveFromStrategy, isAvailable, LazySignal, NotAvailable } from "./LazySignal";
 
+export { apiServerPorts } from "./apiServerPorts";
 export { BufferedEvent } from "./BufferedEvent";
 export { Cleaner } from "./Cleaner";
 export { deepFreeze } from "./deepFreeze";
@@ -15,7 +16,6 @@ export { Event } from "./Event";
 export { doesFileNameIndicateModel, modelExtensions } from "./fileName";
 export { flattenSignalOfSignal, flattenSignalOfWritableSignal } from "./flattenSignal";
 export { HandledEvent } from "./HandledEvent";
-export { lmsDefaultPorts } from "./lmsDefaultPorts";
 export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
 export { makePromise } from "./makePromise";
 export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter";

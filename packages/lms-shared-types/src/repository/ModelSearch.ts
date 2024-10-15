@@ -71,6 +71,7 @@ export const modelSearchResultEntryDataSchema = z.object({
   staffPick: z.boolean().optional(),
 }) as ZodSchema<ModelSearchResultEntryData>;
 
+/** @public */
 export interface ModelSearchOpts {
   /**
    * The search term to use when searching for models. If not provided, recommended models will

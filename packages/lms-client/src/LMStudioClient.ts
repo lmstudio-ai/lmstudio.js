@@ -1,6 +1,6 @@
 import {
+  apiServerPorts,
   getCurrentStack,
-  lmsDefaultPorts,
   makePrettyError,
   SimpleLogger,
   text,
@@ -206,16 +206,48 @@ export class LMStudioClient {
     if (getHostedEnv() !== null) {
       return Promise.resolve("Using hosted env");
     }
-    return Promise.any(lmsDefaultPorts.map(this.isLocalhostWithGivenPortLMStudioServer)).then(
+    // On browser, those apiServerPorts are not accessible anyway. We will just try to see if we can
+    // reach the server on 127.0.0.1:1234 (the default port).
+    if ((process as any).browser) {
+      try {
+        this.isLocalhostWithGivenPortLMStudioServer(1234);
+        return "ws://127.0.0.1:1234";
+      } catch (error) {
+        text`
+          ${chalk.redBright("Failed to connect to LM Studio.")}
+
+          Is LM Studio running? If not, please start it by running:
+
+              ${chalk.yellow("lms server start --cors")}
+
+          If you are attempting to connect to LM Studio on a separate machine, please provide the
+          baseUrl option when creating the LMStudioClient:
+
+              ${chalk.blueBright(text`
+                const client = new LMStudioClient({ baseUrl: 'ws://<host_name>:<port>' });
+              `)}
+
+          ${chalk.white("(i) For more information, refer to the LM Studio documentation:")}
+
+              ${chalk.gray("https://lmstudio.ai/docs/local-server")}
+        `;
+      }
+    }
+    return Promise.any(apiServerPorts.map(this.isLocalhostWithGivenPortLMStudioServer)).then(
       port => `ws://127.0.0.1:${port}`,
       () => {
         throw makePrettyError(
           text`
-            ${chalk.redBright("Failed to connect to LM Studio on the default port (1234).")}
+            ${chalk.redBright("Failed to connect to LM Studio.")}
 
-            Is LM Studio running? If not, you can start it by running:
+            Please make sure LM Studio is running on your machine.
+            
+            If you are attempting to connect to LM Studio on a separate machine, please provide the
+            baseUrl option when creating the LMStudioClient:
 
-                ${chalk.yellow("lms server start" + ((process as any).browser ? " --cors=true" : ""))}
+                ${chalk.blueBright(text`
+                  const client = new LMStudioClient({ baseUrl: 'ws://<host_name>:<port>' });
+                `)}
 
             ${chalk.white("(i) For more information, refer to the LM Studio documentation:")}
 
@@ -223,20 +255,6 @@ export class LMStudioClient {
           `,
           stack,
         );
-        // console.error(text`
-        //   ${chalk.blueBright(text`
-        //     · HINT: If you are using a custom port and/or are reverse-proxying, you should pass the
-        //     base URL to the LMStudioClient constructor like so:
-        //   `)}
-
-        //       ${chalk.cyanBright(text`
-        //         const client = new LMStudioClient({ baseUrl: "ws://127.0.0.1:<PORT>" });
-        //       `)}
-
-        // `);
-        // // We just want to return a promise that never resolves.
-        // // This blocks all the API calls.
-        // return new Promise(() => undefined);
       },
     );
   }
