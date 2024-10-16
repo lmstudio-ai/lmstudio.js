@@ -47,6 +47,7 @@ export type LLMJinjaInputFormat =
   | "promptWithImages"
   | "promptWithImagesNewline"
   | "promptWithNumberedImages1"
+  | "promptWithNumberedImages2"
   | "messageListWithImageType1"
   | "messageListWithImageType2";
 export const llmJinjaInputFormatSchema = z.enum([
@@ -54,6 +55,7 @@ export const llmJinjaInputFormatSchema = z.enum([
   "promptWithImages",
   "promptWithImagesNewline",
   "promptWithNumberedImages1",
+  "promptWithNumberedImages2",
   "messageListWithImageType1",
   "messageListWithImageType2",
 ]);
