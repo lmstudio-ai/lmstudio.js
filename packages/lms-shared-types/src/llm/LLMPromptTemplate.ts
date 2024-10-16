@@ -38,8 +38,8 @@ export const llmManualPromptTemplateSchema = z.object({
   afterAssistant: z.string(),
 });
 
-// TODO(matt): document well
 /**
+ * TODO: Documentation
  * @public
  */
 export type LLMJinjaInputFormat =
