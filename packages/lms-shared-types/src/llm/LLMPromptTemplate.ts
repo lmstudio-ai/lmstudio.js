@@ -39,6 +39,28 @@ export const llmManualPromptTemplateSchema = z.object({
 });
 
 /**
+ * TODO: Documentation
+ * @public
+ */
+export type LLMJinjaInputFormat =
+  | "promptOnly"
+  | "promptWithImages"
+  | "promptWithImagesNewline"
+  | "promptWithNumberedImages1"
+  | "promptWithNumberedImages2"
+  | "messageListWithImageType1"
+  | "messageListWithImageType2";
+export const llmJinjaInputFormatSchema = z.enum([
+  "promptOnly",
+  "promptWithImages",
+  "promptWithImagesNewline",
+  "promptWithNumberedImages1",
+  "promptWithNumberedImages2",
+  "messageListWithImageType1",
+  "messageListWithImageType2",
+]);
+
+/**
  * @public
  */
 export interface LLMJinjaPromptTemplate {
@@ -51,11 +73,16 @@ export interface LLMJinjaPromptTemplate {
    * Required for applying Jinja template.
    */
   eosToken: string;
+  /**
+   * Format of the input to the Jinja template.
+   */
+  inputFormat?: LLMJinjaInputFormat;
 }
 export const llmJinjaPromptTemplateSchema = z.object({
   template: z.string(),
   bosToken: z.string(),
   eosToken: z.string(),
+  inputFormat: llmJinjaInputFormatSchema.optional(),
 });
 
 /** @public */
