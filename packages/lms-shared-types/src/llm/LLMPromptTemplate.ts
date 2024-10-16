@@ -39,6 +39,9 @@ export const llmManualPromptTemplateSchema = z.object({
 });
 
 // TODO(matt): document well
+/**
+ * @public
+ */
 export type LLMJinjaInputFormat =
   | "promptOnly"
   | "promptWithImages"
