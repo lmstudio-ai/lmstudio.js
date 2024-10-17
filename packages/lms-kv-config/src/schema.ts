@@ -46,6 +46,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       )
       .field("stopStrings", "stringArray", {}, [])
       .field("structured", "llamaStructuredOutput", {}, { type: "none" })
+      .field("toolUse", "")
       .field(
         "promptTemplate",
         "llmPromptTemplate",
