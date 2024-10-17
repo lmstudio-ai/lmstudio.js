@@ -16,6 +16,10 @@ function isSimpleLogger(logger: LoggerInterface): logger is SimpleLogger {
 
 export interface SimpleLoggerConstructorOpts {
   useLogLevelPrefixes?: boolean;
+  infoPrefix?: string | null;
+  warnPrefix?: string | null;
+  errorPrefix?: string | null;
+  debugPrefix?: string | null;
 }
 
 const defaultInfoPrefix = chalk.greenBright("I");
@@ -36,7 +40,13 @@ export class SimpleLogger {
   public constructor(
     prefixText: string = "",
     parentLogger: LoggerInterface = console,
-    { useLogLevelPrefixes = false }: SimpleLoggerConstructorOpts = {},
+    {
+      useLogLevelPrefixes = false,
+      infoPrefix = defaultInfoPrefix,
+      warnPrefix = defaultWarnPrefix,
+      errorPrefix = defaultErrorPrefix,
+      debugPrefix = defaultDebugPrefix,
+    }: SimpleLoggerConstructorOpts = {},
   ) {
     if (isSimpleLogger(parentLogger)) {
       if (prefixText === "") {
@@ -62,10 +72,18 @@ export class SimpleLogger {
       this.parentLogger = parentLogger;
     }
     if (useLogLevelPrefixes) {
-      this.infoPrefix.push(defaultInfoPrefix);
-      this.warnPrefix.push(defaultWarnPrefix);
-      this.errorPrefix.push(defaultErrorPrefix);
-      this.debugPrefix.push(defaultDebugPrefix);
+      if (infoPrefix !== null) {
+        this.infoPrefix.push(infoPrefix);
+      }
+      if (warnPrefix !== null) {
+        this.warnPrefix.push(warnPrefix);
+      }
+      if (errorPrefix !== null) {
+        this.errorPrefix.push(errorPrefix);
+      }
+      if (debugPrefix !== null) {
+        this.debugPrefix.push(debugPrefix);
+      }
     }
     if (this.fullPrefix !== "") {
       this.infoPrefix.push(this.fullPrefix);
@@ -132,31 +150,38 @@ export class SimpleLogger {
         break;
     }
   }
-  public static fromMultiple(loggers: Array<LoggerInterface>, opts?: SimpleLoggerConstructorOpts): SimpleLogger {
-    return new SimpleLogger("", {
-      debug: (...messages) => {
-        for (const logger of loggers) {
-          logger.debug(...messages);
-        }
+  public static fromMultiple(
+    loggers: Array<LoggerInterface>,
+    opts?: SimpleLoggerConstructorOpts,
+  ): SimpleLogger {
+    return new SimpleLogger(
+      "",
+      {
+        debug: (...messages) => {
+          for (const logger of loggers) {
+            logger.debug(...messages);
+          }
+        },
+        info: (...messages) => {
+          for (const logger of loggers) {
+            logger.info(...messages);
+          }
+        },
+        warn: (...messages) => {
+          for (const logger of loggers) {
+            logger.warn(...messages);
+          }
+        },
+        error: (...messages) => {
+          for (const logger of loggers) {
+            logger.error(...messages);
+          }
+        },
       },
-      info: (...messages) => {
-        for (const logger of loggers) {
-          logger.info(...messages);
-        }
+      {
+        ...opts,
+        useLogLevelPrefixes: false,
       },
-      warn: (...messages) => {
-        for (const logger of loggers) {
-          logger.warn(...messages);
-        }
-      },
-      error: (...messages) => {
-        for (const logger of loggers) {
-          logger.error(...messages);
-        }
-      },
-    }, {
-      ...opts,
-      useLogLevelPrefixes: false,
-    });
+    );
   }
 }
