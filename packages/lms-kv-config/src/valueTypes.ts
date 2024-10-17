@@ -11,6 +11,7 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { deepEquals, KVFieldValueTypesLibraryBuilder, type InferKVValueTypeDef } from "./KVConfig";
+import { llmToolUseSettingSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMToolsUseSetting";
 
 /**
  * Quote a string.
@@ -419,7 +420,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   .valueType("toolUse", {
     paramType: {},
     schemaMaker: () => {
-      return llmStructuredPredictionSettingSchema;
+      return llmToolUseSettingSchema;
     },
     effectiveEquals: (a, b) => {
       return deepEquals(a, b); // TODO: more performant comparison
