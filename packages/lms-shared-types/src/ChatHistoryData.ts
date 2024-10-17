@@ -46,17 +46,58 @@ export const chatMessagePartFileDataSchema = z.object({
 /**
  * @public
  */
-export type ChatMessagePartData = ChatMessagePartTextData | ChatMessagePartFileData;
+export interface ChatMessagePartToolCallData {
+  type: "toolCall";
+  /**
+   * Tool calls requested
+   */
+  toolCalls: Array<Record<string, any>>;
+}
+export const chatMessagePartToolCallDataSchema = z.object({
+  type: z.literal("toolCall"),
+  toolCalls: z.array(z.record(z.any())),
+});
+
+/**
+ * @public
+ */
+export interface ChatMessagePartToolCallResultData {
+  type: "toolCallResult";
+  /**
+   * Result of a tool call
+   */
+  content: Record<string, any>;
+  /**
+   * The tool call ID that this result is for
+   */
+  toolCallId: string;
+}
+export const chatMessagePartToolCallResultDataSchema = z.object({
+  type: z.literal("toolCallResult"),
+  content: z.record(z.any()),
+  toolCallId: z.string(),
+});
+
+/**
+ * @public
+ */
+export type ChatMessagePartData =
+  | ChatMessagePartTextData
+  | ChatMessagePartFileData
+  | ChatMessagePartToolCallData
+  | ChatMessagePartToolCallResultData;
 export const chatMessagePartDataSchema = z.discriminatedUnion("type", [
   chatMessagePartTextDataSchema,
   chatMessagePartFileDataSchema,
+  chatMessagePartToolCallDataSchema,
+  chatMessagePartToolCallResultDataSchema,
 ]);
 
 /**
  * @public
  */
-export type ChatMessageRoleData = "assistant" | "user" | "system";
-export const chatMessageRoleDataSchema = z.enum(["assistant", "user", "system"]);
+export type ChatMessageRoleData = "assistant" | "user" | "system" | "tool";
+export const chatMessageRoleDataSchema = z.enum(["assistant", "user", "system", "tool"]);
 
 /**
  * @public
