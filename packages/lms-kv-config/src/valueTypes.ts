@@ -416,6 +416,18 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return JSON.stringify(value, null, 2); // TODO: pretty print
     },
   })
+  .valueType("toolUse", {
+    paramType: {},
+    schemaMaker: () => {
+      return llmStructuredPredictionSettingSchema;
+    },
+    effectiveEquals: (a, b) => {
+      return deepEquals(a, b); // TODO: more performant comparison
+    },
+    stringify: value => {
+      return JSON.stringify(value, null, 2); // TODO: pretty print
+    },
+  })
   .valueType("llamaAccelerationOffloadRatio", {
     paramType: {
       numLayers: z.number().optional(),
