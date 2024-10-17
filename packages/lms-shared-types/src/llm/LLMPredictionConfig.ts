@@ -4,7 +4,7 @@ import {
   llmStructuredPredictionSettingSchema,
   type LLMStructuredPredictionSetting,
 } from "./LLMStructuredPredictionSetting";
-import { llmToolUseSettingSchema, type LLMToolUseSetting } from "./LLMToolsUseSetting";
+import { llmToolUseSettingSchema, type LLMToolUseSetting } from "./LLMToolUseSetting";
 
 /**
  * Behavior for when the generated tokens length exceeds the context window size. Only the following

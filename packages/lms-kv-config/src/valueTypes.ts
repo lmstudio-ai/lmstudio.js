@@ -9,9 +9,9 @@ import {
   modelDomainTypeSchema,
   retrievalChunkingMethodSchema,
 } from "@lmstudio/lms-shared-types";
+import { llmToolUseSettingSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMToolUseSetting";
 import { z } from "zod";
 import { deepEquals, KVFieldValueTypesLibraryBuilder, type InferKVValueTypeDef } from "./KVConfig";
-import { llmToolUseSettingSchema } from "@lmstudio/lms-shared-types/dist/llm/LLMToolsUseSetting";
 
 /**
  * Quote a string.
