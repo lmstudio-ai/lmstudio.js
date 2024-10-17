@@ -131,6 +131,7 @@ export {
   LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,
 } from "./llm/LLMStructuredPredictionSetting";
+export { LLMToolUseSetting, llmToolUseSettingSchema } from "./llm/LLMToolUseSetting";
 export { GeneratorUpdate, generatorUpdateSchema } from "./llm/processing/GeneratorUpdate";
 export { PreprocessorUpdate, preprocessorUpdateSchema } from "./llm/processing/PreprocessorUpdate";
 export {
