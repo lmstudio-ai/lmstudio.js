@@ -75,6 +75,7 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(config.maxPredictedTokens, 1),
     "stopStrings": config.stopStrings,
     "structured": config.structured,
+    "tools": config.tools,
     "topKSampling": config.topKSampling,
     "repeatPenalty": maybeFalseNumberToCheckboxNumeric(config.repeatPenalty, 1.1),
     "minPSampling": maybeFalseNumberToCheckboxNumeric(config.minPSampling, 0.05),
