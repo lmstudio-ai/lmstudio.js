@@ -30,6 +30,11 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.structured = structured;
   }
 
+  const toolUse = parsed.get("llm.prediction.toolUse");
+  if (toolUse !== undefined) {
+    result.tools = toolUse;
+  }
+
   const topKSampling = parsed.get("llm.prediction.topKSampling");
   if (topKSampling !== undefined) {
     result.topKSampling = topKSampling;
