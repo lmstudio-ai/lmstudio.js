@@ -4,6 +4,7 @@ import {
   llmStructuredPredictionSettingSchema,
   type LLMStructuredPredictionSetting,
 } from "./LLMStructuredPredictionSetting";
+import { llmToolUseSettingSchema, type LLMToolUseSetting } from "./LLMToolsUseSetting";
 
 /**
  * Behavior for when the generated tokens length exceeds the context window size. Only the following
@@ -73,6 +74,10 @@ export interface LLMPredictionConfig {
   /**
    * TODO: Documentation
    */
+  tools?: LLMToolUseSetting;
+  /**
+   * TODO: Documentation
+   */
   topKSampling?: number;
   /**
    * TODO: Documentation
@@ -103,6 +108,7 @@ export const llmPredictionConfigSchema = z.object({
   stopStrings: z.array(z.string()).optional(),
   contextOverflowPolicy: llmContextOverflowPolicySchema.optional(),
   structured: llmStructuredPredictionSettingSchema.optional(),
+  tools: llmToolUseSettingSchema.optional(),
   topKSampling: z.number().optional(),
   repeatPenalty: z.number().optional().or(z.literal(false)),
   minPSampling: z.number().optional().or(z.literal(false)),

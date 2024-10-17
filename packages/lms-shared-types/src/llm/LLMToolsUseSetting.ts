@@ -6,7 +6,7 @@ import { jsonSerializableSchema } from "../JSONSerializable";
  *
  * @public
  */
-export type LLMToolsSetting =
+export type LLMToolUseSetting =
   | {
       type: "none";
     }
@@ -15,7 +15,7 @@ export type LLMToolsSetting =
       jsonSchema?: any;
     };
 
-export const llmStructuredPredictionSettingSchema = z.discriminatedUnion("type", [
+export const llmToolUseSettingSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("none"),
   }),
