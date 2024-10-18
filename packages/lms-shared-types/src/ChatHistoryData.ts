@@ -70,12 +70,12 @@ export interface ChatMessagePartToolCallResultData {
   /**
    * The tool call ID that this result is for
    */
-  toolCallId: string;
+  toolCallId?: string;
 }
 export const chatMessagePartToolCallResultDataSchema = z.object({
   type: z.literal("toolCallResult"),
   content: z.record(z.any()),
-  toolCallId: z.string(),
+  toolCallId: z.string().optional(),
 });
 
 /**
