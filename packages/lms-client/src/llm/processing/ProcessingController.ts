@@ -1,4 +1,4 @@
-import { type SimpleLogger } from "@lmstudio/lms-common";
+import { Cleaner, type SimpleLogger } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import { kvConfigToLLMPredictionConfig } from "@lmstudio/lms-kv-config";
 import {
@@ -149,7 +149,9 @@ export class ProcessingController {
     this.abortSignal = connector.abortSignal;
     this.processingControllerHandle = {
       abortSignal: connector.abortSignal,
-      sendUpdate: update => connector.handleUpdate(update),
+      sendUpdate: update => {
+        connector.handleUpdate(update);
+      },
     };
   }
 
@@ -440,8 +442,13 @@ export class PredictionProcessContentBlockController {
     });
   }
   public async pipeFrom(prediction: OngoingPrediction): Promise<PredictionResult> {
-    this.handle.abortSignal.addEventListener("abort", () => {
+    using cleaner = new Cleaner();
+    const abortListener = () => {
       prediction.cancel();
+    };
+    this.handle.abortSignal.addEventListener("abort", abortListener);
+    cleaner.register(() => {
+      this.handle.abortSignal.removeEventListener("abort", abortListener);
     });
     for await (const text of prediction) {
       this.appendText(text);
@@ -454,6 +461,7 @@ export class PredictionProcessContentBlockController {
       predictionConfig: result.predictionConfig,
       stats: result.stats,
     });
+    this.handle.abortSignal.throwIfAborted();
     return result;
   }
 }

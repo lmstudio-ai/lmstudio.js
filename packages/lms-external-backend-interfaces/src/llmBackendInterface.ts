@@ -101,6 +101,10 @@ export function createLlmBackendInterface() {
           processed: chatMessageDataSchema,
         }),
         z.object({
+          type: z.literal("aborted"),
+          taskId: z.string(),
+        }),
+        z.object({
           type: z.literal("error"),
           taskId: z.string(),
           error: serializedLMSExtendedErrorSchema,
@@ -128,6 +132,10 @@ export function createLlmBackendInterface() {
       toServerPacket: z.discriminatedUnion("type", [
         z.object({
           type: z.literal("complete"),
+          taskId: z.string(),
+        }),
+        z.object({
+          type: z.literal("aborted"),
           taskId: z.string(),
         }),
         z.object({
