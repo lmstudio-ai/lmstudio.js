@@ -169,6 +169,10 @@ export class LLMNamespace extends ModelNamespace<
               .catch(error => {
                 if (error.name === "AbortError") {
                   logger.info(`Request successfully aborted.`);
+                  channel.send({
+                    type: "aborted",
+                    taskId: message.taskId,
+                  });
                   return;
                 }
                 logger.warn(`Preprocessing failed.`, error);
@@ -267,6 +271,10 @@ export class LLMNamespace extends ModelNamespace<
               .catch(error => {
                 if (error.name === "AbortError") {
                   logger.info(`Request successfully aborted.`);
+                  channel.send({
+                    type: "aborted",
+                    taskId: message.taskId,
+                  });
                   return;
                 }
                 logger.warn(`Generation failed.`, error);
