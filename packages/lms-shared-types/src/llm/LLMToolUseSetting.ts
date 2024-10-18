@@ -1,5 +1,61 @@
 import { z } from "zod";
-import { jsonSerializableSchema } from "../JSONSerializable";
+
+/**
+ * TODO: Documentation
+ *
+ * @public
+ */
+export type LLMToolParameters = {
+  type: "object";
+  properties: Record<string, any>;
+  required?: string[];
+  additionalProperties?: boolean;
+};
+
+export const llmToolParametersSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("object"),
+    properties: z.record(z.any()),
+    required: z.array(z.string()).optional(),
+    additionalProperties: z.boolean().optional(),
+  }),
+  // add more parameter types here
+  // ...
+]);
+
+/**
+ * TODO: Documentation
+ *
+ * @public
+ */
+export type LLMTool = {
+  type: "function";
+  function: {
+    name: string;
+    description: string;
+    parameters: LLMToolParameters;
+  };
+  // add more tool types here
+  // ...
+};
+
+export const llmToolSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("function"),
+    function: z.object({
+      name: z.string(),
+      description: z.string(),
+      parameters: llmToolParametersSchema,
+    }),
+  }),
+  // add more tool types here
+  // ...
+]);
+
+/**
+ * For convenience
+ */
+export const llmToolArraySchema = z.array(llmToolSchema);
 
 /**
  * TODO: Documentation
@@ -11,8 +67,8 @@ export type LLMToolUseSetting =
       type: "none";
     }
   | {
-      type: "json";
-      jsonSchema?: any;
+      type: "toolArray";
+      tools?: LLMTool[];
     };
 
 export const llmToolUseSettingSchema = z.discriminatedUnion("type", [
@@ -20,7 +76,7 @@ export const llmToolUseSettingSchema = z.discriminatedUnion("type", [
     type: z.literal("none"),
   }),
   z.object({
-    type: z.literal("json"),
-    jsonSchema: jsonSerializableSchema.optional(),
+    type: z.literal("toolArray"),
+    tools: z.array(llmToolSchema).optional(),
   }),
 ]);

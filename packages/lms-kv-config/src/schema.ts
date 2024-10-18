@@ -282,6 +282,7 @@ export const llmSharedPredictionConfigSchematics = llmPredictionConfigSchematics
   "systemPrompt",
   "seed",
   "contextPrefill",
+  "tools",
 );
 
 export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
@@ -290,7 +291,6 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
     "contextOverflowPolicy",
     "stopStrings",
     "structured",
-    "tools",
     "topKSampling",
     "repeatPenalty",
     "minPSampling",
@@ -304,7 +304,6 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
     "contextOverflowPolicy",
     "stopStrings",
     "structured",
-    "tools",
     "repeatPenalty",
     "minPSampling",
     "topPSampling",
