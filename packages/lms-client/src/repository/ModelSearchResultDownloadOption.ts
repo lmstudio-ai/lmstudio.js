@@ -10,9 +10,27 @@ import { type ModelSearchResultDownloadOptionData } from "@lmstudio/lms-shared-t
 import { type ModelSearchResultDownloadOptionFitEstimation } from "@lmstudio/lms-shared-types/dist/repository/ModelSearch";
 import { z } from "zod";
 
+/**
+ * @public
+ */
+export interface DownloadOnProgressCallbackParam {
+  /**
+   * Number of bytes that have been downloaded so far.
+   */
+  downloadedBytes: number;
+  /**
+   * Total number of bytes that will be downloaded.
+   */
+  totalBytes: number;
+  /**
+   * Current download speed in bytes per second.
+   */
+  speedBytesPerSecond: number;
+}
+
 /** @public */
 export interface DownloadOpts {
-  onProgress?: (downloadedBytes: number, totalBytes: number) => void;
+  onProgress?: (param: DownloadOnProgressCallbackParam) => void;
   onStartFinalizing?: () => void;
   signal?: AbortSignal;
 }
@@ -47,6 +65,9 @@ export class ModelSearchResultDownloadOption {
   public isRecommended() {
     return this.data.recommended ?? false;
   }
+  /**
+   * Download the model. Returns a path that can be used to load the model.
+   */
   public async download(opts: DownloadOpts = {}) {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(
@@ -56,7 +77,7 @@ export class ModelSearchResultDownloadOption {
       downloadOptsSchema,
       opts,
     );
-    const { promise, resolve, reject } = makePromise<void>();
+    const { promise, resolve, reject } = makePromise<string>();
     const channel = this.repositoryPort.createChannel(
       "downloadModel",
       {
@@ -66,13 +87,20 @@ export class ModelSearchResultDownloadOption {
         switch (message.type) {
           case "downloadProgress": {
             safeCallCallback(this.logger, "onProgress", opts.onProgress, [
-              message.downloadedBytes,
-              message.totalBytes,
+              {
+                downloadedBytes: message.downloadedBytes,
+                totalBytes: message.totalBytes,
+                speedBytesPerSecond: message.speedBytesPerSecond,
+              },
             ]);
             break;
           }
           case "startFinalizing": {
             safeCallCallback(this.logger, "onStartFinalizing", opts.onStartFinalizing, []);
+            break;
+          }
+          case "success": {
+            resolve(message.defaultIdentifier);
             break;
           }
           default: {
@@ -84,7 +112,13 @@ export class ModelSearchResultDownloadOption {
       { stack },
     );
     channel.onError.subscribeOnce(reject);
-    channel.onClose.subscribeOnce(resolve);
+    channel.onClose.subscribeOnce(() => {
+      if (opts.signal?.aborted) {
+        reject(opts.signal.reason);
+      } else {
+        reject(new Error("Channel closed unexpectedly."));
+      }
+    });
     const abortListener = () => {
       channel.send({ type: "cancel" });
     };
@@ -92,6 +126,6 @@ export class ModelSearchResultDownloadOption {
     promise.finally(() => {
       opts.signal?.removeEventListener("abort", abortListener);
     });
-    await promise;
+    return await promise;
   }
 }

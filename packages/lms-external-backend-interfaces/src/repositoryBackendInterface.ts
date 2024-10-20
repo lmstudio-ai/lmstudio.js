@@ -35,9 +35,14 @@ export function createRepositoryBackendInterface() {
           type: z.literal("downloadProgress"),
           downloadedBytes: z.number(),
           totalBytes: z.number(),
+          speedBytesPerSecond: z.number(),
         }),
         z.object({
           type: z.literal("startFinalizing"),
+        }),
+        z.object({
+          type: z.literal("success"),
+          defaultIdentifier: z.string(),
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
