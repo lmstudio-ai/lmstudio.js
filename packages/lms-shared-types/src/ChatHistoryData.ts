@@ -102,14 +102,44 @@ export const chatMessageRoleDataSchema = z.enum(["assistant", "user", "system", 
 /**
  * @public
  */
-export interface ChatMessageData {
-  role: ChatMessageRoleData;
-  content: Array<ChatMessagePartData>;
-}
-export const chatMessageDataSchema = z.object({
-  role: chatMessageRoleDataSchema,
-  content: z.array(chatMessagePartDataSchema),
-});
+export type ChatMessageData =
+  | {
+      role: "assistant";
+      content: Array<
+        ChatMessagePartTextData | ChatMessagePartFileData | ChatMessagePartToolCallData
+      >;
+    }
+  | {
+      role: "user" | "system";
+      content: Array<ChatMessagePartTextData | ChatMessagePartFileData>;
+    }
+  | {
+      role: "tool";
+      content: Array<ChatMessagePartToolCallResultData>;
+    };
+
+export const chatMessageDataSchema = z.discriminatedUnion("role", [
+  z.object({
+    role: z.literal("assistant"),
+    content: z.array(
+      z.discriminatedUnion("type", [
+        chatMessagePartTextDataSchema,
+        chatMessagePartFileDataSchema,
+        chatMessagePartToolCallDataSchema,
+      ]),
+    ),
+  }),
+  z.object({
+    role: z.enum(["user", "system"]),
+    content: z.array(
+      z.discriminatedUnion("type", [chatMessagePartTextDataSchema, chatMessagePartFileDataSchema]),
+    ),
+  }),
+  z.object({
+    role: z.literal("tool"),
+    content: z.array(chatMessagePartToolCallResultDataSchema),
+  }),
+]);
 
 /**
  * @public
