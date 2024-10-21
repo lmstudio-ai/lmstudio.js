@@ -119,10 +119,17 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
       this.data.messages.push(accessMaybeMutableInternals(messageMutable)._internalGetData());
     } else {
       const [role, content] = args;
-      this.data.messages.push({
-        role,
-        content: [{ type: "text", text: content }],
-      });
+      if (role === "user" || role === "system" || role === "assistant") {
+        this.data.messages.push({
+          role,
+          content: [{ type: "text", text: content }],
+        });
+      } else {
+        throw new Error(
+          `Unsupported role for append() API with [role, content] parameters: ${role}. ` +
+            `Supported roles are 'user', 'system', and 'assistant'.`,
+        );
+      }
     }
   }
 
@@ -479,7 +486,10 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
         partIndexesToRemove.add(index);
       }
     }
-    this.data.content = this.data.content.filter((_, index) => !partIndexesToRemove.has(index));
+    // Use type assertion to ensure correct typing
+    this.data.content = this.data.content.filter(
+      (_, index) => !partIndexesToRemove.has(index),
+    ) as typeof this.data.content;
     return consumedFiles;
   }
 
@@ -522,7 +532,10 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
         partIndexesToRemove.add(index);
       }
     }
-    this.data.content = this.data.content.filter((_, index) => !partIndexesToRemove.has(index));
+    // Use type assertion to ensure correct typing
+    this.data.content = this.data.content.filter(
+      (_, index) => !partIndexesToRemove.has(index),
+    ) as typeof this.data.content;
     return consumedFiles;
   }
 
@@ -538,7 +551,22 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
    */
   public appendText(text: string) {
     this.guardMutable();
-    this.data.content.push({ type: "text", text });
+    switch (this.data.role) {
+      case "assistant":
+      case "user":
+      case "system":
+        (this.data.content as Array<ChatMessagePartTextData | ChatMessagePartFileData>).push({
+          type: "text",
+          text,
+        });
+        break;
+      case "tool":
+        throw new Error(`Cannot append text to a message with role "${this.data.role}"`);
+      default: {
+        const exhaustiveCheck: never = this.data;
+        throw new Error(`Unhandled role in switch statement: ${(exhaustiveCheck as any).role}`);
+      }
+    }
   }
 
   /**
@@ -549,10 +577,22 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
    */
   public replaceText(text: string) {
     this.guardMutable();
-    this.data.content = [
-      { type: "text", text },
-      ...this.data.content.filter(part => part.type !== "text"),
-    ];
+    switch (this.data.role) {
+      case "assistant":
+      case "user":
+      case "system":
+        this.data.content = [
+          { type: "text", text },
+          ...this.data.content.filter(part => part.type !== "text"),
+        ];
+        break;
+      case "tool":
+        throw new Error(`Cannot replace text in a message with role "${this.data.role}"`);
+      default: {
+        const exhaustiveCheck: never = this.data;
+        throw new Error(`Unhandled role in switch statement: ${(exhaustiveCheck as any).role}`);
+      }
+    }
   }
 
   public isSystemPrompt() {
