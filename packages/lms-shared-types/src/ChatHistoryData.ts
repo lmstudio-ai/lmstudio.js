@@ -110,7 +110,11 @@ export type ChatMessageData =
       >;
     }
   | {
-      role: "user" | "system";
+      role: "user";
+      content: Array<ChatMessagePartTextData | ChatMessagePartFileData>;
+    }
+  | {
+      role: "system";
       content: Array<ChatMessagePartTextData | ChatMessagePartFileData>;
     }
   | {
@@ -130,7 +134,13 @@ export const chatMessageDataSchema = z.discriminatedUnion("role", [
     ),
   }),
   z.object({
-    role: z.enum(["user", "system"]),
+    role: z.literal("user"),
+    content: z.array(
+      z.discriminatedUnion("type", [chatMessagePartTextDataSchema, chatMessagePartFileDataSchema]),
+    ),
+  }),
+  z.object({
+    role: z.literal("system"),
     content: z.array(
       z.discriminatedUnion("type", [chatMessagePartTextDataSchema, chatMessagePartFileDataSchema]),
     ),
