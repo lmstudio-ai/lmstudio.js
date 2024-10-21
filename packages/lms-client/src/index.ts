@@ -29,7 +29,7 @@ export type { DynamicHandle } from "./modelShared/DynamicHandle";
 export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace";
 export type { SpecificModel } from "./modelShared/SpecificModel";
 export type {
-  DownloadOnProgressCallbackParam,
+  DownloadProgressUpdate as DownloadOnProgressCallbackParam,
   DownloadOpts,
   ModelSearchResultDownloadOption,
 } from "./repository/ModelSearchResultDownloadOption";

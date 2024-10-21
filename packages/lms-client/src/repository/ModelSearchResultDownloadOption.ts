@@ -13,7 +13,7 @@ import { z } from "zod";
 /**
  * @public
  */
-export interface DownloadOnProgressCallbackParam {
+export interface DownloadProgressUpdate {
   /**
    * Number of bytes that have been downloaded so far.
    */
@@ -30,7 +30,7 @@ export interface DownloadOnProgressCallbackParam {
 
 /** @public */
 export interface DownloadOpts {
-  onProgress?: (param: DownloadOnProgressCallbackParam) => void;
+  onProgress?: (update: DownloadProgressUpdate) => void;
   onStartFinalizing?: () => void;
   signal?: AbortSignal;
 }
