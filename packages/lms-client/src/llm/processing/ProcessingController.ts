@@ -3,13 +3,13 @@ import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import { kvConfigToLLMPredictionConfig } from "@lmstudio/lms-kv-config";
 import {
   type CitationSource,
+  type ColorPalette,
   type KVConfig,
   type LLMGenInfo,
   type LLMPredictionConfig,
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
-import { type ColorPalette } from "@lmstudio/lms-shared-types/dist/ColorPalette";
 import { ChatHistory } from "../../ChatHistory";
 import { type LMStudioClient } from "../../LMStudioClient";
 import { type RetrievalResult, type RetrievalResultEntry } from "../../retrieval/RetrievalResult";
