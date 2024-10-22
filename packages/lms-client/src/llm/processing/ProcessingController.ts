@@ -3,6 +3,7 @@ import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import { kvConfigToLLMPredictionConfig } from "@lmstudio/lms-kv-config";
 import {
   type CitationSource,
+  type ColorPalette,
   type KVConfig,
   type LLMGenInfo,
   type LLMPredictionConfig,
@@ -121,6 +122,7 @@ interface ProcessingControllerHandle {
 export interface CreateContentBlockOpts {
   includeInContext?: boolean;
   label?: string;
+  labelColor?: ColorPalette;
 }
 
 /**
@@ -245,6 +247,7 @@ export class ProcessingController {
   public createContentBlock({
     includeInContext = true,
     label = undefined,
+    labelColor = undefined,
   }: CreateContentBlockOpts = {}): PredictionProcessContentBlockController {
     const id = createId();
     this.sendUpdate({
@@ -252,6 +255,7 @@ export class ProcessingController {
       id,
       includeInContext,
       label,
+      labelColor,
     });
     const contentBlockController = new PredictionProcessContentBlockController(
       this.processingControllerHandle,

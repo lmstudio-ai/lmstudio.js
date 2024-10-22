@@ -18,6 +18,7 @@ export {
   chatMessageRoleDataSchema,
 } from "./ChatHistoryData";
 export { CitationSource, citationSourceSchema } from "./CitationSource";
+export { ColorPalette, colorPalette } from "./ColorPalette";
 export {
   DiagnosticsLogEvent,
   DiagnosticsLogEventData,
