@@ -6,11 +6,19 @@ import { type GeneratorController } from "./ProcessingController";
  *
  * @public
  */
-export interface Generator {
-  readonly identifier: string;
-  generate(ctl: GeneratorController): Promise<void>;
+export type Generator = (ctl: GeneratorController) => Promise<void>;
+export const generatorSchema = z.function();
+
+/**
+ * TODO: Documentation
+ *
+ * @public
+ */
+export interface GeneratorRegistration {
+  identifier: string;
+  generate: Generator;
 }
-export const generatorSchema = z.object({
+export const generatorRegistrationSchema = z.object({
   identifier: z.string(),
-  generate: z.function(),
+  generate: generatorSchema,
 });
