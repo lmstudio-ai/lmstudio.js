@@ -7,11 +7,22 @@ import { type PreprocessorController } from "./ProcessingController";
  *
  * @public
  */
-export interface Preprocessor {
+export type Preprocessor = (
+  ctl: PreprocessorController,
+  userMessage: ChatMessage,
+) => Promise<string | ChatMessage>;
+export const preprocessorSchema = z.function();
+
+/**
+ * TODO: Documentation
+ *
+ * @public
+ */
+export interface PreprocessorRegistration {
   readonly identifier: string;
   preprocess(ctl: PreprocessorController, userMessage: ChatMessage): Promise<string | ChatMessage>;
 }
-export const preprocessorSchema = z.object({
+export const preprocessorRegistrationSchema = z.object({
   identifier: z.string(),
   preprocess: z.function(),
 });

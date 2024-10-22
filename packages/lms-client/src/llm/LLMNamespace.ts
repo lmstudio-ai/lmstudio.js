@@ -16,8 +16,11 @@ import { ModelNamespace } from "../modelShared/ModelNamespace";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
 import { LLMDynamicHandle } from "./LLMDynamicHandle";
 import { LLMSpecificModel } from "./LLMSpecificModel";
-import { generatorSchema, type Generator } from "./processing/Generator";
-import { preprocessorSchema, type Preprocessor } from "./processing/Preprocessor";
+import { generatorRegistrationSchema, type GeneratorRegistration } from "./processing/Generator";
+import {
+  preprocessorRegistrationSchema,
+  type PreprocessorRegistration,
+} from "./processing/Preprocessor";
 import {
   ProcessingConnector,
   ProcessingController,
@@ -77,14 +80,14 @@ export class LLMNamespace extends ModelNamespace<
     return new LLMDynamicHandle(port, specifier, validator, logger);
   }
 
-  public registerPreprocessor(preprocessor: Preprocessor) {
+  public registerPreprocessor(preprocessor: PreprocessorRegistration) {
     const stack = getCurrentStack(1);
 
     this.validator.validateMethodParamOrThrow(
       "llm",
       "registerPreprocessor",
       "preprocessor",
-      preprocessorSchema,
+      preprocessorRegistrationSchema,
       preprocessor,
       stack,
     );
@@ -201,14 +204,14 @@ export class LLMNamespace extends ModelNamespace<
       { stack },
     );
   }
-  public registerGenerator(generator: Generator) {
+  public registerGenerator(generator: GeneratorRegistration) {
     const stack = getCurrentStack(1);
 
     this.validator.validateMethodParamOrThrow(
       "llm",
       "registerGenerator",
       "generator",
-      generatorSchema,
+      generatorRegistrationSchema,
       generator,
       stack,
     );
