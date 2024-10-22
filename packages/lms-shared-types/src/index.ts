@@ -171,6 +171,7 @@ export {
   ModelSpecifier,
   modelSpecifierSchema,
 } from "./ModelSpecifier";
+export { PluginManifest } from "./PluginManifest";
 export { reasonableKeyStringSchema } from "./reasonable";
 export {
   ModelSearchOpts,
