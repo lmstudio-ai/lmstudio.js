@@ -9,6 +9,7 @@ import {
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
+import { type ColorPalette } from "@lmstudio/lms-shared-types/dist/ColorPalette";
 import { ChatHistory } from "../../ChatHistory";
 import { type LMStudioClient } from "../../LMStudioClient";
 import { type RetrievalResult, type RetrievalResultEntry } from "../../retrieval/RetrievalResult";
@@ -121,6 +122,7 @@ interface ProcessingControllerHandle {
 export interface CreateContentBlockOpts {
   includeInContext?: boolean;
   label?: string;
+  labelColor?: ColorPalette;
 }
 
 /**
@@ -245,6 +247,7 @@ export class ProcessingController {
   public createContentBlock({
     includeInContext = true,
     label = undefined,
+    labelColor = undefined,
   }: CreateContentBlockOpts = {}): PredictionProcessContentBlockController {
     const id = createId();
     this.sendUpdate({
@@ -252,6 +255,7 @@ export class ProcessingController {
       id,
       includeInContext,
       label,
+      labelColor,
     });
     const contentBlockController = new PredictionProcessContentBlockController(
       this.processingControllerHandle,

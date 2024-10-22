@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { citationSourceSchema, type CitationSource } from "../../CitationSource";
+import { colorPalette, type ColorPalette } from "../../ColorPalette";
 import { llmGenInfoSchema, type LLMGenInfo } from "../LLMPredictionStats";
 
 export type BlockLocation =
@@ -116,12 +117,14 @@ export type ProcessingUpdateContentBlockCreate = {
   id: string;
   includeInContext: boolean;
   label?: string;
+  labelColor?: ColorPalette;
 };
 export const ProcessingUpdateContentBlockCreateSchema = z.object({
   type: z.literal("contentBlock.create"),
   id: z.string(),
   includeInContext: z.boolean(),
   label: z.string().optional(),
+  labelColor: colorPalette.optional(),
 });
 
 export type ProcessingUpdateContentBlockAppendText = {
