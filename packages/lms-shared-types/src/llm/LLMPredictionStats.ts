@@ -28,8 +28,7 @@ export type LLMPredictionStopReason =
   | "eosFound"
   | "stopStringFound"
   | "maxPredictedTokensReached"
-  | "contextLengthReached"
-  | "toolCalls";
+  | "contextLengthReached";
 export const llmPredictionStopReasonSchema = z.enum([
   "userStopped",
   "modelUnloaded",
@@ -37,8 +36,7 @@ export const llmPredictionStopReasonSchema = z.enum([
   "eosFound",
   "stopStringFound",
   "maxPredictedTokensReached",
-  "contextLengthReached",
-  "toolCalls",
+  "contextLengthReached"
 ]);
 
 export const llmPredictionStatsSchema = z.object({
