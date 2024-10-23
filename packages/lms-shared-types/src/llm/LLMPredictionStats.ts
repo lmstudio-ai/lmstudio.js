@@ -27,6 +27,7 @@ export type LLMPredictionStopReason =
   | "failed"
   | "eosFound"
   | "stopStringFound"
+  | "toolCalls"
   | "maxPredictedTokensReached"
   | "contextLengthReached";
 export const llmPredictionStopReasonSchema = z.enum([
@@ -35,6 +36,7 @@ export const llmPredictionStopReasonSchema = z.enum([
   "failed",
   "eosFound",
   "stopStringFound",
+  "toolCalls",
   "maxPredictedTokensReached",
   "contextLengthReached"
 ]);

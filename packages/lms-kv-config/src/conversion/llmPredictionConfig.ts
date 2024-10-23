@@ -20,6 +20,11 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.stopStrings = stopStrings;
   }
 
+  const toolCallStopStrings = parsed.get("llm.prediction.toolCallStopStrings");
+  if (toolCallStopStrings !== undefined) {
+    result.toolCallStopStrings = toolCallStopStrings;
+  }
+
   const contextOverflowPolicy = parsed.get("llm.prediction.contextOverflowPolicy");
   if (contextOverflowPolicy !== undefined) {
     result.contextOverflowPolicy = contextOverflowPolicy;
@@ -74,6 +79,7 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "contextOverflowPolicy": config.contextOverflowPolicy,
     "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(config.maxPredictedTokens, 1),
     "stopStrings": config.stopStrings,
+    "toolCallStopStrings": config.toolCallStopStrings,
     "structured": config.structured,
     "tools": config.tools,
     "topKSampling": config.topKSampling,
