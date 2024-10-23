@@ -45,6 +45,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         { checked: false, value: 1000 },
       )
       .field("stopStrings", "stringArray", {}, [])
+      .field("toolCallStopStrings", "stringArray", {}, [])
       .field("structured", "llamaStructuredOutput", {}, { type: "none" })
       .field("tools", "toolUse", {}, { type: "none" })
       .field(
@@ -290,6 +291,7 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
     "llama.*",
     "contextOverflowPolicy",
     "stopStrings",
+    "toolCallStopStrings",
     "structured",
     "topKSampling",
     "repeatPenalty",
@@ -303,6 +305,7 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
     "mlx.*",
     "contextOverflowPolicy",
     "stopStrings",
+    "toolCallStopStrings",
     "structured",
     "repeatPenalty",
     "minPSampling",
