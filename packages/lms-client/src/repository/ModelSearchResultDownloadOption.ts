@@ -6,8 +6,10 @@ import {
   type Validator,
 } from "@lmstudio/lms-common";
 import { type RepositoryPort } from "@lmstudio/lms-external-backend-interfaces";
-import { type ModelSearchResultDownloadOptionData } from "@lmstudio/lms-shared-types";
-import { type ModelSearchResultDownloadOptionFitEstimation } from "@lmstudio/lms-shared-types/dist/repository/ModelSearch";
+import {
+  type ModelSearchResultDownloadOptionData,
+  type ModelSearchResultDownloadOptionFitEstimation,
+} from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 
 /**
