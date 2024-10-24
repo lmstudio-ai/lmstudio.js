@@ -75,6 +75,7 @@ export type {
   LLMPromptTemplate,
   LLMPromptTemplateType,
   LLMStructuredPredictionSetting,
+  LLMToolUseSetting,
   LogLevel,
   ModelCompatibilityType,
   ModelDescriptor,

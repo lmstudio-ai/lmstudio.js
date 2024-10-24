@@ -16,10 +16,10 @@ import {
   type KVConfig,
   type LogLevel,
   type ModelDescriptor,
+  type ModelDomainType,
   type ModelQuery,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
-import { type ModelDomainType } from "@lmstudio/lms-shared-types/dist/ModelDomainType";
 import { z, type ZodSchema } from "zod";
 import { type EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
 import { type LLMDynamicHandle } from "../llm/LLMDynamicHandle";

@@ -20,6 +20,11 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.stopStrings = stopStrings;
   }
 
+  const toolCallStopStrings = parsed.get("llm.prediction.toolCallStopStrings");
+  if (toolCallStopStrings !== undefined) {
+    result.toolCallStopStrings = toolCallStopStrings;
+  }
+
   const contextOverflowPolicy = parsed.get("llm.prediction.contextOverflowPolicy");
   if (contextOverflowPolicy !== undefined) {
     result.contextOverflowPolicy = contextOverflowPolicy;
@@ -28,6 +33,11 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
   const structured = parsed.get("llm.prediction.structured");
   if (structured !== undefined) {
     result.structured = structured;
+  }
+
+  const tools = parsed.get("llm.prediction.tools");
+  if (tools !== undefined) {
+    result.tools = tools;
   }
 
   const topKSampling = parsed.get("llm.prediction.topKSampling");
@@ -69,7 +79,9 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "contextOverflowPolicy": config.contextOverflowPolicy,
     "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(config.maxPredictedTokens, 1),
     "stopStrings": config.stopStrings,
+    "toolCallStopStrings": config.toolCallStopStrings,
     "structured": config.structured,
+    "tools": config.tools,
     "topKSampling": config.topKSampling,
     "repeatPenalty": maybeFalseNumberToCheckboxNumeric(config.repeatPenalty, 1.1),
     "minPSampling": maybeFalseNumberToCheckboxNumeric(config.minPSampling, 0.05),

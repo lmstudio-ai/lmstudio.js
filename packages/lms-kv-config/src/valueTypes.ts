@@ -6,6 +6,7 @@ import {
   llmLlamaMirostatSamplingConfigSchema,
   llmPromptTemplateSchema,
   llmStructuredPredictionSettingSchema,
+  llmToolUseSettingSchema,
   modelDomainTypeSchema,
   retrievalChunkingMethodSchema,
 } from "@lmstudio/lms-shared-types";
@@ -408,6 +409,18 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     paramType: {},
     schemaMaker: () => {
       return llmStructuredPredictionSettingSchema;
+    },
+    effectiveEquals: (a, b) => {
+      return deepEquals(a, b); // TODO: more performant comparison
+    },
+    stringify: value => {
+      return JSON.stringify(value, null, 2); // TODO: pretty print
+    },
+  })
+  .valueType("toolUse", {
+    paramType: {},
+    schemaMaker: () => {
+      return llmToolUseSettingSchema;
     },
     effectiveEquals: (a, b) => {
       return deepEquals(a, b); // TODO: more performant comparison

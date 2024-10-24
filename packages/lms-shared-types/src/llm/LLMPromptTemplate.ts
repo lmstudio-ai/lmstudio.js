@@ -49,7 +49,8 @@ export type LLMJinjaInputFormat =
   | "promptWithNumberedImages1"
   | "promptWithNumberedImages2"
   | "messageListWithImageType1"
-  | "messageListWithImageType2";
+  | "messageListWithImageType2"
+  | "llamaCustomTools";
 export const llmJinjaInputFormatSchema = z.enum([
   "promptOnly",
   "promptWithImages",
@@ -58,6 +59,7 @@ export const llmJinjaInputFormatSchema = z.enum([
   "promptWithNumberedImages2",
   "messageListWithImageType1",
   "messageListWithImageType2",
+  "llamaCustomTools",
 ]);
 
 /**
