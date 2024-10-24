@@ -617,9 +617,9 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
             case "file":
               return "<file>";
             case "toolCallRequest":
-              return "<toolCall>";
+              return JSON.stringify(part.toolCallRequests, null, 2);
             case "toolCallResult":
-              return "<toolCallResult>";
+              return part.content;
             default: {
               const exhaustiveCheck: never = part;
               throw new Error(`Unknown part type: ${(exhaustiveCheck as any).type}`);
