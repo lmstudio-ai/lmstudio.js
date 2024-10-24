@@ -38,7 +38,7 @@ export const llmPredictionStopReasonSchema = z.enum([
   "stopStringFound",
   "toolCalls",
   "maxPredictedTokensReached",
-  "contextLengthReached"
+  "contextLengthReached",
 ]);
 
 export const llmPredictionStatsSchema = z.object({
