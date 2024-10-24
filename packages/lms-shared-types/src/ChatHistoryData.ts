@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { type FileType, fileTypeSchema } from "./files/FileType";
+import { jsonSerializableSchema } from "./JSONSerializable";
 
 /**
  * @public
@@ -46,16 +47,42 @@ export const chatMessagePartFileDataSchema = z.object({
 /**
  * @public
  */
-export interface ChatMessagePartToolCallData {
-  type: "toolCall";
+export interface ChatMessagePartSubPartFunctionCallRequestData {
+  arguments?: Record<string, any>;
+  name: string;
+}
+export const chatMessagePartSubPartFunctionCallRequestDataSchema = z.object({
+  arguments: z.record(jsonSerializableSchema).optional(),
+  name: z.string(),
+});
+
+/**
+ * @public
+ */
+export interface ChatMessagePartSubPartToolCallRequest {
+  id?: string;
+  type: "function";
+  function: ChatMessagePartSubPartFunctionCallRequestData;
+}
+export const chatMessagePartSubPartToolCallRequestSchema = z.object({
+  id: z.string().optional(),
+  type: z.literal("function"),
+  function: chatMessagePartSubPartFunctionCallRequestDataSchema,
+});
+
+/**
+ * @public
+ */
+export interface ChatMessagePartToolCallRequestData {
+  type: "toolCallRequest";
   /**
    * Tool calls requested
    */
-  toolCalls: Array<Record<string, any>>;
+  toolCallRequests: ChatMessagePartSubPartToolCallRequest[];
 }
-export const chatMessagePartToolCallDataSchema = z.object({
-  type: z.literal("toolCall"),
-  toolCalls: z.array(z.record(z.any())),
+export const chatMessagePartToolCallRequestDataSchema = z.object({
+  type: z.literal("toolCallRequest"),
+  toolCallRequests: z.array(chatMessagePartSubPartToolCallRequestSchema),
 });
 
 /**
@@ -66,7 +93,7 @@ export interface ChatMessagePartToolCallResultData {
   /**
    * Result of a tool call
    */
-  content: Record<string, any>;
+  content: string;
   /**
    * The tool call ID that this result is for
    */
@@ -74,7 +101,7 @@ export interface ChatMessagePartToolCallResultData {
 }
 export const chatMessagePartToolCallResultDataSchema = z.object({
   type: z.literal("toolCallResult"),
-  content: z.record(z.any()),
+  content: z.string(),
   toolCallId: z.string().optional(),
 });
 
@@ -84,12 +111,12 @@ export const chatMessagePartToolCallResultDataSchema = z.object({
 export type ChatMessagePartData =
   | ChatMessagePartTextData
   | ChatMessagePartFileData
-  | ChatMessagePartToolCallData
+  | ChatMessagePartToolCallRequestData
   | ChatMessagePartToolCallResultData;
 export const chatMessagePartDataSchema = z.discriminatedUnion("type", [
   chatMessagePartTextDataSchema,
   chatMessagePartFileDataSchema,
-  chatMessagePartToolCallDataSchema,
+  chatMessagePartToolCallRequestDataSchema,
   chatMessagePartToolCallResultDataSchema,
 ]);
 
@@ -106,7 +133,7 @@ export type ChatMessageData =
   | {
       role: "assistant";
       content: Array<
-        ChatMessagePartTextData | ChatMessagePartFileData | ChatMessagePartToolCallData
+        ChatMessagePartTextData | ChatMessagePartFileData | ChatMessagePartToolCallRequestData
       >;
     }
   | {
@@ -129,7 +156,7 @@ export const chatMessageDataSchema = z.discriminatedUnion("role", [
       z.discriminatedUnion("type", [
         chatMessagePartTextDataSchema,
         chatMessagePartFileDataSchema,
-        chatMessagePartToolCallDataSchema,
+        chatMessagePartToolCallRequestDataSchema,
       ]),
     ),
   }),

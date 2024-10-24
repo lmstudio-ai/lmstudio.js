@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { jsonSerializableSchema } from "../JSONSerializable";
 
 /**
  * TODO: Documentation
@@ -15,7 +16,7 @@ export type LLMToolParameters = {
 export const llmToolParametersSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("object"),
-    properties: z.record(z.any()),
+    properties: z.record(jsonSerializableSchema),
     required: z.array(z.string()).optional(),
     additionalProperties: z.boolean().optional(),
   }),
@@ -33,7 +34,7 @@ export type LLMTool = {
   function: {
     name: string;
     description: string;
-    parameters: LLMToolParameters;
+    parameters?: LLMToolParameters;
   };
   // add more tool types here
   // ...
@@ -45,7 +46,7 @@ export const llmToolSchema = z.discriminatedUnion("type", [
     function: z.object({
       name: z.string(),
       description: z.string(),
-      parameters: llmToolParametersSchema,
+      parameters: llmToolParametersSchema.optional(),
     }),
   }),
   // add more tool types here
