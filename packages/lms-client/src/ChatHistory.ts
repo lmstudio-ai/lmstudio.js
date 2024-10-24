@@ -486,7 +486,6 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
         partIndexesToRemove.add(index);
       }
     }
-    // Use type assertion to ensure correct typing
     this.data.content = this.data.content.filter(
       (_, index) => !partIndexesToRemove.has(index),
     ) as typeof this.data.content;
@@ -532,7 +531,6 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
         partIndexesToRemove.add(index);
       }
     }
-    // Use type assertion to ensure correct typing
     this.data.content = this.data.content.filter(
       (_, index) => !partIndexesToRemove.has(index),
     ) as typeof this.data.content;
@@ -618,7 +616,7 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
               return part.text;
             case "file":
               return "<file>";
-            case "toolCall":
+            case "toolCallRequest":
               return "<toolCall>";
             case "toolCallResult":
               return "<toolCallResult>";
