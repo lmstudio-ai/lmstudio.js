@@ -12,7 +12,7 @@ export class Esbuild {
       ".cache",
       "lm-studio",
       ".internal",
-      "helpers",
+      "utils",
       process.platform === "win32" ? "esbuild.exe" : "esbuild",
     );
   }
