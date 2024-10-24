@@ -17,6 +17,7 @@
     "Mirostat",
     "Mmap",
     "Onnx",
+    "outfile",
     "proxying",
     "Rpcs",
     "Streamable",

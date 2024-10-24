@@ -1,0 +1,28 @@
+interface EsBuildArgsOpts {
+  entryPath: string;
+  outPath: string;
+  watch?: boolean;
+  production?: boolean;
+}
+const alwaysArgs = [
+  "--platform=node",
+  "--target=node18.16.0",
+  "--sourcemap=inline",
+  "--tree-shaking=true",
+  "--bundle",
+];
+export function createEsBuildArgs({ entryPath, outPath, watch, production }: EsBuildArgsOpts) {
+  // We don't need to worry about shell injections here because we never pass the args to a shell,
+  // but rather to spawn directly.
+  const args = [entryPath, ...alwaysArgs];
+  args.push("--outfile=" + outPath);
+  if (watch) {
+    args.push("--watch");
+  }
+  if (production) {
+    args.push('--define:process.env.NODE_ENV="production"');
+  } else {
+    args.push('--define:process.env.NODE_ENV="development"');
+  }
+  return args;
+}
