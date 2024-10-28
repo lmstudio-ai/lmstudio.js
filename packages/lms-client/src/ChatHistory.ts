@@ -125,10 +125,10 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
           content: [{ type: "text", text: content }],
         });
       } else {
-        throw new Error(
-          `Unsupported role for append() API with [role, content] parameters: ${role}. ` +
-            `Supported roles are 'user', 'system', and 'assistant'.`,
-        );
+        throw new Error(text`
+          Unsupported role for append() API with [role, content] parameters: ${role}.
+          Supported roles are 'user', 'system', and 'assistant'.
+        `);
       }
     }
   }
@@ -553,7 +553,7 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
       case "assistant":
       case "user":
       case "system":
-        (this.data.content as Array<ChatMessagePartTextData | ChatMessagePartFileData>).push({
+        this.data.content.push({
           type: "text",
           text,
         });
