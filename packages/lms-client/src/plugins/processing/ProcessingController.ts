@@ -1,6 +1,6 @@
 import { Cleaner, type SimpleLogger } from "@lmstudio/lms-common";
-import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
-import { kvConfigToLLMPredictionConfig } from "@lmstudio/lms-kv-config";
+import { type PluginsPort } from "@lmstudio/lms-external-backend-interfaces";
+import { type KVConfigSchematics, kvConfigToLLMPredictionConfig } from "@lmstudio/lms-kv-config";
 import {
   type CitationSource,
   type ColorPalette,
@@ -11,11 +11,11 @@ import {
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
 import { ChatHistory } from "../../ChatHistory";
+import { LLMDynamicHandle } from "../../llm/LLMDynamicHandle";
+import { type OngoingPrediction } from "../../llm/OngoingPrediction";
+import { type PredictionResult } from "../../llm/PredictionResult";
 import { type LMStudioClient } from "../../LMStudioClient";
 import { type RetrievalResult, type RetrievalResultEntry } from "../../retrieval/RetrievalResult";
-import { LLMDynamicHandle } from "../LLMDynamicHandle";
-import { type OngoingPrediction } from "../OngoingPrediction";
-import { type PredictionResult } from "../PredictionResult";
 
 function stringifyAny(message: any) {
   switch (typeof message) {
@@ -56,14 +56,14 @@ function createId() {
 
 export class ProcessingConnector {
   public constructor(
-    private readonly llmPort: LLMPort,
+    private readonly pluginsPort: PluginsPort,
     public readonly abortSignal: AbortSignal,
     private readonly processingContextIdentifier: string,
     private readonly token: string,
     private readonly logger: SimpleLogger,
   ) {}
   public handleUpdate(update: ProcessingUpdate) {
-    this.llmPort
+    this.pluginsPort
       .callRpc("processingHandleUpdate", {
         pci: this.processingContextIdentifier,
         token: this.token,
@@ -74,7 +74,7 @@ export class ProcessingConnector {
       });
   }
   public async getHistory(includeCurrent: boolean): Promise<ChatHistory> {
-    const chatHistoryData = await this.llmPort.callRpc("processingGetHistory", {
+    const chatHistoryData = await this.pluginsPort.callRpc("processingGetHistory", {
       pci: this.processingContextIdentifier,
       token: this.token,
       includeCurrent,
@@ -84,26 +84,29 @@ export class ProcessingConnector {
     return ChatHistory.createRaw(chatHistoryData, /* mutable */ false).asMutableCopy();
   }
   public async temp_getCurrentlySelectedLLMIdentifier(): Promise<string> {
-    const result = await this.llmPort.callRpc("temp_processingGetCurrentlySelectedLLMIdentifier", {
-      pci: this.processingContextIdentifier,
-      token: this.token,
-    });
+    const result = await this.pluginsPort.callRpc(
+      "temp_processingGetCurrentlySelectedLLMIdentifier",
+      {
+        pci: this.processingContextIdentifier,
+        token: this.token,
+      },
+    );
     return result.identifier;
   }
   public async hasStatus(): Promise<boolean> {
-    return await this.llmPort.callRpc("processingHasStatus", {
+    return await this.pluginsPort.callRpc("processingHasStatus", {
       pci: this.processingContextIdentifier,
       token: this.token,
     });
   }
   public async needsNaming(): Promise<boolean> {
-    return await this.llmPort.callRpc("processingNeedsNaming", {
+    return await this.pluginsPort.callRpc("processingNeedsNaming", {
       pci: this.processingContextIdentifier,
       token: this.token,
     });
   }
   public async suggestName(name: string) {
-    await this.llmPort.callRpc("processingSuggestName", {
+    await this.pluginsPort.callRpc("processingSuggestName", {
       pci: this.processingContextIdentifier,
       token: this.token,
       name,
@@ -159,6 +162,10 @@ export class ProcessingController {
 
   private sendUpdate(update: ProcessingUpdate) {
     this.processingControllerHandle.sendUpdate(update);
+  }
+
+  public getCustomConfig(config: KVConfigSchematics<any, any, any>): any {
+    return config.parse(this.config);
   }
 
   /**

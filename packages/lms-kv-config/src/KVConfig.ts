@@ -4,6 +4,7 @@ import {
   type KVConfigField,
   type KVConfigLayerName,
   type KVConfigStack,
+  type SerializedKVConfigSchematics,
 } from "@lmstudio/lms-shared-types";
 import { type Any } from "ts-toolbelt";
 import { z, type ZodSchema } from "zod";
@@ -182,6 +183,13 @@ export class KVFieldValueTypeLibrary<
     param: TKVFieldValueTypeLibraryMap[TKey]["param"],
   ): ZodSchema<TKVFieldValueTypeLibraryMap[TKey]["value"]> {
     return this.valueTypes.get(key)!.schemaMaker(param);
+  }
+
+  public parseParamTypes<TKey extends keyof TKVFieldValueTypeLibraryMap & string>(
+    key: TKey,
+    param: any,
+  ): TKVFieldValueTypeLibraryMap[TKey]["param"] {
+    return this.valueTypes.get(key)!.paramType.parse(param);
   }
 
   public effectiveEquals<TKey extends keyof TKVFieldValueTypeLibraryMap & string>(
@@ -522,6 +530,17 @@ export class KVConfigSchematics<
       newFields.set(key, field);
     }
     return new KVConfigSchematics(this.valueTypeLibrary, newFields, this.baseKey);
+  }
+
+  /**
+   * Combine baseKey into the fields. Effectively removes the baseKey.
+   */
+  public flattenBaseKey() {
+    const newFields = new Map<string, KVConcreteFieldSchema>();
+    for (const [key, field] of this.fields.entries()) {
+      newFields.set(this.baseKey + key, field);
+    }
+    return new KVConfigSchematics(this.valueTypeLibrary, newFields, "");
   }
 
   public parseToMap(config: KVConfig) {
@@ -967,6 +986,38 @@ export class KVConfigSchematics<
       }
     }
     return { onlyInA, onlyInB, inBothButDifferent };
+  }
+  public serialize(): SerializedKVConfigSchematics {
+    return {
+      baseKey: this.baseKey,
+      fields: [...this.fields.entries()].map(([key, field]) => ({
+        key,
+        typeKey: field.valueTypeKey,
+        typeParams: field.valueTypeParams,
+        defaultValue: field.defaultValue!,
+      })),
+    };
+  }
+  public static fromSerialized(
+    valueTypeLibrary: KVFieldValueTypeLibrary<any>,
+    serialized: SerializedKVConfigSchematics,
+  ) {
+    const fields = new Map<string, KVConcreteFieldSchema>(
+      serialized.fields.map(field => {
+        const typeParams = valueTypeLibrary.parseParamTypes(field.typeKey, field.typeParams);
+        const valueSchema = valueTypeLibrary.getSchema(field.typeKey, typeParams);
+        return [
+          field.key,
+          {
+            valueTypeKey: field.typeKey,
+            valueTypeParams: typeParams,
+            schema: valueSchema,
+            defaultValue: valueSchema.parse(field.defaultValue),
+          },
+        ];
+      }),
+    );
+    return new KVConfigSchematics(valueTypeLibrary, fields, serialized.baseKey);
   }
 }
 

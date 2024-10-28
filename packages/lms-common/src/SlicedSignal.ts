@@ -16,7 +16,7 @@ export function makeSlicedSignalFrom<TSource>(
   >(writableSignal[0], writableSignal[1]);
 }
 
-function drill(value: any, path: Array<string>) {
+function drill(value: any, path: Array<string | number>) {
   let current = value;
   for (const key of path) {
     current = current[key];
@@ -64,7 +64,7 @@ function pathStartsWith(path: Array<string | number>, prefix: Array<string | num
 }
 
 class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends boolean> {
-  private readonly path: Array<string> = [];
+  private readonly path: Array<string | number> = [];
   private readonly tagKey = String(Math.random());
   public constructor(
     private readonly sourceSignal: SignalLike<TSource>,
@@ -73,7 +73,7 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
   public access<TKey extends keyof TCurrent>(
     key: TKey,
   ): SlicedSignalBuilderImpl<TSource, TCurrent[TKey], TCanBeNotAvailable> {
-    this.path.push(key as string);
+    this.path.push(key as number | string);
     return this as any;
   }
   public done(): readonly [

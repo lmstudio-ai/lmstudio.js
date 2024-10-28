@@ -11,7 +11,12 @@ import {
   retrievalChunkingMethodSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { deepEquals, KVFieldValueTypesLibraryBuilder, type InferKVValueTypeDef } from "./KVConfig";
+import {
+  deepEquals,
+  KVFieldValueTypesLibraryBuilder,
+  type InferKVValueTypeDef,
+  type KVFieldValueTypeLibrary,
+} from "./KVConfig";
 
 /**
  * Quote a string.
@@ -521,3 +526,8 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   .build();
 
 export type KVValueTypeDef = InferKVValueTypeDef<typeof kvValueTypesLibrary>;
+export type GlobalKVValueTypesLibrary = typeof kvValueTypesLibrary;
+export type GlobalKVFieldValueTypeLibraryMap =
+  GlobalKVValueTypesLibrary extends KVFieldValueTypeLibrary<infer TKVFieldValueTypeLibraryMap>
+    ? TKVFieldValueTypeLibraryMap
+    : never;

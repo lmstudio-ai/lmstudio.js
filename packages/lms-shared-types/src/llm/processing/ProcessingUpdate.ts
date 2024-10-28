@@ -160,7 +160,7 @@ export type ProcessingUpdate =
   | ProcessingUpdateContentBlockCreate
   | ProcessingUpdateContentBlockAppendText
   | ProcessingUpdateContentBlockAttachGenInfo;
-export const ProcessingUpdateSchema = z.discriminatedUnion("type", [
+export const processingUpdateSchema = z.discriminatedUnion("type", [
   ProcessingUpdateStatusCreateSchema,
   ProcessingUpdateStatusUpdateSchema,
   ProcessingUpdateStatusRemoveSchema,

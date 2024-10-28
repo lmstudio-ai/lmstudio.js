@@ -78,11 +78,14 @@ export class FcfsClient {
   protected constructor(
     public readonly clientIdentifier: string,
     private readonly clientPasskey: string,
-    private readonly onRelease: (client: FcfsClient) => void,
+    private readonly onReleaseCallback: (client: FcfsClient) => void,
     parentLogger?: LoggerInterface,
   ) {
     this.logger = new SimpleLogger(`Client=${clientIdentifier}`, parentLogger);
     this.logger.debug("Client created.");
+  }
+  protected onRelease() {
+    this.onReleaseCallback(this);
   }
   public async assertValid(authPacket: AuthPacket) {
     if (authPacket.clientIdentifier !== this.clientIdentifier) {
@@ -114,7 +117,7 @@ export class FcfsClient {
     // this.logger.debug("Holder released, references:", this.references);
     if (this.references === 0) {
       this.logger.debug("Client disconnected.");
-      this.onRelease(this);
+      this.onRelease();
     }
   }
 
@@ -156,7 +159,7 @@ export abstract class FcfsAuthenticatorBase<
   protected readonly emitClientReleasedEvent: (client: TClient) => void;
 
   public readonly clientCreatedEvent: Event<TClient>;
-  private readonly emitClientCreatedEvent: (client: TClient) => void;
+  protected readonly emitClientCreatedEvent: (client: TClient) => void;
 
   public constructor() {
     super();
@@ -173,6 +176,12 @@ export abstract class FcfsAuthenticatorBase<
   }>;
   protected abstract createContextCreator(client: TClient): Promise<ContextCreator<TContext>>;
   /**
+   * Allows to reserve certain client identifiers for manual creation only.
+   */
+  protected isClientIdentifierAllowedForNewAuthenticatedClient(_clientIdentifier: string): boolean {
+    return true;
+  }
+  /**
    * Authenticates a request. Returns a client holder and a context.
    *
    * If failed to authenticate, an error will be thrown.
@@ -186,6 +195,14 @@ export abstract class FcfsAuthenticatorBase<
     let client = this.clients.get(authPacket.clientIdentifier);
     let holder: ClientHolder;
     if (client === undefined) {
+      const isAllowed = this.isClientIdentifierAllowedForNewAuthenticatedClient(
+        authPacket.clientIdentifier,
+      );
+      if (!isAllowed) {
+        throw new Error(
+          `Provided client identifier ${authPacket.clientIdentifier} is not allowed.`,
+        );
+      }
       const clientPromise = this.createClientAndFirstHolder(authPacket);
       this.clients.set(authPacket.clientIdentifier, clientPromise);
       ({ client, holder } = await clientPromise);

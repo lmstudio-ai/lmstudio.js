@@ -50,4 +50,8 @@ export {
   llmSharedPredictionConfigSchematics,
   retrievalSchematics,
 } from "./schema";
-export { kvValueTypesLibrary } from "./valueTypes";
+export {
+  GlobalKVFieldValueTypeLibraryMap,
+  GlobalKVValueTypesLibrary,
+  kvValueTypesLibrary,
+} from "./valueTypes";

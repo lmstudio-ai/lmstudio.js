@@ -1,15 +1,12 @@
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
   chatHistoryDataSchema,
-  chatMessageDataSchema,
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
   llmPredictionStatsSchema,
   modelDescriptorSchema,
   modelSpecifierSchema,
-  ProcessingUpdateSchema,
-  serializedLMSExtendedErrorSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { createBaseModelBackendInterface } from "./baseModelBackendInterface";
@@ -74,129 +71,6 @@ export function createLlmBackendInterface() {
       returns: z.object({
         tokenCount: z.number(),
       }),
-    })
-    .addChannelEndpoint("registerPreprocessor", {
-      creationParameter: z.object({
-        identifier: z.string(),
-      }),
-      toClientPacket: z.discriminatedUnion("type", [
-        z.object({
-          type: z.literal("preprocess"),
-          taskId: z.string(),
-          input: chatMessageDataSchema,
-          config: kvConfigSchema,
-          /** Processing Context Identifier */
-          pci: z.string(),
-          token: z.string(),
-        }),
-        z.object({
-          type: z.literal("abort"),
-          taskId: z.string(),
-        }),
-      ]),
-      toServerPacket: z.discriminatedUnion("type", [
-        z.object({
-          type: z.literal("complete"),
-          taskId: z.string(),
-          processed: chatMessageDataSchema,
-        }),
-        z.object({
-          type: z.literal("aborted"),
-          taskId: z.string(),
-        }),
-        z.object({
-          type: z.literal("error"),
-          taskId: z.string(),
-          error: serializedLMSExtendedErrorSchema,
-        }),
-      ]),
-    })
-    .addChannelEndpoint("registerGenerator", {
-      creationParameter: z.object({
-        identifier: z.string(),
-      }),
-      toClientPacket: z.discriminatedUnion("type", [
-        z.object({
-          type: z.literal("generate"),
-          taskId: z.string(),
-          config: kvConfigSchema,
-          /** Processing Context Identifier */
-          pci: z.string(),
-          token: z.string(),
-        }),
-        z.object({
-          type: z.literal("abort"),
-          taskId: z.string(),
-        }),
-      ]),
-      toServerPacket: z.discriminatedUnion("type", [
-        z.object({
-          type: z.literal("complete"),
-          taskId: z.string(),
-        }),
-        z.object({
-          type: z.literal("aborted"),
-          taskId: z.string(),
-        }),
-        z.object({
-          type: z.literal("error"),
-          taskId: z.string(),
-          error: serializedLMSExtendedErrorSchema,
-        }),
-      ]),
-    })
-    .addRpcEndpoint("processingHandleUpdate", {
-      parameter: z.object({
-        /** Processing Context Identifier */
-        pci: z.string(),
-        token: z.string(),
-        update: ProcessingUpdateSchema,
-      }),
-      returns: z.void(),
-    })
-    .addRpcEndpoint("processingGetHistory", {
-      parameter: z.object({
-        /** Processing Context Identifier */
-        pci: z.string(),
-        token: z.string(),
-        includeCurrent: z.boolean(),
-      }),
-      returns: chatHistoryDataSchema,
-    })
-    .addRpcEndpoint("temp_processingGetCurrentlySelectedLLMIdentifier", {
-      parameter: z.object({
-        /** Processing Context Identifier */
-        pci: z.string(),
-        token: z.string(),
-      }),
-      returns: z.object({
-        identifier: z.string(),
-      }),
-    })
-    .addRpcEndpoint("processingHasStatus", {
-      parameter: z.object({
-        /** Processing Context Identifier */
-        pci: z.string(),
-        token: z.string(),
-      }),
-      returns: z.boolean(),
-    })
-    .addRpcEndpoint("processingNeedsNaming", {
-      parameter: z.object({
-        /** Processing Context Identifier */
-        pci: z.string(),
-        token: z.string(),
-      }),
-      returns: z.boolean(),
-    })
-    .addRpcEndpoint("processingSuggestName", {
-      parameter: z.object({
-        /** Processing Context Identifier */
-        pci: z.string(),
-        token: z.string(),
-        name: z.string(),
-      }),
-      returns: z.void(),
     });
 }
 

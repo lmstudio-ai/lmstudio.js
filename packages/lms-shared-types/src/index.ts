@@ -167,7 +167,7 @@ export {
   ProcessingUpdateDebugInfoBlockCreate,
   ProcessingUpdateDebugInfoBlockCreateSchema,
   ProcessingUpdateOf,
-  ProcessingUpdateSchema,
+  processingUpdateSchema,
   ProcessingUpdateStatusCreate,
   ProcessingUpdateStatusCreateSchema,
   ProcessingUpdateStatusRemove,
@@ -228,4 +228,10 @@ export {
   Runtime,
   runtimeSchema,
 } from "./Runtime";
+export {
+  SerializedKVConfigSchematics,
+  SerializedKVConfigSchematicsField,
+  serializedKVConfigSchematicsFieldSchema,
+  serializedKVConfigSchematicsSchema,
+} from "./SerializedKVConfigSchematics";
 export { VirtualModelManifest, virtualModelManifestSchema } from "./VirtualModelManifest";
