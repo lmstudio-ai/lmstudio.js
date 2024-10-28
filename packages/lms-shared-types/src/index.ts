@@ -12,8 +12,16 @@ export {
   chatMessagePartDataSchema,
   ChatMessagePartFileData,
   chatMessagePartFileDataSchema,
+  ChatMessagePartSubPartFunctionCallRequestData,
+  chatMessagePartSubPartFunctionCallRequestDataSchema,
+  ChatMessagePartSubPartToolCallRequest,
+  chatMessagePartSubPartToolCallRequestSchema,
   ChatMessagePartTextData,
   chatMessagePartTextDataSchema,
+  ChatMessagePartToolCallRequestData,
+  chatMessagePartToolCallRequestDataSchema,
+  ChatMessagePartToolCallResultData,
+  chatMessagePartToolCallResultDataSchema,
   ChatMessageRoleData,
   chatMessageRoleDataSchema,
 } from "./ChatHistoryData";
@@ -118,6 +126,8 @@ export {
   llmPredictionStopReasonSchema,
 } from "./llm/LLMPredictionStats";
 export {
+  LLMJinjaInputFormat,
+  llmJinjaInputFormatSchema,
   LLMJinjaPromptTemplate,
   llmJinjaPromptTemplateSchema,
   LLMManualPromptTemplate,
@@ -131,6 +141,15 @@ export {
   LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,
 } from "./llm/LLMStructuredPredictionSetting";
+export {
+  LLMTool,
+  llmToolArraySchema,
+  LLMToolParameters,
+  llmToolParametersSchema,
+  llmToolSchema,
+  LLMToolUseSetting,
+  llmToolUseSettingSchema,
+} from "./llm/LLMToolUseSetting";
 export { GeneratorUpdate, generatorUpdateSchema } from "./llm/processing/GeneratorUpdate";
 export { PreprocessorUpdate, preprocessorUpdateSchema } from "./llm/processing/PreprocessorUpdate";
 export {

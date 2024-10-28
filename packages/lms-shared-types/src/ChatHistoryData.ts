@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { type FileType, fileTypeSchema } from "./files/FileType";
+import { jsonSerializableSchema } from "./JSONSerializable";
 
 /**
  * @public
@@ -46,29 +47,136 @@ export const chatMessagePartFileDataSchema = z.object({
 /**
  * @public
  */
-export type ChatMessagePartData = ChatMessagePartTextData | ChatMessagePartFileData;
+export interface ChatMessagePartSubPartFunctionCallRequestData {
+  arguments?: Record<string, any>;
+  name: string;
+}
+export const chatMessagePartSubPartFunctionCallRequestDataSchema = z.object({
+  arguments: z.record(jsonSerializableSchema).optional(),
+  name: z.string(),
+});
+
+/**
+ * @public
+ */
+export interface ChatMessagePartSubPartToolCallRequest {
+  id?: string;
+  type: "function";
+  function: ChatMessagePartSubPartFunctionCallRequestData;
+}
+export const chatMessagePartSubPartToolCallRequestSchema = z.object({
+  id: z.string().optional(),
+  type: z.literal("function"),
+  function: chatMessagePartSubPartFunctionCallRequestDataSchema,
+});
+
+/**
+ * @public
+ */
+export interface ChatMessagePartToolCallRequestData {
+  type: "toolCallRequest";
+  /**
+   * Tool calls requested
+   */
+  toolCallRequests: ChatMessagePartSubPartToolCallRequest[];
+}
+export const chatMessagePartToolCallRequestDataSchema = z.object({
+  type: z.literal("toolCallRequest"),
+  toolCallRequests: z.array(chatMessagePartSubPartToolCallRequestSchema),
+});
+
+/**
+ * @public
+ */
+export interface ChatMessagePartToolCallResultData {
+  type: "toolCallResult";
+  /**
+   * Result of a tool call
+   */
+  content: string;
+  /**
+   * The tool call ID that this result is for
+   */
+  toolCallId?: string;
+}
+export const chatMessagePartToolCallResultDataSchema = z.object({
+  type: z.literal("toolCallResult"),
+  content: z.string(),
+  toolCallId: z.string().optional(),
+});
+
+/**
+ * @public
+ */
+export type ChatMessagePartData =
+  | ChatMessagePartTextData
+  | ChatMessagePartFileData
+  | ChatMessagePartToolCallRequestData
+  | ChatMessagePartToolCallResultData;
 export const chatMessagePartDataSchema = z.discriminatedUnion("type", [
   chatMessagePartTextDataSchema,
   chatMessagePartFileDataSchema,
+  chatMessagePartToolCallRequestDataSchema,
+  chatMessagePartToolCallResultDataSchema,
 ]);
 
 /**
  * @public
  */
-export type ChatMessageRoleData = "assistant" | "user" | "system";
-export const chatMessageRoleDataSchema = z.enum(["assistant", "user", "system"]);
+export type ChatMessageRoleData = "assistant" | "user" | "system" | "tool";
+export const chatMessageRoleDataSchema = z.enum(["assistant", "user", "system", "tool"]);
 
 /**
  * @public
  */
-export interface ChatMessageData {
-  role: ChatMessageRoleData;
-  content: Array<ChatMessagePartData>;
-}
-export const chatMessageDataSchema = z.object({
-  role: chatMessageRoleDataSchema,
-  content: z.array(chatMessagePartDataSchema),
-});
+export type ChatMessageData =
+  | {
+      role: "assistant";
+      content: Array<
+        ChatMessagePartTextData | ChatMessagePartFileData | ChatMessagePartToolCallRequestData
+      >;
+    }
+  | {
+      role: "user";
+      content: Array<ChatMessagePartTextData | ChatMessagePartFileData>;
+    }
+  | {
+      role: "system";
+      content: Array<ChatMessagePartTextData | ChatMessagePartFileData>;
+    }
+  | {
+      role: "tool";
+      content: Array<ChatMessagePartToolCallResultData>;
+    };
+
+export const chatMessageDataSchema = z.discriminatedUnion("role", [
+  z.object({
+    role: z.literal("assistant"),
+    content: z.array(
+      z.discriminatedUnion("type", [
+        chatMessagePartTextDataSchema,
+        chatMessagePartFileDataSchema,
+        chatMessagePartToolCallRequestDataSchema,
+      ]),
+    ),
+  }),
+  z.object({
+    role: z.literal("user"),
+    content: z.array(
+      z.discriminatedUnion("type", [chatMessagePartTextDataSchema, chatMessagePartFileDataSchema]),
+    ),
+  }),
+  z.object({
+    role: z.literal("system"),
+    content: z.array(
+      z.discriminatedUnion("type", [chatMessagePartTextDataSchema, chatMessagePartFileDataSchema]),
+    ),
+  }),
+  z.object({
+    role: z.literal("tool"),
+    content: z.array(chatMessagePartToolCallResultDataSchema),
+  }),
+]);
 
 /**
  * @public

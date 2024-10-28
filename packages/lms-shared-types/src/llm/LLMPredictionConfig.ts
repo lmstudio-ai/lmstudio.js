@@ -4,6 +4,7 @@ import {
   llmStructuredPredictionSettingSchema,
   type LLMStructuredPredictionSetting,
 } from "./LLMStructuredPredictionSetting";
+import { llmToolUseSettingSchema, type LLMToolUseSetting } from "./LLMToolUseSetting";
 
 /**
  * Behavior for when the generated tokens length exceeds the context window size. Only the following
@@ -56,6 +57,13 @@ export interface LLMPredictionConfig {
    */
   stopStrings?: Array<string>;
   /**
+   * An array of strings. If the model generates one of these strings, the prediction will stop with
+   * the `stopReason` `toolCalls`.
+   *
+   * See {@link LLMPredictionStopReason} for other reasons that a prediction might stop.
+   */
+  toolCallStopStrings?: Array<string>;
+  /**
    * The behavior for when the generated tokens length exceeds the context window size. The allowed
    * values are:
    *
@@ -70,6 +78,10 @@ export interface LLMPredictionConfig {
    * TODO: Documentation
    */
   structured?: LLMStructuredPredictionSetting;
+  /**
+   * TODO: Documentation
+   */
+  tools?: LLMToolUseSetting;
   /**
    * TODO: Documentation
    */
@@ -101,8 +113,10 @@ export const llmPredictionConfigSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional().or(z.literal(false)),
   temperature: z.number().min(0).optional(),
   stopStrings: z.array(z.string()).optional(),
+  toolCallStopStrings: z.array(z.string()).optional(),
   contextOverflowPolicy: llmContextOverflowPolicySchema.optional(),
   structured: llmStructuredPredictionSettingSchema.optional(),
+  tools: llmToolUseSettingSchema.optional(),
   topKSampling: z.number().optional(),
   repeatPenalty: z.number().optional().or(z.literal(false)),
   minPSampling: z.number().optional().or(z.literal(false)),
