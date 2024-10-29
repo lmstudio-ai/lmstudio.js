@@ -18,8 +18,9 @@ export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNames
 export type { SpecificModel } from "./modelShared/SpecificModel";
 export type { PluginContext } from "./PluginContext";
 export { createConfigSchematics } from "./plugins/createConfigSchematics";
-export type { Generator, GeneratorRegistration } from "./plugins/processing/Generator";
-export type { Preprocessor, PreprocessorRegistration } from "./plugins/processing/Preprocessor";
+export type { PluginsNamespace, RegisterDevelopmentPluginOpts } from "./plugins/PluginsNamespace";
+export type { Generator } from "./plugins/processing/Generator";
+export type { Preprocessor } from "./plugins/processing/Preprocessor";
 export type {
   CreateContentBlockOpts,
   GeneratorController,

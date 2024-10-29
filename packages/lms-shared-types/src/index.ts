@@ -190,7 +190,12 @@ export {
   ModelSpecifier,
   modelSpecifierSchema,
 } from "./ModelSpecifier";
-export { PluginManifest } from "./PluginManifest";
+export {
+  PluginManifest,
+  pluginManifestSchema,
+  PluginRunnerType,
+  pluginRunnerTypeSchema,
+} from "./PluginManifest";
 export { reasonableKeyStringSchema } from "./reasonable";
 export {
   ModelSearchOpts,

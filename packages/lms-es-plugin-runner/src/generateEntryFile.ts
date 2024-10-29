@@ -23,10 +23,7 @@ const pluginContext: PluginContext = {
       throw new Error("Generator already registered");
     }
     generatorSet = true;
-    client.plugins.setGenerator({
-      identifier: clientIdentifier,
-      generate,
-    });
+    client.plugins.setGenerator(generate);
     return pluginContext;
   },
   withPreprocessor: (preprocess) => {
@@ -34,10 +31,7 @@ const pluginContext: PluginContext = {
       throw new Error("Preprocessor already registered");
     }
     preprocessorSet = true;
-    client.plugins.setPreprocessor({
-      identifier: clientIdentifier,
-      preprocess,
-    });
+    client.plugins.setPreprocessor(preprocess);
     return pluginContext;
   },
   withConfigSchematics: (configSchematics) => {

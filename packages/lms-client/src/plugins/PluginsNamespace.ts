@@ -1,26 +1,43 @@
 import {
   getCurrentStack,
   type LoggerInterface,
+  makePromise,
   SimpleLogger,
   Validator,
 } from "@lmstudio/lms-common";
 import { type PluginsPort } from "@lmstudio/lms-external-backend-interfaces";
-import { type GlobalKVValueTypeMap, type KVConfigSchematics } from "@lmstudio/lms-kv-config";
-import { type ChatMessageData, serializeError } from "@lmstudio/lms-shared-types";
+import { type GlobalKVValueTypeMap, KVConfigSchematics } from "@lmstudio/lms-kv-config";
+import {
+  type ChatMessageData,
+  type PluginManifest,
+  serializeError,
+} from "@lmstudio/lms-shared-types";
+import { pluginManifestSchema } from "@lmstudio/lms-shared-types/dist/PluginManifest";
 import { z } from "zod";
 import { ChatMessage } from "../ChatHistory";
 import { type LMStudioClient } from "../LMStudioClient";
-import { type GeneratorRegistration, generatorRegistrationSchema } from "./processing/Generator";
-import {
-  type PreprocessorRegistration,
-  preprocessorRegistrationSchema,
-} from "./processing/Preprocessor";
+import { type Generator } from "./processing/Generator";
+import { type Preprocessor } from "./processing/Preprocessor";
 import {
   type GeneratorController,
   type PreprocessorController,
   ProcessingConnector,
   ProcessingController,
 } from "./processing/ProcessingController";
+
+/**
+ * @public
+ */
+export interface RegisterDevelopmentPluginOpts {
+  clientIdentifier: string;
+  clientPasskey: string;
+  manifest: PluginManifest;
+}
+const registerDevelopmentPluginOptsSchema = z.object({
+  clientIdentifier: z.string(),
+  clientPasskey: z.string(),
+  manifest: pluginManifestSchema,
+});
 
 /**
  * @public
@@ -42,22 +59,61 @@ export class PluginsNamespace {
     this.logger = new SimpleLogger("Plugins", parentLogger);
   }
 
-  /**
-   * Sets the preprocessor to be used by the plugin represented by this client.
-   */
-  public setPreprocessor(preprocessor: PreprocessorRegistration) {
+  public async registerDevelopmentPlugin(
+    opts: RegisterDevelopmentPluginOpts,
+  ): Promise<() => Promise<void>> {
     const stack = getCurrentStack(1);
 
     this.validator.validateMethodParamOrThrow(
-      "llm",
+      "plugins",
+      "registerDevelopmentPlugin",
+      "opts",
+      registerDevelopmentPluginOptsSchema,
+      opts,
+      stack,
+    );
+
+    const { promise, resolve } = makePromise<void>();
+
+    const channel = this.port.createChannel(
+      "registerDevelopmentPlugin",
+      opts,
+      message => {
+        if (message.type === "ready") {
+          resolve();
+        }
+      },
+      { stack },
+    );
+
+    const end = async () => {
+      channel.send({ type: "end" });
+      const { promise, resolve } = makePromise<void>();
+      channel.onClose.subscribeOnce(resolve);
+      await promise;
+    };
+
+    await promise;
+
+    return end;
+  }
+
+  /**
+   * Sets the preprocessor to be used by the plugin represented by this client.
+   */
+  public setPreprocessor(preprocessor: Preprocessor) {
+    const stack = getCurrentStack(1);
+
+    this.validator.validateMethodParamOrThrow(
+      "plugins",
       "registerPreprocessor",
       "preprocessor",
-      preprocessorRegistrationSchema,
+      z.function(),
       preprocessor,
       stack,
     );
 
-    const logger = new SimpleLogger(`Preprocessor (${preprocessor.identifier})`, this.rootLogger);
+    const logger = new SimpleLogger(`Preprocessor`, this.rootLogger);
     logger.info("Register to LM Studio");
 
     interface OngoingPreprocessTask {
@@ -106,8 +162,7 @@ export class PluginsNamespace {
             });
             // We know the input from the channel is immutable, so we can safely pass false as the
             // second argument.
-            preprocessor
-              .preprocess(controller, input.asMutableCopy())
+            preprocessor(controller, input.asMutableCopy())
               .then(result => {
                 taskLogger.info(`Preprocess request completed.`);
                 const parsedReturned = z
@@ -174,19 +229,19 @@ export class PluginsNamespace {
   /**
    * Sets the preprocessor to be used by the plugin represented by this client.
    */
-  public setGenerator(generator: GeneratorRegistration) {
+  public setGenerator(generator: Generator) {
     const stack = getCurrentStack(1);
 
     this.validator.validateMethodParamOrThrow(
-      "llm",
+      "plugins",
       "setGenerator",
       "generator",
-      generatorRegistrationSchema,
+      z.function(),
       generator,
       stack,
     );
 
-    const logger = new SimpleLogger(`Generator (${generator.identifier})`, this.rootLogger);
+    const logger = new SimpleLogger(`Generator`, this.rootLogger);
     logger.info("Register to LM Studio");
 
     interface OngoingGenerateTask {
@@ -234,8 +289,7 @@ export class PluginsNamespace {
             });
             // We know the input from the channel is immutable, so we can safely pass false as the
             // second argument.
-            generator
-              .generate(controller)
+            generator(controller)
               .then(() => {
                 channel.send({
                   type: "complete",
@@ -280,8 +334,28 @@ export class PluginsNamespace {
   public async setConfigSchematics(
     configSchematics: KVConfigSchematics<GlobalKVValueTypeMap, any, any>,
   ) {
-    await this.port.callRpc("setConfigSchematics", {
-      schematics: configSchematics.serialize(),
-    });
+    const stack = getCurrentStack(1);
+
+    this.validator.validateMethodParamOrThrow(
+      "llm",
+      "setConfigSchematics",
+      "configSchematics",
+      z.instanceof(KVConfigSchematics),
+      configSchematics,
+      stack,
+    );
+
+    await this.port.callRpc(
+      "setConfigSchematics",
+      {
+        schematics: configSchematics.serialize(),
+      },
+      { stack },
+    );
+  }
+  public async initCompleted() {
+    const stack = getCurrentStack(1);
+
+    await this.port.callRpc("pluginInitCompleted", undefined, { stack });
   }
 }

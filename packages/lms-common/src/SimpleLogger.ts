@@ -36,19 +36,26 @@ export class SimpleLogger {
   private readonly warnPrefix: Array<string> = [];
   private readonly errorPrefix: Array<string> = [];
   private readonly debugPrefix: Array<string> = [];
+  private readonly opts: Required<SimpleLoggerConstructorOpts>;
 
   public constructor(
     prefixText: string = "",
     parentLogger: LoggerInterface = console,
     {
-      useLogLevelPrefixes = false,
-      infoPrefix = defaultInfoPrefix,
-      warnPrefix = defaultWarnPrefix,
-      errorPrefix = defaultErrorPrefix,
-      debugPrefix = defaultDebugPrefix,
+      useLogLevelPrefixes,
+      infoPrefix,
+      warnPrefix,
+      errorPrefix,
+      debugPrefix,
     }: SimpleLoggerConstructorOpts = {},
   ) {
     if (isSimpleLogger(parentLogger)) {
+      useLogLevelPrefixes = useLogLevelPrefixes ?? parentLogger.opts.useLogLevelPrefixes;
+      infoPrefix = infoPrefix === undefined ? parentLogger.opts.infoPrefix : infoPrefix;
+      warnPrefix = warnPrefix === undefined ? parentLogger.opts.warnPrefix : warnPrefix;
+      errorPrefix = errorPrefix === undefined ? parentLogger.opts.errorPrefix : errorPrefix;
+      debugPrefix = debugPrefix === undefined ? parentLogger.opts.debugPrefix : debugPrefix;
+
       if (prefixText === "") {
         this.innerPrefix = parentLogger.innerPrefix;
         this.fullPrefix = parentLogger.fullPrefix;
@@ -62,6 +69,12 @@ export class SimpleLogger {
       }
       this.parentLogger = parentLogger.parentLogger;
     } else {
+      useLogLevelPrefixes = useLogLevelPrefixes ?? false;
+      infoPrefix = infoPrefix === undefined ? defaultInfoPrefix : infoPrefix;
+      warnPrefix = warnPrefix === undefined ? defaultWarnPrefix : warnPrefix;
+      errorPrefix = errorPrefix === undefined ? defaultErrorPrefix : errorPrefix;
+      debugPrefix = debugPrefix === undefined ? defaultDebugPrefix : debugPrefix;
+
       if (prefixText === "") {
         this.innerPrefix = "";
         this.fullPrefix = "";
@@ -91,6 +104,13 @@ export class SimpleLogger {
       this.errorPrefix.push(this.fullPrefix);
       this.debugPrefix.push(this.fullPrefix);
     }
+    this.opts = {
+      useLogLevelPrefixes,
+      infoPrefix,
+      warnPrefix,
+      errorPrefix,
+      debugPrefix,
+    };
   }
   public subclass(prefixText: string) {
     return new SimpleLogger(`${this.innerPrefix}:${prefixText}`, this.parentLogger);
