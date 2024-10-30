@@ -43,6 +43,12 @@ export type {
 } from "@lmstudio/lms-client";
 export type { LoggerInterface, StreamablePromise } from "@lmstudio/lms-common";
 export type {
+  GlobalKVFieldValueTypeLibraryMap,
+  GlobalKVValueTypesLibrary,
+  KVConfigSchematicsBuilder,
+  ParsedKVConfig,
+} from "@lmstudio/lms-kv-config";
+export type {
   ChatHistoryData,
   ChatMessageData,
   ChatMessagePartData,

@@ -46,6 +46,7 @@ export function createPluginsBackendInterface() {
             taskId: z.string(),
             input: chatMessageDataSchema,
             config: kvConfigSchema,
+            pluginConfig: kvConfigSchema,
             /** Processing Context Identifier */
             pci: z.string(),
             token: z.string(),
@@ -79,6 +80,7 @@ export function createPluginsBackendInterface() {
             type: z.literal("generate"),
             taskId: z.string(),
             config: kvConfigSchema,
+            pluginConfig: kvConfigSchema,
             /** Processing Context Identifier */
             pci: z.string(),
             token: z.string(),

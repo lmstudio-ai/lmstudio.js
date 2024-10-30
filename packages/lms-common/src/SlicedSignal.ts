@@ -3,6 +3,17 @@ import { isAvailable, LazySignal, type NotAvailable, type StripNotAvailable } fr
 import { makeSetterWithPatches, type Setter } from "./makeSetter";
 import { type SignalLike } from "./Signal";
 
+type PathSegment =
+  | {
+      type: "key";
+      key: string | number;
+    }
+  | {
+      type: "keyWithDefault";
+      key: string | number;
+      default: any;
+    };
+
 /**
  * A sliced signal is a writable signal that represents a portion of another writable signal.
  */
@@ -16,10 +27,35 @@ export function makeSlicedSignalFrom<TSource>(
   >(writableSignal[0], writableSignal[1]);
 }
 
-function drill(value: any, path: Array<string | number>) {
+/**
+ * Given a value and a path, return the value at the path.
+ *
+ * At any point, if a default value is used, the defaultUsed callback is called with the index of
+ * the path segment where the default value was used.
+ */
+function drill(value: any, path: Array<PathSegment>, defaultUsed?: (index: number) => void) {
   let current = value;
+  let index = 0;
   for (const key of path) {
-    current = current[key];
+    switch (key.type) {
+      case "key":
+        current = current[key.key];
+        break;
+      case "keyWithDefault": {
+        if (current[key.key] === undefined) {
+          current = key.default;
+          defaultUsed?.(index);
+        } else {
+          current = current[key.key];
+        }
+        break;
+      }
+      default: {
+        const _exhaustiveCheck: never = key;
+        return _exhaustiveCheck;
+      }
+    }
+    index++;
   }
   return current;
 }
@@ -64,16 +100,26 @@ function pathStartsWith(path: Array<string | number>, prefix: Array<string | num
 }
 
 class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends boolean> {
+  private readonly accessPath: Array<PathSegment> = [];
   private readonly path: Array<string | number> = [];
   private readonly tagKey = String(Math.random());
   public constructor(
     private readonly sourceSignal: SignalLike<TSource>,
     private readonly sourceSetter: Setter<TSource>,
   ) {}
-  public access<TKey extends keyof TCurrent>(
+  public access<TKey extends keyof TCurrent & (string | number)>(
     key: TKey,
   ): SlicedSignalBuilderImpl<TSource, TCurrent[TKey], TCanBeNotAvailable> {
-    this.path.push(key as number | string);
+    this.accessPath.push({ type: "key", key });
+    this.path.push(key);
+    return this as any;
+  }
+  public accessWithDefault<TKey extends keyof TCurrent & (string | number)>(
+    key: TKey,
+    defaultValue: TCurrent[TKey],
+  ): SlicedSignalBuilderImpl<TSource, TCurrent[TKey], TCanBeNotAvailable> {
+    this.accessPath.push({ type: "keyWithDefault", key, default: defaultValue });
+    this.path.push(key);
     return this as any;
   }
   public done(): readonly [
@@ -82,7 +128,7 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
   ] {
     const sourceInitialValue = this.sourceSignal.get();
     const initialValue = isAvailable(sourceInitialValue)
-      ? drill(sourceInitialValue, this.path)
+      ? drill(sourceInitialValue, this.accessPath)
       : LazySignal.NOT_AVAILABLE;
     const signal = LazySignal.create<
       TCurrent | (TCanBeNotAvailable extends true ? NotAvailable : never)
@@ -104,7 +150,7 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
               value: drill(
                 patch.value!,
                 // Get the part that is relevant to this slice
-                this.path.slice(patch.path.length),
+                this.accessPath.slice(patch.path.length),
               ),
             });
           } else if (relationship === "children") {
@@ -112,12 +158,12 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
             // corresponds to the change
             newPatches.push({
               ...patch,
-              path: patch.path.slice(this.path.length),
+              path: patch.path.slice(this.accessPath.length),
             });
           }
           // Otherwise, we don't need to do anything
         }
-        const newValue = drill(value, this.path);
+        const newValue = drill(value, this.accessPath);
         const newTags = tags
           .filter(tag => tag.startsWith(this.tagKey))
           .map(tag => tag.slice(this.tagKey.length));
@@ -128,10 +174,10 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
       const value = this.sourceSignal.pull();
       if (value instanceof Promise) {
         value.then(value => {
-          setDownstream(drill(value, this.path));
+          setDownstream(drill(value, this.accessPath));
         });
       } else {
-        setDownstream(drill(value, this.path));
+        setDownstream(drill(value, this.accessPath));
       }
 
       return unsubscribe;
@@ -139,12 +185,28 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
     const setter = makeSetterWithPatches<TCurrent>((updater, tags) => {
       const newTags = tags?.map(tag => this.tagKey + tag);
       this.sourceSetter.withPatchUpdater(oldValue => {
-        const slicedOldValue = drill(oldValue, this.path);
+        const newPatches: Array<Patch> = [];
+        const slicedOldValue = drill(oldValue, this.accessPath, index => {
+          // A default value has been used. We need to inject a patch that adds the default value
+          // to the parent object.
+          const defaultPathSegment = this.accessPath[index];
+          if (defaultPathSegment.type !== "keyWithDefault") {
+            throw new Error("Expected keyWithDefault");
+          }
+          const defaultValue = defaultPathSegment.default;
+          newPatches.push({
+            op: "replace",
+            path: this.path.slice(0, index + 1),
+            value: defaultValue,
+          });
+        });
         const [_newSlicedValue, patches] = updater(slicedOldValue);
-        const newPatches = patches.map(patch => ({
-          ...patch,
-          path: [...this.path, ...patch.path],
-        }));
+        newPatches.push(
+          ...patches.map(patch => ({
+            ...patch,
+            path: [...this.path, ...patch.path],
+          })),
+        );
         const newValue = applyPatches(oldValue as any, newPatches);
         return [newValue, newPatches] as const;
       }, newTags);

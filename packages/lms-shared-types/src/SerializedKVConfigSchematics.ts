@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { type SerializedLMSExtendedError } from "./Error";
 import { jsonSerializableSchema } from "./JSONSerializable";
 
 export interface SerializedKVConfigSchematicsField {
@@ -22,3 +23,12 @@ export const serializedKVConfigSchematicsSchema = z.object({
   baseKey: z.string(),
   fields: z.array(serializedKVConfigSchematicsFieldSchema),
 }) as z.ZodSchema<SerializedKVConfigSchematics>;
+
+export interface KVConfigSchematicsDeserializationError {
+  fullKey: string;
+  error: SerializedLMSExtendedError;
+}
+export const kvConfigSchematicsDeserializationErrorSchema = z.object({
+  fullKey: z.string(),
+  error: jsonSerializableSchema,
+}) as z.ZodSchema<KVConfigSchematicsDeserializationError>;

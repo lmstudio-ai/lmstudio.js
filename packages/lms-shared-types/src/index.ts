@@ -234,6 +234,8 @@ export {
   runtimeSchema,
 } from "./Runtime";
 export {
+  KVConfigSchematicsDeserializationError,
+  kvConfigSchematicsDeserializationErrorSchema,
   SerializedKVConfigSchematics,
   SerializedKVConfigSchematicsField,
   serializedKVConfigSchematicsFieldSchema,

@@ -4,7 +4,11 @@ export {
 } from "./conversion/llmPredictionConfig";
 export {
   KVConfigSchematics,
+  KVConfigSchematicsBuilder,
   KVFieldValueTypeLibrary,
+  KVVirtualConfigSchema,
+  KVVirtualFieldSchema,
+  ParsedKVConfig,
   addKVConfigToStack,
   collapseKVStack,
   collapseKVStackRaw,

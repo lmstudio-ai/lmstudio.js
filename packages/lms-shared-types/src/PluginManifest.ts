@@ -3,6 +3,8 @@ import { z } from "zod";
 export type PluginRunnerType = "ecmascript";
 export const pluginRunnerTypeSchema = z.enum(["ecmascript"]);
 
+export const kebabCaseSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+
 export interface PluginManifest {
   type: "plugin";
   runner: PluginRunnerType;
@@ -13,7 +15,7 @@ export interface PluginManifest {
 export const pluginManifestSchema = z.object({
   type: z.literal("plugin"),
   runner: pluginRunnerTypeSchema,
-  owner: z.string(),
-  name: z.string(),
+  owner: kebabCaseSchema,
+  name: kebabCaseSchema,
   description: z.string(),
 });

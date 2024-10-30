@@ -1,6 +1,12 @@
 import { Cleaner, type SimpleLogger } from "@lmstudio/lms-common";
 import { type PluginsPort } from "@lmstudio/lms-external-backend-interfaces";
-import { type KVConfigSchematics, kvConfigToLLMPredictionConfig } from "@lmstudio/lms-kv-config";
+import {
+  type GlobalKVFieldValueTypeLibraryMap,
+  type KVConfigSchematics,
+  kvConfigToLLMPredictionConfig,
+  type KVVirtualConfigSchema,
+} from "@lmstudio/lms-kv-config";
+import { type ParsedKVConfig } from "@lmstudio/lms-kv-config/dist/KVConfig";
 import {
   type CitationSource,
   type ColorPalette,
@@ -144,6 +150,8 @@ export class ProcessingController {
     private readonly connector: ProcessingConnector,
     /** @internal */
     private readonly config: KVConfig,
+    /** @internal */
+    private readonly pluginConfig: KVConfig,
     /**
      * When getting history, should the latest user input be included in the history?
      *
@@ -164,8 +172,10 @@ export class ProcessingController {
     this.processingControllerHandle.sendUpdate(update);
   }
 
-  public getCustomConfig(config: KVConfigSchematics<any, any, any>): any {
-    return config.parse(this.config);
+  public getPluginConfig<TKVConfigSchema extends KVVirtualConfigSchema>(
+    configSchematics: KVConfigSchematics<GlobalKVFieldValueTypeLibraryMap, TKVConfigSchema, string>,
+  ): ParsedKVConfig<TKVConfigSchema> {
+    return configSchematics.parse(this.pluginConfig);
   }
 
   /**

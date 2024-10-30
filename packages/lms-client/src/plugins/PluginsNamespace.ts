@@ -152,6 +152,7 @@ export class PluginsNamespace {
               this.client,
               connector,
               message.config,
+              message.pluginConfig,
               /* shouldIncludeInputInHistory */ false,
             );
             tasks.set(message.taskId, {
@@ -279,6 +280,7 @@ export class PluginsNamespace {
               this.client,
               connector,
               message.config,
+              message.pluginConfig,
               /* shouldIncludeInputInHistory */ true,
             );
             tasks.set(message.taskId, {

@@ -1,8 +1,10 @@
 import {
   kvConfigSchema,
+  serializeError,
   type KVConfig,
   type KVConfigField,
   type KVConfigLayerName,
+  type KVConfigSchematicsDeserializationError,
   type KVConfigStack,
   type SerializedKVConfigSchematics,
 } from "@lmstudio/lms-shared-types";
@@ -227,7 +229,7 @@ export type KVVirtualFieldSchema = {
   type: any;
   valueTypeKey: string;
 };
-type KVVirtualConfigSchema = {
+export type KVVirtualConfigSchema = {
   [key: string]: KVVirtualFieldSchema;
 };
 
@@ -998,10 +1000,10 @@ export class KVConfigSchematics<
       })),
     };
   }
-  public static fromSerialized(
+  public static deserialize(
     valueTypeLibrary: KVFieldValueTypeLibrary<any>,
     serialized: SerializedKVConfigSchematics,
-  ) {
+  ): KVConfigSchematics<any, KVVirtualConfigSchema, string> {
     const fields = new Map<string, KVConcreteFieldSchema>(
       serialized.fields.map(field => {
         const typeParams = valueTypeLibrary.parseParamTypes(field.typeKey, field.typeParams);
@@ -1019,6 +1021,69 @@ export class KVConfigSchematics<
     );
     return new KVConfigSchematics(valueTypeLibrary, fields, serialized.baseKey);
   }
+  public static tryDeserialize(
+    valueTypeLibrary: KVFieldValueTypeLibrary<any>,
+    serialized: SerializedKVConfigSchematics,
+  ): {
+    schematics: KVConfigSchematics<any, KVVirtualConfigSchema, string>;
+    errors: Array<KVConfigSchematicsDeserializationError>;
+  } {
+    const fields = new Map<string, KVConcreteFieldSchema>();
+    const errors: Array<KVConfigSchematicsDeserializationError> = [];
+    for (const field of serialized.fields) {
+      try {
+        const typeParams = valueTypeLibrary.parseParamTypes(field.typeKey, field.typeParams);
+        const valueSchema = valueTypeLibrary.getSchema(field.typeKey, typeParams);
+        fields.set(field.key, {
+          valueTypeKey: field.typeKey,
+          valueTypeParams: typeParams,
+          schema: valueSchema,
+          defaultValue: valueSchema.parse(field.defaultValue),
+        });
+      } catch (error) {
+        errors.push({
+          fullKey: serialized.baseKey + field.key,
+          error: serializeError(error),
+        });
+      }
+    }
+    return {
+      schematics: new KVConfigSchematics(valueTypeLibrary, fields, serialized.baseKey),
+      errors,
+    };
+  }
+}
+
+/**
+ * Given a baseKey and a SerializedKVConfigSchematics, prepend the baseKey to the baseKey of the
+ * schematics.
+ */
+export function prependBaseKeyToSerializedKVConfigSchematics(
+  baseKey: string,
+  serialized: SerializedKVConfigSchematics,
+): SerializedKVConfigSchematics {
+  return {
+    baseKey: baseKey + serialized.baseKey,
+    fields: serialized.fields,
+  };
+}
+
+/**
+ * Given a baseKey and a KVConfig. Strip the baseKey from the keys of the fields. If a fields does
+ * not start with the baseKey, it will be ignored.
+ */
+export function stripBaseKeyFromKVConfig(baseKey: string, config: KVConfig): KVConfig {
+  const baseKeyLength = baseKey.length;
+  return {
+    fields: config.fields
+      .filter(field => field.key.startsWith(baseKey))
+      .map(({ key, value }) => {
+        return {
+          key: key.substring(baseKeyLength),
+          value,
+        };
+      }),
+  };
 }
 
 export class KVConfigBuilder<TKVConfigSchema extends KVVirtualConfigSchema> {

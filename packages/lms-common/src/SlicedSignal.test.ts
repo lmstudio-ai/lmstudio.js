@@ -507,4 +507,63 @@ describe("SlicedSignal", () => {
       [],
     );
   });
+  it("should be able to read with regular signal with defaults", () => {
+    const [sourceSignal, setSource] = Signal.create<{
+      a: Record<string, { c: Record<string, { e: number }> }>;
+    }>({ a: {} });
+    const [sliceSignal, _setSlice] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .accessWithDefault("b", { c: {} })
+      .access("c")
+      .accessWithDefault("d", { e: 1 })
+      .done();
+
+    expect(sliceSignal.get()).toEqual({ e: 1 });
+  });
+  it("should be able to subscribe with regular signal with defaults", () => {
+    const [sourceSignal, setSource] = Signal.create<{
+      a: Record<string, { c: Record<string, { e: number }> }>;
+    }>({ a: {} });
+    const [sliceSignal, setSlice] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .accessWithDefault("b", { c: {} })
+      .access("c")
+      .accessWithDefault("d", { e: 1 })
+      .done();
+
+    const subscriber = jest.fn();
+    const fullSubscriber = jest.fn();
+    sliceSignal.subscribe(subscriber);
+    sliceSignal.subscribeFull(fullSubscriber);
+
+    expect(subscriber).not.toHaveBeenCalled();
+    expect(fullSubscriber).not.toHaveBeenCalled();
+
+    setSlice({ e: 2 });
+
+    expect(subscriber).toHaveBeenCalledWith({ e: 2 });
+    expect(fullSubscriber).toHaveBeenCalledWith(
+      { e: 2 },
+      [
+        {
+          op: "replace",
+          path: [],
+          value: { e: 1 },
+        },
+        // A bit unfortunate due to the way we handle defaults. Trigger defaults twice meaning we
+        // will receive 1 additional patch.
+        {
+          op: "replace",
+          path: [],
+          value: { e: 1 },
+        },
+        {
+          op: "replace",
+          path: [],
+          value: { e: 2 },
+        },
+      ],
+      [],
+    );
+  });
 });
