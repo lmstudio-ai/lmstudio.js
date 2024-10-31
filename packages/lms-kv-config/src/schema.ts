@@ -317,6 +317,8 @@ export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchema
   llmPredictionConfigSchematics.sliced("onnx.*"),
 );
 
+export const llmMistralrsPredictionConfigSchematics = llmSharedPredictionConfigSchematics;
+
 export const llmLoadSchematics = globalConfigSchematics.scoped("llm.load");
 
 export const llmSharedLoadConfigSchematics = llmLoadSchematics.sliced("contextLength", "seed");
@@ -338,6 +340,8 @@ const llmLlamaMoeAdditionalLoadConfigSchematics = llmLoadSchematics.sliced("numE
 export const llmLlamaMoeLoadConfigSchematics = llmLlamaLoadConfigSchematics.union(
   llmLlamaMoeAdditionalLoadConfigSchematics,
 );
+
+export const llmMistralrsLoadConfigSchematics = llmSharedLoadConfigSchematics;
 
 export const embeddingLoadSchematics = globalConfigSchematics.scoped("embedding.load");
 

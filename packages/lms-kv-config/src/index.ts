@@ -39,6 +39,8 @@ export {
   llmLlamaMoeLoadConfigSchematics,
   llmLlamaPredictionConfigSchematics,
   llmLoadSchematics,
+  llmMistralrsLoadConfigSchematics,
+  llmMistralrsPredictionConfigSchematics,
   llmMlxLoadConfigSchematics,
   llmMlxPredictionConfigSchematics,
   llmOnnxLoadConfigSchematics,
