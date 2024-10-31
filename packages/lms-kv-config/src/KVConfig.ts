@@ -13,8 +13,10 @@ import { z, type ZodSchema } from "zod";
 
 /**
  * Stringify options passed to actual implementations of stringify.
+ *
+ * @public
  */
-interface InnerFieldStringifyOpts {
+export interface InnerFieldStringifyOpts {
   /**
    * Translate function.
    */
@@ -74,6 +76,8 @@ interface FieldStringifyOpts {
 /**
  * Used internally by KVFieldValueTypesLibrary to keep track of a single field value type definition
  * with the generics.
+ *
+ * @public
  */
 export interface KVVirtualFieldValueType {
   value: any;
@@ -82,21 +86,28 @@ export interface KVVirtualFieldValueType {
 /**
  * Used internally by KVFieldValueTypesLibrary to keep track of all field value type definitions
  * with the generics.
+ *
+ * @public
  */
-type KVVirtualFieldValueTypesMapping = {
+export type KVVirtualFieldValueTypesMapping = {
   [key: string]: KVVirtualFieldValueType;
 };
 
 /**
  * Represents a single field value type definition.
+ *
+ * @public
  */
-interface KVConcreteFieldValueType {
+export interface KVConcreteFieldValueType {
   paramType: ZodSchema;
   schemaMaker: (param: any) => ZodSchema;
   effectiveEquals: (a: any, b: any, typeParam: any) => boolean;
   stringify: (value: any, typeParam: any, opts: InnerFieldStringifyOpts) => string;
 }
-type KVConcreteFieldValueTypesMap = Map<string, KVConcreteFieldValueType>;
+/**
+ * @public
+ */
+export type KVConcreteFieldValueTypesMap = Map<string, KVConcreteFieldValueType>;
 
 type ExposedZodObject<TObject extends {}> = {
   [TKey in keyof TObject]: ZodSchema<TObject[TKey]>;
@@ -172,6 +183,8 @@ export class KVFieldValueTypesLibraryBuilder<
 
 /**
  * Represents a library of field value types.
+ *
+ * @public
  */
 export class KVFieldValueTypeLibrary<
   TKVFieldValueTypeLibraryMap extends KVVirtualFieldValueTypesMapping,
@@ -233,7 +246,7 @@ export type KVVirtualConfigSchema = {
   [key: string]: KVVirtualFieldSchema;
 };
 
-interface KVConcreteFieldSchema {
+export interface KVConcreteFieldSchema {
   valueTypeKey: string;
   valueTypeParams: any;
   schema: ZodSchema;
@@ -316,6 +329,7 @@ export class KVConfigSchematicsBuilder<
    *   .field("a", ...)
    *   .field("b", ...)
    * )
+   * ```
    *
    * This method does support nesting. Whether to nest or not is up to the user.
    */
@@ -1116,6 +1130,9 @@ export class ParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
     private readonly configMap: Map<string, any>,
   ) {}
 
+  /**
+   * @internal
+   */
   public static [createParsedKVConfig]<TKVConfigSchema extends KVVirtualConfigSchema>(
     schema: KVConfigSchematics<any, TKVConfigSchema, string>,
     configMap: Map<string, any>,

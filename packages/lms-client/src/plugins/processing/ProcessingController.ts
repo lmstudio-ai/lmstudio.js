@@ -4,9 +4,7 @@ import {
   type GlobalKVFieldValueTypeLibraryMap,
   type KVConfigSchematics,
   kvConfigToLLMPredictionConfig,
-  type KVVirtualConfigSchema,
 } from "@lmstudio/lms-kv-config";
-import { type ParsedKVConfig } from "@lmstudio/lms-kv-config/dist/KVConfig";
 import {
   type CitationSource,
   type ColorPalette,
@@ -17,6 +15,11 @@ import {
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
 import { ChatHistory } from "../../ChatHistory";
+import {
+  type ConfigSchematics,
+  type ParsedConfig,
+  type VirtualConfigSchematics,
+} from "../../customConfig";
 import { LLMDynamicHandle } from "../../llm/LLMDynamicHandle";
 import { type OngoingPrediction } from "../../llm/OngoingPrediction";
 import { type PredictionResult } from "../../llm/PredictionResult";
@@ -172,10 +175,16 @@ export class ProcessingController {
     this.processingControllerHandle.sendUpdate(update);
   }
 
-  public getPluginConfig<TKVConfigSchema extends KVVirtualConfigSchema>(
-    configSchematics: KVConfigSchematics<GlobalKVFieldValueTypeLibraryMap, TKVConfigSchema, string>,
-  ): ParsedKVConfig<TKVConfigSchema> {
-    return configSchematics.parse(this.pluginConfig);
+  public getPluginConfig<TVirtualConfigSchematics extends VirtualConfigSchematics>(
+    configSchematics: ConfigSchematics<TVirtualConfigSchematics>,
+  ): ParsedConfig<TVirtualConfigSchematics> {
+    return (
+      configSchematics as KVConfigSchematics<
+        GlobalKVFieldValueTypeLibraryMap,
+        TVirtualConfigSchematics,
+        ""
+      >
+    ).parse(this.pluginConfig);
   }
 
   /**

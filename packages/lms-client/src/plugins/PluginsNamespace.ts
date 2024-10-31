@@ -6,7 +6,7 @@ import {
   Validator,
 } from "@lmstudio/lms-common";
 import { type PluginsPort } from "@lmstudio/lms-external-backend-interfaces";
-import { type GlobalKVValueTypeMap, KVConfigSchematics } from "@lmstudio/lms-kv-config";
+import { type GlobalKVFieldValueTypeLibraryMap, KVConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
   type ChatMessageData,
   type PluginManifest,
@@ -15,6 +15,7 @@ import {
 import { pluginManifestSchema } from "@lmstudio/lms-shared-types/dist/PluginManifest";
 import { z } from "zod";
 import { ChatMessage } from "../ChatHistory";
+import { type ConfigSchematics } from "../customConfig";
 import { type LMStudioClient } from "../LMStudioClient";
 import { type Generator } from "./processing/Generator";
 import { type Preprocessor } from "./processing/Preprocessor";
@@ -333,9 +334,7 @@ export class PluginsNamespace {
       { stack },
     );
   }
-  public async setConfigSchematics(
-    configSchematics: KVConfigSchematics<GlobalKVValueTypeMap, any, any>,
-  ) {
+  public async setConfigSchematics(configSchematics: ConfigSchematics<any>) {
     const stack = getCurrentStack(1);
 
     this.validator.validateMethodParamOrThrow(
@@ -350,7 +349,9 @@ export class PluginsNamespace {
     await this.port.callRpc(
       "setConfigSchematics",
       {
-        schematics: configSchematics.serialize(),
+        schematics: (
+          configSchematics as KVConfigSchematics<GlobalKVFieldValueTypeLibraryMap, any, any>
+        ).serialize(),
       },
       { stack },
     );

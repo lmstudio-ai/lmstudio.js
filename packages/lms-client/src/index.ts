@@ -1,5 +1,15 @@
 export { ChatHistory, ChatMessage } from "./ChatHistory";
 export type { ChatHistoryLike } from "./ChatHistory";
+export {
+  ConfigSchematics,
+  ConfigSchematicsBuilder,
+  ParsedConfig,
+  VirtualConfigSchematics,
+  configSchematicsBrand,
+  configSchematicsBuilderBrand,
+  createConfigSchematics,
+  parsedConfigBrand,
+} from "./customConfig";
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
 export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle";
 export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
@@ -17,7 +27,6 @@ export type { DynamicHandle } from "./modelShared/DynamicHandle";
 export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace";
 export type { SpecificModel } from "./modelShared/SpecificModel";
 export type { PluginContext } from "./PluginContext";
-export { createConfigSchematics } from "./plugins/createConfigSchematics";
 export type { PluginsNamespace, RegisterDevelopmentPluginOpts } from "./plugins/PluginsNamespace";
 export type { Generator } from "./plugins/processing/Generator";
 export type { Preprocessor } from "./plugins/processing/Preprocessor";

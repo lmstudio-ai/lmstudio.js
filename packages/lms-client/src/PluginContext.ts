@@ -1,4 +1,4 @@
-import { type GlobalKVValueTypeMap, type KVConfigSchematics } from "@lmstudio/lms-kv-config";
+import { type ConfigSchematics, type VirtualConfigSchematics } from "./customConfig";
 import { type Generator } from "./plugins/processing/Generator";
 import { type Preprocessor } from "./plugins/processing/Preprocessor";
 
@@ -10,7 +10,7 @@ export interface PluginContext {
    * Sets the config schematics associated with this plugin context. Returns the same PluginContext.
    */
   withConfigSchematics: (
-    configSchematics: KVConfigSchematics<GlobalKVValueTypeMap, any, any>,
+    configSchematics: ConfigSchematics<VirtualConfigSchematics>,
   ) => PluginContext;
   /**
    * Sets the generator associated with this plugin context. Returns the same PluginContext.

@@ -35,6 +35,9 @@ function quoteStringWithManualEscape(str: string | undefined, empty?: string) {
   return quoteString(str?.replace(/\\n/g, "\n"), empty);
 }
 
+/**
+ * @public
+ */
 export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   /**
    * A field can be marked as model centric when it loses its meaning when there is no model to
@@ -526,7 +529,13 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   .build();
 
 export type KVValueTypeDef = InferKVValueTypeDef<typeof kvValueTypesLibrary>;
+/**
+ * @public
+ */
 export type GlobalKVValueTypesLibrary = typeof kvValueTypesLibrary;
+/**
+ * @public
+ */
 export type GlobalKVFieldValueTypeLibraryMap =
   GlobalKVValueTypesLibrary extends KVFieldValueTypeLibrary<infer TKVFieldValueTypeLibraryMap>
     ? TKVFieldValueTypeLibraryMap

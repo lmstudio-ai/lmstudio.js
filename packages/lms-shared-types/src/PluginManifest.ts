@@ -1,10 +1,16 @@
 import { z } from "zod";
 
+/**
+ * @public
+ */
 export type PluginRunnerType = "ecmascript";
 export const pluginRunnerTypeSchema = z.enum(["ecmascript"]);
 
 export const kebabCaseSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
+/**
+ * @public
+ */
 export interface PluginManifest {
   type: "plugin";
   runner: PluginRunnerType;
