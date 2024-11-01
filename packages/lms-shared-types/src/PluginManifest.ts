@@ -6,7 +6,8 @@ import { z } from "zod";
 export type PluginRunnerType = "ecmascript";
 export const pluginRunnerTypeSchema = z.enum(["ecmascript"]);
 
-export const kebabCaseSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+export const kebabCaseRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const kebabCaseSchema = z.string().regex(kebabCaseRegex);
 
 /**
  * @public

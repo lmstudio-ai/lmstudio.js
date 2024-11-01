@@ -191,6 +191,8 @@ export {
   modelSpecifierSchema,
 } from "./ModelSpecifier";
 export {
+  kebabCaseRegex,
+  kebabCaseSchema,
   PluginManifest,
   pluginManifestSchema,
   PluginRunnerType,
