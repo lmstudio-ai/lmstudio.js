@@ -27,7 +27,11 @@ export type { DynamicHandle } from "./modelShared/DynamicHandle";
 export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace";
 export type { SpecificModel } from "./modelShared/SpecificModel";
 export type { PluginContext } from "./PluginContext";
-export type { PluginsNamespace, RegisterDevelopmentPluginOpts } from "./plugins/PluginsNamespace";
+export type {
+  PluginsNamespace,
+  RegisterDevelopmentPluginOpts,
+  RegisterDevelopmentPluginResult,
+} from "./plugins/PluginsNamespace";
 export type { Generator } from "./plugins/processing/Generator";
 export type { Preprocessor } from "./plugins/processing/Preprocessor";
 export type {

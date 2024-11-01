@@ -35,6 +35,7 @@ export type {
   PreprocessorController,
   ProcessingController,
   RegisterDevelopmentPluginOpts,
+  RegisterDevelopmentPluginResult,
   RepositoryNamespace,
   RetrievalCallbacks,
   RetrievalNamespace,

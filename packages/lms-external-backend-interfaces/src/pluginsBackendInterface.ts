@@ -19,13 +19,13 @@ export function createPluginsBackendInterface() {
        */
       .addChannelEndpoint("registerDevelopmentPlugin", {
         creationParameter: z.object({
-          clientIdentifier: z.string(),
-          clientPasskey: z.string(),
           manifest: pluginManifestSchema,
         }),
         toClientPacket: z.discriminatedUnion("type", [
           z.object({
             type: z.literal("ready"),
+            clientIdentifier: z.string(),
+            clientPasskey: z.string(),
           }),
         ]),
         toServerPacket: z.discriminatedUnion("type", [

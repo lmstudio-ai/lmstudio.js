@@ -30,15 +30,22 @@ import {
  * @public
  */
 export interface RegisterDevelopmentPluginOpts {
-  clientIdentifier: string;
-  clientPasskey: string;
   manifest: PluginManifest;
 }
 const registerDevelopmentPluginOptsSchema = z.object({
-  clientIdentifier: z.string(),
-  clientPasskey: z.string(),
   manifest: pluginManifestSchema,
 });
+
+interface RegisterDevelopmentPluginResultBase {
+  clientIdentifier: string;
+  clientPasskey: string;
+}
+
+export interface RegisterDevelopmentPluginResult {
+  clientIdentifier: string;
+  clientPasskey: string;
+  unregister: () => Promise<void>;
+}
 
 /**
  * @public
@@ -62,7 +69,7 @@ export class PluginsNamespace {
 
   public async registerDevelopmentPlugin(
     opts: RegisterDevelopmentPluginOpts,
-  ): Promise<() => Promise<void>> {
+  ): Promise<RegisterDevelopmentPluginResult> {
     const stack = getCurrentStack(1);
 
     this.validator.validateMethodParamOrThrow(
@@ -74,29 +81,35 @@ export class PluginsNamespace {
       stack,
     );
 
-    const { promise, resolve } = makePromise<void>();
+    const { promise, resolve } = makePromise<RegisterDevelopmentPluginResultBase>();
 
     const channel = this.port.createChannel(
       "registerDevelopmentPlugin",
       opts,
       message => {
         if (message.type === "ready") {
-          resolve();
+          resolve({
+            clientIdentifier: message.clientIdentifier,
+            clientPasskey: message.clientPasskey,
+          });
         }
       },
       { stack },
     );
 
-    const end = async () => {
+    const unregister = async () => {
       channel.send({ type: "end" });
       const { promise, resolve } = makePromise<void>();
       channel.onClose.subscribeOnce(resolve);
       await promise;
     };
 
-    await promise;
+    const base = await promise;
 
-    return end;
+    return {
+      ...base,
+      unregister,
+    };
   }
 
   /**
