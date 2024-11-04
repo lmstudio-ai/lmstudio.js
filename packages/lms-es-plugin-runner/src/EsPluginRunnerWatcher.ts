@@ -1,7 +1,7 @@
 import { Event, SimpleLogger } from "@lmstudio/lms-common";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
-import { type Esbuild } from "./Esbuild";
+import { type UtilBinary } from "./UtilBinary";
 import { createEsBuildArgs } from "./esbuildArgs";
 import { generateEntryFile } from "./generateEntryFile";
 
@@ -14,7 +14,7 @@ export class EsPluginRunnerWatcher {
   private readonly emitUpdateEvent: () => void;
 
   public constructor(
-    private readonly esbuild: Esbuild,
+    private readonly esbuild: UtilBinary,
     private readonly projectPath: string,
     private readonly logger: SimpleLogger,
   ) {
