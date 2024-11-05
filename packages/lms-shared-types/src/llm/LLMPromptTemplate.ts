@@ -134,6 +134,7 @@ export const llmManualPromptTemplateSchema = z.object({
  *   }]
  * }
  * ```
+ *
  * ### mistralTools
  * Mistral tool-use format. Similar to llamaCustomTools but with additional validation rules, and
  * tools are passed through the "tools" field instead of the "custom_tools" field.
@@ -155,19 +156,26 @@ export const llmManualPromptTemplateSchema = z.object({
  *       content: '{"order_id": "123", "delivery_date": "March 1st, 2024"}'
  *     }
  *   ],
- *   tools: [{
- *     function: {
- *       name: "get_delivery_date",
- *       description: "Get the delivery date for a customer's order",
- *       parameters: {
- *         type: "object",
- *         properties: {
- *           order_id: { type: "string", description: "The customer's order ID." }
- *         },
- *         required: ["order_id"]
- *       }
- *     }
- *   }]
+ *   tools: [<tool jsons here>]
+ * }
+ * ```
+ *
+ * ### qwenTools
+ * The same as `llamaCustomTools`, but the "tools" field is used to define the tools
+ * that the model can request (instead of "customTools" for `llamaCustomTools`).
+ * ```typescript
+ * {
+ *   messages: [
+ *     { role: "user", content: "What's the delivery date for order 123" },
+ *     { role: "assistant", content: "Let me check your delivery date.",
+ *       tool_calls: [{
+ *         type: "function",
+ *         function: { name: "get_delivery_date", arguments: "{\"order_id\":\"123\"}" }
+ *       }]
+ *     },
+ *     { role: "tool", content: '{"order_id": "123", "delivery_date": "March 1st, 2024"}' }
+ *   ],
+ *   tools: [<tool jsons here>]
  * }
  * ```
  *
