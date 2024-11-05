@@ -17,7 +17,7 @@ export { doesFileNameIndicateModel, modelExtensions } from "./fileName";
 export { flattenSignalOfSignal, flattenSignalOfWritableSignal } from "./flattenSignal";
 export { HandledEvent } from "./HandledEvent";
 export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
-export { makePromise } from "./makePromise";
+export { DeferredPromise, makePromise } from "./makePromise";
 export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter";
 export { accessMaybeMutableInternals, MaybeMutable } from "./MaybeMutable";
 export { OWLSignal } from "./OWLSignal";

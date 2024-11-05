@@ -34,6 +34,10 @@ export function createPluginsBackendInterface() {
           }),
         ]),
       })
+      .addRpcEndpoint("reindexPlugins", {
+        parameter: z.void(),
+        returns: z.void(),
+      })
 
       /**
        * The following method is called by the plugin client. (plugin:*)

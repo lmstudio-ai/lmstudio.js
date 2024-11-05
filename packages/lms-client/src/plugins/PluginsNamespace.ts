@@ -113,6 +113,17 @@ export class PluginsNamespace {
   }
 
   /**
+   * Requests LM Studio to reindex all the plugins.
+   *
+   * CAVEAT: Currently, we do not wait for the reindex to complete before returning. In the future,
+   * we will change this behavior and only return after the reindex is completed.
+   */
+  public async reindexPlugins() {
+    const stack = getCurrentStack(1);
+    await this.port.callRpc("reindexPlugins", undefined, { stack });
+  }
+
+  /**
    * Sets the preprocessor to be used by the plugin represented by this client.
    */
   public setPreprocessor(preprocessor: Preprocessor) {
