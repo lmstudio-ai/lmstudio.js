@@ -1,4 +1,9 @@
-import { getCurrentStack, SimpleLogger, type LoggerInterface } from "@lmstudio/lms-common";
+import {
+  getCurrentStack,
+  makePromise,
+  SimpleLogger,
+  type LoggerInterface,
+} from "@lmstudio/lms-common";
 import { type SystemPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type DownloadedModel } from "@lmstudio/lms-shared-types";
 
@@ -21,5 +26,13 @@ export class SystemNamespace {
     return this.systemPort.callRpc("listDownloadedModels", undefined, {
       stack: getCurrentStack(1),
     });
+  }
+  public async whenDisconnected(): Promise<void> {
+    const stack = getCurrentStack(1);
+    const channel = this.systemPort.createChannel("alive", undefined, undefined, { stack });
+    const { promise, resolve } = makePromise();
+    channel.onError.subscribeOnce(resolve);
+    channel.onClose.subscribeOnce(resolve);
+    await promise;
   }
 }
