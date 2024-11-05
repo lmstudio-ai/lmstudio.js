@@ -99,7 +99,7 @@ export const llmManualPromptTemplateSchema = z.object({
  * ```
  *
  * ### llamaCustomTools
- * Llama tool-use format. No images. The "assistant" can make requests to tool calls. The "tool" 
+ * Llama tool-use format. No images. The "assistant" can make requests to tool calls. The "tool"
  * role contains the results of the tool calls. The "custom_tools" field is used to define the tools
  * that the model can request.
  * ```typescript
@@ -112,7 +112,7 @@ export const llmManualPromptTemplateSchema = z.object({
  *         function: { name: "get_delivery_date", arguments: "{\"order_id\":\"123\"}" }
  *       }]
  *     },
- *     { role: "tool", content: "The delivery date is March 1st, 2024" }
+ *     { role: "tool", content: '{"order_id": "123", "delivery_date": "March 1st, 2024"}' }
  *   ],
  *   custom_tools: [{
  *     type: "function",
@@ -135,6 +135,50 @@ export const llmManualPromptTemplateSchema = z.object({
  * }
  * ```
  *
+ * ### mistralTools
+ * Mistral tool-use format. Similar to llamaCustomTools but with additional validation rules, and
+ * tools are passed through the "tools" field instead of the "custom_tools" field.
+ * IDs must be present in both "tool_calls" from "assistant" and in "tool_call_id" when a message
+ * is sent from the "tool" role. IDs must be 9 alphanumeric characters long.
+ * ```typescript
+ * {
+ *   messages: [
+ *     { role: "user", content: "What's the delivery date for order 123?" },
+ *     { role: "assistant", tool_calls: [{
+ *         id: "123456789",
+ *         function: {
+ *           name: "get_delivery_date",
+ *           arguments: "{\"order_id\":\"123\"}"
+ *         }
+ *     }]},
+ *     { role: "tool",
+ *       tool_call_id: "123456789",
+ *       content: '{"order_id": "123", "delivery_date": "March 1st, 2024"}'
+ *     }
+ *   ],
+ *   tools: [<tool jsons here>]
+ * }
+ * ```
+ *
+ * ### qwenTools
+ * The same as `llamaCustomTools`, but the "tools" field is used to define the tools
+ * that the model can request (instead of "custom_tools" for `llamaCustomTools`).
+ * ```typescript
+ * {
+ *   messages: [
+ *     { role: "user", content: "What's the delivery date for order 123" },
+ *     { role: "assistant", content: "Let me check your delivery date.",
+ *       tool_calls: [{
+ *         type: "function",
+ *         function: { name: "get_delivery_date", arguments: "{\"order_id\":\"123\"}" }
+ *       }]
+ *     },
+ *     { role: "tool", content: '{"order_id": "123", "delivery_date": "March 1st, 2024"}' }
+ *   ],
+ *   tools: [<tool jsons here>]
+ * }
+ * ```
+ *
  * @public
  */
 export type LLMJinjaInputFormat =
@@ -145,7 +189,9 @@ export type LLMJinjaInputFormat =
   | "promptWithNumberedImages2"
   | "messageListWithImageType1"
   | "messageListWithImageType2"
-  | "llamaCustomTools";
+  | "llamaCustomTools"
+  | "mistralTools"
+  | "qwenTools";
 export const llmJinjaInputFormatSchema = z.enum([
   "promptOnly",
   "promptWithImages",
@@ -155,6 +201,8 @@ export const llmJinjaInputFormatSchema = z.enum([
   "messageListWithImageType1",
   "messageListWithImageType2",
   "llamaCustomTools",
+  "mistralTools",
+  "qwenTools",
 ]);
 
 /**
