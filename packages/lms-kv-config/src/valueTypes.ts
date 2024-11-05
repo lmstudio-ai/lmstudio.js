@@ -40,11 +40,19 @@ function quoteStringWithManualEscape(str: string | undefined, empty?: string) {
  */
 export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   /**
+   * Display name of the field.
+   */
+  displayName: z.string().optional(),
+  /**
+   * Hint about the field. Shown when hovering over the field.
+   */
+  hint: z.string().optional(),
+  /**
    * A field can be marked as model centric when it loses its meaning when there is no model to
    * reference.
    *
    * An example would be prompt template. There is no point to configure prompt template when there
-   * when there isn't a specific model.
+   * isn't a specific model.
    */
   modelCentric: z.boolean().optional(),
   /**
