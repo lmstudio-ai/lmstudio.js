@@ -162,7 +162,7 @@ export const llmManualPromptTemplateSchema = z.object({
  *
  * ### qwenTools
  * The same as `llamaCustomTools`, but the "tools" field is used to define the tools
- * that the model can request (instead of "customTools" for `llamaCustomTools`).
+ * that the model can request (instead of "custom_tools" for `llamaCustomTools`).
  * ```typescript
  * {
  *   messages: [
