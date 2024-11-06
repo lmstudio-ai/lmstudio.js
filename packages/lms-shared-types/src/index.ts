@@ -113,6 +113,11 @@ export {
   llmContextReferenceYamlFileSchema,
 } from "./llm/LLMContextReference.js";
 export {
+  LLMLlamaCacheQuantizationType,
+  llmLlamaCacheQuantizationTypes,
+  llmLlamaCacheQuantizationTypeSchema,
+} from "./llm/LLMLlamaCacheQuantizationType";
+export {
   LLMLlamaAccelerationOffloadRatio,
   llmLlamaAccelerationOffloadRatioSchema,
   LLMLlamaAccelerationSetting,
