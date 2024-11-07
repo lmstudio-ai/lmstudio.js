@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { citationSourceSchema, type CitationSource } from "../../CitationSource";
 import { colorPalette, type ColorPalette } from "../../ColorPalette";
 import { llmGenInfoSchema, type LLMGenInfo } from "../LLMPredictionStats";
 
@@ -56,7 +55,7 @@ export type ProcessingUpdateStatusCreate = {
   location?: BlockLocation;
   indentation?: number;
 };
-export const ProcessingUpdateStatusCreateSchema = z.object({
+export const processingUpdateStatusCreateSchema = z.object({
   type: z.literal("status.create"),
   id: z.string(),
   state: statusStepStateSchema,
@@ -69,7 +68,7 @@ export type ProcessingUpdateStatusUpdate = {
   id: string;
   state: StatusStepState;
 };
-export const ProcessingUpdateStatusUpdateSchema = z.object({
+export const processingUpdateStatusUpdateSchema = z.object({
   type: z.literal("status.update"),
   id: z.string(),
   state: statusStepStateSchema,
@@ -79,7 +78,7 @@ export type ProcessingUpdateStatusRemove = {
   type: "status.remove";
   id: string;
 };
-export const ProcessingUpdateStatusRemoveSchema = z.object({
+export const processingUpdateStatusRemoveSchema = z.object({
   type: z.literal("status.remove"),
   id: z.string(),
 });
@@ -88,13 +87,19 @@ export type ProcessingUpdateCitationBlockCreate = {
   type: "citationBlock.create";
   id: string;
   citedText: string;
-  source: CitationSource;
+  fileName: string;
+  fileIdentifier: string;
+  pageNumber?: number | [start: number, end: number];
+  lineNumber?: number | [start: number, end: number];
 };
-export const ProcessingUpdateCitationBlockCreateSchema = z.object({
+export const processingUpdateCitationBlockCreateSchema = z.object({
   type: z.literal("citationBlock.create"),
   id: z.string(),
   citedText: z.string(),
-  source: citationSourceSchema,
+  fileName: z.string(),
+  fileIdentifier: z.string(),
+  pageNumber: z.union([z.number(), z.tuple([z.number(), z.number()])]).optional(),
+  lineNumber: z.union([z.number(), z.tuple([z.number(), z.number()])]).optional(),
 });
 
 // Debug Info Block
@@ -104,7 +109,7 @@ export type ProcessingUpdateDebugInfoBlockCreate = {
   id: string;
   debugInfo: string;
 };
-export const ProcessingUpdateDebugInfoBlockCreateSchema = z.object({
+export const processingUpdateDebugInfoBlockCreateSchema = z.object({
   type: z.literal("debugInfoBlock.create"),
   id: z.string(),
   debugInfo: z.string(),
@@ -119,7 +124,7 @@ export type ProcessingUpdateContentBlockCreate = {
   label?: string;
   labelColor?: ColorPalette;
 };
-export const ProcessingUpdateContentBlockCreateSchema = z.object({
+export const processingUpdateContentBlockCreateSchema = z.object({
   type: z.literal("contentBlock.create"),
   id: z.string(),
   includeInContext: z.boolean(),
@@ -132,8 +137,19 @@ export type ProcessingUpdateContentBlockAppendText = {
   id: string;
   text: string;
 };
-export const ProcessingUpdateContentBlockAppendTextSchema = z.object({
+export const processingUpdateContentBlockAppendTextSchema = z.object({
   type: z.literal("contentBlock.appendText"),
+  id: z.string(),
+  text: z.string(),
+});
+
+export type ProcessingUpdateContentBlockReplaceText = {
+  type: "contentBlock.replaceText";
+  id: string;
+  text: string;
+};
+export const processingUpdateContentBlockReplaceTextSchema = z.object({
+  type: z.literal("contentBlock.replaceText"),
   id: z.string(),
   text: z.string(),
 });
@@ -143,7 +159,7 @@ export type ProcessingUpdateContentBlockAttachGenInfo = {
   id: string;
   genInfo: LLMGenInfo;
 };
-export const ProcessingUpdateContentBlockAttachGenInfoSchema = z.object({
+export const processingUpdateContentBlockAttachGenInfoSchema = z.object({
   type: z.literal("contentBlock.attachGenInfo"),
   id: z.string(),
   genInfo: llmGenInfoSchema,
@@ -159,16 +175,18 @@ export type ProcessingUpdate =
   | ProcessingUpdateDebugInfoBlockCreate
   | ProcessingUpdateContentBlockCreate
   | ProcessingUpdateContentBlockAppendText
+  | ProcessingUpdateContentBlockReplaceText
   | ProcessingUpdateContentBlockAttachGenInfo;
 export const processingUpdateSchema = z.discriminatedUnion("type", [
-  ProcessingUpdateStatusCreateSchema,
-  ProcessingUpdateStatusUpdateSchema,
-  ProcessingUpdateStatusRemoveSchema,
-  ProcessingUpdateCitationBlockCreateSchema,
-  ProcessingUpdateDebugInfoBlockCreateSchema,
-  ProcessingUpdateContentBlockCreateSchema,
-  ProcessingUpdateContentBlockAppendTextSchema,
-  ProcessingUpdateContentBlockAttachGenInfoSchema,
+  processingUpdateStatusCreateSchema,
+  processingUpdateStatusUpdateSchema,
+  processingUpdateStatusRemoveSchema,
+  processingUpdateCitationBlockCreateSchema,
+  processingUpdateDebugInfoBlockCreateSchema,
+  processingUpdateContentBlockCreateSchema,
+  processingUpdateContentBlockAppendTextSchema,
+  processingUpdateContentBlockReplaceTextSchema,
+  processingUpdateContentBlockAttachGenInfoSchema,
 ]) as z.Schema<ProcessingUpdate>;
 
 export type ProcessingUpdateType = ProcessingUpdate["type"];

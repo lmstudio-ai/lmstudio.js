@@ -119,7 +119,7 @@ export function createPluginsBackendInterface() {
         }),
         returns: z.void(),
       })
-      .addRpcEndpoint("processingGetHistory", {
+      .addRpcEndpoint("processingPullHistory", {
         parameter: z.object({
           /** Processing Context Identifier */
           pci: z.string(),
@@ -128,7 +128,7 @@ export function createPluginsBackendInterface() {
         }),
         returns: chatHistoryDataSchema,
       })
-      .addRpcEndpoint("temp_processingGetCurrentlySelectedLLMIdentifier", {
+      .addRpcEndpoint("processingGetOrLoadModel", {
         parameter: z.object({
           /** Processing Context Identifier */
           pci: z.string(),

@@ -1,17 +1,19 @@
 import { z } from "zod";
 import {
-  ProcessingUpdateCitationBlockCreateSchema,
-  ProcessingUpdateContentBlockAppendTextSchema,
-  ProcessingUpdateContentBlockAttachGenInfoSchema,
-  ProcessingUpdateContentBlockCreateSchema,
-  ProcessingUpdateDebugInfoBlockCreateSchema,
-  ProcessingUpdateStatusCreateSchema,
-  ProcessingUpdateStatusRemoveSchema,
-  ProcessingUpdateStatusUpdateSchema,
+  processingUpdateCitationBlockCreateSchema,
+  processingUpdateContentBlockAppendTextSchema,
+  processingUpdateContentBlockAttachGenInfoSchema,
+  processingUpdateContentBlockCreateSchema,
+  processingUpdateContentBlockReplaceTextSchema,
+  processingUpdateDebugInfoBlockCreateSchema,
+  processingUpdateStatusCreateSchema,
+  processingUpdateStatusRemoveSchema,
+  processingUpdateStatusUpdateSchema,
   type ProcessingUpdateCitationBlockCreate,
   type ProcessingUpdateContentBlockAppendText,
   type ProcessingUpdateContentBlockAttachGenInfo,
   type ProcessingUpdateContentBlockCreate,
+  type ProcessingUpdateContentBlockReplaceText,
   type ProcessingUpdateDebugInfoBlockCreate,
   type ProcessingUpdateStatusCreate,
   type ProcessingUpdateStatusRemove,
@@ -26,14 +28,16 @@ export type GeneratorUpdate =
   | ProcessingUpdateDebugInfoBlockCreate
   | ProcessingUpdateContentBlockCreate
   | ProcessingUpdateContentBlockAppendText
+  | ProcessingUpdateContentBlockReplaceText
   | ProcessingUpdateContentBlockAttachGenInfo;
 export const generatorUpdateSchema = z.discriminatedUnion("type", [
-  ProcessingUpdateStatusCreateSchema,
-  ProcessingUpdateStatusUpdateSchema,
-  ProcessingUpdateStatusRemoveSchema,
-  ProcessingUpdateCitationBlockCreateSchema,
-  ProcessingUpdateDebugInfoBlockCreateSchema,
-  ProcessingUpdateContentBlockCreateSchema,
-  ProcessingUpdateContentBlockAppendTextSchema,
-  ProcessingUpdateContentBlockAttachGenInfoSchema,
+  processingUpdateStatusCreateSchema,
+  processingUpdateStatusUpdateSchema,
+  processingUpdateStatusRemoveSchema,
+  processingUpdateCitationBlockCreateSchema,
+  processingUpdateDebugInfoBlockCreateSchema,
+  processingUpdateContentBlockCreateSchema,
+  processingUpdateContentBlockAppendTextSchema,
+  processingUpdateContentBlockReplaceTextSchema,
+  processingUpdateContentBlockAttachGenInfoSchema,
 ]) as z.Schema<GeneratorUpdate>;

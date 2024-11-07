@@ -1,10 +1,10 @@
 import { z } from "zod";
 import {
-  ProcessingUpdateCitationBlockCreateSchema,
-  ProcessingUpdateDebugInfoBlockCreateSchema,
-  ProcessingUpdateStatusCreateSchema,
-  ProcessingUpdateStatusRemoveSchema,
-  ProcessingUpdateStatusUpdateSchema,
+  processingUpdateCitationBlockCreateSchema,
+  processingUpdateDebugInfoBlockCreateSchema,
+  processingUpdateStatusCreateSchema,
+  processingUpdateStatusRemoveSchema,
+  processingUpdateStatusUpdateSchema,
   type ProcessingUpdateCitationBlockCreate,
   type ProcessingUpdateDebugInfoBlockCreate,
   type ProcessingUpdateStatusCreate,
@@ -20,9 +20,9 @@ export type PreprocessorUpdate =
   | ProcessingUpdateDebugInfoBlockCreate;
 
 export const preprocessorUpdateSchema = z.discriminatedUnion("type", [
-  ProcessingUpdateStatusCreateSchema,
-  ProcessingUpdateStatusUpdateSchema,
-  ProcessingUpdateStatusRemoveSchema,
-  ProcessingUpdateCitationBlockCreateSchema,
-  ProcessingUpdateDebugInfoBlockCreateSchema,
+  processingUpdateStatusCreateSchema,
+  processingUpdateStatusUpdateSchema,
+  processingUpdateStatusRemoveSchema,
+  processingUpdateCitationBlockCreateSchema,
+  processingUpdateDebugInfoBlockCreateSchema,
 ]) as z.Schema<PreprocessorUpdate>;
