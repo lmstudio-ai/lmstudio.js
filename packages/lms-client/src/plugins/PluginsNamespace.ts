@@ -139,7 +139,7 @@ export class PluginsNamespace {
     );
 
     const logger = new SimpleLogger(`Preprocessor`, this.rootLogger);
-    logger.info("Register to LM Studio");
+    logger.info("Register with LM Studio");
 
     interface OngoingPreprocessTask {
       /**
@@ -267,8 +267,8 @@ export class PluginsNamespace {
       stack,
     );
 
-    const logger = new SimpleLogger(`Generator`, this.rootLogger);
-    logger.info("Register to LM Studio");
+    const logger = new SimpleLogger(`   Generator`, this.rootLogger);
+    logger.info("Register with LM Studio");
 
     interface OngoingGenerateTask {
       /**
