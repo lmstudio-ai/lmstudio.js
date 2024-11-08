@@ -163,6 +163,15 @@ export function createPluginsBackendInterface() {
         }),
         returns: z.void(),
       })
+      .addRpcEndpoint("processingSetSenderName", {
+        parameter: z.object({
+          /** Processing Context Identifier */
+          pci: z.string(),
+          token: z.string(),
+          name: z.string(),
+        }),
+        returns: z.void(),
+      })
       .addRpcEndpoint("setConfigSchematics", {
         parameter: z.object({
           schematics: serializedKVConfigSchematicsSchema,

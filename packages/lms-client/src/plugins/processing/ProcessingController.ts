@@ -325,6 +325,16 @@ export class ProcessingController {
   });
 
   /**
+   * Sets the sender name for this message. The sender name shown above the message in the chat.
+   */
+  public async setSenderName(name: string) {
+    this.sendUpdate({
+      type: "setSenderName",
+      name,
+    });
+  }
+
+  /**
    * Throws an error if the prediction process has been aborted. Sprinkle this throughout your code
    * to ensure that the prediction process is aborted as soon as possible.
    */
@@ -357,7 +367,10 @@ export class ProcessingController {
 /**
  * @public
  */
-export type PreprocessorController = Omit<ProcessingController, "createContentBlock">;
+export type PreprocessorController = Omit<
+  ProcessingController,
+  "createContentBlock" | "setSenderName"
+>;
 /**
  * @public
  */

@@ -165,6 +165,15 @@ export const processingUpdateContentBlockAttachGenInfoSchema = z.object({
   genInfo: llmGenInfoSchema,
 });
 
+export type ProcessingUpdateSetSenderName = {
+  type: "setSenderName";
+  name: string;
+};
+export const processingUpdateSetSenderNameSchema = z.object({
+  type: z.literal("setSenderName"),
+  name: z.string(),
+});
+
 // Combined
 
 export type ProcessingUpdate =
@@ -176,7 +185,8 @@ export type ProcessingUpdate =
   | ProcessingUpdateContentBlockCreate
   | ProcessingUpdateContentBlockAppendText
   | ProcessingUpdateContentBlockReplaceText
-  | ProcessingUpdateContentBlockAttachGenInfo;
+  | ProcessingUpdateContentBlockAttachGenInfo
+  | ProcessingUpdateSetSenderName;
 export const processingUpdateSchema = z.discriminatedUnion("type", [
   processingUpdateStatusCreateSchema,
   processingUpdateStatusUpdateSchema,
@@ -187,6 +197,7 @@ export const processingUpdateSchema = z.discriminatedUnion("type", [
   processingUpdateContentBlockAppendTextSchema,
   processingUpdateContentBlockReplaceTextSchema,
   processingUpdateContentBlockAttachGenInfoSchema,
+  processingUpdateSetSenderNameSchema,
 ]) as z.Schema<ProcessingUpdate>;
 
 export type ProcessingUpdateType = ProcessingUpdate["type"];
