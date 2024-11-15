@@ -50,6 +50,12 @@ export function createRepositoryBackendInterface() {
           type: z.literal("cancel"),
         }),
       ]),
+    })
+    .addRpcEndpoint("push", {
+      parameter: z.object({
+        path: z.string(),
+      }),
+      returns: z.void(),
     });
 }
 

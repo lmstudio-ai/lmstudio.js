@@ -6,6 +6,7 @@ import {
 } from "@lmstudio/lms-common";
 import { type RepositoryPort } from "@lmstudio/lms-external-backend-interfaces";
 import { modelSearchOptsSchema, type ModelSearchOpts } from "@lmstudio/lms-shared-types";
+import { z } from "zod";
 import { ModelSearchResultEntry } from "./ModelSearchResultEntry";
 
 /** @public */
@@ -35,5 +36,18 @@ export class RepositoryNamespace {
     return results.map(
       data => new ModelSearchResultEntry(this.repositoryPort, this.validator, this.logger, data),
     );
+  }
+
+  public async push(path: string): Promise<void> {
+    const stack = getCurrentStack(1);
+    path = this.validator.validateMethodParamOrThrow(
+      "repository",
+      "push",
+      "path",
+      z.string(),
+      path,
+      stack,
+    );
+    await this.repositoryPort.callRpc("push", { path }, { stack });
   }
 }
