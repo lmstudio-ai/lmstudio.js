@@ -27,7 +27,9 @@ export function createLlmBackendInterface() {
         z.object({
           type: z.literal("fragment"),
           fragment: z.string(),
-          topLogprobs: z.array(z.object({ text: z.string(), logprob: z.number() })).optional(),
+          topLogprobs: z
+            .array(z.array(z.object({ text: z.string(), logprob: z.number() })))
+            .optional(),
         }),
         z.object({
           type: z.literal("promptProcessingProgress"),
