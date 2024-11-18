@@ -14,6 +14,7 @@
     { "path": "packages/lms-client" },
     { "path": "packages/lms-lmstudio" },
     { "path": "packages/lms-es-plugin-runner" },
+    { "path": "packages/lms-json-schema" },
     { "path": "packages/template" }
   ],
   "exclude": ["*.test.ts"]
