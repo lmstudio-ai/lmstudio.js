@@ -327,6 +327,33 @@ export class LMStudioClient {
       constructorOptsSchema,
       opts,
     ) satisfies LMStudioClientConstructorOpts;
+
+    if ((globalThis as any).__LMS_PLUGIN_CONTEXT) {
+      throw new Error(
+        text`
+          You cannot create LMStudioClient in a plugin context. To use LM Studio APIs, use the
+          "client" property attached to the GeneratorController/PreprocessorController.
+
+          For example, instead of:
+
+          ${
+            "const client = new LMStudioClient(); // <-- Error\n" +
+            "export async function generate(ctl: GeneratorController) {\n" +
+            "  const model = client.llm.load(...);\n" +
+            "}"
+          }
+
+          Do this:
+            
+          ${
+            "export async function generate(ctl: GeneratorController) {\n" +
+            "  const model = ctl.client.llm.load(...);\n" +
+            "}"
+          }
+        `,
+      );
+    }
+
     this.logger = new SimpleLogger("LMStudioClient", logger);
     this.clientIdentifier = clientIdentifier ?? generateRandomBase64(18);
     this.clientPasskey = clientPasskey ?? generateRandomBase64(18);
@@ -375,7 +402,7 @@ export class LMStudioClient {
       new SimpleLogger("Embedding", this.logger),
       validator,
     );
-    this.system = new SystemNamespace(this.systemPort, this.logger);
+    this.system = new SystemNamespace(this.systemPort, validator, this.logger);
     this.diagnostics = new DiagnosticsNamespace(this.diagnosticsPort, validator, this.logger);
     this.retrieval = new RetrievalNamespace(
       this.retrievalPort,

@@ -69,6 +69,40 @@ export function createBaseModelBackendInterface() {
         specifier: modelSpecifierSchema,
       }),
       returns: kvConfigSchema,
+    })
+    .addChannelEndpoint("getOrLoad", {
+      creationParameter: z.object({
+        identifier: z.string(),
+        loadConfigStack: kvConfigStackSchema,
+      }),
+      toClientPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("alreadyLoaded"),
+          identifier: z.string(),
+          fullPath: z.string(),
+          instanceReference: z.string(),
+        }),
+        z.object({
+          type: z.literal("startLoading"),
+          identifier: z.string(),
+          fullPath: z.string(),
+        }),
+        z.object({
+          type: z.literal("loadProgress"),
+          progress: z.number(),
+        }),
+        z.object({
+          type: z.literal("loadSuccess"),
+          identifier: z.string(),
+          instanceReference: z.string(),
+          fullPath: z.string(),
+        }),
+      ]),
+      toServerPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("cancel"),
+        }),
+      ]),
     });
 }
 

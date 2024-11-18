@@ -3,9 +3,14 @@ import {
   makePromise,
   SimpleLogger,
   type LoggerInterface,
+  type Validator,
 } from "@lmstudio/lms-common";
 import { type SystemPort } from "@lmstudio/lms-external-backend-interfaces";
-import { type DownloadedModel } from "@lmstudio/lms-shared-types";
+import {
+  backendNotificationSchema,
+  type BackendNotification,
+  type DownloadedModel,
+} from "@lmstudio/lms-shared-types";
 
 /** @public */
 export class SystemNamespace {
@@ -14,6 +19,7 @@ export class SystemNamespace {
   /** @internal */
   public constructor(
     private readonly systemPort: SystemPort,
+    private readonly validator: Validator,
     parentLogger: LoggerInterface,
   ) {
     this.logger = new SimpleLogger("System", parentLogger);
@@ -34,5 +40,18 @@ export class SystemNamespace {
     channel.onError.subscribeOnce(resolve);
     channel.onClose.subscribeOnce(resolve);
     await promise;
+  }
+  public async notify(notification: BackendNotification) {
+    const stack = getCurrentStack(1);
+    notification = this.validator.validateMethodParamOrThrow(
+      "client.system",
+      "notify",
+      "notification",
+      backendNotificationSchema,
+      notification,
+      stack,
+    );
+
+    await this.systemPort.callRpc("notify", notification, { stack });
   }
 }

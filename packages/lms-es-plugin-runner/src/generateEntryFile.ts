@@ -1,5 +1,4 @@
 const template = `\
-import { main } from "./../src/index.ts";
 import { LMStudioClient, type PluginContext } from "@lmstudio/sdk";
 
 declare var process: any;
@@ -12,6 +11,8 @@ const client = new LMStudioClient({
   clientIdentifier,
   clientPasskey,
 });
+
+(globalThis as any).__LMS_PLUGIN_CONTEXT = true;
 
 let generatorSet = false;
 let preprocessorSet = false;
@@ -44,7 +45,9 @@ const pluginContext: PluginContext = {
   },
 };
 
-main(pluginContext).then(() => {
+import("./../src/index.ts").then(async module => {
+  return await module.main(pluginContext);
+}).then(() => {
   client.plugins.initCompleted();
 }).catch((error) => {
   console.error("Failed to execute the main function of the plugin.");

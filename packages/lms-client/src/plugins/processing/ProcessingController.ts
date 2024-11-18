@@ -154,8 +154,7 @@ export class ProcessingController {
 
   /** @internal */
   public constructor(
-    /** @internal */
-    private readonly client: LMStudioClient,
+    public readonly client: LMStudioClient,
     /** @internal */
     private readonly connector: ProcessingConnector,
     /** @internal */
