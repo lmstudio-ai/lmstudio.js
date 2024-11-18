@@ -174,6 +174,8 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       minLength: z.number().optional(),
       maxLength: z.number().optional(),
       isParagraph: z.boolean().optional(),
+      isProtected: z.boolean().optional(),
+      placeholder: z.string().optional(),
     },
     schemaMaker: ({ minLength, maxLength }) => {
       let schema = z.string();
@@ -188,7 +190,11 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     effectiveEquals: (a, b) => {
       return a === b;
     },
-    stringify: (value, { isParagraph }, { t, desiredLength }) => {
+    stringify: (value, { isParagraph, isProtected }, { t, desiredLength }) => {
+      if (isProtected) {
+        return "********";
+      }
+
       if (isParagraph) {
         if (value === "") {
           return t("config:customInputs.string.emptyParagraph", "<Empty>");
@@ -215,6 +221,23 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
           );
         }
       }
+    },
+  })
+  .valueType("select", {
+    paramType: {
+      options: z.array(z.object({ value: z.string(), displayName: z.string() }).or(z.string())),
+    },
+    schemaMaker: ({ options }) => {
+      const allowedValues = new Set(
+        options.map(option => (typeof option === "string" ? option : option.value)),
+      );
+      return z.string().refine(value => allowedValues.has(value));
+    },
+    effectiveEquals: (a, b) => {
+      return a === b;
+    },
+    stringify: value => {
+      return value;
     },
   })
   .valueType("boolean", {
