@@ -174,6 +174,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       minLength: z.number().optional(),
       maxLength: z.number().optional(),
       isParagraph: z.boolean().optional(),
+      isProtected: z.boolean().optional(),
     },
     schemaMaker: ({ minLength, maxLength }) => {
       let schema = z.string();
@@ -188,7 +189,11 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     effectiveEquals: (a, b) => {
       return a === b;
     },
-    stringify: (value, { isParagraph }, { t, desiredLength }) => {
+    stringify: (value, { isParagraph, isProtected }, { t, desiredLength }) => {
+      if (isProtected) {
+        return "********";
+      }
+
       if (isParagraph) {
         if (value === "") {
           return t("config:customInputs.string.emptyParagraph", "<Empty>");
