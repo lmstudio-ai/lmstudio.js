@@ -175,6 +175,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       maxLength: z.number().optional(),
       isParagraph: z.boolean().optional(),
       isProtected: z.boolean().optional(),
+      placeholder: z.string().optional(),
     },
     schemaMaker: ({ minLength, maxLength }) => {
       let schema = z.string();
