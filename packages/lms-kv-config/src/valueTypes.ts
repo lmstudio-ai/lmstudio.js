@@ -223,6 +223,23 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       }
     },
   })
+  .valueType("select", {
+    paramType: {
+      options: z.array(z.object({ value: z.string(), displayName: z.string() }).or(z.string())),
+    },
+    schemaMaker: ({ options }) => {
+      const allowedValues = new Set(
+        options.map(option => (typeof option === "string" ? option : option.value)),
+      );
+      return z.string().refine(value => allowedValues.has(value));
+    },
+    effectiveEquals: (a, b) => {
+      return a === b;
+    },
+    stringify: value => {
+      return value;
+    },
+  })
   .valueType("boolean", {
     paramType: {},
     schemaMaker: () => {
