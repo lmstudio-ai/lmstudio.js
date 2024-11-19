@@ -132,27 +132,6 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           )
           .field("logitBias", "llamaLogitBias", {}, []),
       )
-      .scope("onnx", builder =>
-        builder
-          .field(
-            "topKSampling",
-            "checkboxNumeric",
-            { min: 0, max: 5000, slider: { min: 1, max: 5000, step: 1 } },
-            { checked: false, value: 40 },
-          )
-          .field(
-            "repeatPenalty",
-            "checkboxNumeric",
-            { min: -1, step: 0.01 },
-            { checked: true, value: 1.1 },
-          )
-          .field(
-            "topPSampling",
-            "checkboxNumeric",
-            { min: 0, max: 1, step: 0.01, slider: { min: 0.01, max: 1, step: 0.01 } },
-            { checked: false, value: 0.95 },
-          ),
-      ),
   )
   .scope("llm.load", builder =>
     builder
@@ -314,7 +293,7 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
 );
 
 export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
-  llmPredictionConfigSchematics.sliced("onnx.*"),
+  llmPredictionConfigSchematics.sliced("onnx.*", "repeatPenalty", "topPSampling", "topKSampling"),
 );
 
 export const llmMistralrsPredictionConfigSchematics = llmSharedPredictionConfigSchematics;
