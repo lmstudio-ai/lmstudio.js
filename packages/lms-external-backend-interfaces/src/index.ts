@@ -20,6 +20,11 @@ export {
 } from "./filesBackendInterface";
 export { LLMBackendInterface, LLMPort, createLlmBackendInterface } from "./llmBackendInterface";
 export {
+  PluginsBackendInterface,
+  PluginsPort,
+  createPluginsBackendInterface,
+} from "./pluginsBackendInterface";
+export {
   RepositoryBackendInterface,
   RepositoryPort,
   createRepositoryBackendInterface,

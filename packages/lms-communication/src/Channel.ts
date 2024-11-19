@@ -82,6 +82,7 @@ export class Channel<TIncomingPacket, TOutgoingPacket> {
       return;
     }
     waiting.resolve();
+    this.waitingForAck.delete(ackId);
   };
   /**
    * Returned as a part of create. It should be called by the controlling port.

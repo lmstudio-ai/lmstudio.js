@@ -3,8 +3,18 @@ export {
   llmPredictionConfigToKVConfig,
 } from "./conversion/llmPredictionConfig";
 export {
+  InnerFieldStringifyOpts,
+  KVConcreteFieldSchema,
+  KVConcreteFieldValueType,
+  KVConcreteFieldValueTypesMap,
   KVConfigSchematics,
+  KVConfigSchematicsBuilder,
   KVFieldValueTypeLibrary,
+  KVVirtualConfigSchema,
+  KVVirtualFieldSchema,
+  KVVirtualFieldValueType,
+  KVVirtualFieldValueTypesMapping,
+  ParsedKVConfig,
   addKVConfigToStack,
   collapseKVStack,
   collapseKVStackRaw,
@@ -50,4 +60,8 @@ export {
   llmSharedPredictionConfigSchematics,
   retrievalSchematics,
 } from "./schema";
-export { kvValueTypesLibrary } from "./valueTypes";
+export {
+  GlobalKVFieldValueTypeLibraryMap,
+  GlobalKVValueTypesLibrary,
+  kvValueTypesLibrary,
+} from "./valueTypes";

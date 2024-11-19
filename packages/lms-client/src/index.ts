@@ -1,5 +1,15 @@
 export { ChatHistory, ChatMessage } from "./ChatHistory";
 export type { ChatHistoryLike } from "./ChatHistory";
+export {
+  ConfigSchematics,
+  ConfigSchematicsBuilder,
+  ParsedConfig,
+  VirtualConfigSchematics,
+  configSchematicsBrand,
+  configSchematicsBuilderBrand,
+  createConfigSchematics,
+  parsedConfigBrand,
+} from "./customConfig";
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
 export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle";
 export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
@@ -11,8 +21,19 @@ export type { LLMNamespace } from "./llm/LLMNamespace";
 export type { LLMSpecificModel } from "./llm/LLMSpecificModel";
 export type { OngoingPrediction } from "./llm/OngoingPrediction";
 export type { PredictionResult } from "./llm/PredictionResult";
-export type { Generator } from "./llm/processing/Generator";
-export type { Preprocessor } from "./llm/processing/Preprocessor";
+export { LMStudioClient } from "./LMStudioClient";
+export type { LMStudioClientConstructorOpts } from "./LMStudioClient";
+export type { DynamicHandle } from "./modelShared/DynamicHandle";
+export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace";
+export type { SpecificModel } from "./modelShared/SpecificModel";
+export type { PluginContext } from "./PluginContext";
+export type {
+  PluginsNamespace,
+  RegisterDevelopmentPluginOpts,
+  RegisterDevelopmentPluginResult,
+} from "./plugins/PluginsNamespace";
+export type { Generator } from "./plugins/processing/Generator";
+export type { Preprocessor } from "./plugins/processing/Preprocessor";
 export type {
   CreateContentBlockOpts,
   GeneratorController,
@@ -22,15 +43,10 @@ export type {
   PredictionProcessStatusController,
   PreprocessorController,
   ProcessingController,
-} from "./llm/processing/ProcessingController";
-export { LMStudioClient } from "./LMStudioClient";
-export type { LMStudioClientConstructorOpts } from "./LMStudioClient";
-export type { DynamicHandle } from "./modelShared/DynamicHandle";
-export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace";
-export type { SpecificModel } from "./modelShared/SpecificModel";
+} from "./plugins/processing/ProcessingController";
 export type {
-  DownloadProgressUpdate as DownloadOnProgressCallbackParam,
   DownloadOpts,
+  DownloadProgressUpdate,
   ModelSearchResultDownloadOption,
 } from "./repository/ModelSearchResultDownloadOption";
 export type { ModelSearchResultEntry } from "./repository/ModelSearchResultEntry";

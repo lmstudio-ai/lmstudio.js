@@ -19,12 +19,14 @@ import {
   createDiagnosticsBackendInterface,
   createEmbeddingBackendInterface,
   createLlmBackendInterface,
+  createPluginsBackendInterface,
   createRepositoryBackendInterface,
   createRetrievalBackendInterface,
   createSystemBackendInterface,
   type DiagnosticsPort,
   type EmbeddingPort,
   type LLMPort,
+  type PluginsPort,
   type RepositoryPort,
   type RetrievalPort,
   type SystemPort,
@@ -43,6 +45,7 @@ import { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
 import { FilesNamespace } from "./files/FilesNamespace";
 import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
 import { LLMNamespace } from "./llm/LLMNamespace";
+import { PluginsNamespace } from "./plugins/PluginsNamespace";
 import { RepositoryNamespace } from "./repository/RepositoryNamespace";
 import { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
 import { SystemNamespace } from "./system/SystemNamespace";
@@ -110,6 +113,7 @@ const constructorOptsSchema = z
     retrievalPort: z.any().optional(),
     filesPort: z.any().optional(),
     repositoryPort: z.any().optional(),
+    pluginsPort: z.any().optional(),
   })
   .strict();
 
@@ -136,6 +140,8 @@ export class LMStudioClient {
   private readonly filesPort: FilesPort;
   /** @internal */
   private readonly repositoryPort: RepositoryPort;
+  /** @internal */
+  private readonly pluginsPort: PluginsPort;
 
   public readonly llm: LLMNamespace;
   public readonly embedding: EmbeddingNamespace;
@@ -144,6 +150,13 @@ export class LMStudioClient {
   public readonly retrieval: RetrievalNamespace;
   public readonly files: FilesNamespace;
   public readonly repository: RepositoryNamespace;
+  /**
+   * The namespace for plugin registration APIs used internally by LM Studio and lms cli. Unless you
+   * are writing an alternative external plugin runner, you should not use this namespace.
+   *
+   * If you are developing a plugin, follow our guide on "".
+   */
+  public readonly plugins: PluginsNamespace;
 
   /** @internal */
   private validateBaseUrlOrThrow(baseUrl: string) {
@@ -307,12 +320,40 @@ export class LMStudioClient {
       retrievalPort,
       filesPort,
       repositoryPort,
+      pluginsPort,
     } = new Validator().validateConstructorParamOrThrow(
       "LMStudioClient",
       "opts",
       constructorOptsSchema,
       opts,
     ) satisfies LMStudioClientConstructorOpts;
+
+    if ((globalThis as any).__LMS_PLUGIN_CONTEXT) {
+      throw new Error(
+        text`
+          You cannot create LMStudioClient in a plugin context. To use LM Studio APIs, use the
+          "client" property attached to the GeneratorController/PreprocessorController.
+
+          For example, instead of:
+
+          ${
+            "const client = new LMStudioClient(); // <-- Error\n" +
+            "export async function generate(ctl: GeneratorController) {\n" +
+            "  const model = client.llm.load(...);\n" +
+            "}"
+          }
+
+          Do this:
+            
+          ${
+            "export async function generate(ctl: GeneratorController) {\n" +
+            "  const model = ctl.client.llm.load(...);\n" +
+            "}"
+          }
+        `,
+      );
+    }
+
     this.logger = new SimpleLogger("LMStudioClient", logger);
     this.clientIdentifier = clientIdentifier ?? generateRandomBase64(18);
     this.clientPasskey = clientPasskey ?? generateRandomBase64(18);
@@ -344,6 +385,8 @@ export class LMStudioClient {
     this.repositoryPort =
       repositoryPort ??
       this.createPort("repository", "Repository", createRepositoryBackendInterface());
+    this.pluginsPort =
+      pluginsPort ?? this.createPort("plugins", "Plugins", createPluginsBackendInterface());
 
     const validator = new Validator();
 
@@ -359,7 +402,7 @@ export class LMStudioClient {
       new SimpleLogger("Embedding", this.logger),
       validator,
     );
-    this.system = new SystemNamespace(this.systemPort, this.logger);
+    this.system = new SystemNamespace(this.systemPort, validator, this.logger);
     this.diagnostics = new DiagnosticsNamespace(this.diagnosticsPort, validator, this.logger);
     this.retrieval = new RetrievalNamespace(
       this.retrievalPort,
@@ -369,5 +412,6 @@ export class LMStudioClient {
     );
     this.files = new FilesNamespace(this.filesPort, validator, this.logger);
     this.repository = new RepositoryNamespace(this.repositoryPort, validator, this.logger);
+    this.plugins = new PluginsNamespace(this.pluginsPort, this, validator, this.logger, logger);
   }
 }

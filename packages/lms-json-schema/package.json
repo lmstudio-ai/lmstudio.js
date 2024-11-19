@@ -1,0 +1,23 @@
+{
+  "name": "@lmstudio/lms-json-schema",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "make-schemas": "node ./dist/index.js"
+  },
+  "dependencies": {
+    "@lmstudio/lms-external-backend-interfaces": "^0.1.0",
+    "@lmstudio/lms-shared-types": "^0.5.1",
+    "@lmstudio/lms-communication": "^0.5.1",
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "20.12.7"
+  },
+  "author": "",
+  "license": "Apache-2.0"
+}

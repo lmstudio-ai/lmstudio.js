@@ -3,6 +3,7 @@ import { z } from "zod";
 /** @public */
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export const logLevelSchema = z.enum(["debug", "info", "warn", "error"]);
+export { BackendNotification, backendNotificationSchema } from "./BackendNotification";
 export {
   ChatHistoryData,
   chatHistoryDataSchema,
@@ -157,23 +158,23 @@ export {
   blockLocationSchema,
   ProcessingUpdate,
   ProcessingUpdateCitationBlockCreate,
-  ProcessingUpdateCitationBlockCreateSchema,
+  processingUpdateCitationBlockCreateSchema,
   ProcessingUpdateContentBlockAppendText,
-  ProcessingUpdateContentBlockAppendTextSchema,
+  processingUpdateContentBlockAppendTextSchema,
   ProcessingUpdateContentBlockAttachGenInfo,
-  ProcessingUpdateContentBlockAttachGenInfoSchema,
+  processingUpdateContentBlockAttachGenInfoSchema,
   ProcessingUpdateContentBlockCreate,
-  ProcessingUpdateContentBlockCreateSchema,
+  processingUpdateContentBlockCreateSchema,
   ProcessingUpdateDebugInfoBlockCreate,
-  ProcessingUpdateDebugInfoBlockCreateSchema,
+  processingUpdateDebugInfoBlockCreateSchema,
   ProcessingUpdateOf,
-  ProcessingUpdateSchema,
+  processingUpdateSchema,
   ProcessingUpdateStatusCreate,
-  ProcessingUpdateStatusCreateSchema,
+  processingUpdateStatusCreateSchema,
   ProcessingUpdateStatusRemove,
-  ProcessingUpdateStatusRemoveSchema,
+  processingUpdateStatusRemoveSchema,
   ProcessingUpdateStatusUpdate,
-  ProcessingUpdateStatusUpdateSchema,
+  processingUpdateStatusUpdateSchema,
   ProcessingUpdateType,
   StatusStepState,
   statusStepStateSchema,
@@ -190,6 +191,14 @@ export {
   ModelSpecifier,
   modelSpecifierSchema,
 } from "./ModelSpecifier";
+export {
+  kebabCaseRegex,
+  kebabCaseSchema,
+  PluginManifest,
+  pluginManifestSchema,
+  PluginRunnerType,
+  pluginRunnerTypeSchema,
+} from "./PluginManifest";
 export { reasonableKeyStringSchema } from "./reasonable";
 export {
   ModelSearchOpts,
@@ -227,4 +236,12 @@ export {
   Runtime,
   runtimeSchema,
 } from "./Runtime";
+export {
+  KVConfigSchematicsDeserializationError,
+  kvConfigSchematicsDeserializationErrorSchema,
+  SerializedKVConfigSchematics,
+  SerializedKVConfigSchematicsField,
+  serializedKVConfigSchematicsFieldSchema,
+  serializedKVConfigSchematicsSchema,
+} from "./SerializedKVConfigSchematics";
 export { VirtualModelManifest, virtualModelManifestSchema } from "./VirtualModelManifest";

@@ -330,4 +330,240 @@ describe("SlicedSignal", () => {
       [],
     );
   });
+
+  it("should be able to read with regular signal with arrays", () => {
+    const [sourceSignal, setSource] = Signal.create({ a: [{ b: { c: 1 } }, { d: { e: 2 } }] });
+    const [slicedSignal, _setSliced] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .access(0)
+      .access("b")
+      .done();
+
+    expect(slicedSignal.get()).toEqual({ c: 1 });
+  });
+
+  it("should be able to subscribe with regular signal with arrays", () => {
+    const [sourceSignal, setSource] = Signal.create({
+      a: [{ b: { c: 1 } }, { d: { e: 2 } }],
+      f: 5,
+    });
+    const [slicedSignal, _setSliced] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .access(0)
+      .access("b")
+      .done();
+
+    const subscriber = jest.fn();
+    const fullSubscriber = jest.fn();
+    slicedSignal.subscribe(subscriber);
+    slicedSignal.subscribeFull(fullSubscriber);
+
+    expect(subscriber).not.toHaveBeenCalled();
+    expect(fullSubscriber).not.toHaveBeenCalled();
+
+    setSource.withProducer(draft => {
+      draft.a[0].b!.c = 2;
+    });
+
+    expect(subscriber).toHaveBeenCalledWith({ c: 2 });
+    expect(fullSubscriber).toHaveBeenCalledWith(
+      { c: 2 },
+      [
+        {
+          op: "replace",
+          path: ["c"],
+          value: 2,
+        },
+      ],
+      [],
+    );
+
+    setSource.withProducer(draft => {
+      draft.a[0].b = { c: 3 };
+    });
+
+    expect(subscriber).toHaveBeenCalledWith({ c: 3 });
+    expect(fullSubscriber).toHaveBeenCalledWith(
+      { c: 3 },
+      [
+        {
+          op: "replace",
+          path: [],
+          value: { c: 3 },
+        },
+      ],
+      [],
+    );
+
+    setSource.withProducer(draft => {
+      draft.a = [{ b: { c: 4 } }];
+    });
+
+    expect(subscriber).toHaveBeenCalledWith({ c: 4 });
+    expect(fullSubscriber).toHaveBeenCalledWith(
+      { c: 4 },
+      [
+        {
+          op: "replace",
+          path: [],
+          value: { c: 4 },
+        },
+      ],
+      [],
+    );
+
+    expect(subscriber).toHaveBeenCalledTimes(3);
+    expect(fullSubscriber).toHaveBeenCalledTimes(3);
+
+    setSource.withProducer(draft => {
+      draft.f = 6;
+    });
+
+    expect(subscriber).toHaveBeenCalledTimes(3);
+    expect(fullSubscriber).toHaveBeenCalledTimes(3);
+  });
+
+  it("should be able to set regular signal with arrays", () => {
+    const [sourceSignal, setSource] = Signal.create({ a: [{ b: { c: 1 } }, { d: { e: 2 } }] });
+    const [_slicedSignal, setSliced] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .access(0)
+      .access("b")
+      .done();
+
+    setSliced({ c: 2 });
+
+    expect(sourceSignal.get()).toEqual({ a: [{ b: { c: 2 } }, { d: { e: 2 } }] });
+
+    setSliced.withProducer(draft => {
+      draft!.c = 3;
+    });
+
+    expect(sourceSignal.get()).toEqual({ a: [{ b: { c: 3 } }, { d: { e: 2 } }] });
+  });
+
+  it("should be able to trigger subscription with regular signal with arrays", () => {
+    const [sourceSignal, setSource] = Signal.create({ a: [{ b: { c: 1 } }, { d: { e: 2 } }] });
+    const [slicedSignal, setSliced] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .access(0)
+      .access("b")
+      .done();
+
+    const sourceSubscriber = jest.fn();
+    const slicedSubscriber = jest.fn();
+    sourceSignal.subscribeFull(sourceSubscriber);
+    slicedSignal.subscribeFull(slicedSubscriber);
+
+    setSliced.withProducer(draft => {
+      draft!.c = 2;
+    });
+
+    expect(sourceSubscriber).toHaveBeenCalledWith(
+      { a: [{ b: { c: 2 } }, { d: { e: 2 } }] },
+      [
+        {
+          op: "replace",
+          path: ["a", 0, "b", "c"],
+          value: 2,
+        },
+      ],
+      [],
+    );
+    expect(slicedSubscriber).toHaveBeenCalledWith(
+      { c: 2 },
+      [
+        {
+          op: "replace",
+          path: ["c"],
+          value: 2,
+        },
+      ],
+      [],
+    );
+
+    setSliced({ c: 3 });
+
+    expect(sourceSubscriber).toHaveBeenCalledWith(
+      { a: [{ b: { c: 3 } }, { d: { e: 2 } }] },
+      [
+        {
+          op: "replace",
+          path: ["a", 0, "b"],
+          value: { c: 3 },
+        },
+      ],
+      [],
+    );
+    expect(slicedSubscriber).toHaveBeenCalledWith(
+      { c: 3 },
+      [
+        {
+          op: "replace",
+          path: [],
+          value: { c: 3 },
+        },
+      ],
+      [],
+    );
+  });
+  it("should be able to read with regular signal with defaults", () => {
+    const [sourceSignal, setSource] = Signal.create<{
+      a: Record<string, { c: Record<string, { e: number }> }>;
+    }>({ a: {} });
+    const [sliceSignal, _setSlice] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .accessWithDefault("b", { c: {} })
+      .access("c")
+      .accessWithDefault("d", { e: 1 })
+      .done();
+
+    expect(sliceSignal.get()).toEqual({ e: 1 });
+  });
+  it("should be able to subscribe with regular signal with defaults", () => {
+    const [sourceSignal, setSource] = Signal.create<{
+      a: Record<string, { c: Record<string, { e: number }> }>;
+    }>({ a: {} });
+    const [sliceSignal, setSlice] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .accessWithDefault("b", { c: {} })
+      .access("c")
+      .accessWithDefault("d", { e: 1 })
+      .done();
+
+    const subscriber = jest.fn();
+    const fullSubscriber = jest.fn();
+    sliceSignal.subscribe(subscriber);
+    sliceSignal.subscribeFull(fullSubscriber);
+
+    expect(subscriber).not.toHaveBeenCalled();
+    expect(fullSubscriber).not.toHaveBeenCalled();
+
+    setSlice({ e: 2 });
+
+    expect(subscriber).toHaveBeenCalledWith({ e: 2 });
+    expect(fullSubscriber).toHaveBeenCalledWith(
+      { e: 2 },
+      [
+        {
+          op: "replace",
+          path: [],
+          value: { e: 1 },
+        },
+        // A bit unfortunate due to the way we handle defaults. Trigger defaults twice meaning we
+        // will receive 1 additional patch.
+        {
+          op: "replace",
+          path: [],
+          value: { e: 1 },
+        },
+        {
+          op: "replace",
+          path: [],
+          value: { e: 2 },
+        },
+      ],
+      [],
+    );
+  });
 });

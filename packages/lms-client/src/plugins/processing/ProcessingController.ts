@@ -1,21 +1,30 @@
 import { Cleaner, type SimpleLogger } from "@lmstudio/lms-common";
-import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
-import { kvConfigToLLMPredictionConfig } from "@lmstudio/lms-kv-config";
+import { type PluginsPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
-  type CitationSource,
+  type GlobalKVFieldValueTypeLibraryMap,
+  type KVConfigSchematics,
+  kvConfigToLLMPredictionConfig,
+} from "@lmstudio/lms-kv-config";
+import {
   type ColorPalette,
   type KVConfig,
+  type KVConfigStack,
   type LLMGenInfo,
   type LLMPredictionConfig,
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
 import { ChatHistory } from "../../ChatHistory";
+import {
+  type ConfigSchematics,
+  type ParsedConfig,
+  type VirtualConfigSchematics,
+} from "../../customConfig";
+import { LLMDynamicHandle } from "../../llm/LLMDynamicHandle";
+import { type OngoingPrediction } from "../../llm/OngoingPrediction";
+import { type PredictionResult } from "../../llm/PredictionResult";
 import { type LMStudioClient } from "../../LMStudioClient";
 import { type RetrievalResult, type RetrievalResultEntry } from "../../retrieval/RetrievalResult";
-import { LLMDynamicHandle } from "../LLMDynamicHandle";
-import { type OngoingPrediction } from "../OngoingPrediction";
-import { type PredictionResult } from "../PredictionResult";
 
 function stringifyAny(message: any) {
   switch (typeof message) {
@@ -56,14 +65,14 @@ function createId() {
 
 export class ProcessingConnector {
   public constructor(
-    private readonly llmPort: LLMPort,
+    private readonly pluginsPort: PluginsPort,
     public readonly abortSignal: AbortSignal,
     private readonly processingContextIdentifier: string,
     private readonly token: string,
     private readonly logger: SimpleLogger,
   ) {}
   public handleUpdate(update: ProcessingUpdate) {
-    this.llmPort
+    this.pluginsPort
       .callRpc("processingHandleUpdate", {
         pci: this.processingContextIdentifier,
         token: this.token,
@@ -73,8 +82,8 @@ export class ProcessingConnector {
         this.logger.error("Failed to send update", error);
       });
   }
-  public async getHistory(includeCurrent: boolean): Promise<ChatHistory> {
-    const chatHistoryData = await this.llmPort.callRpc("processingGetHistory", {
+  public async pullHistory(includeCurrent: boolean): Promise<ChatHistory> {
+    const chatHistoryData = await this.pluginsPort.callRpc("processingPullHistory", {
       pci: this.processingContextIdentifier,
       token: this.token,
       includeCurrent,
@@ -83,27 +92,27 @@ export class ProcessingConnector {
     // argument.
     return ChatHistory.createRaw(chatHistoryData, /* mutable */ false).asMutableCopy();
   }
-  public async temp_getCurrentlySelectedLLMIdentifier(): Promise<string> {
-    const result = await this.llmPort.callRpc("temp_processingGetCurrentlySelectedLLMIdentifier", {
+  public async getOrLoadModel(): Promise<string> {
+    const result = await this.pluginsPort.callRpc("processingGetOrLoadModel", {
       pci: this.processingContextIdentifier,
       token: this.token,
     });
     return result.identifier;
   }
   public async hasStatus(): Promise<boolean> {
-    return await this.llmPort.callRpc("processingHasStatus", {
+    return await this.pluginsPort.callRpc("processingHasStatus", {
       pci: this.processingContextIdentifier,
       token: this.token,
     });
   }
   public async needsNaming(): Promise<boolean> {
-    return await this.llmPort.callRpc("processingNeedsNaming", {
+    return await this.pluginsPort.callRpc("processingNeedsNaming", {
       pci: this.processingContextIdentifier,
       token: this.token,
     });
   }
   public async suggestName(name: string) {
-    await this.llmPort.callRpc("processingSuggestName", {
+    await this.pluginsPort.callRpc("processingSuggestName", {
       pci: this.processingContextIdentifier,
       token: this.token,
       name,
@@ -128,6 +137,16 @@ export interface CreateContentBlockOpts {
 /**
  * @public
  */
+export interface CreateCitationBlockOpts {
+  fileName: string;
+  fileIdentifier: string;
+  pageNumber?: number | [start: number, end: number];
+  lineNumber?: number | [start: number, end: number];
+}
+
+/**
+ * @public
+ */
 export class ProcessingController {
   /** @internal */
   private readonly processingControllerHandle: ProcessingControllerHandle;
@@ -135,12 +154,13 @@ export class ProcessingController {
 
   /** @internal */
   public constructor(
-    /** @internal */
-    private readonly client: LMStudioClient,
+    public readonly client: LMStudioClient,
     /** @internal */
     private readonly connector: ProcessingConnector,
     /** @internal */
     private readonly config: KVConfig,
+    /** @internal */
+    private readonly pluginConfig: KVConfig,
     /**
      * When getting history, should the latest user input be included in the history?
      *
@@ -161,6 +181,18 @@ export class ProcessingController {
     this.processingControllerHandle.sendUpdate(update);
   }
 
+  public getPluginConfig<TVirtualConfigSchematics extends VirtualConfigSchematics>(
+    configSchematics: ConfigSchematics<TVirtualConfigSchematics>,
+  ): ParsedConfig<TVirtualConfigSchematics> {
+    return (
+      configSchematics as KVConfigSchematics<
+        GlobalKVFieldValueTypeLibraryMap,
+        TVirtualConfigSchematics,
+        ""
+      >
+    ).parse(this.pluginConfig);
+  }
+
   /**
    * Gets a mutable copy of the current history. The returned history is a copy, so mutating it will
    * not affect the actual history. It is mutable for convenience reasons.
@@ -170,8 +202,8 @@ export class ProcessingController {
    * - If you are a generator, this will include the user message, and can be fed into the
    *   {@link LLMDynamicHandle#respond} directly.
    */
-  public async getHistory() {
-    return await this.connector.getHistory(this.shouldIncludeCurrentInHistory);
+  public async pullHistory() {
+    return await this.connector.pullHistory(this.shouldIncludeCurrentInHistory);
   }
 
   public createStatus(initialState: StatusStepState): PredictionProcessStatusController {
@@ -189,21 +221,21 @@ export class ProcessingController {
     return statusController;
   }
 
-  public async addCitations(retrievalResult: RetrievalResult): Promise<void>;
-  public async addCitations(entries: Array<RetrievalResultEntry>): Promise<void>;
-  public async addCitations(arg: RetrievalResult | Array<RetrievalResultEntry>) {
+  public addCitations(retrievalResult: RetrievalResult): void;
+  public addCitations(entries: Array<RetrievalResultEntry>): void;
+  public addCitations(arg: RetrievalResult | Array<RetrievalResultEntry>) {
     if (Array.isArray(arg)) {
       for (const entry of arg) {
         this.createCitationBlock(entry.content, {
-          absoluteFilePath: await entry.source.getFilePath(),
           fileName: entry.source.name,
+          fileIdentifier: entry.source.identifier,
         });
       }
     } else {
       for (const entry of arg.entries) {
         this.createCitationBlock(entry.content, {
-          absoluteFilePath: await entry.source.getFilePath(),
           fileName: entry.source.name,
+          fileIdentifier: entry.source.identifier,
         });
       }
     }
@@ -211,14 +243,14 @@ export class ProcessingController {
 
   public createCitationBlock(
     citedText: string,
-    source: CitationSource,
+    source: CreateCitationBlockOpts,
   ): PredictionProcessCitationBlockController {
     const id = createId();
     this.sendUpdate({
       type: "citationBlock.create",
       id,
       citedText,
-      source,
+      ...source,
     });
     const citationBlockController = new PredictionProcessCitationBlockController(
       this.processingControllerHandle,
@@ -272,13 +304,32 @@ export class ProcessingController {
     return kvConfigToLLMPredictionConfig(this.config);
   }
 
+  public readonly model = Object.freeze({
+    getOrLoad: async () => {
+      const identifier = await this.connector.getOrLoadModel();
+      const model = await this.client.llm.get({ identifier });
+      // Don't use the server session config for this model
+      (model as any).internalIgnoreServerSessionConfig = true;
+      // Inject the prediction config
+      (model as any).internalKVConfigStack = {
+        layers: [
+          {
+            layerName: "conversationSpecific",
+            config: this.config,
+          },
+        ],
+      } satisfies KVConfigStack;
+      return model;
+    },
+  });
+
   /**
-   * Gets the currently selected LLM. This method will be removed in the future when preprocessor
-   * and generator can surface options to allow user to select models.
+   * Sets the sender name for this message. The sender name shown above the message in the chat.
    */
-  public async temp_getCurrentlySelectedLLM() {
-    return await this.client.llm.get({
-      identifier: await this.connector.temp_getCurrentlySelectedLLMIdentifier(),
+  public async setSenderName(name: string) {
+    this.sendUpdate({
+      type: "setSenderName",
+      name,
     });
   }
 
@@ -315,7 +366,10 @@ export class ProcessingController {
 /**
  * @public
  */
-export type PreprocessorController = Omit<ProcessingController, "createContentBlock">;
+export type PreprocessorController = Omit<
+  ProcessingController,
+  "createContentBlock" | "setSenderName"
+>;
 /**
  * @public
  */
@@ -434,6 +488,13 @@ export class PredictionProcessContentBlockController {
   public appendText(text: string) {
     this.handle.sendUpdate({
       type: "contentBlock.appendText",
+      id: this.id,
+      text,
+    });
+  }
+  public replaceText(text: string) {
+    this.handle.sendUpdate({
+      type: "contentBlock.replaceText",
       id: this.id,
       text,
     });

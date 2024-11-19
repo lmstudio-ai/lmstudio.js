@@ -1,17 +1,22 @@
 import {
   kvConfigSchema,
+  serializeError,
   type KVConfig,
   type KVConfigField,
   type KVConfigLayerName,
+  type KVConfigSchematicsDeserializationError,
   type KVConfigStack,
+  type SerializedKVConfigSchematics,
 } from "@lmstudio/lms-shared-types";
 import { type Any } from "ts-toolbelt";
 import { z, type ZodSchema } from "zod";
 
 /**
  * Stringify options passed to actual implementations of stringify.
+ *
+ * @public
  */
-interface InnerFieldStringifyOpts {
+export interface InnerFieldStringifyOpts {
   /**
    * Translate function.
    */
@@ -71,6 +76,8 @@ interface FieldStringifyOpts {
 /**
  * Used internally by KVFieldValueTypesLibrary to keep track of a single field value type definition
  * with the generics.
+ *
+ * @public
  */
 export interface KVVirtualFieldValueType {
   value: any;
@@ -79,21 +86,28 @@ export interface KVVirtualFieldValueType {
 /**
  * Used internally by KVFieldValueTypesLibrary to keep track of all field value type definitions
  * with the generics.
+ *
+ * @public
  */
-type KVVirtualFieldValueTypesMapping = {
+export type KVVirtualFieldValueTypesMapping = {
   [key: string]: KVVirtualFieldValueType;
 };
 
 /**
  * Represents a single field value type definition.
+ *
+ * @public
  */
-interface KVConcreteFieldValueType {
+export interface KVConcreteFieldValueType {
   paramType: ZodSchema;
   schemaMaker: (param: any) => ZodSchema;
   effectiveEquals: (a: any, b: any, typeParam: any) => boolean;
   stringify: (value: any, typeParam: any, opts: InnerFieldStringifyOpts) => string;
 }
-type KVConcreteFieldValueTypesMap = Map<string, KVConcreteFieldValueType>;
+/**
+ * @public
+ */
+export type KVConcreteFieldValueTypesMap = Map<string, KVConcreteFieldValueType>;
 
 type ExposedZodObject<TObject extends {}> = {
   [TKey in keyof TObject]: ZodSchema<TObject[TKey]>;
@@ -169,6 +183,8 @@ export class KVFieldValueTypesLibraryBuilder<
 
 /**
  * Represents a library of field value types.
+ *
+ * @public
  */
 export class KVFieldValueTypeLibrary<
   TKVFieldValueTypeLibraryMap extends KVVirtualFieldValueTypesMapping,
@@ -182,6 +198,13 @@ export class KVFieldValueTypeLibrary<
     param: TKVFieldValueTypeLibraryMap[TKey]["param"],
   ): ZodSchema<TKVFieldValueTypeLibraryMap[TKey]["value"]> {
     return this.valueTypes.get(key)!.schemaMaker(param);
+  }
+
+  public parseParamTypes<TKey extends keyof TKVFieldValueTypeLibraryMap & string>(
+    key: TKey,
+    param: any,
+  ): TKVFieldValueTypeLibraryMap[TKey]["param"] {
+    return this.valueTypes.get(key)!.paramType.parse(param);
   }
 
   public effectiveEquals<TKey extends keyof TKVFieldValueTypeLibraryMap & string>(
@@ -219,11 +242,11 @@ export type KVVirtualFieldSchema = {
   type: any;
   valueTypeKey: string;
 };
-type KVVirtualConfigSchema = {
+export type KVVirtualConfigSchema = {
   [key: string]: KVVirtualFieldSchema;
 };
 
-interface KVConcreteFieldSchema {
+export interface KVConcreteFieldSchema {
   valueTypeKey: string;
   valueTypeParams: any;
   schema: ZodSchema;
@@ -306,6 +329,7 @@ export class KVConfigSchematicsBuilder<
    *   .field("a", ...)
    *   .field("b", ...)
    * )
+   * ```
    *
    * This method does support nesting. Whether to nest or not is up to the user.
    */
@@ -522,6 +546,17 @@ export class KVConfigSchematics<
       newFields.set(key, field);
     }
     return new KVConfigSchematics(this.valueTypeLibrary, newFields, this.baseKey);
+  }
+
+  /**
+   * Combine baseKey into the fields. Effectively removes the baseKey.
+   */
+  public flattenBaseKey() {
+    const newFields = new Map<string, KVConcreteFieldSchema>();
+    for (const [key, field] of this.fields.entries()) {
+      newFields.set(this.baseKey + key, field);
+    }
+    return new KVConfigSchematics(this.valueTypeLibrary, newFields, "");
   }
 
   public parseToMap(config: KVConfig) {
@@ -968,6 +1003,101 @@ export class KVConfigSchematics<
     }
     return { onlyInA, onlyInB, inBothButDifferent };
   }
+  public serialize(): SerializedKVConfigSchematics {
+    return {
+      baseKey: this.baseKey,
+      fields: [...this.fields.entries()].map(([key, field]) => ({
+        key,
+        typeKey: field.valueTypeKey,
+        typeParams: field.valueTypeParams,
+        defaultValue: field.defaultValue!,
+      })),
+    };
+  }
+  public static deserialize(
+    valueTypeLibrary: KVFieldValueTypeLibrary<any>,
+    serialized: SerializedKVConfigSchematics,
+  ): KVConfigSchematics<any, KVVirtualConfigSchema, string> {
+    const fields = new Map<string, KVConcreteFieldSchema>(
+      serialized.fields.map(field => {
+        const typeParams = valueTypeLibrary.parseParamTypes(field.typeKey, field.typeParams);
+        const valueSchema = valueTypeLibrary.getSchema(field.typeKey, typeParams);
+        return [
+          field.key,
+          {
+            valueTypeKey: field.typeKey,
+            valueTypeParams: typeParams,
+            schema: valueSchema,
+            defaultValue: valueSchema.parse(field.defaultValue),
+          },
+        ];
+      }),
+    );
+    return new KVConfigSchematics(valueTypeLibrary, fields, serialized.baseKey);
+  }
+  public static tryDeserialize(
+    valueTypeLibrary: KVFieldValueTypeLibrary<any>,
+    serialized: SerializedKVConfigSchematics,
+  ): {
+    schematics: KVConfigSchematics<any, KVVirtualConfigSchema, string>;
+    errors: Array<KVConfigSchematicsDeserializationError>;
+  } {
+    const fields = new Map<string, KVConcreteFieldSchema>();
+    const errors: Array<KVConfigSchematicsDeserializationError> = [];
+    for (const field of serialized.fields) {
+      try {
+        const typeParams = valueTypeLibrary.parseParamTypes(field.typeKey, field.typeParams);
+        const valueSchema = valueTypeLibrary.getSchema(field.typeKey, typeParams);
+        fields.set(field.key, {
+          valueTypeKey: field.typeKey,
+          valueTypeParams: typeParams,
+          schema: valueSchema,
+          defaultValue: valueSchema.parse(field.defaultValue),
+        });
+      } catch (error) {
+        errors.push({
+          fullKey: serialized.baseKey + field.key,
+          error: serializeError(error),
+        });
+      }
+    }
+    return {
+      schematics: new KVConfigSchematics(valueTypeLibrary, fields, serialized.baseKey),
+      errors,
+    };
+  }
+}
+
+/**
+ * Given a baseKey and a SerializedKVConfigSchematics, prepend the baseKey to the baseKey of the
+ * schematics.
+ */
+export function prependBaseKeyToSerializedKVConfigSchematics(
+  baseKey: string,
+  serialized: SerializedKVConfigSchematics,
+): SerializedKVConfigSchematics {
+  return {
+    baseKey: baseKey + serialized.baseKey,
+    fields: serialized.fields,
+  };
+}
+
+/**
+ * Given a baseKey and a KVConfig. Strip the baseKey from the keys of the fields. If a fields does
+ * not start with the baseKey, it will be ignored.
+ */
+export function stripBaseKeyFromKVConfig(baseKey: string, config: KVConfig): KVConfig {
+  const baseKeyLength = baseKey.length;
+  return {
+    fields: config.fields
+      .filter(field => field.key.startsWith(baseKey))
+      .map(({ key, value }) => {
+        return {
+          key: key.substring(baseKeyLength),
+          value,
+        };
+      }),
+  };
 }
 
 export class KVConfigBuilder<TKVConfigSchema extends KVVirtualConfigSchema> {
@@ -1000,6 +1130,9 @@ export class ParsedKVConfig<TKVConfigSchema extends KVVirtualConfigSchema> {
     private readonly configMap: Map<string, any>,
   ) {}
 
+  /**
+   * @internal
+   */
   public static [createParsedKVConfig]<TKVConfigSchema extends KVVirtualConfigSchema>(
     schema: KVConfigSchematics<any, TKVConfigSchema, string>,
     configMap: Map<string, any>,

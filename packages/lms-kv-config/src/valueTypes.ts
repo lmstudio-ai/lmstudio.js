@@ -11,7 +11,12 @@ import {
   retrievalChunkingMethodSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { deepEquals, KVFieldValueTypesLibraryBuilder, type InferKVValueTypeDef } from "./KVConfig";
+import {
+  deepEquals,
+  KVFieldValueTypesLibraryBuilder,
+  type InferKVValueTypeDef,
+  type KVFieldValueTypeLibrary,
+} from "./KVConfig";
 
 /**
  * Quote a string.
@@ -30,13 +35,24 @@ function quoteStringWithManualEscape(str: string | undefined, empty?: string) {
   return quoteString(str?.replace(/\\n/g, "\n"), empty);
 }
 
+/**
+ * @public
+ */
 export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
+  /**
+   * Display name of the field.
+   */
+  displayName: z.string().optional(),
+  /**
+   * Hint about the field. Shown when hovering over the field.
+   */
+  hint: z.string().optional(),
   /**
    * A field can be marked as model centric when it loses its meaning when there is no model to
    * reference.
    *
    * An example would be prompt template. There is no point to configure prompt template when there
-   * when there isn't a specific model.
+   * isn't a specific model.
    */
   modelCentric: z.boolean().optional(),
   /**
@@ -158,6 +174,8 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       minLength: z.number().optional(),
       maxLength: z.number().optional(),
       isParagraph: z.boolean().optional(),
+      isProtected: z.boolean().optional(),
+      placeholder: z.string().optional(),
     },
     schemaMaker: ({ minLength, maxLength }) => {
       let schema = z.string();
@@ -172,7 +190,11 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     effectiveEquals: (a, b) => {
       return a === b;
     },
-    stringify: (value, { isParagraph }, { t, desiredLength }) => {
+    stringify: (value, { isParagraph, isProtected }, { t, desiredLength }) => {
+      if (isProtected) {
+        return "********";
+      }
+
       if (isParagraph) {
         if (value === "") {
           return t("config:customInputs.string.emptyParagraph", "<Empty>");
@@ -199,6 +221,23 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
           );
         }
       }
+    },
+  })
+  .valueType("select", {
+    paramType: {
+      options: z.array(z.object({ value: z.string(), displayName: z.string() }).or(z.string())),
+    },
+    schemaMaker: ({ options }) => {
+      const allowedValues = new Set(
+        options.map(option => (typeof option === "string" ? option : option.value)),
+      );
+      return z.string().refine(value => allowedValues.has(value));
+    },
+    effectiveEquals: (a, b) => {
+      return a === b;
+    },
+    stringify: value => {
+      return value;
     },
   })
   .valueType("boolean", {
@@ -521,3 +560,14 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   .build();
 
 export type KVValueTypeDef = InferKVValueTypeDef<typeof kvValueTypesLibrary>;
+/**
+ * @public
+ */
+export type GlobalKVValueTypesLibrary = typeof kvValueTypesLibrary;
+/**
+ * @public
+ */
+export type GlobalKVFieldValueTypeLibraryMap =
+  GlobalKVValueTypesLibrary extends KVFieldValueTypeLibrary<infer TKVFieldValueTypeLibraryMap>
+    ? TKVFieldValueTypeLibraryMap
+    : never;
