@@ -60,6 +60,11 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.topPSampling = topPSampling.checked ? topPSampling.value : false;
   }
 
+  const logProbs = parsed.get("llm.prediction.logProbs");
+  if (logProbs !== undefined) {
+    result.logProbs = logProbs.checked ? logProbs.value : false;
+  }
+
   const cpuThreads = parsed.get("llm.prediction.llama.cpuThreads");
   if (cpuThreads !== undefined) {
     result.cpuThreads = cpuThreads;

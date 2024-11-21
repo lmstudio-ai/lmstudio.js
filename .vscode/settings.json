@@ -18,6 +18,7 @@
     "Mmap",
     "Onnx",
     "outfile",
+    "Probs",
     "proxying",
     "reindex",
     "Rpcs",
