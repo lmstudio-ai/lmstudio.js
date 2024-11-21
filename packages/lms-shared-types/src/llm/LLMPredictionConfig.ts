@@ -101,6 +101,10 @@ export interface LLMPredictionConfig {
   /**
    * TODO: Documentation
    */
+  logProbs?: number | false;
+  /**
+   * TODO: Documentation
+   */
   cpuThreads?: number;
   /**
    * This is WIP. Will have an easier to use type in the future.
