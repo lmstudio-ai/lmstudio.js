@@ -86,6 +86,7 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "repeatPenalty": maybeFalseNumberToCheckboxNumeric(config.repeatPenalty, 1.1),
     "minPSampling": maybeFalseNumberToCheckboxNumeric(config.minPSampling, 0.05),
     "topPSampling": maybeFalseNumberToCheckboxNumeric(config.topPSampling, 0.95),
+    "logProbs": maybeFalseNumberToCheckboxNumeric(config.logProbs, 0),
     "llama.cpuThreads": config.cpuThreads,
     "promptTemplate": config.promptTemplate,
   });
