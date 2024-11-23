@@ -10,13 +10,11 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@npmcli/arborist": "^8.0.0",
-    "pacote": "^20.0.0",
-    "@lmstudio/lms-common": "^0.6.1"
+    "@lmstudio/lms-common": "^0.6.1",
+    "@npmcli/arborist": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.7.7",
-    "@types/npmcli__arborist": "^5.6.11",
-    "@types/pacote": "^11.1.8"
+    "@types/npmcli__arborist": "^5.6.11"
   }
 }

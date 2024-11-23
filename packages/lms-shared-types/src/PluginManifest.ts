@@ -18,6 +18,7 @@ export interface PluginManifest {
   owner: string;
   name: string;
   description: string;
+  revision?: number;
 }
 export const pluginManifestSchema = z.object({
   type: z.literal("plugin"),
@@ -25,4 +26,5 @@ export const pluginManifestSchema = z.object({
   owner: kebabCaseSchema,
   name: kebabCaseSchema,
   description: z.string(),
+  revision: z.number().optional(),
 });
