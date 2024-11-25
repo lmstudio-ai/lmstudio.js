@@ -1,7 +1,7 @@
-import { Signal } from './Signal';
-import { SimpleLogger, type LoggerInterface } from "./SimpleLogger";
-import { makePromise } from "./makePromise";
-import { type Setter } from './makeSetter';
+import { Signal } from "./Signal.js";
+import { SimpleLogger, type LoggerInterface } from "./SimpleLogger.js";
+import { makePromise } from "./makePromise.js";
+import { type Setter } from "./makeSetter.js";
 
 const resolvePager = Symbol("resolvePager");
 const rejectPager = Symbol("rejectPager");

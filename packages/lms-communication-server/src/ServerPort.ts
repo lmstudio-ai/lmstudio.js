@@ -26,7 +26,7 @@ import {
 } from "@lmstudio/lms-communication/dist/BackendInterface";
 import { serializeError } from "@lmstudio/lms-shared-types";
 import { applyPatches, enablePatches } from "immer";
-import { type Context, type ContextCreator } from "./Authenticator";
+import { type Context, type ContextCreator } from "./Authenticator.js";
 
 enablePatches();
 

@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { type SafeParseError, type ZodError, type z } from "zod";
-import { makePrettyError } from "./makePrettyError";
-import { text } from "./text";
+import { makePrettyError } from "./makePrettyError.js";
+import { text } from "./text.js";
 
 interface ValidatorConstructorOpts {
   attachStack?: boolean;

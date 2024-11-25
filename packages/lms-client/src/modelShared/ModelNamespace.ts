@@ -21,10 +21,10 @@ import {
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
-import { type EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle";
-import { type LLMDynamicHandle } from "../llm/LLMDynamicHandle";
-import { type LMStudioClient } from "../LMStudioClient";
-import { type DynamicHandle } from "./DynamicHandle";
+import { type EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle.js";
+import { type LLMDynamicHandle } from "../llm/LLMDynamicHandle.js";
+import { type LMStudioClient } from "../LMStudioClient.js";
+import { type DynamicHandle } from "./DynamicHandle.js";
 
 /** @public */
 export interface BaseLoadModelOpts<TLoadModelConfig> {

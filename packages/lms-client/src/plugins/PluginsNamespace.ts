@@ -14,17 +14,17 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { pluginManifestSchema } from "@lmstudio/lms-shared-types/dist/PluginManifest";
 import { z } from "zod";
-import { ChatMessage } from "../ChatHistory";
-import { type ConfigSchematics } from "../customConfig";
-import { type LMStudioClient } from "../LMStudioClient";
-import { type Generator } from "./processing/Generator";
-import { type Preprocessor } from "./processing/Preprocessor";
+import { ChatMessage } from "../ChatHistory.js";
+import { type ConfigSchematics } from "../customConfig.js";
+import { type LMStudioClient } from "../LMStudioClient.js";
+import { type Generator } from "./processing/Generator.js";
+import { type Preprocessor } from "./processing/Preprocessor.js";
 import {
   type GeneratorController,
   type PreprocessorController,
   ProcessingConnector,
   ProcessingController,
-} from "./processing/ProcessingController";
+} from "./processing/ProcessingController.js";
 
 /**
  * @public

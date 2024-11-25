@@ -1,4 +1,4 @@
-import { makePromise } from "./makePromise";
+import { makePromise } from "./makePromise.js";
 
 interface PromiseBundle<T> {
   promise: Promise<T>;

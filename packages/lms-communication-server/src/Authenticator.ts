@@ -1,6 +1,6 @@
 import { type LoggerInterface } from "@lmstudio/lms-common";
 import { type AuthPacket } from "@lmstudio/lms-communication";
-import { type ClientHolder } from "./AuthenticatedWsServer";
+import { type ClientHolder } from "./AuthenticatedWsServer.js";
 
 export interface ContextCreatorParams {
   type: "rpc" | "channel" | "signal" | "writableSignal";

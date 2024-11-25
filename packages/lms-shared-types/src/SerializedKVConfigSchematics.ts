@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { type SerializedLMSExtendedError } from "./Error";
-import { jsonSerializableSchema } from "./JSONSerializable";
+import { type SerializedLMSExtendedError } from "./Error.js";
+import { jsonSerializableSchema } from "./JSONSerializable.js";
 
 /**
  * @public

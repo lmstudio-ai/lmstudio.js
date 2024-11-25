@@ -14,17 +14,20 @@ import {
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
-import { ChatHistory } from "../../ChatHistory";
+import { ChatHistory } from "../../ChatHistory.js";
 import {
   type ConfigSchematics,
   type ParsedConfig,
   type VirtualConfigSchematics,
-} from "../../customConfig";
-import { LLMDynamicHandle } from "../../llm/LLMDynamicHandle";
-import { type OngoingPrediction } from "../../llm/OngoingPrediction";
-import { type PredictionResult } from "../../llm/PredictionResult";
-import { type LMStudioClient } from "../../LMStudioClient";
-import { type RetrievalResult, type RetrievalResultEntry } from "../../retrieval/RetrievalResult";
+} from "../../customConfig.js";
+import { LLMDynamicHandle } from "../../llm/LLMDynamicHandle.js";
+import { type OngoingPrediction } from "../../llm/OngoingPrediction.js";
+import { type PredictionResult } from "../../llm/PredictionResult.js";
+import { type LMStudioClient } from "../../LMStudioClient.js";
+import {
+  type RetrievalResult,
+  type RetrievalResultEntry,
+} from "../../retrieval/RetrievalResult.js";
 
 function stringifyAny(message: any) {
   switch (typeof message) {

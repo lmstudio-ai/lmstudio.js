@@ -41,6 +41,7 @@
     "bundle-declarations-webpack-plugin": "^5.0.1",
     "dotenv": "^16.4.5",
     "eslint": "^8.56.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-tsdoc": "^0.2.17",

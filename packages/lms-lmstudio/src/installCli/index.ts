@@ -4,8 +4,8 @@ import { stat } from "node:fs/promises";
 import os from "node:os";
 import { join } from "node:path";
 import { platform } from "node:process";
-import { installCliDarwinOrLinux } from "./darwinOrLinux";
-import { installCliWin32 } from "./win32";
+import { installCliDarwinOrLinux } from "./darwinOrLinux.js";
+import { installCliWin32 } from "./win32.js";
 
 export interface InstallCliOpts {
   skipConfirmation?: boolean;

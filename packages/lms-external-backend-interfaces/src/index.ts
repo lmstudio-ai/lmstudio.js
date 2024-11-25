@@ -2,40 +2,40 @@ export {
   BaseModelBackendInterface,
   BaseModelPort,
   createBaseModelBackendInterface,
-} from "./baseModelBackendInterface";
+} from "./baseModelBackendInterface.js";
 export {
   DiagnosticsBackendInterface,
   DiagnosticsPort,
   createDiagnosticsBackendInterface,
-} from "./diagnosticsBackendInterface";
+} from "./diagnosticsBackendInterface.js";
 export {
   EmbeddingBackendInterface,
   EmbeddingPort,
   createEmbeddingBackendInterface,
-} from "./embeddingBackendInterface";
+} from "./embeddingBackendInterface.js";
 export {
   FilesBackendInterface,
   FilesPort,
   createFilesBackendInterface,
-} from "./filesBackendInterface";
-export { LLMBackendInterface, LLMPort, createLlmBackendInterface } from "./llmBackendInterface";
+} from "./filesBackendInterface.js";
+export { LLMBackendInterface, LLMPort, createLlmBackendInterface } from "./llmBackendInterface.js";
 export {
   PluginsBackendInterface,
   PluginsPort,
   createPluginsBackendInterface,
-} from "./pluginsBackendInterface";
+} from "./pluginsBackendInterface.js";
 export {
   RepositoryBackendInterface,
   RepositoryPort,
   createRepositoryBackendInterface,
-} from "./repositoryBackendInterface";
+} from "./repositoryBackendInterface.js";
 export {
   RetrievalBackendInterface,
   RetrievalPort,
   createRetrievalBackendInterface,
-} from "./retrievalBackendInterface";
+} from "./retrievalBackendInterface.js";
 export {
   SystemBackendInterface,
   SystemPort,
   createSystemBackendInterface,
-} from "./systemBackendInterface";
+} from "./systemBackendInterface.js";

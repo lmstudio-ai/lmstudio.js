@@ -1,4 +1,4 @@
-import { Subscribable } from "./Subscribable";
+import { Subscribable } from "./Subscribable.js";
 
 type Listener<TData> = (data: TData) => void;
 

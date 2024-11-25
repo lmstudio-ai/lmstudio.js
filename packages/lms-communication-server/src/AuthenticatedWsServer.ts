@@ -7,10 +7,10 @@ import {
 } from "@lmstudio/lms-communication";
 import { type Server } from "http";
 import { type WebSocket } from "ws";
-import { type Authenticator, type Context, type ContextCreator } from "./Authenticator";
-import { ServerPort } from "./ServerPort";
-import { WsServer } from "./WsServer";
-import { WsServerTransport } from "./WsServerTransport";
+import { type Authenticator, type Context, type ContextCreator } from "./Authenticator.js";
+import { ServerPort } from "./ServerPort.js";
+import { WsServer } from "./WsServer.js";
+import { WsServerTransport } from "./WsServerTransport.js";
 
 /**
  * Owning a ClientHolder means owning a reference to the client. If a client is no longer needed,

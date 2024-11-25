@@ -20,7 +20,7 @@ import {
   type ProcessingUpdateStatusCreate,
   type ProcessingUpdateStatusRemove,
   type ProcessingUpdateStatusUpdate,
-} from "./ProcessingUpdate";
+} from "./ProcessingUpdate.js";
 
 export type GeneratorUpdate =
   | ProcessingUpdateStatusCreate

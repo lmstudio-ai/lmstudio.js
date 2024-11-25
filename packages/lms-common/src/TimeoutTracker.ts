@@ -1,4 +1,4 @@
-import { BufferedEvent } from "./BufferedEvent";
+import { BufferedEvent } from "./BufferedEvent.js";
 
 export class TimeoutTracker {
   public constructor(private readonly timeoutMs: number) {

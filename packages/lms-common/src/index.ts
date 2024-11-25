@@ -5,24 +5,24 @@ enablePatches();
 enableMapSet();
 
 // Export lazy signal first to avoid circular dependency issues
-export { AsyncDeriveFromStrategy, isAvailable, LazySignal, NotAvailable } from "./LazySignal";
+export { AsyncDeriveFromStrategy, isAvailable, LazySignal, NotAvailable } from "./LazySignal.js";
 
-export { apiServerPorts } from "./apiServerPorts";
-export { BufferedEvent } from "./BufferedEvent";
-export { Cleaner } from "./Cleaner";
-export { deepFreeze } from "./deepFreeze";
-export { changeErrorStackInPlace, getCurrentStack } from "./errorStack";
-export { Event } from "./Event";
-export { doesFileNameIndicateModel, modelExtensions } from "./fileName";
-export { flattenSignalOfSignal, flattenSignalOfWritableSignal } from "./flattenSignal";
-export { HandledEvent } from "./HandledEvent";
-export { makePrettyError, makeTitledPrettyError } from "./makePrettyError";
-export { DeferredPromise, makePromise } from "./makePromise";
-export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter";
-export { accessMaybeMutableInternals, MaybeMutable } from "./MaybeMutable";
-export { OWLSignal } from "./OWLSignal";
-export { parseFileIdentifier } from "./parseFileIdentifier";
-export { removeUndefinedValues } from "./removeUndefinedValues";
+export { apiServerPorts } from "./apiServerPorts.js";
+export { BufferedEvent } from "./BufferedEvent.js";
+export { Cleaner } from "./Cleaner.js";
+export { deepFreeze } from "./deepFreeze.js";
+export { changeErrorStackInPlace, getCurrentStack } from "./errorStack.js";
+export { Event } from "./Event.js";
+export { doesFileNameIndicateModel, modelExtensions } from "./fileName.js";
+export { flattenSignalOfSignal, flattenSignalOfWritableSignal } from "./flattenSignal.js";
+export { HandledEvent } from "./HandledEvent.js";
+export { makePrettyError, makeTitledPrettyError } from "./makePrettyError.js";
+export { DeferredPromise, makePromise } from "./makePromise.js";
+export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter.js";
+export { accessMaybeMutableInternals, MaybeMutable } from "./MaybeMutable.js";
+export { OWLSignal } from "./OWLSignal.js";
+export { parseFileIdentifier } from "./parseFileIdentifier.js";
+export { removeUndefinedValues } from "./removeUndefinedValues.js";
 export {
   createResultSchema,
   MaybeErrored,
@@ -32,23 +32,23 @@ export {
   Result,
   unwrapPromiseOfMaybeErrored,
   unwrapPromiseOfResult,
-} from "./resultTypes";
-export { runOnDispose } from "./runOnDispose";
-export { safeCallCallback } from "./safeCallCallback";
-export { Signal, SignalLike, WritableSignal } from "./Signal";
-export { LoggerInterface, SimpleLogger, SimpleLoggerConstructorOpts } from "./SimpleLogger";
-export { makeSlicedSignalFrom, SlicedSignalBuilder } from "./SlicedSignal";
-export { StreamablePromise } from "./StreamablePromise";
-export { Subscribable } from "./Subscribable";
-export { text } from "./text";
-export { TimeoutTracker } from "./TimeoutTracker";
-export { toJSONSafeNumber } from "./toJSONSafeNumber";
-export { Validator } from "./Validator";
+} from "./resultTypes.js";
+export { runOnDispose } from "./runOnDispose.js";
+export { safeCallCallback } from "./safeCallCallback.js";
+export { Signal, SignalLike, WritableSignal } from "./Signal.js";
+export { LoggerInterface, SimpleLogger, SimpleLoggerConstructorOpts } from "./SimpleLogger.js";
+export { makeSlicedSignalFrom, SlicedSignalBuilder } from "./SlicedSignal.js";
+export { StreamablePromise } from "./StreamablePromise.js";
+export { Subscribable } from "./Subscribable.js";
+export { text } from "./text.js";
+export { TimeoutTracker } from "./TimeoutTracker.js";
+export { toJSONSafeNumber } from "./toJSONSafeNumber.js";
+export { Validator } from "./Validator.js";
 export {
   PagerExitedError,
   QueueClearedError,
   WaitQueue,
   type Holder,
   type Pager,
-} from "./WaitQueue";
-export { failOk, filteredArray } from "./zodHelpers";
+} from "./WaitQueue.js";
+export { failOk, filteredArray } from "./zodHelpers.js";

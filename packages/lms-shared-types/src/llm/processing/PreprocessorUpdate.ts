@@ -10,7 +10,7 @@ import {
   type ProcessingUpdateStatusCreate,
   type ProcessingUpdateStatusRemove,
   type ProcessingUpdateStatusUpdate,
-} from "./ProcessingUpdate";
+} from "./ProcessingUpdate.js";
 
 export type PreprocessorUpdate =
   | ProcessingUpdateStatusCreate

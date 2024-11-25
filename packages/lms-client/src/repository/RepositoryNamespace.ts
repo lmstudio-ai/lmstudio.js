@@ -7,7 +7,7 @@ import {
 import { type RepositoryPort } from "@lmstudio/lms-external-backend-interfaces";
 import { modelSearchOptsSchema, type ModelSearchOpts } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { ModelSearchResultEntry } from "./ModelSearchResultEntry";
+import { ModelSearchResultEntry } from "./ModelSearchResultEntry.js";
 
 /** @public */
 export class RepositoryNamespace {

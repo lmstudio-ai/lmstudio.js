@@ -1,16 +1,16 @@
 import { type Patch } from "immer";
-import { Event } from "./Event";
+import { Event } from "./Event.js";
 import {
   isAvailable,
   LazySignal,
   type NotAvailable,
   type StripNotAvailable,
   type SubscribeUpstream,
-} from "./LazySignal";
-import { makePromise } from "./makePromise";
-import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter";
-import { Signal, type SignalFullSubscriber, type SignalLike, type Subscriber } from "./Signal";
-import { Subscribable } from "./Subscribable";
+} from "./LazySignal.js";
+import { makePromise } from "./makePromise.js";
+import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter.js";
+import { Signal, type SignalFullSubscriber, type SignalLike, type Subscriber } from "./Signal.js";
+import { Subscribable } from "./Subscribable.js";
 
 interface WriteError {
   tags: Array<WriteTag>;

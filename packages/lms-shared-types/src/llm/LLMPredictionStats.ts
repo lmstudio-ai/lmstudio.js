@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type KVConfig, kvConfigSchema } from "../KVConfig";
+import { type KVConfig, kvConfigSchema } from "../KVConfig.js";
 
 /**
  * Represents the reason why a prediction stopped. Only the following values are possible:

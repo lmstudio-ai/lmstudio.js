@@ -1,6 +1,6 @@
 import { makeTitledPrettyError } from "@lmstudio/lms-common/dist/makePrettyError";
 import chalk from "chalk";
-import { installCli } from "./installCli";
+import { installCli } from "./installCli.js";
 
 async function main() {
   if (process.argv.length !== 3 && process.argv[2] !== "install-cli") {

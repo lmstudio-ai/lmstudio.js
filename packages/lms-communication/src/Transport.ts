@@ -1,7 +1,7 @@
 import { type LoggerInterface } from "@lmstudio/lms-common";
 import { serializedLMSExtendedErrorSchema } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { serializedOpaqueSchema } from "./serialization";
+import { serializedOpaqueSchema } from "./serialization.js";
 
 const clientToServerMessageSchema = z.discriminatedUnion("type", [
   // Communication

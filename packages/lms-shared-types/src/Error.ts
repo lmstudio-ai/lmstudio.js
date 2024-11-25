@@ -1,6 +1,6 @@
 import { z, type ZodSchema } from "zod";
-import { genericErrorDisplayDataSchema } from "./GenericErrorDisplayData";
-import { llmErrorDisplayDataSchema } from "./llm/LLMErrorDisplayData";
+import { genericErrorDisplayDataSchema } from "./GenericErrorDisplayData.js";
+import { llmErrorDisplayDataSchema } from "./llm/LLMErrorDisplayData.js";
 
 export const errorDisplayDataSchema = z.discriminatedUnion("code", [
   ...llmErrorDisplayDataSchema,

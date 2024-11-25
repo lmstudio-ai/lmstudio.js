@@ -9,7 +9,7 @@ import {
   unwrapPromiseOfResult,
   type MaybeErrored,
   type Result,
-} from "./resultTypes";
+} from "./resultTypes.js";
 
 describe("resultTypes", () => {
   describe("maybeErroredSchema", () => {

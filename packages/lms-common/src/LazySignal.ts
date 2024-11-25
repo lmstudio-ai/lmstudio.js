@@ -1,8 +1,8 @@
-import { Event } from "./Event";
-import { Signal, type SignalFullSubscriber, type SignalLike, type Subscriber } from "./Signal";
-import { Subscribable } from "./Subscribable";
-import { makePromise } from "./makePromise";
-import { makeSetterWithPatches, type Setter } from "./makeSetter";
+import { Event } from "./Event.js";
+import { Signal, type SignalFullSubscriber, type SignalLike, type Subscriber } from "./Signal.js";
+import { Subscribable } from "./Subscribable.js";
+import { makePromise } from "./makePromise.js";
+import { makeSetterWithPatches, type Setter } from "./makeSetter.js";
 
 export type NotAvailable = typeof LazySignal.NOT_AVAILABLE;
 export type StripNotAvailable<T> = T extends NotAvailable ? never : T;

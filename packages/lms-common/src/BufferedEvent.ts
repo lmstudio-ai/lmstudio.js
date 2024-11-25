@@ -1,5 +1,5 @@
-import { Event } from "./Event";
-import { Subscribable } from "./Subscribable";
+import { Event } from "./Event.js";
+import { Subscribable } from "./Subscribable.js";
 
 type Listener<TData> = (data: TData) => void;
 const waitForNextMicroTask = Symbol();

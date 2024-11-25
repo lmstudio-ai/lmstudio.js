@@ -1,3 +1,3 @@
-export { generateRandomBase64 } from "./browser/generateRandomBase64";
-export { terminalSize } from "./browser/terminalSize";
-export { WebSocket } from "./browser/WebSocket";
+export { generateRandomBase64 } from "./browser/generateRandomBase64.js";
+export { terminalSize } from "./browser/terminalSize.js";
+export { WebSocket } from "./browser/WebSocket.js";

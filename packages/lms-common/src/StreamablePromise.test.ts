@@ -1,4 +1,4 @@
-import { StreamablePromise } from "./StreamablePromise";
+import { StreamablePromise } from "./StreamablePromise.js";
 
 class TestStreamablePromise extends StreamablePromise<number, Array<number>> {
   protected collect(fragments: ReadonlyArray<number>): Promise<Array<number>> {

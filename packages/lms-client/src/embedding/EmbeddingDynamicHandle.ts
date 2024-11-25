@@ -6,7 +6,7 @@ import {
 } from "@lmstudio/lms-kv-config";
 import { type ModelSpecifier } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { DynamicHandle } from "../modelShared/DynamicHandle";
+import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 
 /**
  * This represents a set of requirements for a model. It is not tied to a specific model, but rather

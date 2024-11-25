@@ -1,6 +1,6 @@
 import { isAvailable, type StripNotAvailable } from "@lmstudio/lms-common/dist/LazySignal";
 import { type ZodSchema } from "zod";
-import { FileData, type FileDataOpts } from "./FileData";
+import { FileData, type FileDataOpts } from "./FileData.js";
 
 /**
  * Capable of storing JSON serializable values.

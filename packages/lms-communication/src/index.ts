@@ -1,4 +1,4 @@
-export { AuthPacket, authPacketSchema } from "./authentication";
+export { AuthPacket, authPacketSchema } from "./authentication.js";
 export {
   BackendInterface,
   BackendInterfaceWithContext,
@@ -8,16 +8,16 @@ export {
   RpcEndpointsSpecBase,
   SignalEndpointsSpecBase,
   WritableSignalEndpointsSpecBase,
-} from "./BackendInterface";
-export { Channel } from "./Channel";
+} from "./BackendInterface.js";
+export { Channel } from "./Channel.js";
 export {
   SerializationType,
   SerializedOpaque,
   deserialize,
   serialize,
   serializedOpaqueSchema,
-} from "./serialization";
-export { KEEP_ALIVE_INTERVAL, KEEP_ALIVE_TIMEOUT } from "./timeoutConstants";
+} from "./serialization.js";
+export { KEEP_ALIVE_INTERVAL, KEEP_ALIVE_TIMEOUT } from "./timeoutConstants.js";
 export {
   ClientToServerMessage,
   ClientTransport,
@@ -25,6 +25,6 @@ export {
   ServerToClientMessage,
   ServerTransport,
   ServerTransportFactory,
-} from "./Transport";
-export { WsAuthenticationResult } from "./WsAuthenticationResult";
-export { WsMessageEvent } from "./wsTypes";
+} from "./Transport.js";
+export { WsAuthenticationResult } from "./WsAuthenticationResult.js";
+export { WsMessageEvent } from "./wsTypes.js";

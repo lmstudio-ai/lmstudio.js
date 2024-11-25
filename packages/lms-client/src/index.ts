@@ -1,5 +1,5 @@
-export { ChatHistory, ChatMessage } from "./ChatHistory";
-export type { ChatHistoryLike } from "./ChatHistory";
+export { ChatHistory, ChatMessage } from "./ChatHistory.js";
+export type { ChatHistoryLike } from "./ChatHistory.js";
 export {
   ConfigSchematics,
   ConfigSchematicsBuilder,
@@ -9,31 +9,31 @@ export {
   configSchematicsBuilderBrand,
   createConfigSchematics,
   parsedConfigBrand,
-} from "./customConfig";
-export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
-export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle";
-export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
-export type { EmbeddingSpecificModel } from "./embedding/EmbeddingSpecificModel";
-export type { FileHandle } from "./files/FileHandle";
-export type { FilesNamespace } from "./files/FilesNamespace";
-export type { LLMDynamicHandle, LLMPredictionOpts } from "./llm/LLMDynamicHandle";
-export type { LLMNamespace } from "./llm/LLMNamespace";
-export type { LLMSpecificModel } from "./llm/LLMSpecificModel";
-export type { OngoingPrediction } from "./llm/OngoingPrediction";
-export type { PredictionResult } from "./llm/PredictionResult";
-export { LMStudioClient } from "./LMStudioClient";
-export type { LMStudioClientConstructorOpts } from "./LMStudioClient";
-export type { DynamicHandle } from "./modelShared/DynamicHandle";
-export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace";
-export type { SpecificModel } from "./modelShared/SpecificModel";
-export type { PluginContext } from "./PluginContext";
+} from "./customConfig.js";
+export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace.js";
+export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle.js";
+export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace.js";
+export type { EmbeddingSpecificModel } from "./embedding/EmbeddingSpecificModel.js";
+export type { FileHandle } from "./files/FileHandle.js";
+export type { FilesNamespace } from "./files/FilesNamespace.js";
+export type { LLMDynamicHandle, LLMPredictionOpts } from "./llm/LLMDynamicHandle.js";
+export type { LLMNamespace } from "./llm/LLMNamespace.js";
+export type { LLMSpecificModel } from "./llm/LLMSpecificModel.js";
+export type { OngoingPrediction } from "./llm/OngoingPrediction.js";
+export type { PredictionResult } from "./llm/PredictionResult.js";
+export { LMStudioClient } from "./LMStudioClient.js";
+export type { LMStudioClientConstructorOpts } from "./LMStudioClient.js";
+export type { DynamicHandle } from "./modelShared/DynamicHandle.js";
+export type { BaseLoadModelOpts, ModelNamespace } from "./modelShared/ModelNamespace.js";
+export type { SpecificModel } from "./modelShared/SpecificModel.js";
+export type { PluginContext } from "./PluginContext.js";
 export type {
   PluginsNamespace,
   RegisterDevelopmentPluginOpts,
   RegisterDevelopmentPluginResult,
-} from "./plugins/PluginsNamespace";
-export type { Generator } from "./plugins/processing/Generator";
-export type { Preprocessor } from "./plugins/processing/Preprocessor";
+} from "./plugins/PluginsNamespace.js";
+export type { Generator } from "./plugins/processing/Generator.js";
+export type { Preprocessor } from "./plugins/processing/Preprocessor.js";
 export type {
   CreateContentBlockOpts,
   GeneratorController,
@@ -43,15 +43,15 @@ export type {
   PredictionProcessStatusController,
   PreprocessorController,
   ProcessingController,
-} from "./plugins/processing/ProcessingController";
+} from "./plugins/processing/ProcessingController.js";
 export type {
   DownloadOpts,
   DownloadProgressUpdate,
   ModelSearchResultDownloadOption,
-} from "./repository/ModelSearchResultDownloadOption";
-export type { ModelSearchResultEntry } from "./repository/ModelSearchResultEntry";
-export type { RepositoryNamespace } from "./repository/RepositoryNamespace";
-export type { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
-export type { RetrievalCallbacks, RetrievalOpts } from "./retrieval/RetrievalOpts";
-export type { RetrievalResult, RetrievalResultEntry } from "./retrieval/RetrievalResult";
-export type { SystemNamespace } from "./system/SystemNamespace";
+} from "./repository/ModelSearchResultDownloadOption.js";
+export type { ModelSearchResultEntry } from "./repository/ModelSearchResultEntry.js";
+export type { RepositoryNamespace } from "./repository/RepositoryNamespace.js";
+export type { RetrievalNamespace } from "./retrieval/RetrievalNamespace.js";
+export type { RetrievalCallbacks, RetrievalOpts } from "./retrieval/RetrievalOpts.js";
+export type { RetrievalResult, RetrievalResultEntry } from "./retrieval/RetrievalResult.js";
+export type { SystemNamespace } from "./system/SystemNamespace.js";

@@ -1,5 +1,5 @@
 import { applyPatches, produce, produceWithPatches, type Patch } from "immer";
-import { isAvailable, type StripNotAvailable } from "./LazySignal";
+import { isAvailable, type StripNotAvailable } from "./LazySignal.js";
 
 /**
  * A write tag is a tag that can be optionally passed to a setter to identify the update.

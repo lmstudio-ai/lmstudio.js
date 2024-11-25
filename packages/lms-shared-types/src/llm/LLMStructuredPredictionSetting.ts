@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { jsonSerializableSchema } from "../JSONSerializable";
+import { jsonSerializableSchema } from "../JSONSerializable.js";
 
 /**
  * Settings for structured prediction. Structured prediction is a way to force the model to generate

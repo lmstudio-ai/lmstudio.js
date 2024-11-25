@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type GeneratorController } from "./ProcessingController";
+import { type GeneratorController } from "./ProcessingController.js";
 
 /**
  * TODO: Documentation

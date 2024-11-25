@@ -1,6 +1,6 @@
 import { type LogLevel } from "@lmstudio/lms-shared-types";
 import chalk from "chalk";
-import { text, type TextAllowedTypes } from "./text";
+import { text, type TextAllowedTypes } from "./text.js";
 
 /** @public */
 export interface LoggerInterface {

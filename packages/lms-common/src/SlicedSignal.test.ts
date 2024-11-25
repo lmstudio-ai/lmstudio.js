@@ -1,8 +1,8 @@
 import "."; // Import order
 
 import { LazySignal, makeSetterWithPatches, NotAvailable, Setter } from ".";
-import { Signal } from "./Signal";
-import { makeSlicedSignalFrom, pathRelationship } from "./SlicedSignal";
+import { Signal } from "./Signal.js";
+import { makeSlicedSignalFrom, pathRelationship } from "./SlicedSignal.js";
 
 describe("pathRelationship", () => {
   it("should return ancestor", () => {

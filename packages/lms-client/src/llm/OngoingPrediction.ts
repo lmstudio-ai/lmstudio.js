@@ -5,7 +5,7 @@ import {
   type LLMPredictionStopReason,
   type ModelDescriptor,
 } from "@lmstudio/lms-shared-types";
-import { PredictionResult } from "./PredictionResult";
+import { PredictionResult } from "./PredictionResult.js";
 
 /**
  * Represents an ongoing prediction.

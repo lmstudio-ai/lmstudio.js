@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { modelQuerySchema } from "./ModelSpecifier";
+import { modelQuerySchema } from "./ModelSpecifier.js";
 
 export const genericErrorDisplayDataSchema = [
   z.object({

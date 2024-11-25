@@ -1,7 +1,7 @@
 import { Event, SimpleLogger, type LoggerInterface } from "@lmstudio/lms-common";
 import { type AuthPacket } from "@lmstudio/lms-communication";
-import { type ClientHolder } from "./AuthenticatedWsServer";
-import { Authenticator, type ContextCreator } from "./Authenticator";
+import { type ClientHolder } from "./AuthenticatedWsServer.js";
+import { Authenticator, type ContextCreator } from "./Authenticator.js";
 
 const clientHolderDropped = Symbol("clientHolderDropped");
 const clientHolderLeaked = Symbol("clientHolderLeaked");

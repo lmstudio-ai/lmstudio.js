@@ -8,10 +8,10 @@ import {
   type ModelDescriptor,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
-import { ModelNamespace } from "../modelShared/ModelNamespace";
-import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
-import { LLMDynamicHandle } from "./LLMDynamicHandle";
-import { LLMSpecificModel } from "./LLMSpecificModel";
+import { ModelNamespace } from "../modelShared/ModelNamespace.js";
+import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric.js";
+import { LLMDynamicHandle } from "./LLMDynamicHandle.js";
+import { LLMSpecificModel } from "./LLMSpecificModel.js";
 
 /** @public */
 export class LLMNamespace extends ModelNamespace<

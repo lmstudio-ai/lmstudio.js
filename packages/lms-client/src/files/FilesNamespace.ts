@@ -1,7 +1,7 @@
 import { type LoggerInterface, SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type FilesPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type ChatMessagePartFileData } from "@lmstudio/lms-shared-types";
-import { FileHandle } from "./FileHandle";
+import { FileHandle } from "./FileHandle.js";
 
 /**
  * @public

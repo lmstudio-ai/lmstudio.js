@@ -1,5 +1,10 @@
-import { isAvailable, LazySignal, type NotAvailable, type StripNotAvailable } from "./LazySignal";
-import { type SignalLike } from "./Signal";
+import {
+  isAvailable,
+  LazySignal,
+  type NotAvailable,
+  type StripNotAvailable,
+} from "./LazySignal.js";
+import { type SignalLike } from "./Signal.js";
 
 function isSignalLike<TValue>(value: Subscribable<TValue>): value is SignalLike<TValue> {
   return (

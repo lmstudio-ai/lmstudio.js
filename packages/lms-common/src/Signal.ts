@@ -1,7 +1,7 @@
 import { type Patch } from "immer";
-import { type StripNotAvailable } from "./LazySignal";
-import { Subscribable } from "./Subscribable";
-import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter";
+import { type StripNotAvailable } from "./LazySignal.js";
+import { Subscribable } from "./Subscribable.js";
+import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter.js";
 
 const equals = <TValue>(a: TValue, b: TValue) => a === b;
 

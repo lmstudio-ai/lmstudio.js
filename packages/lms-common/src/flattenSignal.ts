@@ -1,7 +1,12 @@
 import { type Patch } from "immer";
-import { isAvailable, LazySignal, type NotAvailable, type StripNotAvailable } from "./LazySignal";
-import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter";
-import { type SignalLike } from "./Signal";
+import {
+  isAvailable,
+  LazySignal,
+  type NotAvailable,
+  type StripNotAvailable,
+} from "./LazySignal.js";
+import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter.js";
+import { type SignalLike } from "./Signal.js";
 
 /**
  * Flatten a signal of signals into a single signal.

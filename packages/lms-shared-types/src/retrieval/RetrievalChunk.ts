@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { citationSourceSchema, type CitationSource } from "../CitationSource";
+import { citationSourceSchema, type CitationSource } from "../CitationSource.js";
 
 /**
  * @public

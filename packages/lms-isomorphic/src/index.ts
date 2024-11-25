@@ -1,3 +1,3 @@
-export { generateRandomBase64 } from "./index/generateRandomBase64";
-export { terminalSize } from "./index/terminalSize";
-export { WebSocket } from "./index/WebSocket";
+export { generateRandomBase64 } from "./index/generateRandomBase64.js";
+export { terminalSize } from "./index/terminalSize.js";
+export { WebSocket } from "./index/WebSocket.js";

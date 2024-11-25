@@ -29,11 +29,11 @@ import {
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { ChatHistory, type ChatHistoryLike, chatHistoryLikeSchema } from "../ChatHistory";
-import { DynamicHandle } from "../modelShared/DynamicHandle";
-import { type LLMNamespace } from "./LLMNamespace";
-import { OngoingPrediction } from "./OngoingPrediction";
-import { type PredictionResult } from "./PredictionResult";
+import { ChatHistory, type ChatHistoryLike, chatHistoryLikeSchema } from "../ChatHistory.js";
+import { DynamicHandle } from "../modelShared/DynamicHandle.js";
+import { type LLMNamespace } from "./LLMNamespace.js";
+import { OngoingPrediction } from "./OngoingPrediction.js";
+import { type PredictionResult } from "./PredictionResult.js";
 
 /**
  * Shared options for any prediction methods (`.complete`/`.respond`).

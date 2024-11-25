@@ -1,4 +1,4 @@
-import { text } from "./text";
+import { text } from "./text.js";
 
 test("should throw if the lengths of the two arrays are wrong", () => {
   expect(() => {

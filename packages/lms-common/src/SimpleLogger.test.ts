@@ -1,4 +1,4 @@
-import { SimpleLogger, type LoggerInterface } from "./SimpleLogger";
+import { SimpleLogger, type LoggerInterface } from "./SimpleLogger.js";
 
 describe.skip("SimpleLogger", () => {
   let mockLogger: LoggerInterface;

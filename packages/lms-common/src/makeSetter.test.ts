@@ -1,5 +1,5 @@
 import { enablePatches, type Patch } from "immer";
-import { makeSetter, makeSetterWithPatches } from "./makeSetter";
+import { makeSetter, makeSetterWithPatches } from "./makeSetter.js";
 
 enablePatches();
 

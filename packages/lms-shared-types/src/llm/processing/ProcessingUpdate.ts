@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { colorPalette, type ColorPalette } from "../../ColorPalette";
-import { llmGenInfoSchema, type LLMGenInfo } from "../LLMPredictionStats";
+import { colorPalette, type ColorPalette } from "../../ColorPalette.js";
+import { llmGenInfoSchema, type LLMGenInfo } from "../LLMPredictionStats.js";
 
 export type BlockLocation =
   | {

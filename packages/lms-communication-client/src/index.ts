@@ -1,5 +1,5 @@
-export { AuthenticatedWsClientTransport } from "./AuthenticatedWsClientTransport";
-export { ClientPort, InferClientPort } from "./ClientPort";
-export { GenericClientTransport } from "./GenericClientTransport";
-export { LMStudioHostedEnv, getHostedEnv } from "./LMStudioHostedEnv";
-export { WsClientTransport } from "./WsClientTransport";
+export { AuthenticatedWsClientTransport } from "./AuthenticatedWsClientTransport.js";
+export { ClientPort, InferClientPort } from "./ClientPort.js";
+export { GenericClientTransport } from "./GenericClientTransport.js";
+export { LMStudioHostedEnv, getHostedEnv } from "./LMStudioHostedEnv.js";
+export { WsClientTransport } from "./WsClientTransport.js";

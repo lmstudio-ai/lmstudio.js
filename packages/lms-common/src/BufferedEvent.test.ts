@@ -1,5 +1,5 @@
 import "."; // Import order
-import { BufferedEvent } from "./BufferedEvent";
+import { BufferedEvent } from "./BufferedEvent.js";
 
 test("should trigger in next microtask", async () => {
   const [event, emit] = BufferedEvent.create<number>();

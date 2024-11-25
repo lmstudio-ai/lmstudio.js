@@ -1,5 +1,5 @@
 import { z, type ZodSchema } from "zod";
-import { type ModelDomainType } from "../../ModelDomainType";
+import { type ModelDomainType } from "../../ModelDomainType.js";
 
 export interface GetModelOpts {
   /**
