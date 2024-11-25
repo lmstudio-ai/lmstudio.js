@@ -1,7 +1,7 @@
 import { makeTitledPrettyError, text } from "@lmstudio/lms-common";
 import boxen from "boxen";
 import chalk from "chalk";
-import inquirer from "inquirer";
+// import inquirer from "inquirer";
 import { execSync } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import os from "node:os";
@@ -40,7 +40,8 @@ const shellInstallationInfo: Array<ShellInstallationInfo> = [
   {
     shellName: "zsh",
     configFileName: ".zshrc",
-    commandToAddComment: "echo '' >> ~/.zshrc && echo '# Added by LM Studio CLI tool (lms)' >> ~/.zshrc",
+    commandToAddComment:
+      "echo '' >> ~/.zshrc && echo '# Added by LM Studio CLI tool (lms)' >> ~/.zshrc",
     commandToAddPath: "echo 'export PATH=\"$PATH:<TARGET>\"' >> ~/.zshrc",
   },
   {
@@ -165,16 +166,17 @@ export async function installCliDarwinOrLinux(path: string, { skipConfirmation }
       ),
     );
 
-    const { cont } = await inquirer.createPromptModule({
-      output: process.stderr,
-    })([
-      {
-        type: "confirm",
-        name: "cont",
-        message: chalk.yellowBright("Do you want to continue?"),
-        default: false,
-      },
-    ]);
+    const cont = true;
+    // const { cont } = await inquirer.createPromptModule({
+    //   output: process.stderr,
+    // })([
+    //   {
+    //     type: "confirm",
+    //     name: "cont",
+    //     message: chalk.yellowBright("Do you want to continue?"),
+    //     default: false,
+    //   },
+    // ]);
 
     if (!cont) {
       console.info(chalk.greenBright("Installation aborted. No changes were made."));

@@ -1,0 +1,5 @@
+{
+  "references": [{ "path": "packages/lms-shared-types" }],
+  "exclude": ["*.test.ts"],
+  "include": []
+}

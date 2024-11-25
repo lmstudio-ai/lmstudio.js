@@ -1,15 +1,14 @@
 {
   "compilerOptions": {
     "strict": true,
-    "module": "CommonJS",
+    "module": "node16",
     "target": "ES2021",
-    "declaration": true,
-    "incremental": false,
+    "incremental": true,
     "noImplicitOverride": true,
     "sourceMap": true,
-    "declarationMap": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "stripInternal": true
+    "stripInternal": true,
+    "composite": true
   }
 }

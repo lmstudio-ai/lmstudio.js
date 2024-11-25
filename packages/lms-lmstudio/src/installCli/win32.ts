@@ -1,7 +1,7 @@
 import { text } from "@lmstudio/lms-common";
 import boxen from "boxen";
 import chalk from "chalk";
-import inquirer from "inquirer";
+// import inquirer from "inquirer";
 import { execSync } from "node:child_process";
 import { access } from "node:fs/promises";
 import { type InstallCliOpts } from ".";
@@ -82,16 +82,17 @@ $path += ";${path}";
         },
       ),
     );
-    const { cont } = await inquirer.createPromptModule({
-      output: process.stderr,
-    })([
-      {
-        type: "confirm",
-        name: "cont",
-        message: chalk.yellowBright("Do you want to continue?"),
-        default: false,
-      },
-    ]);
+    const cont = true;
+    // const { cont } = await inquirer.createPromptModule({
+    //   output: process.stderr,
+    // })([
+    //   {
+    //     type: "confirm",
+    //     name: "cont",
+    //     message: chalk.yellowBright("Do you want to continue?"),
+    //     default: false,
+    //   },
+    // ]);
 
     if (!cont) {
       console.info(chalk.greenBright("Installation aborted. No changes were made."));

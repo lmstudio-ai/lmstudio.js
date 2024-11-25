@@ -2,8 +2,9 @@
   "name": "@lmstudio/lms-shared-types",
   "version": "0.5.1",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
@@ -12,5 +13,21 @@
   "dependencies": {
     "zod": "^3.22.4"
   },
+  "exports": {
+    "./*": {
+      "types": "./dist/types/*.d.ts",
+      "require": "./dist/cjs/*.js",
+      "import": "./dist/esm/*.js",
+      "default": "./dist/esm/*.js"
+    }
+  },
+  "files": [
+    "./dist/cjs/**/*.js",
+    "./dist/cjs/**/*.js.map",
+    "./dist/esm/**/*.js",
+    "./dist/esm/**/*.js.map",
+    "./dist/types/**/*.d.ts",
+    "./dist/types/**/*.d.ts.map"
+  ],
   "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
 }
