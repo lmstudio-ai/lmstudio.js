@@ -2,8 +2,9 @@
   "name": "@lmstudio/lms-common",
   "version": "0.6.1",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "scripts": {
     "build": "tsc"
   },

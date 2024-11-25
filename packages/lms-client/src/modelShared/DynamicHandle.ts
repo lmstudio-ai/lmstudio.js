@@ -1,5 +1,5 @@
 import { getCurrentStack } from "@lmstudio/lms-common";
-import { type BaseModelPort } from "@lmstudio/lms-external-backend-interfaces/dist/baseModelBackendInterface";
+import { type BaseModelPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
   type KVConfig,
   type ModelDescriptor,

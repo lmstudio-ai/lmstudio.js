@@ -2,8 +2,9 @@
   "name": "@lmstudio/lms-communication-client",
   "version": "0.5.1",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "devDependencies": {
     "electron": "^24.6.3"
   },
@@ -18,5 +19,19 @@
     "@lmstudio/lms-isomorphic": "^0.3.2",
     "immer": "^10.1.1"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    }
+  },
+  "files": [
+    "./dist/cjs/**/*.js",
+    "./dist/esm/package.json",
+    "./dist/esm/**/*.js",
+    "./dist/types/**/*.d.ts"
+  ],
   "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
 }

@@ -1,4 +1,4 @@
-import { isAvailable, type StripNotAvailable } from "@lmstudio/lms-common/dist/LazySignal";
+import { isAvailable, type StripNotAvailable } from "@lmstudio/lms-common";
 import { type ZodSchema } from "zod";
 import { FileData, type FileDataOpts } from "./FileData.js";
 

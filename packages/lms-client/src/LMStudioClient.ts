@@ -18,6 +18,7 @@ import { getHostedEnv, type ClientPort } from "@lmstudio/lms-communication-clien
 import {
   createDiagnosticsBackendInterface,
   createEmbeddingBackendInterface,
+  createFilesBackendInterface,
   createLlmBackendInterface,
   createPluginsBackendInterface,
   createRepositoryBackendInterface,
@@ -25,16 +26,14 @@ import {
   createSystemBackendInterface,
   type DiagnosticsPort,
   type EmbeddingPort,
+  type FilesPort,
   type LLMPort,
   type PluginsPort,
   type RepositoryPort,
   type RetrievalPort,
   type SystemPort,
 } from "@lmstudio/lms-external-backend-interfaces";
-import {
-  createFilesBackendInterface,
-  type FilesPort,
-} from "@lmstudio/lms-external-backend-interfaces/dist/filesBackendInterface";
+
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
 import chalk from "chalk";
 import process from "process";

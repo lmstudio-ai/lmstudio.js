@@ -10,9 +10,9 @@ import { type GlobalKVFieldValueTypeLibraryMap, KVConfigSchematics } from "@lmst
 import {
   type ChatMessageData,
   type PluginManifest,
+  pluginManifestSchema,
   serializeError,
 } from "@lmstudio/lms-shared-types";
-import { pluginManifestSchema } from "@lmstudio/lms-shared-types/dist/PluginManifest";
 import { z } from "zod";
 import { ChatMessage } from "../ChatHistory.js";
 import { type ConfigSchematics } from "../customConfig.js";

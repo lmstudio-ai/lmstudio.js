@@ -5,7 +5,13 @@ enablePatches();
 enableMapSet();
 
 // Export lazy signal first to avoid circular dependency issues
-export { AsyncDeriveFromStrategy, isAvailable, LazySignal, NotAvailable } from "./LazySignal.js";
+export {
+  AsyncDeriveFromStrategy,
+  isAvailable,
+  LazySignal,
+  NotAvailable,
+  StripNotAvailable,
+} from "./LazySignal.js";
 
 export { apiServerPorts } from "./apiServerPorts.js";
 export { BufferedEvent } from "./BufferedEvent.js";

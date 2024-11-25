@@ -2,8 +2,9 @@
   "name": "@lmstudio/lms-client",
   "version": "0.6.0",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
@@ -20,5 +21,19 @@
     "process": "^0.11.10",
     "zod": "^3.22.4"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    }
+  },
+  "files": [
+    "./dist/cjs/**/*.js",
+    "./dist/esm/package.json",
+    "./dist/esm/**/*.js",
+    "./dist/types/**/*.d.ts"
+  ],
   "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
 }

@@ -6,7 +6,9 @@ export {
   ChannelEndpointsSpecBase,
   RpcEndpoint,
   RpcEndpointsSpecBase,
+  SignalEndpoint,
   SignalEndpointsSpecBase,
+  WritableSignalEndpoint,
   WritableSignalEndpointsSpecBase,
 } from "./BackendInterface.js";
 export { Channel } from "./Channel.js";
@@ -26,5 +28,5 @@ export {
   ServerTransport,
   ServerTransportFactory,
 } from "./Transport.js";
-export { WsAuthenticationResult } from "./WsAuthenticationResult.js";
+export { WsAuthenticationResult, wsAuthenticationResultSchema } from "./WsAuthenticationResult.js";
 export { WsMessageEvent } from "./wsTypes.js";

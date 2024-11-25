@@ -1,5 +1,6 @@
 import {
   Event,
+  isAvailable,
   SimpleLogger,
   text,
   Validator,
@@ -7,23 +8,23 @@ import {
   type SignalLike,
   type WriteTag,
 } from "@lmstudio/lms-common";
-import { isAvailable } from "@lmstudio/lms-common/dist/LazySignal";
-import type {
-  BackendInterface,
-  ChannelEndpoint,
-  ClientToServerMessage,
-  ServerTransport,
-  ServerTransportFactory,
-} from "@lmstudio/lms-communication";
-import { Channel, deserialize, serialize } from "@lmstudio/lms-communication";
 import {
+  Channel,
+  deserialize,
+  serialize,
+  type BackendInterface,
+  type ChannelEndpoint,
   type ChannelEndpointsSpecBase,
+  type ClientToServerMessage,
   type RpcEndpointsSpecBase,
+  type ServerTransport,
+  type ServerTransportFactory,
   type SignalEndpoint,
   type SignalEndpointsSpecBase,
   type WritableSignalEndpoint,
   type WritableSignalEndpointsSpecBase,
-} from "@lmstudio/lms-communication/dist/BackendInterface";
+} from "@lmstudio/lms-communication";
+
 import { serializeError } from "@lmstudio/lms-shared-types";
 import { applyPatches, enablePatches } from "immer";
 import { type Context, type ContextCreator } from "./Authenticator.js";

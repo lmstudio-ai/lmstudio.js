@@ -7,7 +7,7 @@ import {
   text,
   type Validator,
 } from "@lmstudio/lms-common";
-import { type BaseModelPort } from "@lmstudio/lms-external-backend-interfaces/dist/baseModelBackendInterface";
+import { type BaseModelPort } from "@lmstudio/lms-external-backend-interfaces";
 import { singleLayerKVConfigStackOf } from "@lmstudio/lms-kv-config";
 import {
   logLevelSchema,
