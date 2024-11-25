@@ -1,5 +1,9 @@
 {
-  "references": [{ "path": "packages/lms-shared-types" }],
+  "references": [
+    { "path": "packages/lms-shared-types" },
+    { "path": "packages/lms-isomorphic" },
+    { "path": "packages/lms-common" }
+  ],
   "exclude": ["*.test.ts"],
   "include": []
 }

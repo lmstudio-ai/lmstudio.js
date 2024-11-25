@@ -10,5 +10,8 @@
     "skipLibCheck": true,
     "stripInternal": true,
     "composite": true
+  },
+  "ts-node": {
+    "swc": true
   }
 }
