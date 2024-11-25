@@ -34,8 +34,8 @@ import {
   type SystemPort,
 } from "@lmstudio/lms-external-backend-interfaces";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
-import * as chalk from "chalk";
-import * as process from "process";
+import chalk from "chalk";
+import process from "process";
 import { z } from "zod";
 import { createAuthenticatedClientPort } from "./createAuthenticatedClientPort.js";
 import { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace.js";

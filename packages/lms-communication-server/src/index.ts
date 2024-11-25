@@ -1,5 +1,5 @@
 export { AuthenticatedIpcServer } from "./AuthenticatedIpcServer.js";
-export { AuthenticatedWsServer } from "./AuthenticatedWsServer.js";
+export { AuthenticatedWsServer, ClientHolder } from "./AuthenticatedWsServer.js";
 export { Context, ContextCreator } from "./Authenticator.js";
 export {
   FcfsAuthenticatedContext,

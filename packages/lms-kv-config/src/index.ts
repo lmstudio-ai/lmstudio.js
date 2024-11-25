@@ -15,6 +15,7 @@ export {
   KVVirtualFieldValueType,
   KVVirtualFieldValueTypesMapping,
   ParsedKVConfig,
+  addKVConfigToBaseOfStack,
   addKVConfigToStack,
   collapseKVStack,
   collapseKVStackRaw,
@@ -27,7 +28,9 @@ export {
   kvConfigToMap,
   makeKVConfigFromFields,
   mapToKVConfig,
+  prependBaseKeyToSerializedKVConfigSchematics,
   singleLayerKVConfigStackOf,
+  stripBaseKeyFromKVConfig,
 } from "./KVConfig.js";
 export {
   GlobalConfigSchemaKeys,

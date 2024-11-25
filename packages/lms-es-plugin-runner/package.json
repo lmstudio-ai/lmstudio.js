@@ -24,6 +24,24 @@
       "require": "./dist/cjs/index.js",
       "import": "./dist/esm/index.js",
       "default": "./dist/esm/index.js"
+    },
+    "./installer": {
+      "types": "./dist/types/EsPluginInstaller.d.ts",
+      "require": "./dist/cjs/EsPluginInstaller.js",
+      "import": "./dist/esm/EsPluginInstaller.js",
+      "default": "./dist/esm/EsPluginInstaller.js"
+    },
+    "./runner-watcher": {
+      "types": "./dist/types/EsPluginRunnerWatcher.d.ts",
+      "require": "./dist/cjs/EsPluginRunnerWatcher.js",
+      "import": "./dist/esm/EsPluginRunnerWatcher.js",
+      "default": "./dist/esm/EsPluginRunnerWatcher.js"
+    },
+    "./util-binary": {
+      "types": "./dist/types/UtilBinary.d.ts",
+      "require": "./dist/cjs/UtilBinary.js",
+      "import": "./dist/esm/UtilBinary.js",
+      "default": "./dist/esm/UtilBinary.js"
     }
   },
   "sideEffects": false,

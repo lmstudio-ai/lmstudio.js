@@ -34,6 +34,10 @@
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.556.0",
     "@microsoft/api-extractor": "^7.40.1",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.1",
     "@types/inquirer": "^9.0.7",
     "@types/jest": "^29.5.12",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
@@ -57,13 +61,14 @@
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "process": "^0.11.10",
+    "rollup": "^4.27.4",
     "shx": "^0.3.4",
     "stmux": "^1.8.7",
     "tailwindcss": "^3.4.1",
     "ts-jest": "^29.1.2",
     "ts-loader": "^9.5.1",
     "typescript": "^5.7.2",
-    "webpack": "^5.90.2",
+    "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
   },
   "overrides": {

@@ -11,7 +11,7 @@ import {
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { mkdir, readFile, watch } from "fs/promises";
 import { enablePatches } from "immer";
-import * as path from "path";
+import path from "path";
 
 enablePatches();
 

@@ -20,6 +20,8 @@ module.exports = [
       ],
     },
     resolve: {
+      mainFields: ["module", "main"],
+      exportsFields: ["import", "require", "default"],
       extensions: [".tsx", ".ts", ".js"],
     },
     target: "node",
