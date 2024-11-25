@@ -1,5 +1,5 @@
 import { terminalSize } from "@lmstudio/lms-isomorphic";
-import * as boxen from "boxen";
+import boxen from "boxen";
 import * as chalk from "chalk";
 import * as process from "process";
 import { changeErrorStackInPlace } from "./errorStack.js";

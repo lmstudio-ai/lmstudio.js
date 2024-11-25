@@ -6,11 +6,9 @@
   "module": "index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build-webpack": "webpack --config ./webpack.config.js --mode production",
+    "build-rollup": "tsc && rollup -c",
     "build-ae": "api-extractor run --local",
-    "build-remove-source-map-comments": "node ./removeSourceMapComments.js",
-    "build": "npm run build-webpack && npm run build-remove-source-map-comments && npm run build-ae",
-    "b2": "tsc && rollup -c",
+    "build": "npm run build-rollup && npm run build-ae",
     "watch-webpack": "webpack --config ./webpack.config.js --mode development --watch",
     "watch-ae": "nodemon --exec \"npm run build-ae\" --watch dist/index.js",
     "watch": "npm run watch-webpack & npm run watch-dts"
@@ -29,6 +27,8 @@
   },
   "devDependencies": {
     "@lmstudio/lms-client": "^0.6.0",
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-typescript": "^12.1.1",
     "nodemon": "^3.1.0",
