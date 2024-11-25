@@ -18,5 +18,6 @@
     "utf-8-validate": "^6.0.3",
     "ws": "^8.16.0"
   },
+  "sideEffects": false,
   "gitHead": "8abe1338bad3a58ec1fe3a0e6462f2bc331bf450"
 }

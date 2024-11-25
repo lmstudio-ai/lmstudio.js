@@ -1,7 +1,7 @@
 import { terminalSize } from "@lmstudio/lms-isomorphic";
-import boxen from "boxen";
-import chalk from "chalk";
-import process from "process";
+import * as boxen from "boxen";
+import * as chalk from "chalk";
+import * as process from "process";
 import { changeErrorStackInPlace } from "./errorStack.js";
 
 export function makeTitledPrettyError(title: string, content: string, stack?: string) {

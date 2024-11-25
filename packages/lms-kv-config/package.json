@@ -31,5 +31,6 @@
     "./dist/esm/**/*.js",
     "./dist/types/**/*.d.ts"
   ],
+  "sideEffects": false,
   "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
 }

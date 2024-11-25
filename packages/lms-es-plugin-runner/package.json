@@ -26,6 +26,7 @@
       "default": "./dist/esm/index.js"
     }
   },
+  "sideEffects": false,
   "files": [
     "./dist/cjs/**/*.js",
     "./dist/esm/package.json",

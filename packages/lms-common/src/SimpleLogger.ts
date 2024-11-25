@@ -1,5 +1,5 @@
 import { type LogLevel } from "@lmstudio/lms-shared-types";
-import chalk from "chalk";
+import * as chalk from "chalk";
 import { text, type TextAllowedTypes } from "./text.js";
 
 /** @public */

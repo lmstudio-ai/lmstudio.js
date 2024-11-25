@@ -5,7 +5,7 @@ import {
   type ModelQuery,
   type SerializedLMSExtendedError,
 } from "@lmstudio/lms-shared-types";
-import chalk from "chalk";
+import * as chalk from "chalk";
 
 type DisplayData<TCode extends ErrorDisplayData["code"]> = Extract<
   ErrorDisplayData,

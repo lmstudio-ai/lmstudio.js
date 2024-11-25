@@ -1,10 +1,10 @@
 import { makeTitledPrettyError, text } from "@lmstudio/lms-common";
-import boxen from "boxen";
-import chalk from "chalk";
+import * as boxen from "boxen";
+import * as chalk from "chalk";
 // import inquirer from "inquirer";
 import { execSync } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
-import os from "node:os";
+import * as os from "node:os";
 import { join } from "node:path";
 import { type InstallCliOpts } from ".";
 

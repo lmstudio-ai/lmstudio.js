@@ -1,4 +1,4 @@
-import process from "process";
+import * as process from "process";
 
 // Error stack manipulation related functions
 

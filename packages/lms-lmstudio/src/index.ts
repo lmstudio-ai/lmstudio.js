@@ -1,5 +1,5 @@
 import { makeTitledPrettyError } from "@lmstudio/lms-common";
-import chalk from "chalk";
+import * as chalk from "chalk";
 import { installCli } from "./installCli/index.js";
 
 async function main() {

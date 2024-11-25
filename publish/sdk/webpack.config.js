@@ -1,5 +1,4 @@
 const path = require("path");
-const { ProvidePlugin } = require("webpack");
 
 const base = {
   entry: path.join(__dirname, "src", "index.ts"),
@@ -20,6 +19,8 @@ const base = {
     ],
   },
   resolve: {
+    mainFields: ["module", "main"],
+    exportsFields: ["import", "require", "default"],
     extensions: [".tsx", ".ts", ".js"],
   },
   externals: {
@@ -30,12 +31,6 @@ const base = {
   optimization: {
     minimize: false,
   },
-  // plugins: [
-  //   // fix "process is not defined" error:
-  //   new ProvidePlugin({
-  //     process: "process",
-  //   }),
-  // ],
 };
 
 module.exports = [

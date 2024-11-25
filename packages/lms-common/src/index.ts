@@ -1,16 +1,13 @@
-import { enableMapSet, enablePatches } from "immer";
-import "./polyfill";
-
-enablePatches();
-enableMapSet();
+import "./polyfill.js";
+import "./sideEffects.js";
 
 // Export lazy signal first to avoid circular dependency issues
 export {
   AsyncDeriveFromStrategy,
-  isAvailable,
   LazySignal,
   NotAvailable,
   StripNotAvailable,
+  isAvailable,
 } from "./LazySignal.js";
 
 export { apiServerPorts } from "./apiServerPorts.js";
@@ -24,18 +21,18 @@ export { flattenSignalOfSignal, flattenSignalOfWritableSignal } from "./flattenS
 export { HandledEvent } from "./HandledEvent.js";
 export { makePrettyError, makeTitledPrettyError } from "./makePrettyError.js";
 export { DeferredPromise, makePromise } from "./makePromise.js";
-export { makeSetter, makeSetterWithPatches, Setter, WriteTag } from "./makeSetter.js";
-export { accessMaybeMutableInternals, MaybeMutable } from "./MaybeMutable.js";
+export { Setter, WriteTag, makeSetter, makeSetterWithPatches } from "./makeSetter.js";
+export { MaybeMutable, accessMaybeMutableInternals } from "./MaybeMutable.js";
 export { OWLSignal } from "./OWLSignal.js";
 export { parseFileIdentifier } from "./parseFileIdentifier.js";
 export { removeUndefinedValues } from "./removeUndefinedValues.js";
 export {
-  createResultSchema,
   MaybeErrored,
+  Result,
+  createResultSchema,
   maybeErroredSchema,
   promiseToMaybeErrored,
   promiseToResult,
-  Result,
   unwrapPromiseOfMaybeErrored,
   unwrapPromiseOfResult,
 } from "./resultTypes.js";
@@ -43,7 +40,7 @@ export { runOnDispose } from "./runOnDispose.js";
 export { safeCallCallback } from "./safeCallCallback.js";
 export { Signal, SignalLike, WritableSignal } from "./Signal.js";
 export { LoggerInterface, SimpleLogger, SimpleLoggerConstructorOpts } from "./SimpleLogger.js";
-export { makeSlicedSignalFrom, SlicedSignalBuilder } from "./SlicedSignal.js";
+export { SlicedSignalBuilder, makeSlicedSignalFrom } from "./SlicedSignal.js";
 export { StreamablePromise } from "./StreamablePromise.js";
 export { Subscribable } from "./Subscribable.js";
 export { text } from "./text.js";

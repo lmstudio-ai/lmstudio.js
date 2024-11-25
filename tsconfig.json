@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
     "strict": true,
-    "module": "node16",
     "target": "ES2021",
+    "moduleResolution": "node",
     "incremental": true,
     "noImplicitOverride": true,
     "sourceMap": true,
-    "esModuleInterop": true,
     "skipLibCheck": true,
     "stripInternal": true,
     "composite": true

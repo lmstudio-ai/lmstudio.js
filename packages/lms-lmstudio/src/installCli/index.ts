@@ -1,7 +1,7 @@
 import { makeTitledPrettyError, text } from "@lmstudio/lms-common";
-import chalk from "chalk";
+import * as chalk from "chalk";
 import { stat } from "node:fs/promises";
-import os from "node:os";
+import * as os from "node:os";
 import { join } from "node:path";
 import { platform } from "node:process";
 import { installCliDarwinOrLinux } from "./darwinOrLinux.js";

@@ -29,5 +29,6 @@
   ],
   "author": "",
   "license": "Apache-2.0",
+  "sideEffects": false,
   "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
 }

@@ -1,7 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "moduleResolution": "node16",
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true

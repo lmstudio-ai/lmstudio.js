@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import * as chalk from "chalk";
 import { type SafeParseError, type ZodError, type z } from "zod";
 import { makePrettyError } from "./makePrettyError.js";
 import { text } from "./text.js";

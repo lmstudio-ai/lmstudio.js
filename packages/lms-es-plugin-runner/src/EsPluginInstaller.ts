@@ -1,5 +1,5 @@
 import { SimpleLogger } from "@lmstudio/lms-common";
-import Arborist from "@npmcli/arborist";
+import * as Arborist from "@npmcli/arborist";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { createEsBuildArgs } from "./esbuildArgs.js";

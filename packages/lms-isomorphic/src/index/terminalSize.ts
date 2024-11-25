@@ -4,9 +4,9 @@
 // Done to support CommonJS
 
 import { execFileSync } from "child_process";
-import fs from "fs";
-import process from "process";
-import tty from "tty";
+import * as fs from "fs";
+import * as process from "process";
+import * as tty from "tty";
 
 const defaultColumns = 80;
 const defaultRows = 24;
