@@ -7,28 +7,11 @@ import {
 } from "@lmstudio/lms-common";
 import { type RepositoryPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
+  type DownloadProgressUpdate,
   type ModelSearchResultDownloadOptionData,
   type ModelSearchResultDownloadOptionFitEstimation,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-
-/**
- * @public
- */
-export interface DownloadProgressUpdate {
-  /**
-   * Number of bytes that have been downloaded so far.
-   */
-  downloadedBytes: number;
-  /**
-   * Total number of bytes that will be downloaded.
-   */
-  totalBytes: number;
-  /**
-   * Current download speed in bytes per second.
-   */
-  speedBytesPerSecond: number;
-}
 
 /** @public */
 export interface DownloadOpts {
@@ -78,6 +61,7 @@ export class ModelSearchResultDownloadOption {
       "opts",
       downloadOptsSchema,
       opts,
+      stack,
     );
     const { promise, resolve, reject } = makePromise<string>();
     const channel = this.repositoryPort.createChannel(
@@ -88,13 +72,7 @@ export class ModelSearchResultDownloadOption {
       message => {
         switch (message.type) {
           case "downloadProgress": {
-            safeCallCallback(this.logger, "onProgress", opts.onProgress, [
-              {
-                downloadedBytes: message.downloadedBytes,
-                totalBytes: message.totalBytes,
-                speedBytesPerSecond: message.speedBytesPerSecond,
-              },
-            ]);
+            safeCallCallback(this.logger, "onProgress", opts.onProgress, [message.update]);
             break;
           }
           case "startFinalizing": {

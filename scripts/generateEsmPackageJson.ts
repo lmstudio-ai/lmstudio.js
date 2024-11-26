@@ -4,7 +4,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 
-const packagesFolder = resolve("./packages");
+const packagesFolder = resolve("../packages");
 
 for (const dirent of readdirSync(packagesFolder, { withFileTypes: true })) {
   if (!dirent.isDirectory()) {
