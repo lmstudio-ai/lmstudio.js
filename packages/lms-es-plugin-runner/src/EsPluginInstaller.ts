@@ -2,9 +2,9 @@ import { SimpleLogger } from "@lmstudio/lms-common";
 import Arborist from "@npmcli/arborist";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
-import { createEsBuildArgs } from "./esbuildArgs";
-import { generateEntryFile } from "./generateEntryFile";
-import { UtilBinary } from "./UtilBinary";
+import { createEsBuildArgs } from "./esbuildArgs.js";
+import { generateEntryFile } from "./generateEntryFile.js";
+import { UtilBinary } from "./UtilBinary.js";
 
 export interface EsPluginInstallerInstallOpts {
   npmRegistry?: string;

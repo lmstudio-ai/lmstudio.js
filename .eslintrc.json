@@ -34,6 +34,13 @@
     "tsdoc/syntax": "warn",
     "@typescript-eslint/ban-types": "off"
   },
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true
+      }
+    }
+  },
   "overrides": [
     {
       "files": ["*.fixture.tsx"],

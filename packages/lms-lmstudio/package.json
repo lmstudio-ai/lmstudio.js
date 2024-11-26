@@ -19,5 +19,25 @@
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.12.7"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./install-cli": {
+      "types": "./dist/types/installCli/index.d.ts",
+      "require": "./dist/cjs/installCli/index.js",
+      "import": "./dist/esm/installCli/index.js",
+      "default": "./dist/esm/installCli/index.js"
+    }
+  },
+  "files": [
+    "./dist/cjs/**/*.js",
+    "./dist/esm/package.json",
+    "./dist/esm/**/*.js",
+    "./dist/types/**/*.d.ts"
+  ],
   "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
 }

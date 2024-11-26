@@ -1,4 +1,4 @@
-import { toJSONSafeNumber } from "./toJSONSafeNumber";
+import { toJSONSafeNumber } from "./toJSONSafeNumber.js";
 
 describe("toJSONSafeNumber", () => {
   it("should return undefined when the input is not a finite number", () => {

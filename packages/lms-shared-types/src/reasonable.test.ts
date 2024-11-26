@@ -1,4 +1,4 @@
-import { reasonableKeyStringSchema } from "./reasonable";
+import { reasonableKeyStringSchema } from "./reasonable.js";
 
 describe("reasonableKeyStringSchema", () => {
   it("should allow strings between 1 and 1024 characters", () => {

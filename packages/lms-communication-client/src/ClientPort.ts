@@ -11,23 +11,24 @@ import {
   type Setter,
   type WriteTag,
 } from "@lmstudio/lms-common";
-import type {
-  BackendInterface,
-  ChannelEndpoint,
-  ClientTransport,
-  ClientTransportFactory,
-  RpcEndpoint,
-  ServerToClientMessage,
-} from "@lmstudio/lms-communication";
-import { Channel, deserialize, serialize } from "@lmstudio/lms-communication";
 import {
+  Channel,
+  deserialize,
+  serialize,
+  type BackendInterface,
+  type ChannelEndpoint,
   type ChannelEndpointsSpecBase,
+  type ClientTransport,
+  type ClientTransportFactory,
+  type RpcEndpoint,
   type RpcEndpointsSpecBase,
+  type ServerToClientMessage,
   type SignalEndpoint,
   type SignalEndpointsSpecBase,
   type WritableSignalEndpoint,
   type WritableSignalEndpointsSpecBase,
-} from "@lmstudio/lms-communication/dist/BackendInterface";
+} from "@lmstudio/lms-communication";
+
 import { fromSerializedError, type SerializedLMSExtendedError } from "@lmstudio/lms-shared-types";
 import { applyPatches, enablePatches, type Patch } from "immer";
 

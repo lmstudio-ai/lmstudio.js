@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   llmLlamaAccelerationSettingSchema,
   type LLMLlamaAccelerationSetting,
-} from "../llm/LLMLoadModelConfig";
+} from "../llm/LLMLoadModelConfig.js";
 
 /**
  * @public

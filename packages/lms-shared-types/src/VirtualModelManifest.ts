@@ -1,5 +1,5 @@
 import { z, type ZodSchema } from "zod";
-import { kvConfigSchema, type KVConfig } from "./KVConfig";
+import { kvConfigSchema, type KVConfig } from "./KVConfig.js";
 
 export interface VirtualModelManifest {
   /**

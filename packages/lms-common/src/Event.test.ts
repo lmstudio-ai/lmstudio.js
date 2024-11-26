@@ -1,5 +1,5 @@
 import "."; // Import order
-import { Event } from "./Event";
+import { Event } from "./Event.js";
 
 test("should trigger in next microtask", async () => {
   const [event, emit] = Event.create<number>();

@@ -1,8 +1,8 @@
 import {
   type GlobalKVFieldValueTypeLibraryMap,
+  KVConfigSchematicsBuilder,
   kvValueTypesLibrary,
 } from "@lmstudio/lms-kv-config";
-import { KVConfigSchematicsBuilder } from "@lmstudio/lms-kv-config/dist/KVConfig";
 
 /**
  * @public

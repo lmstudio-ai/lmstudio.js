@@ -1,4 +1,4 @@
-import { LMStudioClient } from "@lmstudio/lms-client/src/LMStudioClient";
+import { LMStudioClient } from "@lmstudio/lms-client";
 
 (async () => {
   const client = new LMStudioClient();

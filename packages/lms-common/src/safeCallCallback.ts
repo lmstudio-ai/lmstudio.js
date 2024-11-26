@@ -1,4 +1,4 @@
-import { type SimpleLogger } from "./SimpleLogger";
+import { type SimpleLogger } from "./SimpleLogger.js";
 
 /**
  * Call a user provided callback and log any errors that occur. This prevents the error from

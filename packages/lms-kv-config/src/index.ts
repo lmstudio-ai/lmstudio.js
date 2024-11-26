@@ -1,7 +1,7 @@
 export {
   kvConfigToLLMPredictionConfig,
   llmPredictionConfigToKVConfig,
-} from "./conversion/llmPredictionConfig";
+} from "./conversion/llmPredictionConfig.js";
 export {
   InnerFieldStringifyOpts,
   KVConcreteFieldSchema,
@@ -15,6 +15,7 @@ export {
   KVVirtualFieldValueType,
   KVVirtualFieldValueTypesMapping,
   ParsedKVConfig,
+  addKVConfigToBaseOfStack,
   addKVConfigToStack,
   collapseKVStack,
   collapseKVStackRaw,
@@ -27,8 +28,10 @@ export {
   kvConfigToMap,
   makeKVConfigFromFields,
   mapToKVConfig,
+  prependBaseKeyToSerializedKVConfigSchematics,
   singleLayerKVConfigStackOf,
-} from "./KVConfig";
+  stripBaseKeyFromKVConfig,
+} from "./KVConfig.js";
 export {
   GlobalConfigSchemaKeys,
   GlobalConfigSchemaMap,
@@ -59,9 +62,9 @@ export {
   llmSharedLoadConfigSchematics,
   llmSharedPredictionConfigSchematics,
   retrievalSchematics,
-} from "./schema";
+} from "./schema.js";
 export {
   GlobalKVFieldValueTypeLibraryMap,
   GlobalKVValueTypesLibrary,
   kvValueTypesLibrary,
-} from "./valueTypes";
+} from "./valueTypes.js";

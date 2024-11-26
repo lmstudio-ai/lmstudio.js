@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { llmPromptTemplateSchema, type LLMPromptTemplate } from "./LLMPromptTemplate";
+import { llmPromptTemplateSchema, type LLMPromptTemplate } from "./LLMPromptTemplate.js";
 import {
   llmStructuredPredictionSettingSchema,
   type LLMStructuredPredictionSetting,
-} from "./LLMStructuredPredictionSetting";
-import { llmToolUseSettingSchema, type LLMToolUseSetting } from "./LLMToolUseSetting";
+} from "./LLMStructuredPredictionSetting.js";
+import { llmToolUseSettingSchema, type LLMToolUseSetting } from "./LLMToolUseSetting.js";
 
 /**
  * Behavior for when the generated tokens length exceeds the context window size. Only the following

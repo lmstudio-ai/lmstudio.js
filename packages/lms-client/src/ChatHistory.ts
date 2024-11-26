@@ -11,8 +11,8 @@ import {
   llmConversationContextInputSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { type LMStudioClient } from "./LMStudioClient";
-import { FileHandle } from "./files/FileHandle";
+import { type LMStudioClient } from "./LMStudioClient.js";
+import { FileHandle } from "./files/FileHandle.js";
 
 /**
  * Represents a chat history.

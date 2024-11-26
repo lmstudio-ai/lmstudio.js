@@ -1,3 +1,3 @@
-export { EsPluginInstaller } from "./EsPluginInstaller";
-export { EsPluginRunnerWatcher } from "./EsPluginRunnerWatcher";
-export { UtilBinary } from "./UtilBinary";
+export { EsPluginInstaller } from "./EsPluginInstaller.js";
+export { EsPluginRunnerWatcher } from "./EsPluginRunnerWatcher.js";
+export { UtilBinary } from "./UtilBinary.js";

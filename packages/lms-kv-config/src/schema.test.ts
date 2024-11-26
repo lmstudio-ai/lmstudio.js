@@ -1,4 +1,4 @@
-import { globalConfigSchematics } from "./schema";
+import { globalConfigSchematics } from "./schema.js";
 
 describe("globalConfigSchematics", () => {
   describe("effectiveEquals", () => {

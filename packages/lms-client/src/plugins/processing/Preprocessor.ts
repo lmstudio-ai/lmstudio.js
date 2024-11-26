@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { type ChatMessage } from "../../ChatHistory";
-import { type PreprocessorController } from "./ProcessingController";
+import { type ChatMessage } from "../../ChatHistory.js";
+import { type PreprocessorController } from "./ProcessingController.js";
 
 /**
  * TODO: Documentation

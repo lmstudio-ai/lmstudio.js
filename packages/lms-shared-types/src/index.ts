@@ -3,7 +3,7 @@ import { z } from "zod";
 /** @public */
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export const logLevelSchema = z.enum(["debug", "info", "warn", "error"]);
-export { BackendNotification, backendNotificationSchema } from "./BackendNotification";
+export { BackendNotification, backendNotificationSchema } from "./BackendNotification.js";
 export {
   ChatHistoryData,
   chatHistoryDataSchema,
@@ -25,20 +25,20 @@ export {
   chatMessagePartToolCallResultDataSchema,
   ChatMessageRoleData,
   chatMessageRoleDataSchema,
-} from "./ChatHistoryData";
-export { CitationSource, citationSourceSchema } from "./CitationSource";
-export { ColorPalette, colorPalette } from "./ColorPalette";
+} from "./ChatHistoryData.js";
+export { CitationSource, citationSourceSchema } from "./CitationSource.js";
+export { ColorPalette, colorPalette } from "./ColorPalette.js";
 export {
   DiagnosticsLogEvent,
   DiagnosticsLogEventData,
   diagnosticsLogEventDataSchema,
   diagnosticsLogEventSchema,
-} from "./diagnostics/DiagnosticsLogEvent";
-export { DownloadedModel, downloadedModelSchema } from "./DownloadedModel";
+} from "./diagnostics/DiagnosticsLogEvent.js";
+export { DownloadedModel, downloadedModelSchema } from "./DownloadedModel.js";
 export {
   EmbeddingLoadModelConfig,
   embeddingLoadModelConfigSchema,
-} from "./embedding/EmbeddingLoadModelConfig";
+} from "./embedding/EmbeddingLoadModelConfig.js";
 export {
   attachSerializedErrorData,
   ErrorDisplayData,
@@ -48,14 +48,14 @@ export {
   SerializedLMSExtendedError,
   serializedLMSExtendedErrorSchema,
   serializeError,
-} from "./Error";
+} from "./Error.js";
 export {
   FileNamespace,
   fileNamespaceSchema,
   ParsedFileIdentifier,
   parsedFileIdentifierSchema,
-} from "./files/FileIdentifier";
-export { FileType, fileTypeSchema } from "./files/FileType";
+} from "./files/FileIdentifier.js";
+export { FileType, fileTypeSchema } from "./files/FileType.js";
 export {
   KVConfig,
   KVConfigField,
@@ -67,11 +67,11 @@ export {
   KVConfigStackLayer,
   kvConfigStackLayerSchema,
   kvConfigStackSchema,
-} from "./KVConfig";
+} from "./KVConfig.js";
 export {
   LLMApplyPromptTemplateOpts,
   llmApplyPromptTemplateOptsSchema,
-} from "./llm/LLMApplyPromptTemplateOpts";
+} from "./llm/LLMApplyPromptTemplateOpts.js";
 export {
   LLMChatHistory,
   LLMChatHistoryMessage,
@@ -89,7 +89,7 @@ export {
   llmContextSchema,
   LLMConversationContextInput,
   llmConversationContextInputSchema,
-} from "./llm/LLMChatHistory";
+} from "./llm/LLMChatHistory.js";
 export {
   LLMContextReference,
   LLMContextReferenceJsonFile,
@@ -97,7 +97,7 @@ export {
   llmContextReferenceSchema,
   LLMContextReferenceYamlFile,
   llmContextReferenceYamlFileSchema,
-} from "./llm/LLMContextReference";
+} from "./llm/LLMContextReference.js";
 export {
   LLMLlamaAccelerationOffloadRatio,
   llmLlamaAccelerationOffloadRatioSchema,
@@ -105,7 +105,7 @@ export {
   llmLlamaAccelerationSettingSchema,
   LLMLoadModelConfig,
   llmLoadModelConfigSchema,
-} from "./llm/LLMLoadModelConfig";
+} from "./llm/LLMLoadModelConfig.js";
 export {
   LLMContextOverflowPolicy,
   llmContextOverflowPolicySchema,
@@ -117,7 +117,7 @@ export {
   llmLlamaSingleLogitBiasModificationSchema,
   LLMPredictionConfig,
   llmPredictionConfigSchema,
-} from "./llm/LLMPredictionConfig";
+} from "./llm/LLMPredictionConfig.js";
 export {
   LLMGenInfo,
   llmGenInfoSchema,
@@ -125,7 +125,7 @@ export {
   llmPredictionStatsSchema,
   LLMPredictionStopReason,
   llmPredictionStopReasonSchema,
-} from "./llm/LLMPredictionStats";
+} from "./llm/LLMPredictionStats.js";
 export {
   LLMJinjaInputFormat,
   llmJinjaInputFormatSchema,
@@ -137,11 +137,11 @@ export {
   llmPromptTemplateSchema,
   LLMPromptTemplateType,
   llmPromptTemplateTypeSchema,
-} from "./llm/LLMPromptTemplate";
+} from "./llm/LLMPromptTemplate.js";
 export {
   LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,
-} from "./llm/LLMStructuredPredictionSetting";
+} from "./llm/LLMStructuredPredictionSetting.js";
 export {
   LLMTool,
   llmToolArraySchema,
@@ -150,9 +150,12 @@ export {
   llmToolSchema,
   LLMToolUseSetting,
   llmToolUseSettingSchema,
-} from "./llm/LLMToolUseSetting";
-export { GeneratorUpdate, generatorUpdateSchema } from "./llm/processing/GeneratorUpdate";
-export { PreprocessorUpdate, preprocessorUpdateSchema } from "./llm/processing/PreprocessorUpdate";
+} from "./llm/LLMToolUseSetting.js";
+export { GeneratorUpdate, generatorUpdateSchema } from "./llm/processing/GeneratorUpdate.js";
+export {
+  PreprocessorUpdate,
+  preprocessorUpdateSchema,
+} from "./llm/processing/PreprocessorUpdate.js";
 export {
   BlockLocation,
   blockLocationSchema,
@@ -165,10 +168,14 @@ export {
   processingUpdateContentBlockAttachGenInfoSchema,
   ProcessingUpdateContentBlockCreate,
   processingUpdateContentBlockCreateSchema,
+  ProcessingUpdateContentBlockReplaceText,
+  processingUpdateContentBlockReplaceTextSchema,
   ProcessingUpdateDebugInfoBlockCreate,
   processingUpdateDebugInfoBlockCreateSchema,
   ProcessingUpdateOf,
   processingUpdateSchema,
+  ProcessingUpdateSetSenderName,
+  processingUpdateSetSenderNameSchema,
   ProcessingUpdateStatusCreate,
   processingUpdateStatusCreateSchema,
   ProcessingUpdateStatusRemove,
@@ -180,17 +187,17 @@ export {
   statusStepStateSchema,
   StatusStepStatus,
   statusStepStatusSchema,
-} from "./llm/processing/ProcessingUpdate";
-export { GetModelOpts, getModelOptsSchema } from "./llm/processing/Processor";
-export { ModelCompatibilityType, modelCompatibilityTypeSchema } from "./ModelCompatibilityType";
-export { ModelDescriptor, modelDescriptorSchema } from "./ModelDescriptor";
-export { ModelDomainType, modelDomainTypeSchema } from "./ModelDomainType";
+} from "./llm/processing/ProcessingUpdate.js";
+export { GetModelOpts, getModelOptsSchema } from "./llm/processing/Processor.js";
+export { ModelCompatibilityType, modelCompatibilityTypeSchema } from "./ModelCompatibilityType.js";
+export { ModelDescriptor, modelDescriptorSchema } from "./ModelDescriptor.js";
+export { ModelDomainType, modelDomainTypeSchema } from "./ModelDomainType.js";
 export {
   ModelQuery,
   modelQuerySchema,
   ModelSpecifier,
   modelSpecifierSchema,
-} from "./ModelSpecifier";
+} from "./ModelSpecifier.js";
 export {
   kebabCaseRegex,
   kebabCaseSchema,
@@ -198,8 +205,8 @@ export {
   pluginManifestSchema,
   PluginRunnerType,
   pluginRunnerTypeSchema,
-} from "./PluginManifest";
-export { reasonableKeyStringSchema } from "./reasonable";
+} from "./PluginManifest.js";
+export { reasonableKeyStringSchema } from "./reasonable.js";
 export {
   ModelSearchOpts,
   modelSearchOptsSchema,
@@ -210,24 +217,24 @@ export {
   modelSearchResultEntryDataSchema,
   ModelSearchResultIdentifier,
   modelSearchResultIdentifierSchema,
-} from "./repository/ModelSearch";
+} from "./repository/ModelSearch.js";
 export {
   InternalRetrievalResult,
   InternalRetrievalResultEntry,
   internalRetrievalResultEntrySchema,
   internalRetrievalResultSchema,
-} from "./retrieval/InternalRetrievalResult";
-export { RetrievalChunk, retrievalChunkSchema } from "./retrieval/RetrievalChunk";
+} from "./retrieval/InternalRetrievalResult.js";
+export { RetrievalChunk, retrievalChunkSchema } from "./retrieval/RetrievalChunk.js";
 export {
   RetrievalChunkingMethod,
   RetrievalChunkingMethodIdentifier,
   retrievalChunkingMethodSchema,
   serializeRetrievalChunkingMethod,
-} from "./retrieval/RetrievalChunkingMethod";
+} from "./retrieval/RetrievalChunkingMethod.js";
 export {
   RetrievalFileProcessingStep,
   retrievalFileProcessingStepSchema,
-} from "./retrieval/RetrievalFileProcessingStep";
+} from "./retrieval/RetrievalFileProcessingStep.js";
 export {
   Accelerator,
   acceleratorSchema,
@@ -235,7 +242,7 @@ export {
   acceleratorTypeSchema,
   Runtime,
   runtimeSchema,
-} from "./Runtime";
+} from "./Runtime.js";
 export {
   KVConfigSchematicsDeserializationError,
   kvConfigSchematicsDeserializationErrorSchema,
@@ -243,5 +250,5 @@ export {
   SerializedKVConfigSchematicsField,
   serializedKVConfigSchematicsFieldSchema,
   serializedKVConfigSchematicsSchema,
-} from "./SerializedKVConfigSchematics";
-export { VirtualModelManifest, virtualModelManifestSchema } from "./VirtualModelManifest";
+} from "./SerializedKVConfigSchematics.js";
+export { VirtualModelManifest, virtualModelManifestSchema } from "./VirtualModelManifest.js";

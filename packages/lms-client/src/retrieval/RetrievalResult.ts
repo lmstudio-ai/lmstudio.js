@@ -1,4 +1,4 @@
-import { type FileHandle } from "../files/FileHandle";
+import { type FileHandle } from "../files/FileHandle.js";
 
 /** @public */
 export interface RetrievalResult {

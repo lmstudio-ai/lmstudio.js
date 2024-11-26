@@ -1,6 +1,6 @@
-import { type ConfigSchematics, type VirtualConfigSchematics } from "./customConfig";
-import { type Generator } from "./plugins/processing/Generator";
-import { type Preprocessor } from "./plugins/processing/Preprocessor";
+import { type ConfigSchematics, type VirtualConfigSchematics } from "./customConfig.js";
+import { type Generator } from "./plugins/processing/Generator.js";
+import { type Preprocessor } from "./plugins/processing/Preprocessor.js";
 
 /**
  * @public

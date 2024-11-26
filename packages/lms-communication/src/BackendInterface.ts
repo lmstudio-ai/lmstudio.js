@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { type NotAvailable, type Setter, type SignalLike } from "@lmstudio/lms-common";
 import { type z, type ZodType } from "zod";
-import type { Channel } from "./Channel";
-import { type SerializationType } from "./serialization";
+import type { Channel } from "./Channel.js";
+import { type SerializationType } from "./serialization.js";
 
 export type RpcEndpointHandler<TContext = any, TParameter = any, TReturns = any> = (
   ctx: TContext,

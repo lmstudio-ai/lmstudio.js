@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { type FileType, fileTypeSchema } from "./files/FileType";
-import { jsonSerializableSchema } from "./JSONSerializable";
+import { type FileType, fileTypeSchema } from "./files/FileType.js";
+import { jsonSerializableSchema } from "./JSONSerializable.js";
 
 /**
  * @public

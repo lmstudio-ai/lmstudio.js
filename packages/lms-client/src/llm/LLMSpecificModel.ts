@@ -1,8 +1,8 @@
 import { SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type ModelDescriptor, type ModelSpecifier } from "@lmstudio/lms-shared-types";
-import { type SpecificModel } from "../modelShared/SpecificModel";
-import { LLMDynamicHandle } from "./LLMDynamicHandle";
+import { type SpecificModel } from "../modelShared/SpecificModel.js";
+import { LLMDynamicHandle } from "./LLMDynamicHandle.js";
 
 /**
  * Represents a specific loaded LLM. Most LLM related operations are inherited from

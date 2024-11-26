@@ -2,8 +2,9 @@
   "name": "@lmstudio/lms-es-plugin-runner",
   "version": "0.0.1",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
@@ -16,5 +17,38 @@
   "devDependencies": {
     "@types/node": "^22.7.7",
     "@types/npmcli__arborist": "^5.6.11"
-  }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    },
+    "./installer": {
+      "types": "./dist/types/EsPluginInstaller.d.ts",
+      "require": "./dist/cjs/EsPluginInstaller.js",
+      "import": "./dist/esm/EsPluginInstaller.js",
+      "default": "./dist/esm/EsPluginInstaller.js"
+    },
+    "./runner-watcher": {
+      "types": "./dist/types/EsPluginRunnerWatcher.d.ts",
+      "require": "./dist/cjs/EsPluginRunnerWatcher.js",
+      "import": "./dist/esm/EsPluginRunnerWatcher.js",
+      "default": "./dist/esm/EsPluginRunnerWatcher.js"
+    },
+    "./util-binary": {
+      "types": "./dist/types/UtilBinary.d.ts",
+      "require": "./dist/cjs/UtilBinary.js",
+      "import": "./dist/esm/UtilBinary.js",
+      "default": "./dist/esm/UtilBinary.js"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "./dist/cjs/**/*.js",
+    "./dist/esm/package.json",
+    "./dist/esm/**/*.js",
+    "./dist/types/**/*.d.ts"
+  ]
 }

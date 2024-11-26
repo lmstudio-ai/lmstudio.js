@@ -1,4 +1,4 @@
-import { deepFreeze } from "./deepFreeze";
+import { deepFreeze } from "./deepFreeze.js";
 
 describe("deepFreeze", () => {
   it("should return non-objects as is", () => {

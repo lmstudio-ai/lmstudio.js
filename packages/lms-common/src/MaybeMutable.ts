@@ -1,4 +1,4 @@
-import { text } from "./text";
+import { text } from "./text.js";
 
 /**
  * Represents some underlying data that may or may not be mutable.

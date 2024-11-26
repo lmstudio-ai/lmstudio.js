@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { modelDomainTypeSchema, type ModelDomainType } from "./ModelDomainType";
-import { reasonableKeyStringSchema } from "./reasonable";
+import { modelDomainTypeSchema, type ModelDomainType } from "./ModelDomainType.js";
+import { reasonableKeyStringSchema } from "./reasonable.js";
 
 /**
  * Represents a query for a loaded LLM.

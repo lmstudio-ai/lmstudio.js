@@ -1,7 +1,7 @@
 import { type SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type RepositoryPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type ModelSearchResultEntryData } from "@lmstudio/lms-shared-types";
-import { ModelSearchResultDownloadOption } from "./ModelSearchResultDownloadOption";
+import { ModelSearchResultDownloadOption } from "./ModelSearchResultDownloadOption.js";
 
 /** @public */
 export class ModelSearchResultEntry {

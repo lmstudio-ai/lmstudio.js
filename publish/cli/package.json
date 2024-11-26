@@ -4,15 +4,15 @@
   "description": "LM Studio CLI",
   "main": "dist/index.js",
   "scripts": {
-    "build-webpack": "webpack --config ./webpack.config.js --mode production",
+    "build-rollup": "rollup -c",
     "build-inject-current-version": "node ./injectCurrentVersion.js",
-    "build": "npm run build-webpack && npm run build-inject-current-version",
+    "build": "npm run build-rollup && npm run build-inject-current-version",
     "make-bin:win32": "powershell -File make-bin-win32.ps1",
     "make-bin:linux": "bash make-bin-linux.sh",
     "make-bin:darwin": "bash make-bin-darwin.sh",
     "make-bin": "run-script-os",
     "make": "npm run build && npm run make-bin",
-    "watch": "webpack --config ./webpack.config.js --mode development --watch"
+    "watch": "rollup -wc"
   },
   "files": [
     "dist/index.js"

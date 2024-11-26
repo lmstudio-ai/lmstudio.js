@@ -1,5 +1,5 @@
-import { LazySignal } from "./LazySignal";
-import { type WriteTag } from "./makeSetter";
+import { LazySignal } from "./LazySignal.js";
+import { type WriteTag } from "./makeSetter.js";
 
 describe("LazySignal", () => {
   it("should not subscribe to the upstream until a subscriber is attached", () => {

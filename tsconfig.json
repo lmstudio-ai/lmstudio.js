@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
     "strict": true,
-    "module": "CommonJS",
     "target": "ES2021",
-    "declaration": true,
-    "incremental": false,
+    "moduleResolution": "node",
+    "incremental": true,
     "noImplicitOverride": true,
     "sourceMap": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
     "skipLibCheck": true,
-    "stripInternal": true
+    "stripInternal": true,
+    "composite": true,
+    "esModuleInterop": true
+  },
+  "ts-node": {
+    "swc": true
   }
 }

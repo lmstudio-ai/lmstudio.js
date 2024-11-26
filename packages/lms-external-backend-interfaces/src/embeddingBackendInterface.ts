@@ -1,7 +1,7 @@
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import { modelSpecifierSchema } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { createBaseModelBackendInterface } from "./baseModelBackendInterface";
+import { createBaseModelBackendInterface } from "./baseModelBackendInterface.js";
 
 export function createEmbeddingBackendInterface() {
   return createBaseModelBackendInterface()

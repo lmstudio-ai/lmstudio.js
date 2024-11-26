@@ -1,5 +1,5 @@
 import "."; // Import order
-import { Signal } from "./Signal";
+import { Signal } from "./Signal.js";
 
 describe("Signal", () => {
   test("contain the value properly", () => {

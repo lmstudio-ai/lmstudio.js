@@ -16,7 +16,7 @@ import {
   KVFieldValueTypesLibraryBuilder,
   type InferKVValueTypeDef,
   type KVFieldValueTypeLibrary,
-} from "./KVConfig";
+} from "./KVConfig.js";
 
 /**
  * Quote a string.

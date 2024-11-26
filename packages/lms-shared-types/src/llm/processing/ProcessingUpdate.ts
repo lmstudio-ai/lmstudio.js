@@ -1,6 +1,6 @@
-import { z } from "zod";
-import { colorPalette, type ColorPalette } from "../../ColorPalette";
-import { llmGenInfoSchema, type LLMGenInfo } from "../LLMPredictionStats";
+import { z, type ZodSchema } from "zod";
+import { colorPalette, type ColorPalette } from "../../ColorPalette.js";
+import { llmGenInfoSchema, type LLMGenInfo } from "../LLMPredictionStats.js";
 
 export type BlockLocation =
   | {
@@ -198,7 +198,7 @@ export const processingUpdateSchema = z.discriminatedUnion("type", [
   processingUpdateContentBlockReplaceTextSchema,
   processingUpdateContentBlockAttachGenInfoSchema,
   processingUpdateSetSenderNameSchema,
-]) as z.Schema<ProcessingUpdate>;
+]) as ZodSchema<ProcessingUpdate>;
 
 export type ProcessingUpdateType = ProcessingUpdate["type"];
 

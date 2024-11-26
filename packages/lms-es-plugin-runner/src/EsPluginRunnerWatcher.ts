@@ -1,9 +1,9 @@
 import { Event, SimpleLogger } from "@lmstudio/lms-common";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
-import { type UtilBinary } from "./UtilBinary";
-import { createEsBuildArgs } from "./esbuildArgs";
-import { generateEntryFile } from "./generateEntryFile";
+import { type UtilBinary } from "./UtilBinary.js";
+import { createEsBuildArgs } from "./esbuildArgs.js";
+import { generateEntryFile } from "./generateEntryFile.js";
 
 const buildFinishedTriggerString = "build finished";
 const trimPrefix = "[watch] ";

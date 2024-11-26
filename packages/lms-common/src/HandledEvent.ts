@@ -1,4 +1,4 @@
-import { Subscribable } from "./Subscribable";
+import { Subscribable } from "./Subscribable.js";
 
 /**
  * Emit events immediately and returns a promise when all handlers are done.

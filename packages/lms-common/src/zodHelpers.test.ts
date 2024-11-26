@@ -1,5 +1,5 @@
 import { z, type ZodSchema } from "zod";
-import { filteredArray } from "./zodHelpers"; // replace with your actual file path
+import { filteredArray } from "./zodHelpers.js"; // replace with your actual file path
 
 describe("filteredArray", () => {
   it("should return an array with elements that match the provided schema", () => {

@@ -8,10 +8,10 @@ import {
   type ModelDescriptor,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
-import { ModelNamespace } from "../modelShared/ModelNamespace";
-import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric";
-import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle";
-import { EmbeddingSpecificModel } from "./EmbeddingSpecificModel";
+import { ModelNamespace } from "../modelShared/ModelNamespace.js";
+import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric.js";
+import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle.js";
+import { EmbeddingSpecificModel } from "./EmbeddingSpecificModel.js";
 
 /** @public */
 export class EmbeddingNamespace extends ModelNamespace<

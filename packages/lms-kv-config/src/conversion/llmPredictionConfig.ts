@@ -1,6 +1,6 @@
 import { type KVConfig, type LLMPredictionConfig } from "@lmstudio/lms-shared-types";
-import { globalConfigSchematics, llmPredictionConfigSchematics } from "../schema";
-import { maybeFalseNumberToCheckboxNumeric } from "./utils";
+import { globalConfigSchematics, llmPredictionConfigSchematics } from "../schema.js";
+import { maybeFalseNumberToCheckboxNumeric } from "./utils.js";
 
 export function kvConfigToLLMPredictionConfig(config: KVConfig) {
   const result: LLMPredictionConfig = {};

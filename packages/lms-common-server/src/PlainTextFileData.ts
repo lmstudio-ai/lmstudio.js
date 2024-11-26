@@ -1,4 +1,4 @@
-import { FileData, type FileDataOpts } from "./FileData";
+import { FileData, type FileDataOpts } from "./FileData.js";
 
 /**
  * Capable of storing plain text

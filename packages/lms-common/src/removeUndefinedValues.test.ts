@@ -1,4 +1,4 @@
-import { removeUndefinedValues } from "./removeUndefinedValues";
+import { removeUndefinedValues } from "./removeUndefinedValues.js";
 
 describe("removeUndefinedValues function", () => {
   it("should remove properties with undefined values", () => {

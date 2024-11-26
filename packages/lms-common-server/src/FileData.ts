@@ -1,11 +1,13 @@
 import {
+  isAvailable,
   LazySignal,
   makeSetterWithPatches,
   Signal,
   SimpleLogger,
   type Setter,
+  type StripNotAvailable,
 } from "@lmstudio/lms-common";
-import { isAvailable, type StripNotAvailable } from "@lmstudio/lms-common/dist/LazySignal";
+
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { mkdir, readFile, watch } from "fs/promises";
 import { enablePatches } from "immer";

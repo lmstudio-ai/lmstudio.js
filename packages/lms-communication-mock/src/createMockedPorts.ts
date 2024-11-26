@@ -1,22 +1,20 @@
 import { BufferedEvent, SimpleLogger } from "@lmstudio/lms-common";
 import {
   type BackendInterface,
+  type ChannelEndpointsSpecBase,
   type ClientToServerMessage,
+  type RpcEndpointsSpecBase,
   type ServerToClientMessage,
+  type SignalEndpointsSpecBase,
+  type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication";
 import { ClientPort, GenericClientTransport } from "@lmstudio/lms-communication-client";
 import {
+  GenericServerTransport,
+  ServerPort,
   type Context,
   type ContextCreator,
-} from "@lmstudio/lms-communication-server/dist/Authenticator";
-import { GenericServerTransport } from "@lmstudio/lms-communication-server/dist/GenericServerTransport";
-import { ServerPort } from "@lmstudio/lms-communication-server/dist/ServerPort";
-import {
-  type ChannelEndpointsSpecBase,
-  type RpcEndpointsSpecBase,
-  type SignalEndpointsSpecBase,
-  type WritableSignalEndpointsSpecBase,
-} from "@lmstudio/lms-communication/dist/BackendInterface";
+} from "@lmstudio/lms-communication-server";
 
 export function createMockedPorts<
   TContext extends Context,

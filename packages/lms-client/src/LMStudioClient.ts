@@ -18,6 +18,7 @@ import { getHostedEnv, type ClientPort } from "@lmstudio/lms-communication-clien
 import {
   createDiagnosticsBackendInterface,
   createEmbeddingBackendInterface,
+  createFilesBackendInterface,
   createLlmBackendInterface,
   createPluginsBackendInterface,
   createRepositoryBackendInterface,
@@ -25,30 +26,27 @@ import {
   createSystemBackendInterface,
   type DiagnosticsPort,
   type EmbeddingPort,
+  type FilesPort,
   type LLMPort,
   type PluginsPort,
   type RepositoryPort,
   type RetrievalPort,
   type SystemPort,
 } from "@lmstudio/lms-external-backend-interfaces";
-import {
-  createFilesBackendInterface,
-  type FilesPort,
-} from "@lmstudio/lms-external-backend-interfaces/dist/filesBackendInterface";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
 import chalk from "chalk";
 import process from "process";
 import { z } from "zod";
-import { createAuthenticatedClientPort } from "./createAuthenticatedClientPort";
-import { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace";
-import { EmbeddingNamespace } from "./embedding/EmbeddingNamespace";
-import { FilesNamespace } from "./files/FilesNamespace";
-import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer";
-import { LLMNamespace } from "./llm/LLMNamespace";
-import { PluginsNamespace } from "./plugins/PluginsNamespace";
-import { RepositoryNamespace } from "./repository/RepositoryNamespace";
-import { RetrievalNamespace } from "./retrieval/RetrievalNamespace";
-import { SystemNamespace } from "./system/SystemNamespace";
+import { createAuthenticatedClientPort } from "./createAuthenticatedClientPort.js";
+import { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace.js";
+import { EmbeddingNamespace } from "./embedding/EmbeddingNamespace.js";
+import { FilesNamespace } from "./files/FilesNamespace.js";
+import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer.js";
+import { LLMNamespace } from "./llm/LLMNamespace.js";
+import { PluginsNamespace } from "./plugins/PluginsNamespace.js";
+import { RepositoryNamespace } from "./repository/RepositoryNamespace.js";
+import { RetrievalNamespace } from "./retrieval/RetrievalNamespace.js";
+import { SystemNamespace } from "./system/SystemNamespace.js";
 
 /** @public */
 export interface LMStudioClientConstructorOpts {

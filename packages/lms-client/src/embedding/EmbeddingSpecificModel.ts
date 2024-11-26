@@ -1,8 +1,8 @@
 import { SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type EmbeddingPort } from "@lmstudio/lms-external-backend-interfaces";
 import { type ModelDescriptor, type ModelSpecifier } from "@lmstudio/lms-shared-types";
-import { type SpecificModel } from "../modelShared/SpecificModel";
-import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle";
+import { type SpecificModel } from "../modelShared/SpecificModel.js";
+import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle.js";
 
 /**
  * Represents a specific loaded Embedding. Most Embedding related operations are inherited from

@@ -15,8 +15,8 @@ import {
   type InferValueTypeMap,
   type KVConfigSchematics,
   type KVFieldValueTypeLibrary,
-} from "./KVConfig";
-import { kvValueTypesLibrary } from "./valueTypes";
+} from "./KVConfig.js";
+import { kvValueTypesLibrary } from "./valueTypes.js";
 
 // ---------------------------
 //  1. globalConfigSchematics

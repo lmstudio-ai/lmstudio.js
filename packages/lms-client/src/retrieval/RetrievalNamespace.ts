@@ -9,10 +9,10 @@ import { type RetrievalPort } from "@lmstudio/lms-external-backend-interfaces";
 import { retrievalSchematics } from "@lmstudio/lms-kv-config";
 import { type KVConfig } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { type EmbeddingNamespace } from "../embedding/EmbeddingNamespace";
-import { FileHandle } from "../files/FileHandle";
-import { retrievalOptsSchema, type RetrievalOpts } from "./RetrievalOpts";
-import { type RetrievalResult, type RetrievalResultEntry } from "./RetrievalResult";
+import { type EmbeddingNamespace } from "../embedding/EmbeddingNamespace.js";
+import { FileHandle } from "../files/FileHandle.js";
+import { retrievalOptsSchema, type RetrievalOpts } from "./RetrievalOpts.js";
+import { type RetrievalResult, type RetrievalResultEntry } from "./RetrievalResult.js";
 
 /** @public */
 export class RetrievalNamespace {

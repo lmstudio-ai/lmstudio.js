@@ -1,6 +1,6 @@
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import { type createBaseModelBackendInterface } from "@lmstudio/lms-external-backend-interfaces";
-import { type DynamicHandle } from "./DynamicHandle";
+import { type DynamicHandle } from "./DynamicHandle.js";
 
 /**
  * @public

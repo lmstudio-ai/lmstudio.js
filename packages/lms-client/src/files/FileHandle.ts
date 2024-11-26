@@ -1,6 +1,6 @@
 import { parseFileIdentifier } from "@lmstudio/lms-common";
 import { type FileType, type ParsedFileIdentifier } from "@lmstudio/lms-shared-types";
-import { type FilesNamespace } from "./FilesNamespace";
+import { type FilesNamespace } from "./FilesNamespace.js";
 
 /**
  * Represents a file. Currently, the file can be either in the local file system or base64 encoded.

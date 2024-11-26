@@ -4,11 +4,12 @@ import {
   chatHistoryDataSchema,
   chatMessageDataSchema,
   kvConfigSchema,
+  pluginManifestSchema,
   processingUpdateSchema,
   serializedKVConfigSchematicsSchema,
   serializedLMSExtendedErrorSchema,
 } from "@lmstudio/lms-shared-types";
-import { pluginManifestSchema } from "@lmstudio/lms-shared-types/dist/PluginManifest";
+
 import { z } from "zod";
 
 export function createPluginsBackendInterface() {

@@ -1,4 +1,4 @@
-import { makePromise } from "./makePromise";
+import { makePromise } from "./makePromise.js";
 
 describe("makePromise", () => {
   it("should resolve correctly", async () => {

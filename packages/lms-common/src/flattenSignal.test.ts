@@ -1,5 +1,5 @@
-import { flattenSignalOfWritableSignal } from "./flattenSignal";
-import { Signal } from "./Signal";
+import { flattenSignalOfWritableSignal } from "./flattenSignal.js";
+import { Signal } from "./Signal.js";
 
 describe("flattenSignalOfWritableSignal", () => {
   it("should work when outer signal is not changing", async () => {

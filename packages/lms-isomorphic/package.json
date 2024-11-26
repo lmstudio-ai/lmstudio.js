@@ -2,9 +2,9 @@
   "name": "@lmstudio/lms-isomorphic",
   "version": "0.3.2",
   "description": "",
-  "main": "dist/index.js",
-  "browser": "dist/browser.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "browser": "dist/cjs/browser.js",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
@@ -18,5 +18,6 @@
     "utf-8-validate": "^6.0.3",
     "ws": "^8.16.0"
   },
+  "sideEffects": false,
   "gitHead": "8abe1338bad3a58ec1fe3a0e6462f2bc331bf450"
 }

@@ -3,21 +3,19 @@
   "version": "0.2.0",
   "description": "LM Studio SDK",
   "main": "dist/index.js",
-  "module": "index.mjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build-webpack": "webpack --config ./webpack.config.js --mode production",
+    "build-rollup": "rollup -c",
     "build-ae": "api-extractor run --local",
-    "build-remove-source-map-comments": "node ./removeSourceMapComments.js",
-    "build": "npm run build-webpack && npm run build-remove-source-map-comments && npm run build-ae",
-    "watch-webpack": "webpack --config ./webpack.config.js --mode development --watch",
-    "watch-ae": "nodemon --exec \"npm run build-ae\" --watch dist/index.js",
-    "watch": "npm run watch-webpack & npm run watch-dts"
+    "build": "npm run build-rollup && npm run build-ae",
+    "watch-rollup": "rollup -wc",
+    "watch-ae": "nodemon --exec \"npm run build-ae\" --watch dist/index.js"
   },
   "files": [
-    "dist/index.js",
+    "dist/index.cjs",
     "dist/index.d.ts",
-    "index.mjs",
+    "dist/index.mjs",
     "README.md"
   ],
   "author": "",
@@ -34,5 +32,14 @@
     "type": "git",
     "url": "git+https://github.com/lmstudio-ai/lmstudio.js.git"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.mjs",
+      "import": "./dist/index.cjs",
+      "default": "./dist/index.cjs"
+    }
+  },
+  "sideEffects": false,
   "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
 }

@@ -1,13 +1,13 @@
-export { AuthenticatedIpcServer } from "./AuthenticatedIpcServer";
-export { AuthenticatedWsServer } from "./AuthenticatedWsServer";
-export { Context, ContextCreator } from "./Authenticator";
+export { AuthenticatedIpcServer } from "./AuthenticatedIpcServer.js";
+export { AuthenticatedWsServer, ClientHolder } from "./AuthenticatedWsServer.js";
+export { Context, ContextCreator } from "./Authenticator.js";
 export {
   FcfsAuthenticatedContext,
   FcfsAuthenticator,
   FcfsAuthenticatorBase,
   FcfsClient,
-} from "./fcfsAuthenticator";
-export { GenericServerTransport } from "./GenericServerTransport";
-export { IpcServer, RegisterIpcListener } from "./IpcServer";
-export { ServerPort } from "./ServerPort";
-export { WsServer } from "./WsServer";
+} from "./fcfsAuthenticator.js";
+export { GenericServerTransport } from "./GenericServerTransport.js";
+export { IpcServer, RegisterIpcListener } from "./IpcServer.js";
+export { ServerPort } from "./ServerPort.js";
+export { WsServer } from "./WsServer.js";

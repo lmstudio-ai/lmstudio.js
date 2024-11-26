@@ -1,6 +1,7 @@
 import { text } from "@lmstudio/lms-common";
 import boxen from "boxen";
 import chalk from "chalk";
+// import inquirer from "inquirer";
 import inquirer from "inquirer";
 import { execSync } from "node:child_process";
 import { access } from "node:fs/promises";

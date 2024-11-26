@@ -1,1 +1,1 @@
-export { createMockedPorts } from "./createMockedPorts";
+export { createMockedPorts } from "./createMockedPorts.js";

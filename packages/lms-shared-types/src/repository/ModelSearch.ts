@@ -2,7 +2,7 @@ import { z, type ZodSchema } from "zod";
 import {
   modelCompatibilityTypeSchema,
   type ModelCompatibilityType,
-} from "../ModelCompatibilityType";
+} from "../ModelCompatibilityType.js";
 
 /**
  * @public

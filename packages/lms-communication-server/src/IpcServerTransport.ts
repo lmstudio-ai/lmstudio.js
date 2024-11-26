@@ -1,4 +1,4 @@
-import { SimpleLogger, type LoggerInterface } from "@lmstudio/lms-common/dist/SimpleLogger";
+import { SimpleLogger, type LoggerInterface } from "@lmstudio/lms-common";
 import type {
   ClientToServerMessage,
   ServerToClientMessage,

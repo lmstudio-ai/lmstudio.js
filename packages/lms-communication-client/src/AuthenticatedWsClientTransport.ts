@@ -1,12 +1,12 @@
 import { type LoggerInterface, type SimpleLogger } from "@lmstudio/lms-common";
 import {
+  wsAuthenticationResultSchema,
   type AuthPacket,
   type ClientTransportFactory,
   type ServerToClientMessage,
   type WsMessageEvent,
 } from "@lmstudio/lms-communication";
-import { wsAuthenticationResultSchema } from "@lmstudio/lms-communication/dist/WsAuthenticationResult";
-import { WsClientTransport } from "./WsClientTransport";
+import { WsClientTransport } from "./WsClientTransport.js";
 
 interface Opts {
   url: string | Promise<string>;
