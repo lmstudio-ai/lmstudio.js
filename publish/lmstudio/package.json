@@ -4,9 +4,9 @@
   "description": "LM Studio Setup Tool",
   "main": "dist/index.js",
   "scripts": {
-    "build-webpack": "webpack --config ./webpack.config.js --mode production",
-    "build": "npm run build-webpack",
-    "watch": "webpack --config ./webpack.config.js --mode development --watch"
+    "build-rollup": "rollup -c",
+    "build": "npm run build-rollup",
+    "watch": "rollup -wc"
   },
   "files": [
     "dist/index.js"

@@ -5,7 +5,7 @@ const json = require("@rollup/plugin-json");
 const banner = require("rollup-plugin-banner2");
 
 module.exports = {
-  input: resolve(require.resolve("@lmstudio/lms-cli")),
+  input: resolve(require.resolve("@lmstudio/lms-lmstudio")),
   output: [
     {
       file: join(__dirname, "dist", "index.js"),

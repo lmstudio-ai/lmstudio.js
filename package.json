@@ -10,9 +10,9 @@
     "watch-jest": "jest --watch --testMatch **/?(*.)+(test).ts",
     "watch-ui-css": "cd packages/lms-ui && npm run watch-css",
     "watch-sdk-ae": "cd publish/sdk && npm run watch-ae",
-    "watch-sdk-webpack": "cd publish/sdk && npm run watch-webpack",
+    "watch-sdk-rollup": "cd publish/sdk && npm run watch-rollup",
     "watch-cli-package": "cd packages/lms-cli && npm run watch",
-    "watch-cli-webpack": "cd publish/cli && npm run watch",
+    "watch-cli-rollup": "cd publish/cli && npm run watch",
     "watch-lmstudio": "cd publish/lmstudio && npm run watch",
     "clean": "shx rm -rf ./packages/*/dist ./packages/*/tsconfig.tsbuildinfo ./publish/*/dist ./publish/*/ts-out",
     "build-sdk": "cd publish/sdk && npm run build",
@@ -67,9 +67,7 @@
     "tailwindcss": "^3.4.1",
     "ts-jest": "^29.1.2",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.7.2",
-    "webpack": "^5.96.1",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.7.2"
   },
   "overrides": {
     "node-pty": "npm:@homebridge/node-pty-prebuilt-multiarch"
@@ -78,5 +76,8 @@
     "packages/*",
     "publish/*",
     "scaffolds/*"
-  ]
+  ],
+  "dependencies": {
+    "rollup-plugin-banner2": "^1.3.0"
+  }
 }

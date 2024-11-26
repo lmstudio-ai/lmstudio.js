@@ -20,12 +20,12 @@ const { commands } = await inquirer.createPromptModule({
     },
     {
       checked: true,
-      value: '[ "npm run watch-sdk-ae" : "npm run watch-sdk-webpack" ]',
+      value: '[ "npm run watch-sdk-ae" : "npm run watch-sdk-rollup" ]',
       name: "SDK (in /publish/lmstudio)",
     },
     {
       checked: false,
-      value: '[ "npm run watch-cli-package" : "npm run watch-cli-webpack" ]',
+      value: '[ "npm run watch-cli-package" : "npm run watch-cli-rollup" ]',
       name: "CLI (in /packages/lms-cli and in /publish/cli)",
     },
     {
