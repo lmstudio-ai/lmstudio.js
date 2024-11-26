@@ -3,12 +3,15 @@
     "strict": true,
     "target": "ES2021",
     "moduleResolution": "node",
-    "incremental": true,
     "noImplicitOverride": true,
-    "sourceMap": true,
     "skipLibCheck": true,
     "stripInternal": true,
-    "composite": true,
     "esModuleInterop": true
-  }
+  },
+  "ts-node": {
+    "swc": true,
+    "scopeDir": ".",
+    "scope": true
+  },
+  "include": ["./**/*.ts"]
 }

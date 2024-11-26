@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./scripts/starter.mjs",
-    "gen": "ts-node ./scripts/generateEsmPackageJson.ts",
+    "gen": "cd scripts && ts-node ./generateEsmPackageJson.ts",
     "watch-tsc": "npm run gen && tsc --build tsconfig.build.json --watch",
     "watch-jest": "jest --watch --testMatch **/?(*.)+(test).ts",
     "watch-ui-css": "cd packages/lms-ui && npm run watch-css",

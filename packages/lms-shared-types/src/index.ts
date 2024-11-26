@@ -208,6 +208,10 @@ export {
 } from "./PluginManifest.js";
 export { reasonableKeyStringSchema } from "./reasonable.js";
 export {
+  DownloadProgressUpdate,
+  downloadProgressUpdateSchema,
+} from "./repository/DownloadProgressUpdate.js";
+export {
   ModelSearchOpts,
   modelSearchOptsSchema,
   ModelSearchResultDownloadOptionData,

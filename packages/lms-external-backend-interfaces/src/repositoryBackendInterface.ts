@@ -1,6 +1,8 @@
 import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
+  downloadProgressUpdateSchema,
+  kebabCaseSchema,
   modelSearchOptsSchema,
   modelSearchResultDownloadOptionDataSchema,
   modelSearchResultEntryDataSchema,
@@ -33,9 +35,7 @@ export function createRepositoryBackendInterface() {
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
           type: z.literal("downloadProgress"),
-          downloadedBytes: z.number(),
-          totalBytes: z.number(),
-          speedBytesPerSecond: z.number(),
+          update: downloadProgressUpdateSchema,
         }),
         z.object({
           type: z.literal("startFinalizing"),
@@ -43,6 +43,31 @@ export function createRepositoryBackendInterface() {
         z.object({
           type: z.literal("success"),
           defaultIdentifier: z.string(),
+        }),
+      ]),
+      toServerPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("cancel"),
+        }),
+      ]),
+    })
+    .addChannelEndpoint("downloadArtifact", {
+      creationParameter: z.object({
+        artifactOwner: kebabCaseSchema,
+        artifactName: kebabCaseSchema,
+        revisionNumber: z.number().nullable(),
+        path: z.string(),
+      }),
+      toClientPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("downloadProgress"),
+          update: downloadProgressUpdateSchema,
+        }),
+        z.object({
+          type: z.literal("startFinalizing"),
+        }),
+        z.object({
+          type: z.literal("success"),
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [

@@ -46,7 +46,6 @@ export type {
 } from "./plugins/processing/ProcessingController.js";
 export type {
   DownloadOpts,
-  DownloadProgressUpdate,
   ModelSearchResultDownloadOption,
 } from "./repository/ModelSearchResultDownloadOption.js";
 export type { ModelSearchResultEntry } from "./repository/ModelSearchResultEntry.js";
