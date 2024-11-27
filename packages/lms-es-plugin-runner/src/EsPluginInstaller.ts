@@ -7,6 +7,7 @@ import { generateEntryFile } from "./generateEntryFile.js";
 import { UtilBinary } from "./UtilBinary.js";
 
 export interface EsPluginInstallerInstallOpts {
+  dependenciesOnly?: boolean;
   npmRegistry?: string;
   logger?: SimpleLogger;
 }
@@ -37,6 +38,7 @@ export class EsPluginInstaller {
   public async install(
     pluginPath: string,
     {
+      dependenciesOnly = false,
       npmRegistry,
       logger = new SimpleLogger("EsPluginInstaller"),
     }: EsPluginInstallerInstallOpts = {},
@@ -49,6 +51,9 @@ export class EsPluginInstaller {
     logger.info(`Installing dependencies in ${pluginPath}...`);
     await arb.reify();
     const cacheFolderPath = join(pluginPath, ".lmstudio");
+    if (dependenciesOnly) {
+      return;
+    }
     logger.info(`Creating entry file in ${cacheFolderPath}...`);
     const entryFilePath = await this.createEntryFile(cacheFolderPath);
     const args = await this.createEsBuildArgs(cacheFolderPath, entryFilePath);

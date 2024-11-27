@@ -76,11 +76,23 @@ export function createRepositoryBackendInterface() {
         }),
       ]),
     })
-    .addRpcEndpoint("push", {
+    .addRpcEndpoint("installPluginDependencies", {
       parameter: z.object({
-        path: z.string(),
+        pluginFolder: z.string(),
       }),
       returns: z.void(),
+    })
+    .addChannelEndpoint("pushArtifact", {
+      creationParameter: z.object({
+        path: z.string(),
+      }),
+      toServerPacket: z.void(),
+      toClientPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("message"),
+          message: z.string(),
+        }),
+      ]),
     });
 }
 

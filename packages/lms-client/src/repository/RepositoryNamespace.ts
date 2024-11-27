@@ -38,6 +38,18 @@ const downloadArtifactOptsSchema = z.object({
   signal: z.instanceof(AbortSignal).optional(),
 }) as ZodSchema<DownloadArtifactOpts>;
 
+/**
+ * @public
+ */
+export interface PushArtifactOpts {
+  path: string;
+  onMessage?: (message: string) => void;
+}
+export const pushArtifactOptsSchema = z.object({
+  path: z.string(),
+  onMessage: z.function().optional(),
+}) as ZodSchema<PushArtifactOpts>;
+
 /** @public */
 export class RepositoryNamespace {
   /** @internal */
@@ -65,6 +77,19 @@ export class RepositoryNamespace {
     return results.map(
       data => new ModelSearchResultEntry(this.repositoryPort, this.validator, this.logger, data),
     );
+  }
+
+  public async installPluginDependencies(pluginFolder: string) {
+    const stack = getCurrentStack(1);
+    this.validator.validateMethodParamOrThrow(
+      "repository",
+      "installPluginDependencies",
+      "pluginFolder",
+      z.string(),
+      pluginFolder,
+      stack,
+    );
+    await this.repositoryPort.callRpc("installPluginDependencies", { pluginFolder }, { stack });
   }
 
   public async downloadArtifact(opts: DownloadArtifactOpts) {
@@ -122,16 +147,37 @@ export class RepositoryNamespace {
     return await promise;
   }
 
-  public async push(path: string): Promise<void> {
+  public async pushArtifact(opts: PushArtifactOpts): Promise<void> {
     const stack = getCurrentStack(1);
-    path = this.validator.validateMethodParamOrThrow(
+    this.validator.validateMethodParamOrThrow(
       "repository",
-      "push",
-      "path",
-      z.string(),
-      path,
+      "pushArtifact",
+      "opts",
+      pushArtifactOptsSchema,
+      opts,
       stack,
     );
-    await this.repositoryPort.callRpc("push", { path }, { stack });
+    const channel = this.repositoryPort.createChannel(
+      "pushArtifact",
+      { path: opts.path },
+      message => {
+        const type = message.type;
+        switch (type) {
+          case "message": {
+            safeCallCallback(this.logger, "onMessage", opts.onMessage, [message.message]);
+            break;
+          }
+          default: {
+            const exhaustiveCheck: never = type;
+            throw new Error(`Unexpected message type: ${exhaustiveCheck}`);
+          }
+        }
+      },
+      { stack },
+    );
+    const { promise, resolve, reject } = makePromise<void>();
+    channel.onError.subscribeOnce(reject);
+    channel.onClose.subscribeOnce(resolve);
+    await promise;
   }
 }
