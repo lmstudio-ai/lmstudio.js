@@ -10,6 +10,8 @@ const alwaysArgs = [
   "--sourcemap=inline",
   "--tree-shaking=true",
   "--bundle",
+  // Don't bundle node_modules as they are not necessarily designed to be bundled.
+  "--packages=external",
 ];
 export function createEsBuildArgs({ entryPath, outPath, watch, production }: EsBuildArgsOpts) {
   // We don't need to worry about shell injections here because we never pass the args to a shell,
