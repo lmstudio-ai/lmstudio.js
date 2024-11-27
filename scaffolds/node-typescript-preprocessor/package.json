@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/scaffold-node-typescript-preprocessor",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,11 +11,11 @@
   "author": "Your Name",
   "license": "UNLICENSED",
   "dependencies": {
-    "@lmstudio/sdk": "^0.2.0"
+    "@lmstudio/sdk": "^0.3.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   },
-  "gitHead": "96f419904258c472237e2a50496711c7552ed8af"
+  "gitHead": "b9c4900675e8ca11f721e3b30d4c10d6684ba467"
 }
