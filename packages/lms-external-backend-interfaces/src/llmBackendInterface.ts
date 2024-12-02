@@ -4,6 +4,7 @@ import {
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
+  llmPredictionFragmentSchema,
   llmPredictionStatsSchema,
   modelDescriptorSchema,
   modelSpecifierSchema,
@@ -23,7 +24,7 @@ export function createLlmBackendInterface() {
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
           type: z.literal("fragment"),
-          fragment: z.string(),
+          fragment: llmPredictionFragmentSchema,
           logprobs: z
             .array(z.array(z.object({ text: z.string(), logprob: z.number() })))
             .optional(),

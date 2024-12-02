@@ -24,6 +24,7 @@ import {
   llmCompletionContextInputSchema,
   type LLMPredictionConfig,
   llmPredictionConfigSchema,
+  type LLMPredictionFragment,
   type LLMPredictionStats,
   type ModelDescriptor,
   type ModelSpecifier,
@@ -120,7 +121,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     predictionConfigStack: KVConfigStack,
     cancelEvent: BufferedEvent<void>,
     extraOpts: LLMPredictionExtraOpts,
-    onFragment: (fragment: string) => void,
+    onFragment: (fragment: LLMPredictionFragment) => void,
     onFinished: (
       stats: LLMPredictionStats,
       modelInfo: ModelDescriptor,
