@@ -1,7 +1,5 @@
-import { enablePatches, type Patch } from "immer";
+import { type Patch } from "@lmstudio/immer-with-plugins";
 import { makeSetter, makeSetterWithPatches } from "./makeSetter.js";
-
-enablePatches();
 
 interface Counter {
   count: number;

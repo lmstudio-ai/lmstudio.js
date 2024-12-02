@@ -1,3 +1,4 @@
+import { applyPatches, type Patch } from "@lmstudio/immer-with-plugins";
 import {
   getCurrentStack,
   LazySignal,
@@ -28,11 +29,7 @@ import {
   type WritableSignalEndpoint,
   type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication";
-
 import { fromSerializedError, type SerializedLMSExtendedError } from "@lmstudio/lms-shared-types";
-import { applyPatches, enablePatches, type Patch } from "immer";
-
-enablePatches();
 
 interface OpenChannel {
   endpoint: ChannelEndpoint;

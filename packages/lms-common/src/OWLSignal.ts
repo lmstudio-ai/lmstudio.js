@@ -1,4 +1,4 @@
-import { type Patch } from "immer";
+import { type Patch } from "@lmstudio/immer-with-plugins";
 import { Event } from "./Event.js";
 import {
   isAvailable,

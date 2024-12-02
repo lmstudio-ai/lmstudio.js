@@ -31,8 +31,8 @@ export class UtilBinary {
   }
   public exec(args: Array<string>) {
     const childProcess = this.spawn(args);
-    childProcess.stdout.pipe(process.stdout);
-    childProcess.stderr.pipe(process.stderr);
+    childProcess.stdout.pipe(process.stdout as any);
+    childProcess.stderr.pipe(process.stderr as any);
     return new Promise<void>((resolve, reject) => {
       childProcess.on("exit", code => {
         if (code === 0) {
