@@ -1,4 +1,9 @@
-import { applyPatches, produce, produceWithPatches, type Patch } from "immer";
+import {
+  applyPatches,
+  produce,
+  produceWithPatches,
+  type Patch,
+} from "@lmstudio/immer-with-plugins";
 import { isAvailable, type StripNotAvailable } from "./LazySignal.js";
 
 /**

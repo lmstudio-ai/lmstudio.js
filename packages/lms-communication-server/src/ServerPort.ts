@@ -1,3 +1,4 @@
+import { applyPatches } from "@lmstudio/immer-with-plugins";
 import {
   Event,
   isAvailable,
@@ -24,12 +25,8 @@ import {
   type WritableSignalEndpoint,
   type WritableSignalEndpointsSpecBase,
 } from "@lmstudio/lms-communication";
-
 import { serializeError } from "@lmstudio/lms-shared-types";
-import { applyPatches, enablePatches } from "immer";
 import { type Context, type ContextCreator } from "./Authenticator.js";
-
-enablePatches();
 
 interface OpenChannel {
   endpoint: ChannelEndpoint;

@@ -7,13 +7,9 @@ import {
   type Setter,
   type StripNotAvailable,
 } from "@lmstudio/lms-common";
-
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { mkdir, readFile, watch } from "fs/promises";
-import { enablePatches } from "immer";
 import path from "path";
-
-enablePatches();
 
 export type InitializationState =
   | {

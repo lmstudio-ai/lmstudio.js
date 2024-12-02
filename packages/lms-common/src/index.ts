@@ -1,6 +1,3 @@
-import "./polyfill.js";
-import "./sideEffects.js";
-
 // Export lazy signal first to avoid circular dependency issues
 export {
   AsyncDeriveFromStrategy,

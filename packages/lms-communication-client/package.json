@@ -17,7 +17,7 @@
     "@lmstudio/lms-common": "^0.7.0",
     "@lmstudio/lms-communication": "^0.6.0",
     "@lmstudio/lms-isomorphic": "^0.4.0",
-    "immer": "^10.1.1"
+    "@lmstudio/immer-with-plugins": "^10.1.1"
   },
   "exports": {
     ".": {

@@ -1,4 +1,4 @@
-import { type Patch } from "immer";
+import { type Patch } from "@lmstudio/immer-with-plugins";
 import { type StripNotAvailable } from "./LazySignal.js";
 import { Subscribable } from "./Subscribable.js";
 import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter.js";

@@ -1,4 +1,4 @@
-import { applyPatches, type Patch } from "immer";
+import { applyPatches, type Patch } from "@lmstudio/immer-with-plugins";
 import {
   isAvailable,
   LazySignal,
