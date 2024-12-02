@@ -518,8 +518,8 @@ export class PredictionProcessContentBlockController {
     cleaner.register(() => {
       this.handle.abortSignal.removeEventListener("abort", abortListener);
     });
-    for await (const text of prediction) {
-      this.appendText(text);
+    for await (const { content } of prediction) {
+      this.appendText(content);
     }
     const result = await prediction;
     this.attachGenInfo({

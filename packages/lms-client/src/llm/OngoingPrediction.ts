@@ -1,6 +1,7 @@
 import { StreamablePromise } from "@lmstudio/lms-common";
 import {
   type KVConfig,
+  type LLMPredictionFragment,
   type LLMPredictionStats,
   type LLMPredictionStopReason,
   type ModelDescriptor,
@@ -39,13 +40,15 @@ import { PredictionResult } from "./PredictionResult.js";
  *
  * @public
  */
-export class OngoingPrediction extends StreamablePromise<string, PredictionResult> {
+export class OngoingPrediction extends StreamablePromise<LLMPredictionFragment, PredictionResult> {
   private stats: LLMPredictionStats | null = null;
   private modelInfo: ModelDescriptor | null = null;
   private loadModelConfig: KVConfig | null = null;
   private predictionConfig: KVConfig | null = null;
 
-  protected override async collect(fragments: ReadonlyArray<string>): Promise<PredictionResult> {
+  protected override async collect(
+    fragments: ReadonlyArray<LLMPredictionFragment>,
+  ): Promise<PredictionResult> {
     if (this.stats === null) {
       throw new Error("Stats should not be null");
     }
@@ -59,7 +62,7 @@ export class OngoingPrediction extends StreamablePromise<string, PredictionResul
       throw new Error("Prediction config should not be null");
     }
     return new PredictionResult(
-      fragments.join(""),
+      fragments.map(({ content }) => content).join(""),
       this.stats,
       this.modelInfo,
       this.loadModelConfig,
@@ -87,7 +90,7 @@ export class OngoingPrediction extends StreamablePromise<string, PredictionResul
       ongoingPrediction.finished();
     };
     const failed = (error?: any) => ongoingPrediction.finished(error);
-    const push = (fragment: string) => ongoingPrediction.push(fragment);
+    const push = (fragment: LLMPredictionFragment) => ongoingPrediction.push(fragment);
     return { ongoingPrediction, finished, failed, push };
   }
 

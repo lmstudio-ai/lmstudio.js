@@ -118,6 +118,7 @@ export {
   LLMPredictionConfig,
   llmPredictionConfigSchema,
 } from "./llm/LLMPredictionConfig.js";
+export { LLMPredictionFragment, llmPredictionFragmentSchema } from "./llm/LLMPredictionFragment.js";
 export {
   LLMGenInfo,
   llmGenInfoSchema,
