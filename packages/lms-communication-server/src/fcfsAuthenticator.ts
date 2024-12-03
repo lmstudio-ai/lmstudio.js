@@ -77,7 +77,7 @@ export class FcfsClient {
   }
   protected constructor(
     public readonly clientIdentifier: string,
-    private readonly clientPasskey: string,
+    protected readonly clientPasskey: string,
     private readonly onReleaseCallback: (client: FcfsClient) => void,
     parentLogger?: LoggerInterface,
   ) {
@@ -178,7 +178,7 @@ export abstract class FcfsAuthenticatorBase<
   /**
    * Allows to reserve certain client identifiers for manual creation only.
    */
-  protected isClientIdentifierAllowedForNewAuthenticatedClient(_clientIdentifier: string): boolean {
+  protected isClientAllowedForNewAuthenticatedClient(_authPacket: AuthPacket): boolean {
     return true;
   }
   /**
@@ -195,13 +195,9 @@ export abstract class FcfsAuthenticatorBase<
     let client = this.clients.get(authPacket.clientIdentifier);
     let holder: ClientHolder;
     if (client === undefined) {
-      const isAllowed = this.isClientIdentifierAllowedForNewAuthenticatedClient(
-        authPacket.clientIdentifier,
-      );
+      const isAllowed = this.isClientAllowedForNewAuthenticatedClient(authPacket);
       if (!isAllowed) {
-        throw new Error(
-          `Provided client identifier ${authPacket.clientIdentifier} is not allowed.`,
-        );
+        throw new Error(`Provided authPacket ${authPacket.clientIdentifier} is not allowed.`);
       }
       const clientPromise = this.createClientAndFirstHolder(authPacket);
       this.clients.set(authPacket.clientIdentifier, clientPromise);
