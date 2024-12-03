@@ -33,7 +33,7 @@ export type LLMTool = {
   type: "function";
   function: {
     name: string;
-    description: string;
+    description?: string;
     parameters?: LLMToolParameters;
   };
   // add more tool types here
@@ -45,7 +45,7 @@ export const llmToolSchema = z.discriminatedUnion("type", [
     type: z.literal("function"),
     function: z.object({
       name: z.string(),
-      description: z.string(),
+      description: z.string().optional(),
       parameters: llmToolParametersSchema.optional(),
     }),
   }),
