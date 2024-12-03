@@ -13,7 +13,7 @@ type DisplayData<TCode extends ErrorDisplayData["code"]> = Extract<
 >;
 
 function deserializeOtherError(serialized: SerializedLMSExtendedError, stack?: string): Error {
-  let content = chalk.bgRed.white(` ${serialized.title} `);
+  let content = chalk.redBright(` ${serialized.title} `);
   if (serialized.suggestion !== undefined) {
     content +=
       "\n\n\n " +
@@ -103,8 +103,8 @@ registerErrorDeserializer(
 registerErrorDeserializer("generic.specificModelUnloaded", (_, stack) => {
   return makePrettyError(
     chalk.bgRed.white(text`
-    This model has already been unloaded.
-  `),
+      This model has already been unloaded.
+    `),
     stack,
   );
 });
