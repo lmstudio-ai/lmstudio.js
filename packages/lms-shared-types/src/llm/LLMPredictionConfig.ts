@@ -101,6 +101,14 @@ export interface LLMPredictionConfig {
   /**
    * TODO: Documentation
    */
+  xtcProbability?: number | false;
+  /**
+   * TODO: Documentation
+   */
+  xtcThreshold?: number | false;
+  /**
+   * TODO: Documentation
+   */
   logProbs?: number | false;
   /**
    * TODO: Documentation

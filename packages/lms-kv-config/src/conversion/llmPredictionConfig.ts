@@ -60,6 +60,16 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.topPSampling = topPSampling.checked ? topPSampling.value : false;
   }
 
+  const xtcProbability = parsed.get("llm.prediction.llama.xtcProbability");
+  if (xtcProbability !== undefined) {
+    result.xtcProbability = xtcProbability.checked ? xtcProbability.value : false;
+  }
+
+  const xtcThreshold = parsed.get("llm.prediction.llama.xtcThreshold");
+  if (xtcThreshold !== undefined) {
+    result.xtcThreshold = xtcThreshold.checked ? xtcThreshold.value : false;
+  }
+
   const logProbs = parsed.get("llm.prediction.logProbs");
   if (logProbs !== undefined) {
     result.logProbs = logProbs.checked ? logProbs.value : false;
@@ -91,6 +101,8 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "repeatPenalty": maybeFalseNumberToCheckboxNumeric(config.repeatPenalty, 1.1),
     "minPSampling": maybeFalseNumberToCheckboxNumeric(config.minPSampling, 0.05),
     "topPSampling": maybeFalseNumberToCheckboxNumeric(config.topPSampling, 0.95),
+    "llama.xtcProbability": maybeFalseNumberToCheckboxNumeric(config.xtcProbability, 0),
+    "llama.xtcThreshold": maybeFalseNumberToCheckboxNumeric(config.xtcThreshold, 0),
     "logProbs": maybeFalseNumberToCheckboxNumeric(config.logProbs, 0),
     "llama.cpuThreads": config.cpuThreads,
     "promptTemplate": config.promptTemplate,

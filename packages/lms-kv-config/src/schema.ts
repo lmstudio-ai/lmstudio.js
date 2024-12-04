@@ -108,6 +108,18 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { checked: false, value: 0.0 },
           )
           .field(
+            "xtcProbability",
+            "checkboxNumeric",
+            { min: 0, max: 1, step: 0.01, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
+            { checked: false, value: 0.1 },
+          )
+          .field(
+            "xtcThreshold",
+            "checkboxNumeric",
+            { min: 0, max: 1, step: 0.01, precision: 2, slider: { min: 0, max: 0.5, step: 0.01 } },
+            { checked: false, value: 0.1 },
+          )
+          .field(
             "presencePenalty",
             "checkboxNumeric",
             { precision: 2 },
