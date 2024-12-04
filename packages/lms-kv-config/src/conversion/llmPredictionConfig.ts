@@ -62,12 +62,12 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
 
   const xtcProbability = parsed.get("llm.prediction.llama.xtcProbability");
   if (xtcProbability !== undefined) {
-    result.xtcProbability = xtcProbability;
+    result.xtcProbability = xtcProbability.checked ? xtcProbability.value : false;
   }
 
   const xtcThreshold = parsed.get("llm.prediction.llama.xtcThreshold");
   if (xtcThreshold !== undefined) {
-    result.xtcThreshold = xtcThreshold;
+    result.xtcThreshold = xtcThreshold.checked ? xtcThreshold.value : false;
   }
 
   const logProbs = parsed.get("llm.prediction.logProbs");
