@@ -3,5 +3,5 @@ import { z } from "zod";
 /**
  * @public
  */
-export type ModelCompatibilityType = "gguf" | "safetensors" | "onnx";
-export const modelCompatibilityTypeSchema = z.enum(["gguf", "safetensors", "onnx"]);
+export type ModelCompatibilityType = "gguf" | "safetensors" | "onnx" | "ggml";
+export const modelCompatibilityTypeSchema = z.enum(["gguf", "safetensors", "onnx", "ggml"]);
