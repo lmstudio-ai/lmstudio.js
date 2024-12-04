@@ -42,6 +42,9 @@ function drill(value: any, path: Array<PathSegment>, defaultUsed?: (index: numbe
   let current = value;
   let index = 0;
   for (const key of path) {
+    if (key.key === "__proto__") {
+      throw new Error("Cannot access __proto__");
+    }
     switch (key.type) {
       case "key":
         current = current[key.key];
