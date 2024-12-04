@@ -60,6 +60,16 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.topPSampling = topPSampling.checked ? topPSampling.value : false;
   }
 
+  const xtcProbability = parsed.get("llm.prediction.llama.xtcProbability");
+  if (xtcProbability !== undefined) {
+    result.xtcProbability = xtcProbability;
+  }
+
+  const xtcThreshold = parsed.get("llm.prediction.llama.xtcThreshold");
+  if (xtcThreshold !== undefined) {
+    result.xtcThreshold = xtcThreshold;
+  }
+
   const logProbs = parsed.get("llm.prediction.logProbs");
   if (logProbs !== undefined) {
     result.logProbs = logProbs.checked ? logProbs.value : false;

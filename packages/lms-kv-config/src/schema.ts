@@ -101,6 +101,8 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .scope("llama", builder =>
         builder
           .field("cpuThreads", "numeric", { min: 1, int: true }, 4)
+          .field("xtcProbability", "numeric", { min: 0, max: 1, step: 0.01, precision: 2 }, 0.0)
+          .field("xtcThreshold", "numeric", { min: 0, max: 0.5, step: 0.01, precision: 2 }, 0.1)
           .field(
             "frequencyPenalty",
             "checkboxNumeric",
