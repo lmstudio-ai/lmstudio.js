@@ -1,4 +1,3 @@
-import { filteredArray } from "@lmstudio/lms-common";
 import { BackendInterface } from "@lmstudio/lms-communication";
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import { backendNotificationSchema, downloadedModelSchema } from "@lmstudio/lms-shared-types";
@@ -8,7 +7,7 @@ export function createSystemBackendInterface() {
   return new BackendInterface()
     .addRpcEndpoint("listDownloadedModels", {
       parameter: z.void(),
-      returns: filteredArray(downloadedModelSchema),
+      returns: z.array(downloadedModelSchema),
     })
     .addChannelEndpoint("alive", {
       creationParameter: z.void(),

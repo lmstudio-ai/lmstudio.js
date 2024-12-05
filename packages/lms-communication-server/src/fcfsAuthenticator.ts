@@ -1,4 +1,4 @@
-import { Event, SimpleLogger, type LoggerInterface } from "@lmstudio/lms-common";
+import { Event, SimpleLogger, text, type LoggerInterface } from "@lmstudio/lms-common";
 import { type AuthPacket } from "@lmstudio/lms-communication";
 import { type ClientHolder } from "./AuthenticatedWsServer.js";
 import { Authenticator, type ContextCreator } from "./Authenticator.js";
@@ -93,7 +93,10 @@ export class FcfsClient {
       throw new Error("Failed to validate client: Invalid client identifier");
     }
     if (authPacket.clientPasskey !== this.clientPasskey) {
-      throw new Error("Failed to validate client: Invalid client passkey");
+      throw new Error(text`
+        Failed to validate client: Invalid client passkey for client
+        "${authPacket.clientIdentifier}"
+      `);
     }
   }
   /**
