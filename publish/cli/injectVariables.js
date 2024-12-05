@@ -6,10 +6,16 @@ const { join } = require("path");
 
 const content = readFileSync(join(__dirname, "dist", "index.js"), "utf-8");
 const packageJson = readFileSync(join(__dirname, "package.json"), "utf-8");
-const lmsKey = readFileSync(join(__dirname, "lms-key"), "utf-8").trim();
+let lmsKey = null;
+try {
+  lmsKey = readFileSync(join(__dirname, "lms-key"), "utf-8").trim();
+} catch (e) {
+  console.error("Failed to read lms-key. Build in development mode.");
+}
 
-const replaced = content
-  .replaceAll("<LMS-CLI-CURRENT-VERSION>", JSON.parse(packageJson).version)
-  .replaceAll("<LMS-CLI-LMS-KEY>", lmsKey);
+let replaced = content.replaceAll("<LMS-CLI-CURRENT-VERSION>", JSON.parse(packageJson).version);
+if (lmsKey !== null) {
+  replaced = replaced.replaceAll("<LMS-CLI-LMS-KEY>", lmsKey);
+}
 
 writeFileSync(join(__dirname, "dist", "index.js"), replaced, "utf-8");
