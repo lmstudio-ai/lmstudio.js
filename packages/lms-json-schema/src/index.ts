@@ -1,6 +1,6 @@
 import { BackendInterface } from "@lmstudio/lms-communication";
-import backendInterfaceCreators from "@lmstudio/lms-external-backend-interfaces";
-import sharedTypes from "@lmstudio/lms-shared-types";
+import * as backendInterfaceCreators from "@lmstudio/lms-external-backend-interfaces";
+import * as sharedTypes from "@lmstudio/lms-shared-types";
 import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 import { z, ZodSchema, ZodVoid } from "zod";
