@@ -50,6 +50,13 @@ export const pushArtifactOptsSchema = z.object({
   onMessage: z.function().optional(),
 }) as ZodSchema<PushArtifactOpts>;
 
+export interface EnsureAuthenticatedOpts {
+  onAuthenticationUrl: (url: string) => void;
+}
+export const ensureAuthenticatedOptsSchema = z.object({
+  onAuthenticationUrl: z.function(),
+}) as ZodSchema<EnsureAuthenticatedOpts>;
+
 /** @public */
 export class RepositoryNamespace {
   /** @internal */
@@ -178,6 +185,40 @@ export class RepositoryNamespace {
     const { promise, resolve, reject } = makePromise<void>();
     channel.onError.subscribeOnce(reject);
     channel.onClose.subscribeOnce(resolve);
+    await promise;
+  }
+
+  public async ensureAuthenticated(opts: EnsureAuthenticatedOpts) {
+    const stack = getCurrentStack(1);
+    this.validator.validateMethodParamOrThrow(
+      "repository",
+      "ensureAuthenticated",
+      "opts",
+      ensureAuthenticatedOptsSchema,
+      opts,
+      stack,
+    );
+    const { promise, resolve, reject } = makePromise<void>();
+    const channel = this.repositoryPort.createChannel("ensureAuthenticated", undefined, message => {
+      const type = message.type;
+      switch (type) {
+        case "authenticationUrl": {
+          safeCallCallback(this.logger, "onAuthenticationUrl", opts.onAuthenticationUrl, [
+            message.url,
+          ]);
+          break;
+        }
+        case "authenticated": {
+          resolve();
+          break;
+        }
+        default: {
+          const exhaustiveCheck: never = type;
+          throw new Error(`Unexpected message type: ${exhaustiveCheck}`);
+        }
+      }
+    });
+    channel.onError.subscribeOnce(reject);
     await promise;
   }
 }
