@@ -93,6 +93,19 @@ export function createRepositoryBackendInterface() {
           message: z.string(),
         }),
       ]),
+    })
+    .addChannelEndpoint("ensureAuthenticated", {
+      creationParameter: z.void(),
+      toServerPacket: z.void(),
+      toClientPacket: z.discriminatedUnion("type", [
+        z.object({
+          type: z.literal("authenticationUrl"),
+          url: z.string(),
+        }),
+        z.object({
+          type: z.literal("authenticated"),
+        }),
+      ]),
     });
 }
 
