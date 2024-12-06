@@ -31,7 +31,7 @@ async function printLoadedModels() {
   const loadedLLMs = await client.llm.listLoaded();
   console.log("Loaded Models:");
   if (loadedLLMs.length === 0) {
-    console.log("    You don't have any models loaded. (Run `lms load --gpu max` to load a model)");
+    console.log("    You don't have any models loaded. (Run `lms load` to load a model)");
     process.exit(0);
   }
   for (const model of loadedLLMs) {
@@ -49,8 +49,8 @@ async function predictWithAnyModel() {
   });
   process.stdout.write(prompt); // Print the prompt
   // Stream the prediction text to console
-  for await (const text of prediction) {
-    process.stdout.write(text);
+  for await (const { content } of prediction) {
+    process.stdout.write(content);
   }
   const { stats } = await prediction.result();
   console.log("\n\nPrediction Stats:", stats);
