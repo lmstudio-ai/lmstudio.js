@@ -49,7 +49,7 @@ export class WsClientTransport extends ClientTransport {
       this.resolvedUrl = url;
       this.ws = new WebSocket(url);
       this.ws.addEventListener("open", this.onWsOpen.bind(this));
-      this.ws.addEventListener("error", this.onWsError.bind(this));
+      this.ws.addEventListener("error", event => this.onWsError(event.error));
     });
   }
   // private timeOut
@@ -91,12 +91,12 @@ export class WsClientTransport extends ClientTransport {
     }
     this.receivedMessage(parsed);
   }
-  protected onWsError(event: any) {
+  protected onWsError(error: any) {
     if (this.status === WsClientTransportStatus.Disconnected) {
       return;
     }
-    this.logger.warn("WebSocket error:", event.error);
-    if (event.error.code === "ECONNREFUSED") {
+    this.logger.warn("WebSocket error:", error);
+    if (error.code === "ECONNREFUSED") {
       this.logger.warnText`
           WebSocket connection refused. This can happen if the server is not running or the client
           is trying to connect to the wrong path. The server path that this client is
