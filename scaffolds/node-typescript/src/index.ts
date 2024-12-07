@@ -2,12 +2,11 @@ import { LMStudioClient } from "@lmstudio/sdk";
 
 const client = new LMStudioClient();
 
-async function main() {
-  await printDownloadedModels();
-  await printLoadedModels();
-  await predictWithAnyModel();
-}
-main();
+await printDownloadedModels();
+await printLoadedModels();
+await predictWithAnyModel();
+
+// ---------- Functions ----------
 
 async function printDownloadedModels() {
   const downloadedModels = await client.system.listDownloadedModels();
@@ -41,7 +40,7 @@ async function printLoadedModels() {
 }
 
 async function predictWithAnyModel() {
-  const model = await client.llm.get({});
+  const model = await client.llm.getAny();
   const prompt = "The meaning of life is";
   const prediction = model.complete(prompt, {
     maxPredictedTokens: 100,

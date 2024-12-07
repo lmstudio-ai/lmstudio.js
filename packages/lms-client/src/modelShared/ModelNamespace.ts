@@ -441,8 +441,23 @@ export abstract class ModelNamespace<
     );
   }
 
-  public async unstable_getAny() {
-    return await this.get({});
+  public async getAny() {
+    const stack = getCurrentStack(1);
+    const info = await this.port.callRpc(
+      "getModelInfo",
+      { specifier: { type: "query", query: {} }, throwIfNotFound: true },
+      { stack },
+    );
+    if (info === undefined) {
+      throw new Error("Backend should have thrown.");
+    }
+    return this.createDomainSpecificModel(
+      this.port,
+      info.instanceReference,
+      info.descriptor,
+      this.validator,
+      new SimpleLogger("LLMSpecificModel", this.logger),
+    );
   }
 
   /**

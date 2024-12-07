@@ -2,6 +2,7 @@ import { makePrettyError, makeTitledPrettyError, text } from "@lmstudio/lms-comm
 import {
   attachSerializedErrorData,
   type ErrorDisplayData,
+  type ModelDomainType,
   type ModelQuery,
   type SerializedLMSExtendedError,
 } from "@lmstudio/lms-shared-types";
@@ -40,7 +41,7 @@ function formatAvailableLLMs(availablePathsSample: Array<string>, totalModels: n
   if (availablePathsSample.length === 0) {
     return chalk.gray("    You don't have any LLMs downloaded.");
   }
-  let text = availablePathsSample.map(path => chalk.cyanBright(" · " + path)).join("\n");
+  let text = availablePathsSample.map(path => chalk.cyanBright(" • " + path)).join("\n");
   if (availablePathsSample.length < totalModels) {
     text += chalk.gray(`\n     ... (and ${totalModels - availablePathsSample.length} more)`);
   }
@@ -51,9 +52,9 @@ registerErrorDeserializer(
   "generic.pathNotFound",
   ({ availablePathsSample, path, totalModels }, stack) => {
     return makeTitledPrettyError(
-      `Cannot find an LLM with path "${chalk.yellowBright(path)}"`,
+      `Cannot find a model with path "${chalk.yellowBright(path)}"`,
       text`
-        Here are your available LLMs:
+        Here are your available models:
 
         ${formatAvailableLLMs(availablePathsSample, totalModels)}
 
@@ -68,11 +69,11 @@ registerErrorDeserializer(
   },
 );
 
-function formatLoadedLLMs(loadedModelsSample: Array<string>, totalLoadedModels: number) {
+function formatLoadedModels(loadedModelsSample: Array<string>, totalLoadedModels: number) {
   if (loadedModelsSample.length === 0) {
-    return chalk.gray("    You don't have any LLMs loaded.");
+    return chalk.gray("    You don't have any models loaded.");
   }
-  let text = loadedModelsSample.map(path => chalk.cyanBright(" · " + path)).join("\n");
+  let text = loadedModelsSample.map(path => chalk.cyanBright(" • " + path)).join("\n");
   if (loadedModelsSample.length < totalLoadedModels) {
     text += chalk.gray(`\n     ... (and ${totalLoadedModels - loadedModelsSample.length} more)`);
   }
@@ -83,11 +84,11 @@ registerErrorDeserializer(
   "generic.identifierNotFound",
   ({ loadedModelsSample, identifier, totalLoadedModels }, stack) => {
     return makeTitledPrettyError(
-      `Cannot find an LLM with identifier "${chalk.yellowBright(identifier)}"`,
+      `Cannot find a model with identifier "${chalk.yellowBright(identifier)}"`,
       text`
-        Here are your loaded LLMs:
+        Here are your loaded models:
 
-        ${formatLoadedLLMs(loadedModelsSample, totalLoadedModels)}
+        ${formatLoadedModels(loadedModelsSample, totalLoadedModels)}
 
         Run
 
@@ -109,8 +110,33 @@ registerErrorDeserializer("generic.specificModelUnloaded", (_, stack) => {
   );
 });
 
+function getModelDomainTypeDisplayNameSingular(domain: ModelDomainType) {
+  switch (domain) {
+    case "llm":
+      return "an LLM";
+    case "embedding":
+      return "an embedding model";
+    case "imageGen":
+      return "an image generation model";
+    case "transcription":
+      return "a transcription model";
+    case "tts":
+      return "a text-to-speech model";
+    default: {
+      const exhaustiveCheck: never = domain;
+      console.error(`Unexpected domain type: ${exhaustiveCheck}`);
+      return "Unknown Model Domain";
+    }
+  }
+}
+
 function formatQuery(query: ModelQuery) {
   const requirements: Array<string> = [];
+  if (query.domain !== undefined) {
+    requirements.push(text`
+      The model must be ${chalk.yellowBright(getModelDomainTypeDisplayNameSingular(query.domain))}
+    `);
+  }
   if (query.identifier !== undefined) {
     requirements.push(`The identifier must be exactly "${chalk.yellowBright(query.identifier)}"`);
   }
@@ -118,22 +144,25 @@ function formatQuery(query: ModelQuery) {
     requirements.push(`The path must match "${chalk.yellowBright(query.path)}"`);
   }
   if (requirements.length === 0) {
-    return chalk.gray(" · Any LLM");
+    return chalk.gray(" • Any Model");
   }
-  requirements.unshift("The model must be an LLM");
-  return requirements.map(req => chalk.white(" · " + req)).join("\n");
+  return requirements.map(req => chalk.white(" • " + req)).join("\n");
 }
 
 registerErrorDeserializer(
   "generic.noModelMatchingQuery",
-  ({ loadedModelsSample, totalLoadedModels }, stack) => {
+  ({ loadedModelsSample, totalLoadedModels, query }, stack) => {
     return makePrettyError(
       text`
-        ${chalk.bgRed.white(" No loaded LLM satisfies all requirements specified in the query. ")}
+        ${chalk.bgRed.white(" No loaded model satisfies all requirements specified in the query. ")}
 
-        Loaded LLMs:
+        Loaded Models:
 
-        ${formatLoadedLLMs(loadedModelsSample, totalLoadedModels)}
+        ${formatLoadedModels(loadedModelsSample, totalLoadedModels)}
+
+        Your query:
+
+        ${formatQuery(query)}
 
         Run
 

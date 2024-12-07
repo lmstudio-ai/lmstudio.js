@@ -373,20 +373,20 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     return ongoingPrediction;
   }
 
-  public async unstable_getContextLength(): Promise<number> {
+  public async getContextLength(): Promise<number> {
     const stack = getCurrentStack(1);
     const loadConfig = await this.getLoadConfig(stack);
     return llmSharedLoadConfigSchematics.access(loadConfig, "contextLength");
   }
 
-  public async unstable_applyPromptTemplate(
+  public async applyPromptTemplate(
     history: ChatHistoryLike,
     opts: LLMApplyPromptTemplateOpts = {},
   ): Promise<string> {
     const stack = getCurrentStack(1);
     [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
-      "unstable_applyPromptTemplate",
+      "applyPromptTemplate",
       ["history", "opts"],
       [chatHistoryLikeSchema, llmApplyPromptTemplateOptsSchema],
       [history, opts],
@@ -408,11 +408,11 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     ).formatted;
   }
 
-  public async unstable_tokenize(inputString: string): Promise<number[]> {
+  public async tokenize(inputString: string): Promise<number[]> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "model",
-      "unstable_tokenize",
+      "tokenize",
       "inputString",
       z.string(),
       inputString,
@@ -430,11 +430,11 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     ).tokens;
   }
 
-  public async unstable_countTokens(inputString: string): Promise<number> {
+  public async countTokens(inputString: string): Promise<number> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "model",
-      "unstable_countTokens",
+      "countTokens",
       "inputString",
       z.string(),
       inputString,

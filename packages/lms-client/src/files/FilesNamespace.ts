@@ -6,7 +6,7 @@ import { FileHandle } from "./FileHandle.js";
 /**
  * @public
  *
- * The namespace for file-related operations. Currently no public-facing methods.
+ * The namespace for file-related operations.
  */
 export class FilesNamespace {
   /** @internal */
@@ -37,5 +37,18 @@ export class FilesNamespace {
    */
   public createFileHandleFromChatMessagePartFileData(data: ChatMessagePartFileData) {
     return new FileHandle(this, data.identifier, data.fileType, data.sizeBytes, data.name);
+  }
+
+  /**
+   * Uploads a file with the given name and content. The file uploaded will be temporary and will be
+   * deleted when the client disconnects.
+   */
+  public async uploadTempFile(fileName: string, content: Uint8Array) {
+    const contentBase64 = Buffer.from(content).toString("base64");
+    const { identifier, fileType, sizeBytes } = await this.filesPort.callRpc("uploadFileBase64", {
+      name: fileName,
+      contentBase64,
+    });
+    return new FileHandle(this, identifier, fileType, sizeBytes, fileName);
   }
 }
