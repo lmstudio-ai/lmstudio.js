@@ -322,7 +322,7 @@ export abstract class ModelNamespace<
       reject(signal.reason);
     });
 
-    return promise;
+    return await promise;
   }
 
   /**
@@ -441,8 +441,23 @@ export abstract class ModelNamespace<
     );
   }
 
-  public async unstable_getAny() {
-    return await this.get({});
+  public async getAny() {
+    const stack = getCurrentStack(1);
+    const info = await this.port.callRpc(
+      "getModelInfo",
+      { specifier: { type: "query", query: {} }, throwIfNotFound: true },
+      { stack },
+    );
+    if (info === undefined) {
+      throw new Error("Backend should have thrown.");
+    }
+    return this.createDomainSpecificModel(
+      this.port,
+      info.instanceReference,
+      info.descriptor,
+      this.validator,
+      new SimpleLogger("LLMSpecificModel", this.logger),
+    );
   }
 
   /**
@@ -567,22 +582,123 @@ export abstract class ModelNamespace<
   }
 
   /**
-   * Extremely early alpha. Will cause errors in console. Can potentially throw if called in
-   * parallel. Do not use in production yet.
+   * Get a model by its identifier. If no model is loaded with such identifier, load a model with
+   * the given auto identifier. You can find a model's auto identifier by right-clicking the model
+   * in My Models page and selecting "Copy Default Identifier".
+   *
    */
-  public async unstable_getOrLoad(
-    identifier: string,
-    path: string,
-    loadOpts?: BaseLoadModelOpts<TLoadModelConfig>,
+  public async getOrLoad(
+    autoIdentifier: string,
+    opts: BaseLoadModelOpts<TLoadModelConfig> = {},
   ): Promise<TSpecificModel> {
-    try {
-      const model = await this.get({ identifier });
-      return model;
-    } catch (e) {
-      return await this.load(path, {
-        identifier,
-        ...loadOpts,
-      });
+    const stack = getCurrentStack(1);
+    [autoIdentifier, opts] = this.validator.validateMethodParamsOrThrow(
+      `client.${this.namespace}`,
+      "getOrLoad",
+      ["autoIdentifier", "opts"],
+      [reasonableKeyStringSchema, this.getLoadModelOptsSchema()],
+      [autoIdentifier, opts],
+      stack,
+    );
+    const { identifier, signal, verbose = "info", config, onProgress } = opts;
+
+    if (identifier !== undefined) {
+      throw new Error("The identifier option is not allowed in getOrLoad.");
     }
+    let lastVerboseCallTime = 0;
+
+    const { promise, resolve, reject } = makePromise<TSpecificModel>();
+    const verboseLevel = typeof verbose === "boolean" ? "info" : verbose;
+
+    const startTime = Date.now();
+
+    const channel = this.port.createChannel(
+      "getOrLoad",
+      {
+        identifier: autoIdentifier,
+        loadConfigStack: singleLayerKVConfigStackOf(
+          "apiOverride",
+          this.loadConfigToKVConfig(config ?? this.defaultLoadConfig),
+        ),
+      },
+      message => {
+        switch (message.type) {
+          case "alreadyLoaded": {
+            return resolve(
+              this.createDomainSpecificModel(
+                this.port,
+                message.instanceReference,
+                { identifier: message.identifier, path: message.fullPath },
+                this.validator,
+                this.logger,
+              ),
+            );
+          }
+          case "startLoading": {
+            if (verbose) {
+              this.logger.logAtLevel(
+                verboseLevel,
+                text`
+                  Verbose logging is enabled. To hide progress logs, set the "verbose" option to
+                  false in client.llm.getOrLoad.
+                `,
+              );
+              this.logger.logAtLevel(
+                verboseLevel,
+                text`
+                  Model ${autoIdentifier} is not loaded. Start loading...
+                `,
+              );
+            }
+            break;
+          }
+          case "loadProgress": {
+            const { progress } = message;
+            if (onProgress !== undefined) {
+              safeCallCallback(this.logger, "onProgress", onProgress, [progress]);
+            } else if (verbose) {
+              const now = Date.now();
+              if (now - lastVerboseCallTime > 500 || progress === 1) {
+                const progressText = (progress * 100).toFixed(1);
+                this.logger.logAtLevel(
+                  verboseLevel,
+                  `Loading the model, progress: ${progressText}%`,
+                );
+                lastVerboseCallTime = now;
+              }
+            }
+            break;
+          }
+          case "loadSuccess": {
+            if (verbose) {
+              this.logger.logAtLevel(
+                verboseLevel,
+                text`
+                  Successfully loaded model ${message.fullPath} in ${Date.now() - startTime}ms
+                `,
+              );
+            }
+            resolve(
+              this.createDomainSpecificModel(
+                this.port,
+                message.instanceReference,
+                { identifier: message.identifier, path: message.fullPath },
+                this.validator,
+                this.logger,
+              ),
+            );
+          }
+        }
+      },
+      { stack },
+    );
+
+    channel.onError.subscribeOnce(reject);
+    signal?.addEventListener("abort", () => {
+      channel.send({ type: "cancel" });
+      reject(signal.reason);
+    });
+
+    return await promise;
   }
 }

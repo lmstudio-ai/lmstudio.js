@@ -3,6 +3,7 @@
   "version": "0.3.0",
   "description": "",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "start": "node src/index.js"
   },

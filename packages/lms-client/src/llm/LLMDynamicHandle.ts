@@ -208,8 +208,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * Example usage as an async iterable (streaming):
    *
    * ```typescript
-   * for await (const fragment of model.complete("When will The Winds of Winter be released?")) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of model.complete("When will The Winds of Winter be released?")) {
+   *   process.stdout.write(content);
    * }
    * ```
    *
@@ -218,8 +218,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    *
    * ```typescript
    * const prediction = model.complete("When will The Winds of Winter be released?");
-   * for await (const fragment of prediction) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of prediction) {
+   *   process.stdout.write(content);
    * }
    * const result = await prediction;
    * console.log(result.stats);
@@ -321,8 +321,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    *
    * ```typescript
    * const history = [{ role: 'user', content: "When will The Winds of Winter be released?" }];
-   * for await (const fragment of model.respond(history)) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of model.respond(history)) {
+   *   process.stdout.write(content);
    * }
    * ```
    *
@@ -332,8 +332,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * ```typescript
    * const history = [{ role: 'user', content: "When will The Winds of Winter be released?" }];
    * const prediction = model.respond(history);
-   * for await (const fragment of prediction) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of prediction) {
+   *   process.stdout.write(content);
    * }
    * const result = await prediction;
    * console.log(result.stats);
@@ -373,20 +373,20 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     return ongoingPrediction;
   }
 
-  public async unstable_getContextLength(): Promise<number> {
+  public async getContextLength(): Promise<number> {
     const stack = getCurrentStack(1);
     const loadConfig = await this.getLoadConfig(stack);
     return llmSharedLoadConfigSchematics.access(loadConfig, "contextLength");
   }
 
-  public async unstable_applyPromptTemplate(
+  public async applyPromptTemplate(
     history: ChatHistoryLike,
     opts: LLMApplyPromptTemplateOpts = {},
   ): Promise<string> {
     const stack = getCurrentStack(1);
     [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
-      "unstable_applyPromptTemplate",
+      "applyPromptTemplate",
       ["history", "opts"],
       [chatHistoryLikeSchema, llmApplyPromptTemplateOptsSchema],
       [history, opts],
@@ -408,11 +408,11 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     ).formatted;
   }
 
-  public async unstable_tokenize(inputString: string): Promise<number[]> {
+  public async tokenize(inputString: string): Promise<number[]> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "model",
-      "unstable_tokenize",
+      "tokenize",
       "inputString",
       z.string(),
       inputString,
@@ -430,11 +430,11 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     ).tokens;
   }
 
-  public async unstable_countTokens(inputString: string): Promise<number> {
+  public async countTokens(inputString: string): Promise<number> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "model",
-      "unstable_countTokens",
+      "countTokens",
       "inputString",
       z.string(),
       inputString,

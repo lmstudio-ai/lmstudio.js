@@ -33,8 +33,8 @@ import { PredictionResult } from "./PredictionResult.js";
  * generated). For example:
  *
  * ```typescript
- * for await (const fragment of model.complete("When will The Winds of Winter be released?")) {
- *   process.stdout.write(fragment);
+ * for await (const { content } of model.complete("When will The Winds of Winter be released?")) {
+ *   process.stdout.write(content);
  * }
  * ```
  *
@@ -102,8 +102,8 @@ export class OngoingPrediction extends StreamablePromise<LLMPredictionFragment, 
    *
    * ```typescript
    * const prediction = model.complete("When will The Winds of Winter be released?");
-   * for await (const fragment of prediction) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of prediction) {
+   *   process.stdout.write(content);
    * }
    * const result = await prediction.result();
    * console.log(result.stats);

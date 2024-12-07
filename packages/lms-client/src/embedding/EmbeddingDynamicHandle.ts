@@ -58,23 +58,23 @@ export class EmbeddingDynamicHandle extends DynamicHandle<// prettier-ignore
     );
   }
 
-  public async unstable_getContextLength(): Promise<number> {
+  public async getContextLength(): Promise<number> {
     const stack = getCurrentStack(1);
     const loadConfig = await this.getLoadConfig(stack);
     return embeddingSharedLoadConfigSchematics.access(loadConfig, "contextLength");
   }
 
-  public async unstable_getEvalBatchSize(): Promise<number> {
+  public async getEvalBatchSize(): Promise<number> {
     const stack = getCurrentStack(1);
     const loadConfig = await this.getLoadConfig(stack);
     return globalConfigSchematics.access(loadConfig, "embedding.load.llama.evalBatchSize");
   }
 
-  public async unstable_tokenize(inputString: string): Promise<number[]> {
+  public async tokenize(inputString: string): Promise<number[]> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "model",
-      "unstable_tokenize",
+      "tokenize",
       "inputString",
       z.string(),
       inputString,

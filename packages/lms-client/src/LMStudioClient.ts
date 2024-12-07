@@ -367,7 +367,7 @@ export class LMStudioClient {
         this.resolvingBaseUrl = baseUrl;
       }
     }
-    this.verboseErrorMessages = verboseErrorMessages ?? false;
+    this.verboseErrorMessages = verboseErrorMessages ?? true;
 
     this.llmPort = llmPort ?? this.createPort("llm", "LLM", createLlmBackendInterface());
     this.embeddingPort =
