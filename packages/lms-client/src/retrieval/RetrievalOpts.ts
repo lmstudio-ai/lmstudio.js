@@ -1,5 +1,6 @@
 import {
   retrievalChunkingMethodSchema,
+  type LogLevel,
   type RetrievalChunkingMethod,
   type RetrievalFileProcessingStep,
 } from "@lmstudio/lms-shared-types";
@@ -80,6 +81,21 @@ export interface RetrievalCallbacks {
    * returned immediately after this callback.
    */
   onSearchingEnd?: () => void;
+  /**
+   * Controls the logging of retrieval progress.
+   *
+   * - If set to `true`, logs progress at the "info" level.
+   * - If set to `false`, no logs are emitted. This is the default.
+   * - If a specific logging level is desired, it can be provided as a string. Acceptable values are
+   *   "debug", "info", "warn", and "error".
+   *
+   * Logs are directed to the logger specified during the `LMStudioClient` construction.
+   *
+   * Progress logs will be disabled if any of the callbacks are provided.
+   *
+   * Default value is "info", which logs progress at the "info" level.
+   */
+  verbose?: boolean | LogLevel;
 }
 export const retrievalCallbacksSchema = z.object({
   onFileProcessList: z.function().optional(),
@@ -90,6 +106,7 @@ export const retrievalCallbacksSchema = z.object({
   onFileProcessingStepEnd: z.function().optional(),
   onSearchingStart: z.function().optional(),
   onSearchingEnd: z.function().optional(),
+  verbose: z.union([z.boolean(), z.string()]).optional(),
 });
 
 /**

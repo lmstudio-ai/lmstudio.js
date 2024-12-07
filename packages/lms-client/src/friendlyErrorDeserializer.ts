@@ -175,6 +175,24 @@ registerErrorDeserializer(
   },
 );
 
+registerErrorDeserializer(
+  "generic.domainMismatch",
+  ({ actualDomain, expectedDomain, path }, stack) => {
+    return makePrettyError(
+      text`
+        ${chalk.bgRed.white(" Model has wrong domain. ")}
+
+        Expecting ${chalk.greenBright(path)} to be ${chalk.yellowBright(
+          getModelDomainTypeDisplayNameSingular(expectedDomain),
+        )}, but it is actually ${chalk.yellowBright(
+          getModelDomainTypeDisplayNameSingular(actualDomain),
+        )}.
+      `,
+      stack,
+    );
+  },
+);
+
 export function friendlyErrorDeserializer(
   serialized: SerializedLMSExtendedError,
   _directCause: string,

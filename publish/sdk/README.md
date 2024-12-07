@@ -111,8 +111,8 @@ const llama3 = await client.llm.load("lmstudio-community/Meta-Llama-3-8B-Instruc
 const prediction = llama3.complete("The meaning of life is");
 
 // Stream the response
-for await (const text of prediction) {
-  process.stdout.write(text);
+for await (const { content } of prediction) {
+  process.stdout.write(content);
 }
 ```
 
@@ -128,8 +128,8 @@ for await (const text of prediction) {
 > // Get the element where you want to display the output
 > const outputElement = document.getElementById("output");
 >
-> for await (const text of prediction) {
->   outputElement.textContent += text;
+> for await (const { content } of prediction) {
+>   outputElement.textContent += content;
 > }
 > ```
 
@@ -324,6 +324,7 @@ const firstModel = await client.llm.get({ identifier: loadedModels[0].identifier
 ```
 
 > Example loadedModels Response:
+>
 > ```JSON
 > [
 >   {
@@ -337,7 +338,6 @@ const firstModel = await client.llm.get({ identifier: loadedModels[0].identifier
 > ]
 > ```
 
-
 ### Text Completion
 
 To perform text completion, use the `complete` method:
@@ -345,8 +345,8 @@ To perform text completion, use the `complete` method:
 ```ts
 const prediction = model.complete("The meaning of life is");
 
-for await (const text of prediction) {
-  process.stdout.write(text);
+for await (const { content } of prediction) {
+  process.stdout.write(content);
 }
 ```
 
@@ -374,8 +374,8 @@ const prediction = anyModel.respond([
   { role: "user", content: "What is the meaning of life?" },
 ]);
 
-for await (const text of prediction) {
-  process.stdout.write(text);
+for await (const { content } of prediction) {
+  process.stdout.write(content);
 }
 ```
 
@@ -413,8 +413,8 @@ If you wish to get the prediction statistics, you can await on the prediction ob
 ```ts
 const prediction = model.complete("The meaning of life is");
 
-for await (const text of prediction) {
-  process.stdout.write(text);
+for await (const { content } of prediction) {
+  process.stdout.write(content);
 }
 
 const { stats } = await prediction;
@@ -438,11 +438,12 @@ console.log(stats);
 > // Or just:
 >
 > const { content, stats } = await model.complete("The meaning of life is");
-> 
-> console.log(stats)
+>
+> console.log(stats);
 > ```
 
-> Example output for stats: 
+> Example output for stats:
+>
 > ```JSON
 > {
 >   "stopReason": "eosFound",
@@ -478,23 +479,24 @@ try {
 }
 ```
 
->  Example output: 
->  ```JSON
+> Example output:
+>
+> ```JSON
 > {
->   "title": "The Shawshank Redemption",
->   "genre": [ "drama", "thriller" ],
->   "release_year": 1994,
->   "cast": [
->     { "name": "Tim Robbins", "role": "Andy Dufresne" },
->     { "name": "Morgan Freeman", "role": "Ellis Boyd" }
->   ]
+>  "title": "The Shawshank Redemption",
+>  "genre": [ "drama", "thriller" ],
+>  "release_year": 1994,
+>  "cast": [
+>    { "name": "Tim Robbins", "role": "Andy Dufresne" },
+>    { "name": "Morgan Freeman", "role": "Ellis Boyd" }
+>  ]
 > }
->  ```
+> ```
 
 Sometimes, any JSON is not enough. You might want to enforce a specific JSON schema. You can do this by providing a JSON schema to the `structured` field. Read more about JSON schema at [json-schema.org](https://json-schema.org/).
 
 ```ts
-const bookSchema =  {
+const bookSchema = {
   type: "object",
   properties: {
     bookTitle: { type: "string" },
@@ -519,14 +521,14 @@ try {
   console.info("The author is", parsed.author); // The author is Tina
   console.info("The genre is", parsed.genre); // The genre is Historical Fiction
   console.info("The pageCount is", parsed.pageCount); // The pageCount is 320
-
 } catch (e) {
   console.error(e);
 }
 ```
 
 > Example response for parsed:
-> ```JSON 
+>
+> ```JSON
 > {
 >   "author": "J.K. Rowling",
 >   "bookTitle": "Harry Potter and the Philosopher's Stone",
@@ -557,8 +559,8 @@ prediction.cancel();
 When a prediction is canceled, the prediction will stop normally but with `stopReason` set to `"userStopped"`. You can detect cancellation like so:
 
 ```ts
-for await (const text of prediction) {
-  process.stdout.write(text);
+for await (const { content } of prediction) {
+  process.stdout.write(content);
 }
 const { stats } = await prediction;
 if (stats.stopReason === "userStopped") {

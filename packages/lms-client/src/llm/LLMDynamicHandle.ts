@@ -208,8 +208,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * Example usage as an async iterable (streaming):
    *
    * ```typescript
-   * for await (const fragment of model.complete("When will The Winds of Winter be released?")) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of model.complete("When will The Winds of Winter be released?")) {
+   *   process.stdout.write(content);
    * }
    * ```
    *
@@ -218,8 +218,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    *
    * ```typescript
    * const prediction = model.complete("When will The Winds of Winter be released?");
-   * for await (const fragment of prediction) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of prediction) {
+   *   process.stdout.write(content);
    * }
    * const result = await prediction;
    * console.log(result.stats);
@@ -321,8 +321,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    *
    * ```typescript
    * const history = [{ role: 'user', content: "When will The Winds of Winter be released?" }];
-   * for await (const fragment of model.respond(history)) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of model.respond(history)) {
+   *   process.stdout.write(content);
    * }
    * ```
    *
@@ -332,8 +332,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * ```typescript
    * const history = [{ role: 'user', content: "When will The Winds of Winter be released?" }];
    * const prediction = model.respond(history);
-   * for await (const fragment of prediction) {
-   *   process.stdout.write(fragment);
+   * for await (const { content } of prediction) {
+   *   process.stdout.write(content);
    * }
    * const result = await prediction;
    * console.log(result.stats);

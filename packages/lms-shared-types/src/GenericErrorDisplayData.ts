@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { modelDomainTypeSchema } from "./ModelDomainType.js";
 import { modelQuerySchema } from "./ModelSpecifier.js";
 
 export const genericErrorDisplayDataSchema = [
@@ -22,5 +23,11 @@ export const genericErrorDisplayDataSchema = [
     identifier: z.string(),
     loadedModelsSample: z.array(z.string()),
     totalLoadedModels: z.number(),
+  }),
+  z.object({
+    code: z.literal("generic.domainMismatch"),
+    path: z.string(),
+    actualDomain: modelDomainTypeSchema,
+    expectedDomain: modelDomainTypeSchema,
   }),
 ] as const;
