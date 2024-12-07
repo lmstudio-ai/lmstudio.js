@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/sdk",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "LM Studio SDK",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -21,12 +21,12 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lmstudio/lms-isomorphic": "^0.4.1",
+    "@lmstudio/lms-isomorphic": "^0.4.2",
     "chalk": "^4.1.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@lmstudio/lms-client": "^0.8.1",
+    "@lmstudio/lms-client": "^0.8.2",
     "nodemon": "^3.1.0"
   },
   "repository": {
@@ -42,5 +42,5 @@
     }
   },
   "sideEffects": false,
-  "gitHead": "a2da8c70bf9f5f43c8fbda478397e4400ee4102a"
+  "gitHead": "941995f06f9351b6e6970dc190f89385805cef7f"
 }
