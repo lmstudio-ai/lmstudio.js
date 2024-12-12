@@ -56,7 +56,7 @@ postject "${DIST_DIR}/${EXE_NAME}" NODE_SEA_BLOB ./temp/sea-prep.blob \
 if [[ -z "${LMS_NO_SIGN}" ]]; then
 
     if [[ -z "${APPLE_SIGNING_IDENTITY}" ]]; then
-        echo "Warning: APPLE_SIGNING_IDENTITY is not set"
+        echo "ERROR: APPLE_SIGNING_IDENTITY is not set"
         exit 1
     fi
 
