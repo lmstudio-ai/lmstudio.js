@@ -1,7 +1,7 @@
 import { makeTitledPrettyError, text } from "@lmstudio/lms-common";
+import { findLMStudioHome } from "@lmstudio/lms-common-server";
 import chalk from "chalk";
 import { stat } from "node:fs/promises";
-import os from "node:os";
 import { join } from "node:path";
 import { platform } from "node:process";
 import { installCliDarwinOrLinux } from "./darwinOrLinux.js";
@@ -12,8 +12,7 @@ export interface InstallCliOpts {
 }
 
 export async function installCli(opts: InstallCliOpts = {}) {
-  const homeDir = os.homedir();
-  const targetPath = join(`${homeDir}`, `/.cache/lm-studio/bin`);
+  const targetPath = join(`${findLMStudioHome()}`, `bin`);
   const pathStat = await stat(targetPath).catch(() => null);
   if (pathStat === null || pathStat.isDirectory() === false) {
     throw makeTitledPrettyError(
