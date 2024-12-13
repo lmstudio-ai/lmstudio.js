@@ -1,16 +1,14 @@
 import { text } from "@lmstudio/lms-common";
+import { findLMStudioHome } from "@lmstudio/lms-common-server";
 import { spawn, type SpawnOptionsWithoutStdio } from "child_process";
 import { access } from "fs/promises";
-import { homedir } from "os";
 import { join } from "path";
 
 export class UtilBinary {
   private readonly path: string;
   public constructor(private readonly name: string) {
     this.path = join(
-      homedir(),
-      ".cache",
-      "lm-studio",
+      findLMStudioHome(),
       ".internal",
       "utils",
       process.platform === "win32" ? `${name}.exe` : name,

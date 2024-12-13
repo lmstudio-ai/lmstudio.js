@@ -12,6 +12,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@lmstudio/lms-common": "^0.7.3",
+    "@lmstudio/lms-common-server": "^0.2.3",
     "@npmcli/arborist": "^8.0.0"
   },
   "devDependencies": {
