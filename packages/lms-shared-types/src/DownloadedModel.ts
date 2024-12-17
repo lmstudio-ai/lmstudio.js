@@ -25,7 +25,13 @@ export type DownloadedModel = {
 };
 export const downloadedModelSchema = z.discriminatedUnion("type", [
   z.object({
-    type: z.enum(["llm", "embedding"]),
+    type: z.literal("llm"),
+    path: z.string(),
+    sizeBytes: z.number(),
+    architecture: z.string().optional(),
+  }),
+  z.object({
+    type: z.literal("embedding"),
     path: z.string(),
     sizeBytes: z.number(),
     architecture: z.string().optional(),
