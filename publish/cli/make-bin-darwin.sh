@@ -9,6 +9,11 @@ NODE_TAR="${TEMP_DIR}/node.tar.gz"
 NODE_DIR="${TEMP_DIR}/node"
 EXE_NAME="lms"
 
+KEYCHAIN_ARGUMENTS=()
+if [[ -n "${APPLE_KEYCHAIN}" ]]; then
+  KEYCHAIN_ARGUMENTS+=("--keychain" "${APPLE_KEYCHAIN}")
+fi
+
 load_env_from_ancestors() {
   local current_dir=$(pwd)
   while [ "$current_dir" != "/" ]; do
@@ -66,7 +71,7 @@ if [[ -z "${LMS_NO_SIGN}" ]]; then
             echo "LMS_SKIP_NOTARIZATION is set. Skipping notarization..."
         else
             zip -r "${DIST_DIR}/${EXE_NAME}.zip" "${DIST_DIR}/${EXE_NAME}"
-            xcrun notarytool submit "${DIST_DIR}/${EXE_NAME}.zip" --keychain-profile "AC_PASSWORD" --wait
+            xcrun notarytool submit "${DIST_DIR}/${EXE_NAME}.zip" --keychain-profile "AC_PASSWORD" "${KEYCHAIN_ARGUMENTS[@]}" --wait
         fi
     else
         echo "Warning: DIST_DIR or EXE_NAME is not set"
