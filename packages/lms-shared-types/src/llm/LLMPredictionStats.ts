@@ -46,9 +46,9 @@ export const llmPredictionStatsSchema = z.object({
   tokensPerSecond: z.number().optional(),
   numGpuLayers: z.number().optional(),
   timeToFirstTokenSec: z.number().optional(),
-  promptTokensCount: z.number().optional(),
-  predictedTokensCount: z.number().optional(),
-  totalTokensCount: z.number().optional(),
+  promptTokensCount: z.number().int().optional(),
+  predictedTokensCount: z.number().int().optional(),
+  totalTokensCount: z.number().int().optional(),
 });
 /** @public */
 export interface LLMPredictionStats {

@@ -60,7 +60,7 @@ export const processingUpdateStatusCreateSchema = z.object({
   id: z.string(),
   state: statusStepStateSchema,
   location: blockLocationSchema.optional(),
-  indentation: z.number().optional(),
+  indentation: z.number().int().optional(),
 });
 
 export type ProcessingUpdateStatusUpdate = {
@@ -98,8 +98,8 @@ export const processingUpdateCitationBlockCreateSchema = z.object({
   citedText: z.string(),
   fileName: z.string(),
   fileIdentifier: z.string(),
-  pageNumber: z.union([z.number(), z.tuple([z.number(), z.number()])]).optional(),
-  lineNumber: z.union([z.number(), z.tuple([z.number(), z.number()])]).optional(),
+  pageNumber: z.union([z.number().int(), z.tuple([z.number().int(), z.number().int()])]).optional(),
+  lineNumber: z.union([z.number().int(), z.tuple([z.number().int(), z.number().int()])]).optional(),
 });
 
 // Debug Info Block

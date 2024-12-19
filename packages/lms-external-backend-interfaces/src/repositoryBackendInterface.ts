@@ -55,7 +55,7 @@ export function createRepositoryBackendInterface() {
       creationParameter: z.object({
         artifactOwner: kebabCaseSchema,
         artifactName: kebabCaseSchema,
-        revisionNumber: z.number().nullable(),
+        revisionNumber: z.number().int().nullable(),
         path: z.string(),
       }),
       toClientPacket: z.discriminatedUnion("type", [

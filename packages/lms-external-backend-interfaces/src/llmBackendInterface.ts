@@ -73,7 +73,7 @@ export function createLlmBackendInterface() {
         inputString: z.string(),
       }),
       returns: z.object({
-        tokenCount: z.number(),
+        tokenCount: z.number().int(),
       }),
     });
 }

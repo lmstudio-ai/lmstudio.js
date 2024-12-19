@@ -9,7 +9,7 @@ export interface DownloadProgressUpdate {
   speedBytesPerSecond: number;
 }
 export const downloadProgressUpdateSchema = z.object({
-  downloadedBytes: z.number(),
-  totalBytes: z.number(),
+  downloadedBytes: z.number().int(),
+  totalBytes: z.number().int(),
   speedBytesPerSecond: z.number(),
 }) as ZodSchema<DownloadProgressUpdate>;

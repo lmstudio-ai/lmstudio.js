@@ -26,5 +26,5 @@ export const pluginManifestSchema = z.object({
   owner: kebabCaseSchema,
   name: kebabCaseSchema,
   description: z.string(),
-  revision: z.number().optional(),
+  revision: z.number().int().optional(),
 });

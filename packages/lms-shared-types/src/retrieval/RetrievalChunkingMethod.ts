@@ -11,8 +11,8 @@ export type RetrievalChunkingMethod = {
 export const retrievalChunkingMethodSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("recursive-v1"),
-    chunkSize: z.number(),
-    chunkOverlap: z.number(),
+    chunkSize: z.number().int(),
+    chunkOverlap: z.number().int(),
   }),
 ]);
 

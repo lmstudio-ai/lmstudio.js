@@ -27,13 +27,13 @@ export const downloadedModelSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("llm"),
     path: z.string(),
-    sizeBytes: z.number(),
+    sizeBytes: z.number().int(),
     architecture: z.string().optional(),
   }),
   z.object({
     type: z.literal("embedding"),
     path: z.string(),
-    sizeBytes: z.number(),
+    sizeBytes: z.number().int(),
     architecture: z.string().optional(),
   }),
 ]);
