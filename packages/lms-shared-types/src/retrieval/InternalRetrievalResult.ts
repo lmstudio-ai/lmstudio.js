@@ -10,9 +10,9 @@ export interface InternalRetrievalResultEntry {
 export const internalRetrievalResultEntrySchema = z.object({
   content: z.string(),
   score: z.number(),
-  sourceIndex: z.number(),
-  pageNumber: z.union([z.number(), z.tuple([z.number(), z.number()])]).optional(),
-  lineNumber: z.union([z.number(), z.tuple([z.number(), z.number()])]).optional(),
+  sourceIndex: z.number().int(),
+  pageNumber: z.union([z.number().int(), z.tuple([z.number().int(), z.number().int()])]).optional(),
+  lineNumber: z.union([z.number().int(), z.tuple([z.number().int(), z.number().int()])]).optional(),
 });
 
 /**

@@ -40,7 +40,7 @@ export const chatMessagePartFileDataSchema = z.object({
   type: z.literal("file"),
   name: z.string(),
   identifier: z.string(),
-  sizeBytes: z.number(),
+  sizeBytes: z.number().int(),
   fileType: fileTypeSchema,
 });
 

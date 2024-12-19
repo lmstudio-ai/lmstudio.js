@@ -10,19 +10,19 @@ export const genericErrorDisplayDataSchema = [
     code: z.literal("generic.noModelMatchingQuery"),
     query: modelQuerySchema,
     loadedModelsSample: z.array(z.string()),
-    totalLoadedModels: z.number(),
+    totalLoadedModels: z.number().int(),
   }),
   z.object({
     code: z.literal("generic.pathNotFound"),
     path: z.string(),
     availablePathsSample: z.array(z.string()),
-    totalModels: z.number(),
+    totalModels: z.number().int(),
   }),
   z.object({
     code: z.literal("generic.identifierNotFound"),
     identifier: z.string(),
     loadedModelsSample: z.array(z.string()),
-    totalLoadedModels: z.number(),
+    totalLoadedModels: z.number().int(),
   }),
   z.object({
     code: z.literal("generic.domainMismatch"),

@@ -22,30 +22,30 @@ export function createRetrievalBackendInterface() {
     toClientPacket: z.discriminatedUnion("type", [
       z.object({
         type: z.literal("onFileProcessList"),
-        indices: z.array(z.number()),
+        indices: z.array(z.number().int()),
       }),
       z.object({
         type: z.literal("onFileProcessingStart"),
-        index: z.number(),
+        index: z.number().int(),
       }),
       z.object({
         type: z.literal("onFileProcessingEnd"),
-        index: z.number(),
+        index: z.number().int(),
       }),
       z.object({
         type: z.literal("onFileProcessingStepStart"),
-        index: z.number(),
+        index: z.number().int(),
         step: retrievalFileProcessingStepSchema,
       }),
       z.object({
         type: z.literal("onFileProcessingStepProgress"),
-        index: z.number(),
+        index: z.number().int(),
         step: retrievalFileProcessingStepSchema,
         progress: z.number(),
       }),
       z.object({
         type: z.literal("onFileProcessingStepEnd"),
-        index: z.number(),
+        index: z.number().int(),
         step: retrievalFileProcessingStepSchema,
       }),
       z.object({

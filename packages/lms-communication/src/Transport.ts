@@ -17,26 +17,26 @@ const clientToServerMessageSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("channelCreate"),
     endpoint: z.string(),
-    channelId: z.number(),
+    channelId: z.number().int(),
     creationParameter: serializedOpaqueSchema,
   }),
   z.object({
     type: z.literal("channelSend"),
-    channelId: z.number(),
+    channelId: z.number().int(),
     message: serializedOpaqueSchema,
-    ackId: z.number().optional(),
+    ackId: z.number().int().optional(),
   }),
   z.object({
     type: z.literal("channelAck"),
-    channelId: z.number(),
-    ackId: z.number(),
+    channelId: z.number().int(),
+    ackId: z.number().int(),
   }),
 
   // RPC
   z.object({
     type: z.literal("rpcCall"),
     endpoint: z.string(),
-    callId: z.number(),
+    callId: z.number().int(),
     parameter: serializedOpaqueSchema,
   }),
 
@@ -45,11 +45,11 @@ const clientToServerMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("signalSubscribe"),
     creationParameter: serializedOpaqueSchema,
     endpoint: z.string(),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
   }),
   z.object({
     type: z.literal("signalUnsubscribe"),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
   }),
 
   // Writable signal
@@ -57,15 +57,15 @@ const clientToServerMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("writableSignalSubscribe"),
     creationParameter: serializedOpaqueSchema,
     endpoint: z.string(),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
   }),
   z.object({
     type: z.literal("writableSignalUnsubscribe"),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
   }),
   z.object({
     type: z.literal("writableSignalUpdate"),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
     patches: z.array(serializedOpaqueSchema),
     tags: z.array(z.string()),
   }),
@@ -86,60 +86,60 @@ const serverToClientMessageSchema = z.discriminatedUnion("type", [
   // Channel
   z.object({
     type: z.literal("channelSend"),
-    channelId: z.number(),
+    channelId: z.number().int(),
     message: serializedOpaqueSchema,
-    ackId: z.number().optional(),
+    ackId: z.number().int().optional(),
   }),
   z.object({
     type: z.literal("channelAck"),
-    channelId: z.number(),
-    ackId: z.number(),
+    channelId: z.number().int(),
+    ackId: z.number().int(),
   }),
   z.object({
     type: z.literal("channelClose"),
-    channelId: z.number(),
+    channelId: z.number().int(),
   }),
   z.object({
     type: z.literal("channelError"),
-    channelId: z.number(),
+    channelId: z.number().int(),
     error: serializedLMSExtendedErrorSchema,
   }),
 
   // RPC
   z.object({
     type: z.literal("rpcResult"),
-    callId: z.number(),
+    callId: z.number().int(),
     result: serializedOpaqueSchema,
   }),
   z.object({
     type: z.literal("rpcError"),
-    callId: z.number(),
+    callId: z.number().int(),
     error: serializedLMSExtendedErrorSchema,
   }),
 
   // Readonly signal
   z.object({
     type: z.literal("signalUpdate"),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
     patches: z.array(serializedOpaqueSchema),
     tags: z.array(z.string()),
   }),
   z.object({
     type: z.literal("signalError"),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
     error: serializedLMSExtendedErrorSchema,
   }),
 
   // Writable signal
   z.object({
     type: z.literal("writableSignalUpdate"),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
     patches: z.array(serializedOpaqueSchema),
     tags: z.array(z.string()),
   }),
   z.object({
     type: z.literal("writableSignalError"),
-    subscribeId: z.number(),
+    subscribeId: z.number().int(),
     error: serializedLMSExtendedErrorSchema,
   }),
 ]);

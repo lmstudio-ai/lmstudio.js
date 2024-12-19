@@ -21,7 +21,7 @@ export function createFilesBackendInterface() {
       returns: z.object({
         identifier: z.string(),
         fileType: fileTypeSchema,
-        sizeBytes: z.number(),
+        sizeBytes: z.number().int(),
       }),
     });
 }

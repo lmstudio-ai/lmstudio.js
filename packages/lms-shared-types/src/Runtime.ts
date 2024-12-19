@@ -11,8 +11,8 @@ export interface Accelerator {
 }
 export const acceleratorSchema = z.object({
   name: z.string(),
-  deviceId: z.number(),
-  totalMemoryBytes: z.number(),
+  deviceId: z.number().int(),
+  totalMemoryBytes: z.number().int(),
   type: acceleratorTypeSchema,
 });
 

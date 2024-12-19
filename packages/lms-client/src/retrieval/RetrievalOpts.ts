@@ -138,7 +138,7 @@ export type RetrievalOpts = RetrievalCallbacks & {
 };
 export const retrievalOptsSchema = z.object({
   chunkingMethod: retrievalChunkingMethodSchema.optional(),
-  limit: z.number().optional(),
+  limit: z.number().int().optional(),
   embeddingModel: z.instanceof(EmbeddingDynamicHandle).optional(),
   databasePath: z.string().optional(),
   signal: z.instanceof(AbortSignal).optional(),
