@@ -92,6 +92,7 @@ export type {
   LLMJinjaInputFormat,
   LLMJinjaInputMessagesConfig,
   LLMJinjaInputMessagesContentConfig,
+  LLMJinjaInputMessagesContentConfigTextFieldNameType,
   LLMJinjaInputMessagesContentImagesConfig,
   LLMJinjaInputToolsConfig,
   LLMJinjaPromptTemplate,

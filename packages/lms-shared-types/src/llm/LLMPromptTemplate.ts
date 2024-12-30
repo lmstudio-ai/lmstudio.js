@@ -232,6 +232,12 @@ export const llmJinjaInputMessagesContentImagesConfigSchema = z.discriminatedUni
 /**
  * @public
  */
+export type LLMJinjaInputMessagesContentConfigTextFieldNameType = "content" | "text";
+export const llmJinjaInputMessagesContentConfigTextFieldNameSchema = z.enum(["content", "text"]);
+
+/**
+ * @public
+ */
 export type LLMJinjaInputMessagesContentConfig =
   | {
       type: "string";
@@ -239,7 +245,7 @@ export type LLMJinjaInputMessagesContentConfig =
     }
   | {
       type: "array";
-      textFieldName: "content" | "text";
+      textFieldName: LLMJinjaInputMessagesContentConfigTextFieldNameType;
       imagesConfig?: LLMJinjaInputMessagesContentImagesConfig;
     };
 export const llmJinjaInputMessagesContentConfigSchema = z.discriminatedUnion("type", [
@@ -249,7 +255,7 @@ export const llmJinjaInputMessagesContentConfigSchema = z.discriminatedUnion("ty
   }),
   z.object({
     type: z.literal("array"),
-    textFieldName: z.enum(["content", "text"]),
+    textFieldName: llmJinjaInputMessagesContentConfigTextFieldNameSchema,
     imagesConfig: llmJinjaInputMessagesContentImagesConfigSchema.optional(),
   }),
 ]);
