@@ -128,8 +128,18 @@ export {
   llmPredictionStopReasonSchema,
 } from "./llm/LLMPredictionStats.js";
 export {
+  LLMJinjaInputConfig,
+  llmJinjaInputConfigSchema,
   LLMJinjaInputFormat,
   llmJinjaInputFormatSchema,
+  LLMJinjaInputMessagesConfig,
+  llmJinjaInputMessagesConfigSchema,
+  LLMJinjaInputMessagesContentConfig,
+  llmJinjaInputMessagesContentConfigSchema,
+  LLMJinjaInputMessagesContentImagesConfig,
+  llmJinjaInputMessagesContentImagesConfigSchema,
+  LLMJinjaInputToolsConfig,
+  llmJinjaInputToolsConfigSchema,
   LLMJinjaPromptTemplate,
   llmJinjaPromptTemplateSchema,
   LLMManualPromptTemplate,
