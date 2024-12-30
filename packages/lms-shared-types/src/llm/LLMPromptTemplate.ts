@@ -205,6 +205,90 @@ export const llmJinjaInputFormatSchema = z.enum([
   "qwenTools",
 ]);
 
+// TODO(matt): documentation
+
+/**
+ * @public
+ */
+export type LLMJinjaInputMessagesContentImagesConfig =
+  | { type: "simple"; value: string }
+  | { type: "numbered"; prefix: string; suffix: string }
+  | { type: "object" };
+export const llmJinjaInputMessagesContentImagesConfigSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("simple"),
+    value: z.string(),
+  }),
+  z.object({
+    type: z.literal("numbered"),
+    prefix: z.string(),
+    suffix: z.string(),
+  }),
+  z.object({
+    type: z.literal("object"),
+  }),
+]);
+
+/**
+ * @public
+ */
+export type LLMJinjaInputMessagesContentConfig =
+  | {
+      type: "string";
+      imagesConfig?: LLMJinjaInputMessagesContentImagesConfig;
+    }
+  | {
+      type: "array";
+      textFieldName: "content" | "text";
+      imagesConfig?: LLMJinjaInputMessagesContentImagesConfig;
+    };
+export const llmJinjaInputMessagesContentConfigSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("string"),
+    imagesConfig: llmJinjaInputMessagesContentImagesConfigSchema.optional(),
+  }),
+  z.object({
+    type: z.literal("array"),
+    textFieldName: z.enum(["content", "text"]),
+    imagesConfig: llmJinjaInputMessagesContentImagesConfigSchema.optional(),
+  }),
+]);
+
+/**
+ * @public
+ */
+export interface LLMJinjaInputMessagesConfig {
+  contentConfig: LLMJinjaInputMessagesContentConfig;
+}
+export const llmJinjaInputMessagesConfigSchema = z.object({
+  contentConfig: llmJinjaInputMessagesContentConfigSchema,
+});
+
+/**
+ * @public
+ */
+export interface LLMJinjaInputToolsConfig {
+  fieldName: string;
+}
+export const llmJinjaInputToolsConfigSchema = z.object({
+  fieldName: z.string(),
+});
+
+/**
+ *
+ * Configures how ChatHistoryData should be input to jinja for prompt rendering.
+ *
+ * @public
+ */
+export interface LLMJinjaInputConfig {
+  messagesConfig: LLMJinjaInputMessagesConfig;
+  toolsConfig?: LLMJinjaInputToolsConfig;
+}
+export const llmJinjaInputConfigSchema = z.object({
+  messagesConfig: llmJinjaInputMessagesConfigSchema,
+  toolsConfig: llmJinjaInputToolsConfigSchema.optional(),
+});
+
 /**
  * @public
  */
@@ -220,14 +304,21 @@ export interface LLMJinjaPromptTemplate {
   eosToken: string;
   /**
    * Format of the input to the Jinja template.
+   *
+   * DEPRECATED
    */
   inputFormat?: LLMJinjaInputFormat;
+  /**
+   * Config for how ChatHistoryData should be input to jinja for prompt rendering.
+   */
+  inputConfig?: LLMJinjaInputConfig;
 }
 export const llmJinjaPromptTemplateSchema = z.object({
   template: z.string(),
   bosToken: z.string(),
   eosToken: z.string(),
   inputFormat: llmJinjaInputFormatSchema.optional(),
+  inputConfig: llmJinjaInputConfigSchema.optional(),
 });
 
 /** @public */
