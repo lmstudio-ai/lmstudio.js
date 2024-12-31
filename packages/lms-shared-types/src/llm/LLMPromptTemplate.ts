@@ -271,22 +271,6 @@ export const llmJinjaInputMessagesConfigSchema = z.object({
 });
 
 /**
- * @public
- */
-export type LLMJinjaInputToolsFieldName = "tools" | "custom_tools";
-export const llmJinjaInputToolsFieldNameSchema = z.enum(["tools", "custom_tools"]);
-
-/**
- * @public
- */
-export interface LLMJinjaInputToolsConfig {
-  fieldName: LLMJinjaInputToolsFieldName;
-}
-export const llmJinjaInputToolsConfigSchema = z.object({
-  fieldName: llmJinjaInputToolsFieldNameSchema,
-});
-
-/**
  *
  * Configures how ChatHistoryData should be input to jinja for prompt rendering.
  *
@@ -294,11 +278,11 @@ export const llmJinjaInputToolsConfigSchema = z.object({
  */
 export interface LLMJinjaInputConfig {
   messagesConfig: LLMJinjaInputMessagesConfig;
-  toolsConfig?: LLMJinjaInputToolsConfig;
+  hasTools: boolean;
 }
 export const llmJinjaInputConfigSchema = z.object({
   messagesConfig: llmJinjaInputMessagesConfigSchema,
-  toolsConfig: llmJinjaInputToolsConfigSchema.optional(),
+  hasTools: z.boolean(),
 });
 
 /**

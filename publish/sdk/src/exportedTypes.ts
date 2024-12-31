@@ -94,8 +94,6 @@ export type {
   LLMJinjaInputMessagesContentConfig,
   LLMJinjaInputMessagesContentConfigTextFieldName,
   LLMJinjaInputMessagesContentImagesConfig,
-  LLMJinjaInputToolsConfig,
-  LLMJinjaInputToolsFieldName,
   LLMJinjaPromptTemplate,
   LLMLlamaAccelerationOffloadRatio,
   LLMLlamaAccelerationSetting,
