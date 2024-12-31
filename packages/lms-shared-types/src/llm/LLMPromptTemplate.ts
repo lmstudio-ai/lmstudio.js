@@ -273,8 +273,8 @@ export const llmJinjaInputMessagesConfigSchema = z.object({
 /**
  * @public
  */
-export type LLMJinjaInputToolsFieldName = "content" | "text";
-export const llmJinjaInputToolsFieldNameSchema = z.enum(["content", "text"]);
+export type LLMJinjaInputToolsFieldName = "tools" | "custom_tools";
+export const llmJinjaInputToolsFieldNameSchema = z.enum(["tools", "custom_tools"]);
 
 /**
  * @public
