@@ -278,11 +278,11 @@ export const llmJinjaInputMessagesConfigSchema = z.object({
  */
 export interface LLMJinjaInputConfig {
   messagesConfig: LLMJinjaInputMessagesConfig;
-  hasTools: boolean;
+  templateHasTools: boolean;
 }
 export const llmJinjaInputConfigSchema = z.object({
   messagesConfig: llmJinjaInputMessagesConfigSchema,
-  hasTools: z.boolean(),
+  templateHasTools: z.boolean(),
 });
 
 /**
