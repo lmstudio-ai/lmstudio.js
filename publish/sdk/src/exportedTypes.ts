@@ -89,7 +89,6 @@ export type {
   LLMConversationContextInput,
   LLMGenInfo,
   LLMJinjaInputConfig,
-  LLMJinjaInputFormat,
   LLMJinjaInputMessagesConfig,
   LLMJinjaInputMessagesContentConfig,
   LLMJinjaInputMessagesContentConfigTextFieldName,

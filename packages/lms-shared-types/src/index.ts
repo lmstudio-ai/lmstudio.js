@@ -130,8 +130,6 @@ export {
 export {
   LLMJinjaInputConfig,
   llmJinjaInputConfigSchema,
-  LLMJinjaInputFormat,
-  llmJinjaInputFormatSchema,
   LLMJinjaInputMessagesConfig,
   llmJinjaInputMessagesConfigSchema,
   LLMJinjaInputMessagesContentConfig,
