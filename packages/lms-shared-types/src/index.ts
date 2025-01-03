@@ -3,6 +3,13 @@ import { z } from "zod";
 /** @public */
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export const logLevelSchema = z.enum(["debug", "info", "warn", "error"]);
+export { ArtifactManifest, artifactManifestSchema } from "./ArtifactManifest.js";
+export {
+  ArtifactManifestBase,
+  artifactManifestBaseSchema,
+  kebabCaseRegex,
+  kebabCaseSchema,
+} from "./ArtifactManifestBase.js";
 export { BackendNotification, backendNotificationSchema } from "./BackendNotification.js";
 export {
   ChatHistoryData,
@@ -208,13 +215,12 @@ export {
   modelSpecifierSchema,
 } from "./ModelSpecifier.js";
 export {
-  kebabCaseRegex,
-  kebabCaseSchema,
   PluginManifest,
   pluginManifestSchema,
   PluginRunnerType,
   pluginRunnerTypeSchema,
 } from "./PluginManifest.js";
+export { PresetManifest, presetManifestSchema } from "./PresetManifest.js";
 export { reasonableKeyStringSchema } from "./reasonable.js";
 export {
   DownloadProgressUpdate,
