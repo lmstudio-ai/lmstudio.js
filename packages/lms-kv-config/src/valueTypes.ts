@@ -2,6 +2,7 @@ import {
   llmContextOverflowPolicySchema,
   llmContextReferenceSchema,
   llmLlamaAccelerationOffloadRatioSchema,
+  llmLlamaCacheQuantizationTypeSchema,
   llmLlamaLogitBiasConfigSchema,
   llmLlamaMirostatSamplingConfigSchema,
   llmPromptTemplateSchema,
@@ -543,6 +544,18 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     },
     stringify: value => {
       return JSON.stringify(value, null, 2); // TODO: pretty print
+    },
+  })
+  .valueType("llamaCacheQuantizationType", {
+    paramType: {},
+    schemaMaker: () => {
+      return llmLlamaCacheQuantizationTypeSchema;
+    },
+    effectiveEquals: (a, b) => {
+      return a === b;
+    },
+    stringify: value => {
+      return value;
     },
   })
   .valueType("retrievalChunkingMethod", {
