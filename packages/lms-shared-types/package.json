@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-shared-types",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -28,7 +28,7 @@
     "./dist/esm/**/*.js",
     "./dist/types/**/*.d.ts"
   ],
-  "gitHead": "4c289faeaed4ba13fdf6bf59de95bcabaf8a71ae",
+  "gitHead": "89cc39afdfc9e66602788edb678acc4993b6d5a6",
   "devDependencies": {
     "@swc/core": "^1.9.3",
     "@types/node": "^22.9.3"
