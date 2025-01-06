@@ -22,6 +22,7 @@ import {
   llmApplyPromptTemplateOptsSchema,
   type LLMCompletionContextInput,
   llmCompletionContextInputSchema,
+  type LLMJinjaInputConfig,
   type LLMPredictionConfig,
   llmPredictionConfigSchema,
   type LLMPredictionFragment,
@@ -75,6 +76,14 @@ function splitOpts(opts: LLMPredictionOpts): [LLMPredictionConfig, LLMPrediction
 const noFormattingTemplate = text`
   {% for message in messages %}{{ message['content'] }}{% endfor %}
 `;
+const noFormattingInputConfig: LLMJinjaInputConfig = {
+  messagesConfig: {
+    contentConfig: {
+      type: "string",
+    },
+  },
+  useTools: false,
+};
 
 /**
  * This represents a set of requirements for a model. It is not tied to a specific model, but rather
@@ -265,6 +274,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
                   bosToken: "",
                   eosToken: "",
                   template: noFormattingTemplate,
+                  inputConfig: noFormattingInputConfig,
                 },
                 stopStrings: [],
               },

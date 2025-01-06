@@ -132,11 +132,11 @@ export const llmJinjaInputMessagesConfigSchema = z.object({
  */
 export interface LLMJinjaInputConfig {
   messagesConfig: LLMJinjaInputMessagesConfig;
-  templateHasTools: boolean;
+  useTools: boolean;
 }
 export const llmJinjaInputConfigSchema = z.object({
   messagesConfig: llmJinjaInputMessagesConfigSchema,
-  templateHasTools: z.boolean(),
+  useTools: z.boolean(),
 });
 
 /**
@@ -155,13 +155,13 @@ export interface LLMJinjaPromptTemplate {
   /**
    * Config for how ChatHistoryData should be input to jinja for prompt rendering.
    */
-  inputConfig?: LLMJinjaInputConfig;
+  inputConfig: LLMJinjaInputConfig;
 }
 export const llmJinjaPromptTemplateSchema = z.object({
   template: z.string(),
   bosToken: z.string(),
   eosToken: z.string(),
-  inputConfig: llmJinjaInputConfigSchema.optional(),
+  inputConfig: llmJinjaInputConfigSchema,
 });
 
 /** @public */
