@@ -201,7 +201,19 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           )
           .field("keepModelInMemory", "boolean", {}, true)
           .field("useFp16ForKVCache", "boolean", {}, true)
-          .field("tryMmap", "boolean", {}, true),
+          .field("tryMmap", "boolean", {}, true)
+          .field(
+            "kCacheQuantizationType",
+            "llamaCacheQuantizationType",
+            { isExperimental: true, warning: "config:kvCacheQuantizationWarning" },
+            "f16",
+          )
+          .field(
+            "vCacheQuantizationType",
+            "llamaCacheQuantizationType",
+            { isExperimental: true, warning: "config:kvCacheQuantizationWarning" },
+            "f16",
+          ),
       ),
   )
   .scope("llama.load", builder =>
