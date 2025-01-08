@@ -1,4 +1,5 @@
 import {
+  allowableEnvVarsSchema,
   llmContextOverflowPolicySchema,
   llmContextReferenceSchema,
   llmLlamaAccelerationOffloadRatioSchema,
@@ -557,26 +558,10 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return JSON.stringify(value, null, 2); // TODO: pretty print
     },
   })
-  .valueType("stringMap", {
+  .valueType("envVars", {
     paramType: {},
     schemaMaker: () => {
-      return z
-        .array(
-          z.object({
-            key: z.string(),
-            value: z.string(),
-          }),
-        )
-        .refine(
-          items => {
-            const keys = items.map(item => item.key);
-            const uniqueKeys = new Set(keys);
-            return keys.length === uniqueKeys.size;
-          },
-          {
-            message: "Duplicate string keys are not allowed",
-          },
-        );
+      return allowableEnvVarsSchema;
     },
     effectiveEquals: (a, b) => {
       return deepEquals(a, b);

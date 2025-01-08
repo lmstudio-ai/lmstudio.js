@@ -23,7 +23,7 @@ import { kvValueTypesLibrary } from "./valueTypes.js";
 // ---------------------------
 
 export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
-  .field("envVars", "stringMap", {}, [])
+  .field("envVars", "envVars", {}, {})
   .scope("llm.prediction", builder =>
     builder
       .field(
@@ -317,7 +317,11 @@ export const llmLoadSchematics = globalConfigSchematics
   .scoped("llm.load")
   .union(globalConfigSchematics.sliced("envVars"));
 
-export const llmSharedLoadConfigSchematics = llmLoadSchematics.sliced("contextLength", "seed");
+export const llmSharedLoadConfigSchematics = llmLoadSchematics.sliced(
+  "contextLength",
+  "seed",
+  "envVars",
+);
 
 const llamaLoadConfigSchematics = globalConfigSchematics.sliced("llama.load.*");
 
@@ -352,7 +356,7 @@ export const retrievalSchematics = globalConfigSchematics.scoped("retrieval");
 
 export const embeddingLlamaLoadConfigSchematics = embeddingSharedLoadConfigSchematics
   .union(embeddingLoadSchematics.sliced("llama.*"))
-  .union(llmLlamaLoadConfigSchematics);
+  .union(llamaLoadConfigSchematics);
 
 export const emptyConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary).build();
 
