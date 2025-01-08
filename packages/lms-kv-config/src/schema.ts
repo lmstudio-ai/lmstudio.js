@@ -373,7 +373,7 @@ type ValueTypeMap =
 /**
  * Any config schematics that uses the value types defined in the type library.
  */
-export type TypedConfigSchematics = KVConfigSchematics<ValueTypeMap, any, any>;
+export type TypedConfigSchematics = KVConfigSchematics<ValueTypeMap, any>;
 
 export type GlobalKVValueTypeMap = InferValueTypeMap<typeof kvValueTypesLibrary>;
 /**
