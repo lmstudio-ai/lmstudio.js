@@ -1,6 +1,7 @@
 import { type Patch } from "@lmstudio/immer-with-plugins";
 import { type StripNotAvailable } from "./LazySignal.js";
 import { Subscribable } from "./Subscribable.js";
+import { makePromise } from "./makePromise.js";
 import { makeSetterWithPatches, type Setter, type WriteTag } from "./makeSetter.js";
 
 const equals = <TValue>(a: TValue, b: TValue) => a === b;
@@ -181,6 +182,25 @@ export class Signal<TValue> extends Subscribable<TValue> implements SignalLike<T
     return () => {
       this.subscribers.delete(subscriber);
     };
+  }
+
+  /**
+   * Wait until the signal satisfies a predicate. If the predicate is already satisfied, it will
+   * return immediately. Otherwise, it will wait until the signal satisfies the predicate.
+   */
+  public async until(predicate: (data: TValue) => boolean): Promise<TValue> {
+    const current = this.get();
+    if (predicate(current)) {
+      return current;
+    }
+    const { promise, resolve } = makePromise<TValue>();
+    const unsubscribe = this.subscribe(data => {
+      if (predicate(data)) {
+        resolve(data);
+        unsubscribe();
+      }
+    });
+    return await promise;
   }
 }
 
