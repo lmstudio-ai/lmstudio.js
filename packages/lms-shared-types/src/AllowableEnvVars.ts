@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-const allowableKeys = [
+/**
+ * @public
+ */
+export const allowableKeys = [
   "HSA_OVERRIDE_GFX_VERSION",
   // ... add more allowed keys here
 ] as const;
@@ -12,4 +15,5 @@ const allowableKeys = [
 export type AllowableEnvVars = Partial<Record<(typeof allowableKeys)[number], string>>;
 export const allowableEnvVarsSchema = z.record(
   z.enum(allowableKeys),
+  z.string(),
 ) as z.ZodSchema<AllowableEnvVars>;
