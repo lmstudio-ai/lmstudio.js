@@ -190,8 +190,7 @@ export class ProcessingController {
     return (
       configSchematics as KVConfigSchematics<
         GlobalKVFieldValueTypeLibraryMap,
-        TVirtualConfigSchematics,
-        ""
+        TVirtualConfigSchematics
       >
     ).parse(this.pluginConfig);
   }

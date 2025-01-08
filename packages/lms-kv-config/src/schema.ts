@@ -23,6 +23,7 @@ import { kvValueTypesLibrary } from "./valueTypes.js";
 // ---------------------------
 
 export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
+  .field("envVars", "envVars", {}, {})
   .scope("llm.prediction", builder =>
     builder
       .field(
@@ -171,17 +172,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .scope("llama", builder =>
         builder
           .scope("acceleration", builder =>
-            builder
-              .field(
-                "offloadRatio",
-                "llamaAccelerationOffloadRatio",
-                { machineDependent: true },
-                "max",
-              )
-              .field("mainGpu", "llamaAccelerationMainGpu", { machineDependent: true }, 0)
-              .field("tensorSplit", "llamaAccelerationTensorSplit", { machineDependent: true }, [
-                0,
-              ]),
+            builder.field(
+              "offloadRatio",
+              "llamaAccelerationOffloadRatio",
+              { machineDependent: true },
+              "max",
+            ),
           )
           .field("cpuThreadPoolSize", "numeric", { min: 1, machineDependent: true }, 4)
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
@@ -208,6 +204,11 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field("tryMmap", "boolean", {}, true),
       ),
   )
+  .scope("llama.load", builder =>
+    builder
+      .field("mainGpu", "llamaAccelerationMainGpu", { machineDependent: true }, 0)
+      .field("tensorSplit", "llamaAccelerationTensorSplit", { machineDependent: true }, [0]),
+  )
   .scope("embedding.load", builder =>
     builder
       .field("contextLength", "contextLength", { machineDependent: true }, 2048)
@@ -220,17 +221,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .scope("llama", builder =>
         builder
           .scope("acceleration", builder =>
-            builder
-              .field(
-                "offloadRatio",
-                "llamaAccelerationOffloadRatio",
-                { machineDependent: true },
-                "max",
-              )
-              .field("mainGpu", "llamaAccelerationMainGpu", { machineDependent: true }, 0)
-              .field("tensorSplit", "llamaAccelerationTensorSplit", { machineDependent: true }, [
-                0,
-              ]),
+            builder.field(
+              "offloadRatio",
+              "llamaAccelerationOffloadRatio",
+              { machineDependent: true },
+              "max",
+            ),
           )
           .field("evalBatchSize", "numeric", { min: 1, int: true }, 512)
           .field(
@@ -317,13 +313,21 @@ export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchema
 
 export const llmMistralrsPredictionConfigSchematics = llmSharedPredictionConfigSchematics;
 
-export const llmLoadSchematics = globalConfigSchematics.scoped("llm.load");
+export const llmLoadSchematics = globalConfigSchematics
+  .scoped("llm.load")
+  .union(globalConfigSchematics.sliced("envVars"));
 
-export const llmSharedLoadConfigSchematics = llmLoadSchematics.sliced("contextLength", "seed");
-
-export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
-  llmLoadSchematics.sliced("llama.*"),
+export const llmSharedLoadConfigSchematics = llmLoadSchematics.sliced(
+  "contextLength",
+  "seed",
+  "envVars",
 );
+
+const llamaLoadConfigSchematics = globalConfigSchematics.sliced("llama.load.*");
+
+export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics
+  .union(llmLoadSchematics.sliced("llama.*"))
+  .union(llamaLoadConfigSchematics);
 
 export const llmMlxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
   llmLoadSchematics.sliced("mlx.*"),
@@ -350,9 +354,9 @@ export const embeddingSharedLoadConfigSchematics = embeddingLoadSchematics.slice
 
 export const retrievalSchematics = globalConfigSchematics.scoped("retrieval");
 
-export const embeddingLlamaLoadConfigSchematics = embeddingSharedLoadConfigSchematics.union(
-  embeddingLoadSchematics.sliced("llama.*"),
-);
+export const embeddingLlamaLoadConfigSchematics = embeddingSharedLoadConfigSchematics
+  .union(embeddingLoadSchematics.sliced("llama.*"))
+  .union(llamaLoadConfigSchematics);
 
 export const emptyConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypesLibrary).build();
 

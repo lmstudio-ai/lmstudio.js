@@ -57,6 +57,8 @@ export type {
   KVVirtualFieldValueTypesMapping,
 } from "@lmstudio/lms-kv-config";
 export type {
+  AllowableEnvVarKeys,
+  AllowableEnvVars,
   ChatHistoryData,
   ChatMessageData,
   ChatMessagePartData,

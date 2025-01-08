@@ -1,4 +1,5 @@
 import {
+  allowableEnvVarsSchema,
   llmContextOverflowPolicySchema,
   llmContextReferenceSchema,
   llmLlamaAccelerationOffloadRatioSchema,
@@ -555,6 +556,18 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     },
     stringify: value => {
       return JSON.stringify(value, null, 2); // TODO: pretty print
+    },
+  })
+  .valueType("envVars", {
+    paramType: {},
+    schemaMaker: () => {
+      return allowableEnvVarsSchema;
+    },
+    effectiveEquals: (a, b) => {
+      return deepEquals(a, b);
+    },
+    stringify: value => {
+      return JSON.stringify(value, null, 2);
     },
   })
   .build();

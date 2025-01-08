@@ -1,6 +1,6 @@
 import { type SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type EmbeddingPort } from "@lmstudio/lms-external-backend-interfaces";
-import { embeddingLoadSchematics } from "@lmstudio/lms-kv-config";
+import { embeddingLlamaLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
   embeddingLoadModelConfigSchema,
   type EmbeddingLoadModelConfig,
@@ -29,10 +29,10 @@ export class EmbeddingNamespace extends ModelNamespace<
   protected override readonly loadModelConfigSchema = embeddingLoadModelConfigSchema;
   /** @internal */
   protected override loadConfigToKVConfig(config: EmbeddingLoadModelConfig): KVConfig {
-    return embeddingLoadSchematics.buildPartialConfig({
+    return embeddingLlamaLoadConfigSchematics.buildPartialConfig({
       "llama.acceleration.offloadRatio": config.gpuOffload?.ratio,
-      "llama.acceleration.mainGpu": config.gpuOffload?.mainGpu,
-      "llama.acceleration.tensorSplit": config.gpuOffload?.tensorSplit,
+      "llama.load.mainGpu": config.gpuOffload?.mainGpu,
+      "llama.load.tensorSplit": config.gpuOffload?.tensorSplit,
       "contextLength": config.contextLength,
       "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
       "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),

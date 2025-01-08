@@ -48,7 +48,9 @@ export type KVConfigLayerName =
   // Virtual model baked in configs
   | "virtualModel"
   // LM Studio provided per model defaults
-  | "modelDefault";
+  | "modelDefault"
+  // Hardware config
+  | "hardware";
 
 export const kvConfigLayerNameSchema = z.enum([
   "currentlyLoaded",
@@ -62,6 +64,7 @@ export const kvConfigLayerNameSchema = z.enum([
   "userModelDefault",
   "virtualModel",
   "modelDefault",
+  "hardware",
 ]);
 
 export interface KVConfigStackLayer {

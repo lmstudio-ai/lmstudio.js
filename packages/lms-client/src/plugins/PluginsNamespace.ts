@@ -374,7 +374,7 @@ export class PluginsNamespace {
       "setConfigSchematics",
       {
         schematics: (
-          configSchematics as KVConfigSchematics<GlobalKVFieldValueTypeLibraryMap, any, any>
+          configSchematics as KVConfigSchematics<GlobalKVFieldValueTypeLibraryMap, any>
         ).serialize(),
       },
       { stack },
