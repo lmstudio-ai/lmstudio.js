@@ -184,6 +184,10 @@ export class Signal<TValue> extends Subscribable<TValue> implements SignalLike<T
     };
   }
 
+  /**
+   * Wait until the signal satisfies a predicate. If the predicate is already satisfied, it will
+   * return immediately. Otherwise, it will wait until the signal satisfies the predicate.
+   */
   public async until(predicate: (data: TValue) => boolean): Promise<TValue> {
     const current = this.get();
     if (predicate(current)) {
