@@ -14,6 +14,7 @@ function isSignalLike<TValue>(value: Subscribable<TValue>): value is SignalLike<
     typeof (value as any).subscribe === "function"
   );
 }
+
 /**
  * Base class for objects that can be subscribed to. Provides common utility methods.
  */
