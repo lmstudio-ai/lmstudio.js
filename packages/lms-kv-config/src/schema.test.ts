@@ -1,4 +1,56 @@
+import { kvConfigField, KVConfigSchematicsBuilder, makeKVConfigFromFields } from "./KVConfig.js";
 import { globalConfigSchematics } from "./schema.js";
+import { kvValueTypesLibrary } from "./valueTypes.js";
+
+describe("KVConfig", () => {
+  describe("union", () => {
+    it("should work with root level schematics", () => {
+      const schematics1 = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
+        .field("a", "numeric", {}, 0)
+        .build();
+      const schematics2 = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
+        .field("b", "numeric", {}, 0)
+        .build();
+      const union = schematics1.union(schematics2);
+      const kvConfig = makeKVConfigFromFields([kvConfigField("a", 1), kvConfigField("b", 2)]);
+      const parsed = union.parse(kvConfig);
+      expect(parsed.get("a")).toBe(1);
+      expect(parsed.get("b")).toBe(2);
+    });
+    it("should work with nested level schematics", () => {
+      const schematics1 = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
+        .scope("nested", builder => builder.field("a", "numeric", {}, 0))
+        .build();
+      const schematics2 = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
+        .field("b", "numeric", {}, 0)
+        .build();
+      const union = schematics1.union(schematics2);
+      const kvConfig = makeKVConfigFromFields([
+        kvConfigField("nested.a", 1),
+        kvConfigField("b", 2),
+      ]);
+      const parsed = union.parse(kvConfig);
+      expect(parsed.get("nested.a")).toBe(1);
+      expect(parsed.get("b")).toBe(2);
+    });
+    it("should work with scoped schematics", () => {
+      const schematics1 = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
+        .scope("nested", builder => builder.field("a", "numeric", {}, 0))
+        .build();
+      const schematics2 = new KVConfigSchematicsBuilder(kvValueTypesLibrary)
+        .field("b", "numeric", {}, 0)
+        .build();
+      const union = schematics1.scoped("nested").union(schematics2);
+      const kvConfig = makeKVConfigFromFields([
+        kvConfigField("nested.a", 1),
+        kvConfigField("b", 2),
+      ]);
+      const parsed = union.parse(kvConfig);
+      expect(parsed.get("a")).toBe(1);
+      expect(parsed.get("b")).toBe(2);
+    });
+  });
+});
 
 describe("globalConfigSchematics", () => {
   describe("effectiveEquals", () => {
