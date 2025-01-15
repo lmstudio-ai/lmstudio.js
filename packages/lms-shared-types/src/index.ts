@@ -4,6 +4,7 @@ import { z } from "zod";
 export type LogLevel = "debug" | "info" | "warn" | "error";
 export const logLevelSchema = z.enum(["debug", "info", "warn", "error"]);
 export {
+  allowableEnvVarKeys,
   AllowableEnvVarKeys,
   allowableEnvVarKeysSchema,
   AllowableEnvVars,
