@@ -43,6 +43,24 @@ export const llmLlamaAccelerationSettingSchema = z.object({
   splitMode: llmSplitModeSchema,
 });
 
+/**
+ * Settings related to llama.cpp KV cache quantization
+ *
+ * @public
+ */
+export const llmLlamaCacheQuantizationTypes = [
+  "f32",
+  "f16",
+  "q8_0",
+  "q4_0",
+  "q4_1",
+  "iq4_nl",
+  "q5_0",
+  "q5_1",
+] as const;
+export type LLMLlamaCacheQuantizationType = (typeof llmLlamaCacheQuantizationTypes)[number];
+export const llmLlamaCacheQuantizationTypeSchema = z.enum(llmLlamaCacheQuantizationTypes);
+
 /** @public */
 export interface LLMLoadModelConfig {
   /**
@@ -76,6 +94,8 @@ export interface LLMLoadModelConfig {
   useFp16ForKVCache?: boolean;
   tryMmap?: boolean;
   numExperts?: number;
+  llamaKCacheQuantizationType?: LLMLlamaCacheQuantizationType;
+  llamaVCacheQuantizationType?: LLMLlamaCacheQuantizationType;
 }
 export const llmLoadModelConfigSchema = z.object({
   gpuOffload: llmLlamaAccelerationSettingSchema.optional(),
@@ -89,4 +109,6 @@ export const llmLoadModelConfigSchema = z.object({
   useFp16ForKVCache: z.boolean().optional(),
   tryMmap: z.boolean().optional(),
   numExperts: z.number().int().optional(),
+  llamaKCacheQuantizationType: z.enum(llmLlamaCacheQuantizationTypes).optional(),
+  llamaVCacheQuantizationType: z.enum(llmLlamaCacheQuantizationTypes).optional(),
 });

@@ -44,6 +44,8 @@ export class LLMNamespace extends ModelNamespace<
       "llama.useFp16ForKVCache": config.useFp16ForKVCache,
       "llama.tryMmap": config.tryMmap,
       "numExperts": config.numExperts,
+      "llama.kCacheQuantizationType": config.llamaKCacheQuantizationType,
+      "llama.vCacheQuantizationType": config.llamaVCacheQuantizationType,
     });
   }
   /** @internal */
