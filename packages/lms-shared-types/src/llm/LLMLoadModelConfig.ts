@@ -15,6 +15,17 @@ export const llmLlamaAccelerationOffloadRatioSchema = z.union([
 ]);
 
 /**
+ * How to split the model across GPUs.
+ * - "singleGpu": The model is run on a single GPU.
+ * - "layer": Splits layers and KV across GPUs.
+ * - "row": Splits layers and KV across GPUs, use tensor parallelism if supported
+ *
+ * @public
+ */
+export type LLMSplitMode = "singleGpu" | "layer" | "row";
+export const llmSplitModeSchema = z.enum(["singleGpu", "layer", "row"]);
+
+/**
  * Settings related to offloading work to the GPU.
  *
  * @public
@@ -23,11 +34,13 @@ export type LLMLlamaAccelerationSetting = {
   ratio: LLMLlamaAccelerationOffloadRatio;
   mainGpu: number;
   tensorSplit: Array<number>;
+  splitMode: LLMSplitMode;
 };
 export const llmLlamaAccelerationSettingSchema = z.object({
   ratio: llmLlamaAccelerationOffloadRatioSchema,
   mainGpu: z.number().int(),
   tensorSplit: z.array(z.number().int()),
+  splitMode: llmSplitModeSchema,
 });
 
 /** @public */

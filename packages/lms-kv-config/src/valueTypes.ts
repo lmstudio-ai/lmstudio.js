@@ -6,6 +6,7 @@ import {
   llmLlamaLogitBiasConfigSchema,
   llmLlamaMirostatSamplingConfigSchema,
   llmPromptTemplateSchema,
+  llmSplitModeSchema,
   llmStructuredPredictionSettingSchema,
   llmToolUseSettingSchema,
   modelDomainTypeSchema,
@@ -310,6 +311,25 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
           return t("config:customInputs.contextOverflowPolicy.truncateMiddle", "Truncate Middle");
         case "rollingWindow":
           return t("config:customInputs.contextOverflowPolicy.rollingWindow", "Rolling Window");
+      }
+    },
+  })
+  .valueType("splitMode", {
+    paramType: {},
+    schemaMaker: () => {
+      return llmSplitModeSchema;
+    },
+    effectiveEquals: (a, b) => {
+      return a === b;
+    },
+    stringify: (value, _typeParam, { t }) => {
+      switch (value) {
+        case "singleGpu":
+          return t("config:customInputs.splitMode.singleGpu", "Single GPU");
+        case "layer":
+          return t("config:customInputs.splitMode.layer", "Layer");
+        case "row":
+          return t("config:customInputs.splitMode.row", "Row");
       }
     },
   })
