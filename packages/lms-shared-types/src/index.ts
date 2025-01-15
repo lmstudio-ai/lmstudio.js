@@ -119,6 +119,8 @@ export {
   llmLlamaAccelerationSettingSchema,
   LLMLoadModelConfig,
   llmLoadModelConfigSchema,
+  LLMSplitMode,
+  llmSplitModeSchema,
 } from "./llm/LLMLoadModelConfig.js";
 export {
   LLMContextOverflowPolicy,

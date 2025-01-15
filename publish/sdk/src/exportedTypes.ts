@@ -105,6 +105,7 @@ export type {
   LLMPredictionStopReason,
   LLMPromptTemplate,
   LLMPromptTemplateType,
+  LLMSplitMode,
   LLMStructuredPredictionSetting,
   LLMTool,
   LLMToolParameters,

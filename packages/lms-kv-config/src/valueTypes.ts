@@ -6,6 +6,7 @@ import {
   llmLlamaLogitBiasConfigSchema,
   llmLlamaMirostatSamplingConfigSchema,
   llmPromptTemplateSchema,
+  llmSplitModeSchema,
   llmStructuredPredictionSettingSchema,
   llmToolUseSettingSchema,
   modelDomainTypeSchema,
@@ -520,6 +521,25 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     },
     stringify: value => {
       return value.join(", "); // TODO: Better display
+    },
+  })
+  .valueType("llamaAccelerationSplitMode", {
+    paramType: {},
+    schemaMaker: () => {
+      return llmSplitModeSchema;
+    },
+    effectiveEquals: (a, b) => {
+      return a === b;
+    },
+    stringify: (value, _typeParam, { t }) => {
+      switch (value) {
+        case "singleGpu":
+          return t("config:customInputs.llamaAccelerationSplitMode.singleGpu", "Single GPU");
+        case "layer":
+          return t("config:customInputs.llamaAccelerationSplitMode.layer", "Layer");
+        case "row":
+          return t("config:customInputs.llamaAccelerationSplitMode.row", "Row");
+      }
     },
   })
   .valueType("llamaMirostatSampling", {
