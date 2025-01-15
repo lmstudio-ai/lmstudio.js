@@ -208,7 +208,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
     builder
       .field("mainGpu", "llamaAccelerationMainGpu", { machineDependent: true }, 0)
       .field("tensorSplit", "llamaAccelerationTensorSplit", { machineDependent: true }, [0])
-      .field("splitMode", "splitMode", {}, "layer"),
+      .field("splitMode", "llamaAccelerationSplitMode", {}, "layer"),
   )
   .scope("embedding.load", builder =>
     builder
