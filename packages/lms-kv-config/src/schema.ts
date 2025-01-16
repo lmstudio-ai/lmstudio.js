@@ -205,7 +205,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           .field(
             "kCacheQuantizationType",
             "llamaCacheQuantizationType",
-            { isExperimental: true, warning: "config:kvCacheQuantizationWarning" },
+            { isExperimental: true },
             "f16",
           )
           .field(
