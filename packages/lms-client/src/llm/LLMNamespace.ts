@@ -8,6 +8,7 @@ import {
   type ModelDescriptor,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
+import { cacheQuantizationTypeToCheckbox } from "../cacheQuantizationTypeToCheckbox.js";
 import { ModelNamespace } from "../modelShared/ModelNamespace.js";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric.js";
 import { LLMDynamicHandle } from "./LLMDynamicHandle.js";
@@ -44,8 +45,14 @@ export class LLMNamespace extends ModelNamespace<
       "llama.useFp16ForKVCache": config.useFp16ForKVCache,
       "llama.tryMmap": config.tryMmap,
       "numExperts": config.numExperts,
-      "llama.kCacheQuantizationType": config.llamaKCacheQuantizationType,
-      "llama.vCacheQuantizationType": config.llamaVCacheQuantizationType,
+      "llama.kCacheQuantizationType": cacheQuantizationTypeToCheckbox({
+        value: config.llamaKCacheQuantizationType,
+        falseDefault: "f16",
+      }),
+      "llama.vCacheQuantizationType": cacheQuantizationTypeToCheckbox({
+        value: config.llamaVCacheQuantizationType,
+        falseDefault: "f16",
+      }),
     });
   }
   /** @internal */
