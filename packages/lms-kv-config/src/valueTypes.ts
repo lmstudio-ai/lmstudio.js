@@ -7,7 +7,7 @@ import {
   llmLlamaLogitBiasConfigSchema,
   llmLlamaMirostatSamplingConfigSchema,
   llmPromptTemplateSchema,
-  llmSplitModeSchema,
+  llmSplitStrategySchema,
   llmStructuredPredictionSettingSchema,
   llmToolUseSettingSchema,
   modelDomainTypeSchema,
@@ -524,22 +524,23 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return value.join(", "); // TODO: Better display
     },
   })
-  .valueType("llamaAccelerationSplitMode", {
+  .valueType("llamaAccelerationSplitStrategy", {
     paramType: {},
     schemaMaker: () => {
-      return llmSplitModeSchema;
+      return llmSplitStrategySchema;
     },
     effectiveEquals: (a, b) => {
       return a === b;
     },
     stringify: (value, _typeParam, { t }) => {
       switch (value) {
-        case "singleGpu":
-          return t("config:customInputs.llamaAccelerationSplitMode.singleGpu", "Single GPU");
-        case "layer":
-          return t("config:customInputs.llamaAccelerationSplitMode.layer", "Layer");
-        case "row":
-          return t("config:customInputs.llamaAccelerationSplitMode.row", "Row");
+        case "evenly":
+          return t("config:customInputs.llamaAccelerationSplitStrategy.evenly", "Evenly");
+        case "favorMainGpu":
+          return t(
+            "config:customInputs.llamaAccelerationSplitStrategy.favorMainGpu",
+            "Favor Main GPU",
+          );
       }
     },
   })

@@ -33,7 +33,7 @@ export class EmbeddingNamespace extends ModelNamespace<
       "llama.acceleration.offloadRatio": config.gpuOffload?.ratio,
       "llama.load.mainGpu": config.gpuOffload?.mainGpu,
       "llama.load.tensorSplit": config.gpuOffload?.tensorSplit,
-      "llama.load.splitMode": config.gpuOffload?.splitMode,
+      "llama.load.splitStrategy": config.gpuOffload?.splitStrategy,
       "contextLength": config.contextLength,
       "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
       "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),
