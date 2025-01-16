@@ -570,13 +570,25 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   .valueType("llamaCacheQuantizationType", {
     paramType: {},
     schemaMaker: () => {
-      return llmLlamaCacheQuantizationTypeSchema;
+      return z.object({
+        checked: z.boolean(),
+        value: llmLlamaCacheQuantizationTypeSchema,
+      });
     },
     effectiveEquals: (a, b) => {
-      return a === b;
+      if (a.checked !== b.checked) {
+        return false;
+      }
+      if (!a.checked) {
+        return true;
+      }
+      return a.value === b.value;
     },
-    stringify: value => {
-      return value;
+    stringify: (value, _typeParam, { t }) => {
+      if (!value.checked) {
+        return t("config:customInputs.llamaCacheQuantizationType.off", "OFF");
+      }
+      return value.value;
     },
   })
   .valueType("retrievalChunkingMethod", {
