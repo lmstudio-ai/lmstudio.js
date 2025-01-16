@@ -94,8 +94,8 @@ export interface LLMLoadModelConfig {
   useFp16ForKVCache?: boolean;
   tryMmap?: boolean;
   numExperts?: number;
-  llamaKCacheQuantizationType?: LLMLlamaCacheQuantizationType;
-  llamaVCacheQuantizationType?: LLMLlamaCacheQuantizationType;
+  llamaKCacheQuantizationType?: LLMLlamaCacheQuantizationType | false;
+  llamaVCacheQuantizationType?: LLMLlamaCacheQuantizationType | false;
 }
 export const llmLoadModelConfigSchema = z.object({
   gpuOffload: llmLlamaAccelerationSettingSchema.optional(),
@@ -109,6 +109,12 @@ export const llmLoadModelConfigSchema = z.object({
   useFp16ForKVCache: z.boolean().optional(),
   tryMmap: z.boolean().optional(),
   numExperts: z.number().int().optional(),
-  llamaKCacheQuantizationType: z.enum(llmLlamaCacheQuantizationTypes).optional(),
-  llamaVCacheQuantizationType: z.enum(llmLlamaCacheQuantizationTypes).optional(),
+  llamaKCacheQuantizationType: z
+    .enum(llmLlamaCacheQuantizationTypes)
+    .or(z.literal(false))
+    .optional(),
+  llamaVCacheQuantizationType: z
+    .enum(llmLlamaCacheQuantizationTypes)
+    .or(z.literal(false))
+    .optional(),
 });
