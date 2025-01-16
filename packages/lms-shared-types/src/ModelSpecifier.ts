@@ -62,11 +62,17 @@ export interface ModelQuery {
    * ```
    */
   path?: string;
+  /**
+   * If true, the model must have vision capabilities. If false, the model must not have vision
+   * capabilities.
+   */
+  vision?: boolean;
 }
 export const modelQuerySchema = z.object({
   domain: modelDomainTypeSchema.optional(),
   identifier: reasonableKeyStringSchema.optional(),
   path: reasonableKeyStringSchema.optional(),
+  vision: z.boolean().optional(),
 });
 
 export const modelSpecifierSchema = z.discriminatedUnion("type", [

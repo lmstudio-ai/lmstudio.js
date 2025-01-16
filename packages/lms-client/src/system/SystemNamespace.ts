@@ -54,4 +54,8 @@ export class SystemNamespace {
 
     await this.systemPort.callRpc("notify", notification, { stack });
   }
+  public async getLMStudioVersion(): Promise<{ version: string; build: number }> {
+    const stack = getCurrentStack(1);
+    return await this.systemPort.callRpc("version", undefined, { stack });
+  }
 }
