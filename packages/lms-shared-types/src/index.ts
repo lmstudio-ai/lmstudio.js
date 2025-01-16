@@ -122,8 +122,8 @@ export {
   llmLlamaCacheQuantizationTypeSchema,
   LLMLoadModelConfig,
   llmLoadModelConfigSchema,
-  LLMSplitMode,
-  llmSplitModeSchema,
+  LLMSplitStrategy,
+  llmSplitStrategySchema,
 } from "./llm/LLMLoadModelConfig.js";
 export {
   LLMContextOverflowPolicy,
