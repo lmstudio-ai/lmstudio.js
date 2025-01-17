@@ -2,13 +2,13 @@ export { ChatHistory, ChatMessage } from "./ChatHistory.js";
 export type { ChatHistoryLike } from "./ChatHistory.js";
 export {
   ConfigSchematics,
-  ConfigSchematicsBuilder,
-  ParsedConfig,
-  VirtualConfigSchematics,
   configSchematicsBrand,
+  ConfigSchematicsBuilder,
   configSchematicsBuilderBrand,
   createConfigSchematics,
+  ParsedConfig,
   parsedConfigBrand,
+  VirtualConfigSchematics,
 } from "./customConfig.js";
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace.js";
 export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle.js";
