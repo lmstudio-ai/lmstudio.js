@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-client",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -11,11 +11,11 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lmstudio/lms-common": "^0.7.4",
-    "@lmstudio/lms-external-backend-interfaces": "^0.2.4",
+    "@lmstudio/lms-common": "^0.7.5",
+    "@lmstudio/lms-external-backend-interfaces": "^0.2.5",
     "@lmstudio/lms-isomorphic": "^0.4.2",
-    "@lmstudio/lms-kv-config": "^0.2.2",
-    "@lmstudio/lms-shared-types": "^0.6.2",
+    "@lmstudio/lms-kv-config": "^0.2.3",
+    "@lmstudio/lms-shared-types": "^0.6.3",
     "boxen": "^5.1.2",
     "chalk": "^4.1.2",
     "process": "^0.11.10",
@@ -35,5 +35,5 @@
     "./dist/esm/**/*.js",
     "./dist/types/**/*.d.ts"
   ],
-  "gitHead": "89cc39afdfc9e66602788edb678acc4993b6d5a6"
+  "gitHead": "2ede876e4725fe33dc235547cbb6d0011dafc0d5"
 }
