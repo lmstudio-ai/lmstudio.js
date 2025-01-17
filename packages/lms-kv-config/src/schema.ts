@@ -230,7 +230,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { checked: false, value: 64 },
           )
           .field(
-            "kvCacheQuantizationStartType",
+            "kvCacheQuantizationStart",
             "checkboxNumeric",
             { int: true, min: 0 },
             { checked: false, value: 5000 },
