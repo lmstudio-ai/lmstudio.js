@@ -41,7 +41,7 @@ export {
   chatMessageRoleDataSchema,
 } from "./ChatHistoryData.js";
 export { CitationSource, citationSourceSchema } from "./CitationSource.js";
-export { ColorPalette, colorPalette } from "./ColorPalette.js";
+export { ColorPalette, colorPalette, colorPaletteSchema } from "./ColorPalette.js";
 export {
   DiagnosticsLogEvent,
   DiagnosticsLogEventData,
@@ -82,6 +82,7 @@ export {
   kvConfigStackLayerSchema,
   kvConfigStackSchema,
 } from "./KVConfig.js";
+export { ContentBlockStyle, contentBlockStyleSchema } from "./llm/ContentBlockStyle.js";
 export {
   LLMApplyPromptTemplateOpts,
   llmApplyPromptTemplateOptsSchema,

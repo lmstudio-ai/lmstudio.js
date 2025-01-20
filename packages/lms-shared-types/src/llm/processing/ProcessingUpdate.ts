@@ -1,5 +1,5 @@
 import { z, type ZodSchema } from "zod";
-import { colorPalette, type ColorPalette } from "../../ColorPalette.js";
+import { contentBlockStyleSchema, type ContentBlockStyle } from "../ContentBlockStyle.js";
 import { llmGenInfoSchema, type LLMGenInfo } from "../LLMPredictionStats.js";
 
 export type BlockLocation =
@@ -121,15 +121,17 @@ export type ProcessingUpdateContentBlockCreate = {
   type: "contentBlock.create";
   id: string;
   includeInContext: boolean;
-  label?: string;
-  labelColor?: ColorPalette;
+  style?: ContentBlockStyle;
+  prefix?: string;
+  suffix?: string;
 };
 export const processingUpdateContentBlockCreateSchema = z.object({
   type: z.literal("contentBlock.create"),
   id: z.string(),
   includeInContext: z.boolean(),
-  label: z.string().optional(),
-  labelColor: colorPalette.optional(),
+  style: contentBlockStyleSchema.optional(),
+  prefix: z.string().optional(),
+  suffix: z.string().optional(),
 });
 
 export type ProcessingUpdateContentBlockAppendText = {

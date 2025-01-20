@@ -6,7 +6,7 @@ import {
   kvConfigToLLMPredictionConfig,
 } from "@lmstudio/lms-kv-config";
 import {
-  type ColorPalette,
+  type ContentBlockStyle,
   type KVConfig,
   type KVConfigStack,
   type LLMGenInfo,
@@ -133,8 +133,9 @@ interface ProcessingControllerHandle {
  */
 export interface CreateContentBlockOpts {
   includeInContext?: boolean;
-  label?: string;
-  labelColor?: ColorPalette;
+  style?: ContentBlockStyle;
+  prefix?: string;
+  suffix?: string;
 }
 
 /**
@@ -280,16 +281,18 @@ export class ProcessingController {
 
   public createContentBlock({
     includeInContext = true,
-    label = undefined,
-    labelColor = undefined,
+    style,
+    prefix,
+    suffix,
   }: CreateContentBlockOpts = {}): PredictionProcessContentBlockController {
     const id = createId();
     this.sendUpdate({
       type: "contentBlock.create",
       id,
       includeInContext,
-      label,
-      labelColor,
+      style,
+      prefix,
+      suffix,
     });
     const contentBlockController = new PredictionProcessContentBlockController(
       this.processingControllerHandle,
