@@ -17,6 +17,8 @@ export type ContentBlockStyle =
     }
   | {
       type: "thinking";
+      ended?: boolean;
+      title?: string;
     };
 export const contentBlockStyleSchema = z.discriminatedUnion("type", [
   z.object({
@@ -29,5 +31,7 @@ export const contentBlockStyleSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("thinking"),
+    ended: z.boolean().optional(),
+    title: z.string().optional(),
   }),
 ]) as z.Schema<ContentBlockStyle>;

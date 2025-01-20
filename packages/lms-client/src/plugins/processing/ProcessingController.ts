@@ -504,6 +504,13 @@ export class PredictionProcessContentBlockController {
       text,
     });
   }
+  public setStyle(style: ContentBlockStyle) {
+    this.handle.sendUpdate({
+      type: "contentBlock.setStyle",
+      id: this.id,
+      style,
+    });
+  }
   public attachGenInfo(genInfo: LLMGenInfo) {
     this.handle.sendUpdate({
       type: "contentBlock.attachGenInfo",

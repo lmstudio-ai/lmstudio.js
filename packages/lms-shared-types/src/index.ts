@@ -199,6 +199,8 @@ export {
   processingUpdateContentBlockCreateSchema,
   ProcessingUpdateContentBlockReplaceText,
   processingUpdateContentBlockReplaceTextSchema,
+  ProcessingUpdateContentBlockSetStyle,
+  processingUpdateContentBlockSetStyleSchema,
   ProcessingUpdateDebugInfoBlockCreate,
   processingUpdateDebugInfoBlockCreateSchema,
   ProcessingUpdateOf,
