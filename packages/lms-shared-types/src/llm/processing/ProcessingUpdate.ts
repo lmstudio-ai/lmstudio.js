@@ -167,6 +167,17 @@ export const processingUpdateContentBlockAttachGenInfoSchema = z.object({
   genInfo: llmGenInfoSchema,
 });
 
+export type ProcessingUpdateContentBlockSetStyle = {
+  type: "contentBlock.setStyle";
+  id: string;
+  style: ContentBlockStyle;
+};
+export const processingUpdateContentBlockSetStyleSchema = z.object({
+  type: z.literal("contentBlock.setStyle"),
+  id: z.string(),
+  style: contentBlockStyleSchema,
+});
+
 export type ProcessingUpdateSetSenderName = {
   type: "setSenderName";
   name: string;
@@ -188,6 +199,7 @@ export type ProcessingUpdate =
   | ProcessingUpdateContentBlockAppendText
   | ProcessingUpdateContentBlockReplaceText
   | ProcessingUpdateContentBlockAttachGenInfo
+  | ProcessingUpdateContentBlockSetStyle
   | ProcessingUpdateSetSenderName;
 export const processingUpdateSchema = z.discriminatedUnion("type", [
   processingUpdateStatusCreateSchema,
@@ -199,6 +211,7 @@ export const processingUpdateSchema = z.discriminatedUnion("type", [
   processingUpdateContentBlockAppendTextSchema,
   processingUpdateContentBlockReplaceTextSchema,
   processingUpdateContentBlockAttachGenInfoSchema,
+  processingUpdateContentBlockSetStyleSchema,
   processingUpdateSetSenderNameSchema,
 ]) as ZodSchema<ProcessingUpdate>;
 

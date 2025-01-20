@@ -5,6 +5,7 @@ import {
   processingUpdateContentBlockAttachGenInfoSchema,
   processingUpdateContentBlockCreateSchema,
   processingUpdateContentBlockReplaceTextSchema,
+  processingUpdateContentBlockSetStyleSchema,
   processingUpdateDebugInfoBlockCreateSchema,
   processingUpdateSetSenderNameSchema,
   processingUpdateStatusCreateSchema,
@@ -15,6 +16,7 @@ import {
   type ProcessingUpdateContentBlockAttachGenInfo,
   type ProcessingUpdateContentBlockCreate,
   type ProcessingUpdateContentBlockReplaceText,
+  type ProcessingUpdateContentBlockSetStyle,
   type ProcessingUpdateDebugInfoBlockCreate,
   type ProcessingUpdateSetSenderName,
   type ProcessingUpdateStatusCreate,
@@ -32,6 +34,7 @@ export type GeneratorUpdate =
   | ProcessingUpdateContentBlockAppendText
   | ProcessingUpdateContentBlockReplaceText
   | ProcessingUpdateContentBlockAttachGenInfo
+  | ProcessingUpdateContentBlockSetStyle
   | ProcessingUpdateSetSenderName;
 export const generatorUpdateSchema = z.discriminatedUnion("type", [
   processingUpdateStatusCreateSchema,
@@ -43,5 +46,6 @@ export const generatorUpdateSchema = z.discriminatedUnion("type", [
   processingUpdateContentBlockAppendTextSchema,
   processingUpdateContentBlockReplaceTextSchema,
   processingUpdateContentBlockAttachGenInfoSchema,
+  processingUpdateContentBlockSetStyleSchema,
   processingUpdateSetSenderNameSchema,
 ]) as z.Schema<GeneratorUpdate>;
