@@ -593,12 +593,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     },
   })
   .valueType("mlxKvCacheBitsType", {
-    paramType: {
-      description: z
-        .string()
-        .optional()
-        .default("Number of bits used for MLX KV cache quantization"),
-    },
+    paramType: {},
     schemaMaker: () => {
       const validBits = new Set([2, 3, 4, 6, 8]);
       const bitsSchema = z
@@ -630,9 +625,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     },
   })
   .valueType("mlxKvCacheGroupSizeType", {
-    paramType: {
-      description: z.string().optional().default("Group size for MLX KV cache quantization"),
-    },
+    paramType: {},
     schemaMaker: () => {
       const validSizes = new Set([32, 64, 128]);
       const sizeSchema = z
@@ -664,9 +657,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     },
   })
   .valueType("mlxKvCacheQuantizationStartType", {
-    paramType: {
-      description: z.string().optional().default("Minumum length to enable KV cache quantization"),
-    },
+    paramType: {},
     schemaMaker: () => {
       return z.object({
         checked: z.boolean(),
