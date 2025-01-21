@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-communication-client",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "description": "",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -15,8 +15,8 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@lmstudio/immer-with-plugins": "^10.1.1",
-    "@lmstudio/lms-common": "^0.7.5",
-    "@lmstudio/lms-communication": "^0.6.5",
+    "@lmstudio/lms-common": "^0.7.6",
+    "@lmstudio/lms-communication": "^0.6.6",
     "@lmstudio/lms-isomorphic": "^0.4.2"
   },
   "exports": {
@@ -34,5 +34,5 @@
     "./dist/types/**/*.d.ts"
   ],
   "sideEffects": false,
-  "gitHead": "2ede876e4725fe33dc235547cbb6d0011dafc0d5"
+  "gitHead": "d83d75dc12896191a2000e0b37c1dc9b44671445"
 }
