@@ -60,6 +60,18 @@ export const llmLlamaCacheQuantizationTypes = [
 export type LLMLlamaCacheQuantizationType = (typeof llmLlamaCacheQuantizationTypes)[number];
 export const llmLlamaCacheQuantizationTypeSchema = z.enum(llmLlamaCacheQuantizationTypes);
 
+/**
+ * Settings related to MLX KV cache quantization
+ *
+ * @public
+ */
+export const llmMlxKvCacheBitsTypes = ["8-bit", "6-bit", "4-bit", "3-bit", "2-bit"] as const;
+export type LLMMlxKvCacheBitsType = (typeof llmMlxKvCacheBitsTypes)[number];
+export const llmMlxKvCacheBitsTypeSchema = z.enum(llmMlxKvCacheBitsTypes);
+export const llmMlxKvCacheGroupSizeTypes = ["32", "64", "128"] as const;
+export type LLMMlxKvCacheGroupSizeType = (typeof llmMlxKvCacheGroupSizeTypes)[number];
+export const llmMlxKvCacheGroupSizeTypesSchema = z.enum(llmMlxKvCacheGroupSizeTypes);
+
 /** @public */
 export interface LLMLoadModelConfig {
   /**
