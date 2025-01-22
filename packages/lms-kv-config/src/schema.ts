@@ -216,10 +216,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           ),
       )
       .scope("mlx", builder =>
-        builder
-          .field("kvCacheBits", "mlxKvCacheBitsType", {}, { checked: false, value: "8-bit" })
-          .field("kvCacheGroupSize", "mlxKvCacheGroupSizeType", {}, "64")
-          .field("kvCacheQuantizationStart", "numeric", { min: 0, int: true }, 5000),
+        builder.field(
+          "kvCacheQuantization",
+          "mlxKvCacheQuantizationType",
+          {},
+          { checked: false, bits: "8-bit", groupSize: "64", quantizedStart: 5000 },
+        ),
       ),
   )
   .scope("llama.load", builder =>

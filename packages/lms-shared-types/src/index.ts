@@ -129,6 +129,7 @@ export {
   LLMMlxKvCacheGroupSizeType,
   llmMlxKvCacheGroupSizeTypes,
   llmMlxKvCacheGroupSizeTypesSchema,
+  llmMlxKvCacheQuantizationSchema,
   LLMSplitStrategy,
   llmSplitStrategySchema,
 } from "./llm/LLMLoadModelConfig.js";

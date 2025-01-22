@@ -71,6 +71,12 @@ export const llmMlxKvCacheBitsTypeSchema = z.enum(llmMlxKvCacheBitsTypes);
 export const llmMlxKvCacheGroupSizeTypes = ["32", "64", "128"] as const;
 export type LLMMlxKvCacheGroupSizeType = (typeof llmMlxKvCacheGroupSizeTypes)[number];
 export const llmMlxKvCacheGroupSizeTypesSchema = z.enum(llmMlxKvCacheGroupSizeTypes);
+export const llmMlxKvCacheQuantizationSchema = z.object({
+  checked: z.boolean(),
+  bits: llmMlxKvCacheBitsTypeSchema,
+  groupSize: llmMlxKvCacheGroupSizeTypesSchema,
+  quantizedStart: z.number().int().nonnegative(),
+});
 
 /** @public */
 export interface LLMLoadModelConfig {
