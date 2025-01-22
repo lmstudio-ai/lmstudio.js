@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-kv-config",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -32,5 +32,5 @@
     "./dist/types/**/*.d.ts"
   ],
   "sideEffects": false,
-  "gitHead": "d83d75dc12896191a2000e0b37c1dc9b44671445"
+  "gitHead": "d45f47e6474c0a3ce505084ee2e2b6dbc3646fb0"
 }

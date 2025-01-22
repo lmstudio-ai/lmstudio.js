@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-isomorphic",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "",
   "main": "dist/cjs/index.js",
   "browser": "dist/cjs/browser.js",
@@ -17,5 +17,5 @@
     "ws": "^8.16.0"
   },
   "sideEffects": false,
-  "gitHead": "941995f06f9351b6e6970dc190f89385805cef7f"
+  "gitHead": "d45f47e6474c0a3ce505084ee2e2b6dbc3646fb0"
 }
