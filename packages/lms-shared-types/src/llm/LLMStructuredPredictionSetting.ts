@@ -2,6 +2,12 @@ import { z } from "zod";
 import { jsonSerializableSchema } from "../JSONSerializable.js";
 
 /**
+ * @public
+ */
+export type LLMStructuredPredictionType = "none" | "json";
+export const llmStructuredPredictionTypeSchema = z.enum(["none", "json"]);
+
+/**
  * Settings for structured prediction. Structured prediction is a way to force the model to generate
  * predictions that conform to a specific structure.
  *
@@ -53,21 +59,12 @@ import { jsonSerializableSchema } from "../JSONSerializable.js";
  *
  * @public
  */
-export type LLMStructuredPredictionSetting =
-  | {
-      type: "none";
-    }
-  | {
-      type: "json";
-      jsonSchema?: any;
-    };
+export type LLMStructuredPredictionSetting = {
+  type: LLMStructuredPredictionType;
+  jsonSchema?: any;
+};
 
-export const llmStructuredPredictionSettingSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("none"),
-  }),
-  z.object({
-    type: z.literal("json"),
-    jsonSchema: jsonSerializableSchema.optional(),
-  }),
-]);
+export const llmStructuredPredictionSettingSchema = z.object({
+  type: llmStructuredPredictionTypeSchema,
+  jsonSchema: jsonSerializableSchema.optional(),
+});

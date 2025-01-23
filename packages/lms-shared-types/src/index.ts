@@ -170,6 +170,8 @@ export {
 export {
   LLMStructuredPredictionSetting,
   llmStructuredPredictionSettingSchema,
+  LLMStructuredPredictionType,
+  llmStructuredPredictionTypeSchema,
 } from "./llm/LLMStructuredPredictionSetting.js";
 export {
   LLMTool,
