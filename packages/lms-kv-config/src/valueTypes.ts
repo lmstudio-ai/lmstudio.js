@@ -457,7 +457,9 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
         return deepEquals(a, b);
       } else if (a.type === "none" && b.type === "none") {
         return true;
-      } else return false;
+      } else {
+        return false;
+      }
     },
     stringify: value => {
       return JSON.stringify(value, null, 2); // TODO: pretty print
