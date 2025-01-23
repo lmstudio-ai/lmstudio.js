@@ -173,6 +173,16 @@ export class Signal<TValue> extends Subscribable<TValue> implements SignalLike<T
     };
   }
 
+  /**
+   * Subscribes to the signal with the callback and trigger the callback immediately with the
+   * current value.
+   */
+  public subscribeAndNow(callback: Subscriber<TValue>): () => void {
+    const unsubscribe = this.subscribe(callback);
+    callback(this.value);
+    return unsubscribe;
+  }
+
   public subscribeFull(callback: SignalFullSubscriber<TValue>): () => void {
     const subscriber: InternalSubscriber<TValue> = {
       type: "full",
