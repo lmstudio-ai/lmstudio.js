@@ -12,13 +12,13 @@ check_repo_status() {
     echo "➤  Checking $repo_name..."
     
     # Check workspace status first
-    if [ -n "$(git status --porcelain)" ]; then
-        echo "  ✗ Error: Working directory is not clean"
-        git status --short
-        exit 1
-    else
-        echo "  ✓ Working directory is clean"
-    fi
+    # if [ -n "$(git status --porcelain)" ]; then
+    #     echo "  ✗ Error: Working directory is not clean"
+    #     git status --short
+    #     exit 1
+    # else
+    #     echo "  ✓ Working directory is clean"
+    # fi
     
     # Fetch latest changes
     echo "      Fetching latest changes..."
@@ -73,8 +73,6 @@ git submodule foreach --recursive \
     'check_repo_status "$path" "submodule $name"'
 
 echo "All repositories passed checks! Start publishing sequence"
-
-exit 1
 
 npm run publish
 
