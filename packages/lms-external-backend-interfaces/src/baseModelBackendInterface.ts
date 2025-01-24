@@ -18,6 +18,10 @@ export function createBaseModelBackendInterface() {
       creationParameter: z.object({
         path: z.string(),
         identifier: z.string().optional(),
+        /**
+         * If provided, when the model is not used for this amount of time, it will be unloaded.
+         */
+        ttlMs: z.number().int().min(1).optional(),
         loadConfigStack: kvConfigStackSchema,
       }),
       toClientPacket: z.discriminatedUnion("type", [
@@ -73,6 +77,11 @@ export function createBaseModelBackendInterface() {
     .addChannelEndpoint("getOrLoad", {
       creationParameter: z.object({
         identifier: z.string(),
+        /**
+         * If provided and a new instance is loaded as a result of this call, it will be unloaded
+         * after idling for this amount of time.
+         */
+        loadTtlMs: z.number().int().min(1).optional(),
         loadConfigStack: kvConfigStackSchema,
       }),
       toClientPacket: z.discriminatedUnion("type", [

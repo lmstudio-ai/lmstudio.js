@@ -68,6 +68,13 @@ export interface BaseLoadModelOpts<TLoadModelConfig> {
   signal?: AbortSignal;
 
   /**
+   * Idle time to live (TTL) in seconds. If specified, when the model is not used for the specified number
+   * of seconds, the model will be automatically unloaded. If the model is used before the TTL, the
+   * timer will be reset.
+   */
+  ttl?: number;
+
+  /**
    * Controls the logging of model loading progress.
    *
    * - If set to `true`, logs progress at the "info" level.
@@ -98,6 +105,7 @@ function makeLoadModelOptsSchema<TLoadModelConfig>(
     identifier: z.string().optional(),
     config: loadModelConfigSchema.optional(),
     signal: z.instanceof(AbortSignal).optional(),
+    ttl: z.number().optional(),
     verbose: z.union([z.boolean(), logLevelSchema]).optional(),
     onProgress: z.function().optional(),
   });
@@ -249,6 +257,7 @@ export abstract class ModelNamespace<
       {
         path,
         identifier,
+        ttlMs: opts.ttl === undefined ? undefined : opts.ttl * 1000,
         loadConfigStack: singleLayerKVConfigStackOf(
           "apiOverride",
           this.loadConfigToKVConfig(config ?? this.defaultLoadConfig),
@@ -616,6 +625,7 @@ export abstract class ModelNamespace<
       "getOrLoad",
       {
         identifier: autoIdentifier,
+        loadTtlMs: opts.ttl === undefined ? undefined : opts.ttl * 1000,
         loadConfigStack: singleLayerKVConfigStackOf(
           "apiOverride",
           this.loadConfigToKVConfig(config ?? this.defaultLoadConfig),
