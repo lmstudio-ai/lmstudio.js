@@ -68,7 +68,7 @@ export interface BaseLoadModelOpts<TLoadModelConfig> {
   signal?: AbortSignal;
 
   /**
-   * Idle time to live in seconds. If specified, when the model is not used for the specified number
+   * Idle time to live (TTL) in seconds. If specified, when the model is not used for the specified number
    * of seconds, the model will be automatically unloaded. If the model is used before the TTL, the
    * timer will be reset.
    */
