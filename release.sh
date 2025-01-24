@@ -2,15 +2,79 @@
 
 set -e
 
-if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
-    echo "You are not on the 'main' branch. Exiting."
-    exit 1
-fi
+git submodule update --recursive --init
 
-if [[ -n $(git status --porcelain) || -n $(git submodule --quiet foreach --recursive git status --porcelain) ]]; then
-  echo "Error: Workspace or submodules are not clean. Please commit or stash your changes."
-  exit 1
-fi
+# Function to check repository status
+check_repo_status() {
+    local repo_path=$1
+    local repo_name=$2
+    
+    echo "➤  Checking $repo_name..."
+    
+    # Check workspace status first
+    if [ -n "$(git status --porcelain)" ]; then
+        echo "  ✗ Error: Working directory is not clean"
+        git status --short
+        exit 1
+    else
+        echo "  ✓ Working directory is clean"
+    fi
+    
+    # Fetch latest changes
+    echo "      Fetching latest changes..."
+    git fetch
+    
+    # Get current HEAD commit
+    current_head=$(git rev-parse HEAD)
+    # Get origin/main commit
+    origin_main_commit=$(git rev-parse origin/main)
+    
+    # Check if HEAD points to the same commit as origin/main
+    if [ "$current_head" = "$origin_main_commit" ]; then
+        echo "      HEAD points to same commit as origin/main"
+        # If in detached HEAD state, checkout main
+        if ! git symbolic-ref -q HEAD >/dev/null; then
+            echo "      HEAD is detached, checking out main branch..."
+            git checkout main
+        fi
+    else
+        echo "  ✗ Error: HEAD points to different commit than origin/main"
+        exit 1
+    fi
+    
+    # Check for unpushed changes
+    if [ -n "$(git log @{u}.. 2>/dev/null)" ]; then
+        echo "  ✗ Error: There are unpushed changes"
+        exit 1
+    else
+        echo "  ✓ No unpushed changes"
+    fi
+    
+    # Check for unpulled changes
+    if [ -n "$(git log ..@{u} 2>/dev/null)" ]; then
+        echo "  ✗ Error: There are unpulled changes"
+        exit 1
+    else
+        echo "  ✓ No unpulled changes"
+    fi
+    
+    echo "✓ All checks passed for $repo_name"
+    echo "-----------------------------------"
+}
+
+export -f check_repo_status
+
+# Check main repository
+main_repo_path=$(git rev-parse --show-toplevel)
+check_repo_status "$main_repo_path" "main repository"
+
+# Check each submodule
+git submodule foreach --recursive \
+    'check_repo_status "$path" "submodule $name"'
+
+echo "All repositories passed checks! Start publishing sequence"
+
+exit 1
 
 npm run publish
 
