@@ -220,7 +220,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           "kvCacheQuantization",
           "mlxKvCacheQuantizationType",
           {},
-          { checked: false, bits: "8-bit", groupSize: 64, quantizedStart: 5000 },
+          { checked: false, bits: 8, groupSize: 64, quantizedStart: 5000 },
         ),
       ),
   )
