@@ -48,7 +48,16 @@ export {
   diagnosticsLogEventDataSchema,
   diagnosticsLogEventSchema,
 } from "./diagnostics/DiagnosticsLogEvent.js";
-export { DownloadedModel, downloadedModelSchema } from "./DownloadedModel.js";
+export {
+  DownloadedEmbeddingModel,
+  downloadedEmbeddingModelSchema,
+  DownloadedLLM,
+  downloadedLLMSchema,
+  DownloadedModel,
+  DownloadedModelBase,
+  downloadedModelBase,
+  downloadedModelSchema,
+} from "./DownloadedModel.js";
 export {
   EmbeddingLoadModelConfig,
   embeddingLoadModelConfigSchema,
