@@ -403,6 +403,26 @@ export class KVConfigSchematics<
     return field;
   }
 
+  public obtainFieldByFullKey(fullKey: string): KVConcreteFieldSchema {
+    const field = this.getFullKeyMap().get(fullKey);
+    if (field === undefined) {
+      const fieldKeys = [...this.getFullKeyMap().keys()];
+      let availableList = fieldKeys
+        .slice(0, 10)
+        .map(key => `- ${key}`)
+        .join("\n");
+      if (fieldKeys.length > 10) {
+        availableList += `\n... and ${fieldKeys.length - 10} more`;
+      }
+      throw new Error(
+        `Cannot access full key ${fullKey}. Full key does not exist in the schematics. Available` +
+          `keys:\n\n` +
+          availableList,
+      );
+    }
+    return field;
+  }
+
   public getSchemaForKey<TKey extends keyof TKVConfigSchema & string>(
     key: TKey,
   ): ZodSchema<TKVConfigSchema[TKey]["type"]> {
@@ -450,6 +470,11 @@ export class KVConfigSchematics<
     key: TKey,
   ): TKVConfigSchema[TKey]["type"] {
     const field = this.obtainField(key);
+    return this.parseField(field, config.fields.find(f => f.key === field.fullKey)?.value);
+  }
+
+  public accessByFullKey(config: KVConfig, fullKey: string): any {
+    const field = this.obtainFieldByFullKey(fullKey);
     return this.parseField(field, config.fields.find(f => f.key === field.fullKey)?.value);
   }
 
@@ -741,6 +766,16 @@ export class KVConfigSchematics<
       return null as any;
     }
     return field.valueTypeParams as any;
+  }
+
+  public getValueTypeParamByFullKey(
+    key: string,
+  ): TKVFieldValueTypeLibraryMap[keyof TKVFieldValueTypeLibraryMap]["param"] {
+    const field = this.getFullKeyMap().get(key);
+    if (field === undefined) {
+      throw new Error(`Field with key ${key} does not exist in the schematics`);
+    }
+    return field.valueTypeParams;
   }
 
   /**

@@ -48,6 +48,35 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("stopStrings", "stringArray", {}, [])
       .field("toolCallStopStrings", "stringArray", {}, [])
       .field("structured", "llamaStructuredOutput", {}, { type: "none" })
+      .field("speculativeDecoding.enabled", "speculativeDecodingEnabled", {}, true)
+      .field(
+        "speculativeDecoding.draftModel",
+        "speculativeDecodingDraftModel",
+        {
+          dependencies: [
+            {
+              key: "llm.prediction.speculativeDecoding.enabled",
+              condition: { type: "equals", value: true },
+            },
+          ],
+        },
+        "",
+      )
+      .field(
+        "speculativeDecoding.numberOfDraftTokens",
+        "numeric",
+        {
+          min: 1,
+          int: true,
+          dependencies: [
+            {
+              key: "llm.prediction.speculativeDecoding.enabled",
+              condition: { type: "equals", value: true },
+            },
+          ],
+        },
+        1000,
+      )
       .field("tools", "toolUse", {}, { type: "none" })
       .field(
         "promptTemplate",
@@ -312,6 +341,9 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
     "minPSampling",
     "topPSampling",
     "logProbs",
+    "speculativeDecoding.enabled",
+    "speculativeDecoding.draftModel",
+    "speculativeDecoding.numberOfDraftTokens",
   ),
 );
 

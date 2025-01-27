@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, type ZodSchema } from "zod";
 
 /**
  * TODO: Documentation
@@ -82,3 +82,17 @@ export interface KVConfigStack {
 export const kvConfigStackSchema = z.object({
   layers: z.array(kvConfigStackLayerSchema),
 });
+
+export type KVConfigFieldDependency = {
+  key: string;
+  condition: {
+    type: "equals";
+    value: any;
+  };
+};
+export const kvConfigFieldDependencySchema = z.object({
+  key: z.string(),
+  condition: z.discriminatedUnion("type", [
+    z.object({ type: z.literal("equals"), value: z.any() }),
+  ]),
+}) as ZodSchema<KVConfigFieldDependency>;

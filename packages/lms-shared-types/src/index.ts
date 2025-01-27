@@ -73,6 +73,8 @@ export { FileType, fileTypeSchema } from "./files/FileType.js";
 export {
   KVConfig,
   KVConfigField,
+  KVConfigFieldDependency,
+  kvConfigFieldDependencySchema,
   kvConfigFieldSchema,
   KVConfigLayerName,
   kvConfigLayerNameSchema,
