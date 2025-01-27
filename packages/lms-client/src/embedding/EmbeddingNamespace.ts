@@ -11,7 +11,7 @@ import {
 import { ModelNamespace } from "../modelShared/ModelNamespace.js";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric.js";
 import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle.js";
-import { EmbeddingSpecificModel } from "./EmbeddingSpecificModel.js";
+import { EmbeddingModel } from "./EmbeddingModel.js";
 
 /** @public */
 export class EmbeddingNamespace extends ModelNamespace<
@@ -19,7 +19,7 @@ export class EmbeddingNamespace extends ModelNamespace<
   EmbeddingPort,
   EmbeddingLoadModelConfig,
   EmbeddingDynamicHandle,
-  EmbeddingSpecificModel
+  EmbeddingModel
 > {
   /** @internal */
   protected override readonly namespace = "embedding";
@@ -48,8 +48,8 @@ export class EmbeddingNamespace extends ModelNamespace<
     descriptor: ModelDescriptor,
     validator: Validator,
     logger: SimpleLogger,
-  ): EmbeddingSpecificModel {
-    return new EmbeddingSpecificModel(port, instanceReference, descriptor, validator, logger);
+  ): EmbeddingModel {
+    return new EmbeddingModel(port, instanceReference, descriptor, validator, logger);
   }
   /** @internal */
   protected override createDomainDynamicHandle(

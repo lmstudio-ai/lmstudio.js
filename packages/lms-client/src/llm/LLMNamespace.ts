@@ -11,8 +11,8 @@ import {
 import { cacheQuantizationTypeToCheckbox } from "../cacheQuantizationTypeToCheckbox.js";
 import { ModelNamespace } from "../modelShared/ModelNamespace.js";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric.js";
+import { LLM } from "./LLM.js";
 import { LLMDynamicHandle } from "./LLMDynamicHandle.js";
-import { LLMSpecificModel } from "./LLMSpecificModel.js";
 
 /** @public */
 export class LLMNamespace extends ModelNamespace<
@@ -20,7 +20,7 @@ export class LLMNamespace extends ModelNamespace<
   LLMPort,
   LLMLoadModelConfig,
   LLMDynamicHandle,
-  LLMSpecificModel
+  LLM
 > {
   /** @internal */
   protected override readonly namespace = "llm";
@@ -62,8 +62,8 @@ export class LLMNamespace extends ModelNamespace<
     descriptor: ModelDescriptor,
     validator: Validator,
     logger: SimpleLogger,
-  ): LLMSpecificModel {
-    return new LLMSpecificModel(port, instanceReference, descriptor, validator, logger);
+  ): LLM {
+    return new LLM(port, instanceReference, descriptor, validator, logger);
   }
   /** @internal */
   protected override createDomainDynamicHandle(
