@@ -90,24 +90,6 @@ export {
   llmApplyPromptTemplateOptsSchema,
 } from "./llm/LLMApplyPromptTemplateOpts.js";
 export {
-  LLMChatHistory,
-  LLMChatHistoryMessage,
-  LLMChatHistoryMessageContent,
-  LLMChatHistoryMessageContentPart,
-  llmChatHistoryMessageContentPartSchema,
-  llmChatHistoryMessageContentSchema,
-  llmChatHistoryMessageSchema,
-  LLMChatHistoryRole,
-  llmChatHistoryRoleSchema,
-  llmChatHistorySchema,
-  LLMCompletionContextInput,
-  llmCompletionContextInputSchema,
-  LLMContext,
-  llmContextSchema,
-  LLMConversationContextInput,
-  llmConversationContextInputSchema,
-} from "./llm/LLMChatHistory.js";
-export {
   LLMContextReference,
   LLMContextReferenceJsonFile,
   llmContextReferenceJsonFileSchema,

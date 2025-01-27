@@ -20,8 +20,6 @@ import {
   type KVConfigStack,
   type LLMApplyPromptTemplateOpts,
   llmApplyPromptTemplateOptsSchema,
-  type LLMCompletionContextInput,
-  llmCompletionContextInputSchema,
   type LLMJinjaInputConfig,
   type LLMPredictionConfig,
   llmPredictionConfigSchema,
@@ -237,13 +235,13 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * @param prompt - The prompt to use for prediction.
    * @param opts - Options for the prediction.
    */
-  public complete(prompt: LLMCompletionContextInput, opts: LLMPredictionOpts = {}) {
+  public complete(prompt: string, opts: LLMPredictionOpts = {}) {
     const stack = getCurrentStack(1);
     [prompt, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "complete",
       ["prompt", "opts"],
-      [llmCompletionContextInputSchema, llmPredictionConfigSchema],
+      [z.string(), llmPredictionConfigSchema],
       [prompt, opts],
       stack,
     );
@@ -292,7 +290,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     return ongoingPrediction;
   }
 
-  private resolveCompletionContext(contextInput: LLMCompletionContextInput): ChatHistoryData {
+  private resolveCompletionContext(contextInput: string): ChatHistoryData {
     return {
       messages: [
         {
