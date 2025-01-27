@@ -50,8 +50,8 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("structured", "llamaStructuredOutput", {}, { type: "none" })
       .field("speculativeDecoding.enabled", "speculativeDecodingEnabled", {}, true)
       .field(
-        "speculativeDecoding.model",
-        "speculativeDecodingModel",
+        "speculativeDecoding.draftModel",
+        "speculativeDecodingDraftModel",
         {
           dependencies: [
             {
@@ -63,7 +63,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         "",
       )
       .field(
-        "speculativeDecoding.numberOfTokens",
+        "speculativeDecoding.numberOfDraftTokens",
         "numeric",
         {
           min: 1,
@@ -342,8 +342,8 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
     "topPSampling",
     "logProbs",
     "speculativeDecoding.enabled",
-    "speculativeDecoding.model",
-    "speculativeDecoding.numberOfTokens",
+    "speculativeDecoding.draftModel",
+    "speculativeDecoding.numberOfDraftTokens",
   ),
 );
 

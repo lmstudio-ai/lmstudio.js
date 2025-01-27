@@ -480,7 +480,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return value ? "ON" : "OFF";
     },
   })
-  .valueType("speculativeDecodingModel", {
+  .valueType("speculativeDecodingDraftModel", {
     paramType: {},
     schemaMaker: () => {
       return z.string().optional();
