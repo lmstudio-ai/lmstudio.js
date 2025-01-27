@@ -22,7 +22,7 @@ export interface ChatMessageInput {
   content?: string;
   /**
    * Images to be sent with the message to be used with vision models. To get a FileHandle, use
-   * `client.files.addImage`.
+   * `client.files.prepareImage`.
    */
   images?: Array<FileHandle>;
 }

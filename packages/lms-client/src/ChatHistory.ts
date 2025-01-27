@@ -640,7 +640,7 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
 
   /**
    * Append a file to the message. Takes in a FileHandle. You can obtain a FileHandle from
-   * `client.files.addImage`.
+   * `client.files.prepareImage`.
    */
   public appendFile(file: FileHandle) {
     this.guardMutable();

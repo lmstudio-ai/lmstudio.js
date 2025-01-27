@@ -61,7 +61,7 @@ async function main() {
   const client = new LMStudioClient();
   const model = await client.llm.getOrLoad("llava-llama-3-8b-v1_1@?");
 
-  const picture = await client.files.addImage("C:\\Users\\ryan\\Downloads\\image (7).png");
+  const picture = await client.files.prepareImage("C:\\Users\\ryan\\Downloads\\image (7).png");
   const prediction = model.respond({ content: "What is this?", images: [picture] });
 
   for await (const { content } of prediction) {

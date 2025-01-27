@@ -41,17 +41,52 @@ export class FilesNamespace {
   }
 
   /**
+   * Adds a temporary image to LM Studio, and returns a FileHandle that can be used to reference
+   * this image. This image will be deleted when the client disconnects.
+   *
+   * This method can only be used in environments that have file system access (such as Node.js).
+   */
+  public async prepareImage(path: string): Promise<FileHandle> {
+    const result = await readFileAsBase64(path);
+    if (result.success === false) {
+      throw new Error(text`
+        Your current JavaScript environment does not support reading files. If you can read the file
+        using other methods, please use "prepareImageBase64".
+      `);
+    }
+    const fileName = path.split(/[\\/]/).at(-1)!;
+    const { identifier, fileType, sizeBytes } = await this.filesPort.callRpc("uploadFileBase64", {
+      name: fileName,
+      contentBase64: result.base64,
+    });
+    return new FileHandle(this, identifier, fileType, sizeBytes, fileName);
+  }
+
+  /**
+   * Adds a temporary image to LM Studio. The content of the file is specified using base64. If you
+   * are using Node.js and have a file laying around, consider using `prepareImage` instead.
+   */
+  public async prepareImageBase64(fileName: string, contentBase64: string): Promise<FileHandle> {
+    const { identifier, fileType, sizeBytes } = await this.filesPort.callRpc("uploadFileBase64", {
+      name: fileName,
+      contentBase64,
+    });
+    return new FileHandle(this, identifier, fileType, sizeBytes, fileName);
+  }
+
+  /**
    * Adds a temporary file to LM Studio, and returns a FileHandle that can be used to reference this
    * file. This file will be deleted when the client disconnects.
    *
    * This method can only be used in environments that have file system access (such as Node.js).
    */
-  public async addImage(path: string): Promise<FileHandle> {
+  public async prepareFile(path: string): Promise<FileHandle> {
+    // Currently, exactly the same as prepareImage.
     const result = await readFileAsBase64(path);
     if (result.success === false) {
       throw new Error(text`
         Your current JavaScript environment does not support reading files. If you can read the file
-        using other methods, please use "addImageBase64".
+        using other methods, please use "prepareFileBase64".
       `);
     }
     const fileName = path.split(/[\\/]/).at(-1)!;
@@ -64,9 +99,10 @@ export class FilesNamespace {
 
   /**
    * Adds a temporary file to LM Studio. The content of the file is specified using base64. If you
-   * are using Node.js and have a file laying around, consider using `addImage` instead.
+   * are using Node.js and have a file laying around, consider using `prepareFile` instead.
    */
-  public async addImageBase64(fileName: string, contentBase64: string): Promise<FileHandle> {
+  public async prepareFileBase64(fileName: string, contentBase64: string): Promise<FileHandle> {
+    // Currently, exactly the same as prepareImageBase64.
     const { identifier, fileType, sizeBytes } = await this.filesPort.callRpc("uploadFileBase64", {
       name: fileName,
       contentBase64,
