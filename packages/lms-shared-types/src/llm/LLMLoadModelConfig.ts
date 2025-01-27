@@ -60,6 +60,30 @@ export const llmLlamaCacheQuantizationTypes = [
 export type LLMLlamaCacheQuantizationType = (typeof llmLlamaCacheQuantizationTypes)[number];
 export const llmLlamaCacheQuantizationTypeSchema = z.enum(llmLlamaCacheQuantizationTypes);
 
+// MLX KV cache quantization
+export const llmMlxKvCacheBitsTypes = [8, 6, 4, 3, 2] as const;
+export type LLMMlxKvCacheBitsType = (typeof llmMlxKvCacheBitsTypes)[number];
+export const llmMlxKvCacheBitsTypeSchema = z.union([
+  z.literal(8),
+  z.literal(6),
+  z.literal(4),
+  z.literal(3),
+  z.literal(2),
+]);
+export const llmMlxKvCacheGroupSizeTypes = [32, 64, 128] as const;
+export type LLMMlxKvCacheGroupSizeType = (typeof llmMlxKvCacheGroupSizeTypes)[number];
+export const llmMlxKvCacheGroupSizeTypesSchema = z.union([
+  z.literal(32),
+  z.literal(64),
+  z.literal(128),
+]);
+export const llmMlxKvCacheQuantizationSchema = z.object({
+  enabled: z.boolean(),
+  bits: llmMlxKvCacheBitsTypeSchema,
+  groupSize: llmMlxKvCacheGroupSizeTypesSchema,
+  quantizedStart: z.number().int().nonnegative(),
+});
+
 /** @public */
 export interface LLMLoadModelConfig {
   /**

@@ -6,6 +6,7 @@ import {
   llmLlamaCacheQuantizationTypeSchema,
   llmLlamaLogitBiasConfigSchema,
   llmLlamaMirostatSamplingConfigSchema,
+  llmMlxKvCacheQuantizationSchema,
   llmPromptTemplateSchema,
   llmSplitStrategySchema,
   llmStructuredPredictionSettingSchema,
@@ -598,92 +599,24 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return value.value;
     },
   })
-  .valueType("mlxKvCacheBitsType", {
+  .valueType("mlxKvCacheQuantizationType", {
     paramType: {},
     schemaMaker: () => {
-      const validBits = new Set([2, 3, 4, 6, 8]);
-      const bitsSchema = z
-        .number()
-        .int()
-        .refine(
-          n => validBits.has(n),
-          n => ({ message: `Invalid bit value. Must be one of: 2, 3, 4, 6, 8. Got: ${n}` }),
-        );
-      return z.object({
-        checked: z.boolean(),
-        value: bitsSchema,
-      });
+      return llmMlxKvCacheQuantizationSchema;
     },
     effectiveEquals: (a, b) => {
-      if (a.checked !== b.checked) {
+      if (a.enabled !== b.enabled) {
         return false;
       }
-      if (!a.checked) {
+      if (!a.enabled) {
         return true;
       }
-      return a.value === b.value;
+      return (
+        a.bits === b.bits && a.groupSize === b.groupSize && a.quantizedStart === b.quantizedStart
+      );
     },
-    stringify: (value, _typeParam, { t }) => {
-      if (!value.checked) {
-        return t("config:customInputs.mlxKvCacheBits.off", "OFF");
-      }
-      return `${value.value} bits`;
-    },
-  })
-  .valueType("mlxKvCacheGroupSizeType", {
-    paramType: {},
-    schemaMaker: () => {
-      const validSizes = new Set([32, 64, 128]);
-      const sizeSchema = z
-        .number()
-        .int()
-        .refine(
-          n => validSizes.has(n),
-          n => ({ message: `Invalid group size. Must be one of: 32, 64, 128. Got: ${n}` }),
-        );
-      return z.object({
-        checked: z.boolean(),
-        value: sizeSchema,
-      });
-    },
-    effectiveEquals: (a, b) => {
-      if (a.checked !== b.checked) {
-        return false;
-      }
-      if (!a.checked) {
-        return true;
-      }
-      return a.value === b.value;
-    },
-    stringify: (value, _typeParam, { t }) => {
-      if (!value.checked) {
-        return t("config:customInputs.mlxKvCacheGroupSize.off", "OFF");
-      }
-      return String(value.value);
-    },
-  })
-  .valueType("mlxKvCacheQuantizationStartType", {
-    paramType: {},
-    schemaMaker: () => {
-      return z.object({
-        checked: z.boolean(),
-        value: z.number().int().nonnegative(),
-      });
-    },
-    effectiveEquals: (a, b) => {
-      if (a.checked !== b.checked) {
-        return false;
-      }
-      if (!a.checked) {
-        return true;
-      }
-      return a.value === b.value;
-    },
-    stringify: (value, _typeParam, { t }) => {
-      if (!value.checked) {
-        return t("config:customInputs.mlxKvCacheQuantizationStart.off", "OFF");
-      }
-      return String(value.value);
+    stringify: value => {
+      return JSON.stringify(value, null, 2); // TODO: pretty print
     },
   })
   .valueType("retrievalChunkingMethod", {

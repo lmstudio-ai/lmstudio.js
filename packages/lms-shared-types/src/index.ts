@@ -123,6 +123,13 @@ export {
   llmLlamaCacheQuantizationTypeSchema,
   LLMLoadModelConfig,
   llmLoadModelConfigSchema,
+  LLMMlxKvCacheBitsType,
+  llmMlxKvCacheBitsTypes,
+  llmMlxKvCacheBitsTypeSchema,
+  LLMMlxKvCacheGroupSizeType,
+  llmMlxKvCacheGroupSizeTypes,
+  llmMlxKvCacheGroupSizeTypesSchema,
+  llmMlxKvCacheQuantizationSchema,
   LLMSplitStrategy,
   llmSplitStrategySchema,
 } from "./llm/LLMLoadModelConfig.js";
