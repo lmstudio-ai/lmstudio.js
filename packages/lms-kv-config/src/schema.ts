@@ -64,7 +64,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       )
       .field(
         "speculativeDecoding.numberOfTokens",
-        "checkboxNumeric",
+        "numeric",
         {
           min: 1,
           int: true,
@@ -75,7 +75,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             },
           ],
         },
-        { checked: false, value: 1000 },
+        1000,
       )
       .field("tools", "toolUse", {}, { type: "none" })
       .field(
