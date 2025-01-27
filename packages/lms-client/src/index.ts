@@ -1,5 +1,3 @@
-import { LMStudioClient } from "./LMStudioClient.js";
-
 export { ChatHistory, ChatMessage } from "./ChatHistory.js";
 export type { ChatHistoryLike } from "./ChatHistory.js";
 export {
@@ -56,16 +54,3 @@ export type { RetrievalNamespace } from "./retrieval/RetrievalNamespace.js";
 export type { RetrievalCallbacks, RetrievalOpts } from "./retrieval/RetrievalOpts.js";
 export type { RetrievalResult, RetrievalResultEntry } from "./retrieval/RetrievalResult.js";
 export type { SystemNamespace } from "./system/SystemNamespace.js";
-
-async function main() {
-  const client = new LMStudioClient();
-  const model = await client.llm.getOrLoad("llava-llama-3-8b-v1_1@?");
-
-  const picture = await client.files.prepareImage("C:\\Users\\ryan\\Downloads\\image (7).png");
-  const prediction = model.respond({ content: "What is this?", images: [picture] });
-
-  for await (const { content } of prediction) {
-    process.stdout.write(content);
-  }
-}
-main();
