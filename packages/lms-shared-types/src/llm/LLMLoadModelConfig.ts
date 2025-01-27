@@ -78,7 +78,7 @@ export const llmMlxKvCacheGroupSizeTypesSchema = z.union([
   z.literal(128),
 ]);
 export const llmMlxKvCacheQuantizationSchema = z.object({
-  checked: z.boolean().optional(),
+  optional: z.boolean(),
   bits: llmMlxKvCacheBitsTypeSchema,
   groupSize: llmMlxKvCacheGroupSizeTypesSchema,
   quantizedStart: z.number().int().nonnegative(),
