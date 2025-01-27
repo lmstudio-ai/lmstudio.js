@@ -1,15 +1,12 @@
 import { z } from "zod";
-import {
-  llmLlamaAccelerationSettingSchema,
-  type LLMLlamaAccelerationSetting,
-} from "../llm/LLMLoadModelConfig.js";
+import { gpuSettingSchema, type GPUSetting } from "../llm/LLMLoadModelConfig.js";
 
 /**
  * @public
  */
 export interface EmbeddingLoadModelConfig {
   // TODO: Fix type
-  gpuOffload?: LLMLlamaAccelerationSetting;
+  gpu?: GPUSetting;
   contextLength?: number;
   ropeFrequencyBase?: number;
   ropeFrequencyScale?: number;
@@ -17,7 +14,7 @@ export interface EmbeddingLoadModelConfig {
   tryMmap?: boolean;
 }
 export const embeddingLoadModelConfigSchema = z.object({
-  gpuOffload: llmLlamaAccelerationSettingSchema.optional(),
+  gpuOffload: gpuSettingSchema.optional(),
   contextLength: z.number().int().min(1).optional(),
   ropeFrequencyBase: z.number().optional(),
   ropeFrequencyScale: z.number().optional(),

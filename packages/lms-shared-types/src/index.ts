@@ -107,10 +107,10 @@ export {
   llmContextReferenceYamlFileSchema,
 } from "./llm/LLMContextReference.js";
 export {
+  GPUSetting,
+  gpuSettingSchema,
   LLMLlamaAccelerationOffloadRatio,
   llmLlamaAccelerationOffloadRatioSchema,
-  LLMLlamaAccelerationSetting,
-  llmLlamaAccelerationSettingSchema,
   LLMLlamaCacheQuantizationType,
   llmLlamaCacheQuantizationTypes,
   llmLlamaCacheQuantizationTypeSchema,

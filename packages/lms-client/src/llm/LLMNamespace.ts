@@ -33,10 +33,9 @@ export class LLMNamespace extends ModelNamespace<
     return llmLlamaMoeLoadConfigSchematics.buildPartialConfig({
       "contextLength": config.contextLength,
       "llama.evalBatchSize": config.evalBatchSize,
-      "llama.acceleration.offloadRatio": config.gpuOffload?.ratio,
-      "llama.load.mainGpu": config.gpuOffload?.mainGpu,
-      "llama.load.tensorSplit": config.gpuOffload?.tensorSplit,
-      "llama.load.splitStrategy": config.gpuOffload?.splitStrategy,
+      "llama.acceleration.offloadRatio": config.gpu?.ratio,
+      "llama.load.mainGpu": config.gpu?.mainGpu,
+      "llama.load.splitStrategy": config.gpu?.splitStrategy,
       "llama.flashAttention": config.flashAttention,
       "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
       "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),
