@@ -1,5 +1,6 @@
 import {
   allowableEnvVarsSchema,
+  kvConfigFieldDependencySchema,
   llmContextOverflowPolicySchema,
   llmContextReferenceSchema,
   llmLlamaAccelerationOffloadRatioSchema,
@@ -76,6 +77,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
   machineDependent: z.boolean().optional(),
   warning: z.string().optional(),
   isExperimental: z.boolean().optional(),
+  dependencies: z.array(kvConfigFieldDependencySchema).optional(),
 })
   .valueType("numeric", {
     paramType: {
@@ -461,6 +463,30 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       } else {
         return false;
       }
+    },
+    stringify: value => {
+      return JSON.stringify(value, null, 2); // TODO: pretty print
+    },
+  })
+  .valueType("speculativeDecodingEnabled", {
+    paramType: {},
+    schemaMaker: () => {
+      return z.boolean();
+    },
+    effectiveEquals: (a, b) => {
+      return a === b;
+    },
+    stringify: value => {
+      return value ? "ON" : "OFF";
+    },
+  })
+  .valueType("speculativeDecodingModel", {
+    paramType: {},
+    schemaMaker: () => {
+      return z.string().optional();
+    },
+    effectiveEquals: (a, b) => {
+      return a === b;
     },
     stringify: value => {
       return JSON.stringify(value, null, 2); // TODO: pretty print
