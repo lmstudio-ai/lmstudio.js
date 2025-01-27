@@ -41,21 +41,39 @@ export class EmbeddingDynamicHandle extends DynamicHandle<// prettier-ignore
     super(port, specifier);
   }
 
-  public async embedString(inputString: string) {
+  public async embedString(inputString: string): Promise<{ embedding: Array<number> }>;
+  public async embedString(
+    inputStrings: Array<string>,
+  ): Promise<Array<{ embedding: Array<number> }>>;
+  public async embedString(
+    inputString: string | Array<string>,
+  ): Promise<{ embedding: Array<number> } | Array<{ embedding: Array<number> }>> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "client.embedding",
       "embedString",
       "inputString",
-      z.string(),
+      z.string().or(z.array(z.string())),
       inputString,
       stack,
     );
-    return await this.port.callRpc(
-      "embedString",
-      { inputString, modelSpecifier: this.specifier },
-      { stack },
-    );
+    if (Array.isArray(inputString)) {
+      return await Promise.all(
+        inputString.map(s =>
+          this.port.callRpc(
+            "embedString",
+            { inputString: s, modelSpecifier: this.specifier },
+            { stack },
+          ),
+        ),
+      );
+    } else {
+      return await this.port.callRpc(
+        "embedString",
+        { inputString, modelSpecifier: this.specifier },
+        { stack },
+      );
+    }
   }
 
   public async getContextLength(): Promise<number> {
@@ -70,25 +88,39 @@ export class EmbeddingDynamicHandle extends DynamicHandle<// prettier-ignore
     return globalConfigSchematics.access(loadConfig, "embedding.load.llama.evalBatchSize");
   }
 
-  public async tokenize(inputString: string): Promise<number[]> {
+  public async tokenize(inputString: string): Promise<Array<number>>;
+  public async tokenize(inputStrings: Array<string>): Promise<Array<Array<number>>>;
+  public async tokenize(
+    inputString: string | Array<string>,
+  ): Promise<Array<number> | Array<Array<number>>> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "model",
       "tokenize",
       "inputString",
-      z.string(),
+      z.string().or(z.array(z.string())),
       inputString,
       stack,
     );
-    return (
-      await this.port.callRpc(
-        "tokenize",
-        {
-          specifier: this.specifier,
-          inputString,
-        },
-        { stack },
-      )
-    ).tokens;
+    if (Array.isArray(inputString)) {
+      return (
+        await Promise.all(
+          inputString.map(s =>
+            this.port.callRpc("tokenize", { specifier: this.specifier, inputString: s }, { stack }),
+          ),
+        )
+      ).map(r => r.tokens);
+    } else {
+      return (
+        await this.port.callRpc(
+          "tokenize",
+          {
+            specifier: this.specifier,
+            inputString,
+          },
+          { stack },
+        )
+      ).tokens;
+    }
   }
 }
