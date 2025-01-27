@@ -605,7 +605,15 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return llmMlxKvCacheQuantizationSchema;
     },
     effectiveEquals: (a, b) => {
-      return deepEquals(a, b); // TODO: more performant comparison
+      if (a.enabled !== b.enabled) {
+        return false;
+      }
+      if (!a.enabled) {
+        return true;
+      }
+      return (
+        a.bits === b.bits && a.groupSize === b.groupSize && a.quantizedStart === b.quantizedStart
+      );
     },
     stringify: value => {
       return JSON.stringify(value, null, 2); // TODO: pretty print
