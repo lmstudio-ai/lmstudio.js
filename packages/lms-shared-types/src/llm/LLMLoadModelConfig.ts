@@ -29,17 +29,26 @@ export const llmSplitStrategySchema = z.enum(["evenly", "favorMainGpu"]);
  *
  * @public
  */
-export type LLMLlamaAccelerationSetting = {
-  ratio: LLMLlamaAccelerationOffloadRatio;
-  mainGpu: number;
-  tensorSplit: Array<number>;
-  splitStrategy: LLMSplitStrategy;
+export type GPUSetting = {
+  /**
+   * A number between 0 to 1 representing the ratio of the work should be distributed to the GPU,
+   * where 0 means no work is distributed and 1 means all work is distributed. Can also specify the
+   * string "off" to mean 0 and the string "max" to mean 1.
+   */
+  ratio?: LLMLlamaAccelerationOffloadRatio;
+  /**
+   * The index of the GPU to use as the main GPU.
+   */
+  mainGpu?: number;
+  /**
+   * How to split computation across multiple GPUs.
+   */
+  splitStrategy?: LLMSplitStrategy;
 };
-export const llmLlamaAccelerationSettingSchema = z.object({
-  ratio: llmLlamaAccelerationOffloadRatioSchema,
-  mainGpu: z.number().int(),
-  tensorSplit: z.array(z.number().int()),
-  splitStrategy: llmSplitStrategySchema,
+export const gpuSettingSchema = z.object({
+  ratio: llmLlamaAccelerationOffloadRatioSchema.optional(),
+  mainGpu: z.number().int().optional(),
+  splitStrategy: llmSplitStrategySchema.optional(),
 });
 
 /**
@@ -87,16 +96,11 @@ export const llmMlxKvCacheQuantizationSchema = z.object({
 /** @public */
 export interface LLMLoadModelConfig {
   /**
-   * How much of the model's work should be offloaded to the GPU. The value should be between 0 and 1.
-   * A value of 0 means that no layers are offloaded to the GPU, while a value of 1 means that all
-   * layers (that can be offloaded) are offloaded to the GPU.
-   *
-   * Alternatively, the value can be set to "auto", which means it will be determined automatically.
-   * (Currently uses the value in the preset.)
+   * How to distribute the work to your GPUs. See {@link GPUSetting} for more information.
    *
    * @public
    */
-  gpuOffload?: LLMLlamaAccelerationSetting;
+  gpu?: GPUSetting;
   /**
    * The size of the context length in number of tokens. This will include both the prompts and the
    * responses. Once the context length is exceeded, the value set in
@@ -121,7 +125,7 @@ export interface LLMLoadModelConfig {
   llamaVCacheQuantizationType?: LLMLlamaCacheQuantizationType | false;
 }
 export const llmLoadModelConfigSchema = z.object({
-  gpuOffload: llmLlamaAccelerationSettingSchema.optional(),
+  gpuOffload: gpuSettingSchema.optional(),
   contextLength: z.number().int().min(1).optional(),
   ropeFrequencyBase: z.number().optional(),
   ropeFrequencyScale: z.number().optional(),

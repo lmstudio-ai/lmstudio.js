@@ -11,8 +11,8 @@ import {
 import { cacheQuantizationTypeToCheckbox } from "../cacheQuantizationTypeToCheckbox.js";
 import { ModelNamespace } from "../modelShared/ModelNamespace.js";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric.js";
+import { LLM } from "./LLM.js";
 import { LLMDynamicHandle } from "./LLMDynamicHandle.js";
-import { LLMSpecificModel } from "./LLMSpecificModel.js";
 
 /** @public */
 export class LLMNamespace extends ModelNamespace<
@@ -20,7 +20,7 @@ export class LLMNamespace extends ModelNamespace<
   LLMPort,
   LLMLoadModelConfig,
   LLMDynamicHandle,
-  LLMSpecificModel
+  LLM
 > {
   /** @internal */
   protected override readonly namespace = "llm";
@@ -33,10 +33,9 @@ export class LLMNamespace extends ModelNamespace<
     return llmLlamaMoeLoadConfigSchematics.buildPartialConfig({
       "contextLength": config.contextLength,
       "llama.evalBatchSize": config.evalBatchSize,
-      "llama.acceleration.offloadRatio": config.gpuOffload?.ratio,
-      "llama.load.mainGpu": config.gpuOffload?.mainGpu,
-      "llama.load.tensorSplit": config.gpuOffload?.tensorSplit,
-      "llama.load.splitStrategy": config.gpuOffload?.splitStrategy,
+      "llama.acceleration.offloadRatio": config.gpu?.ratio,
+      "llama.load.mainGpu": config.gpu?.mainGpu,
+      "llama.load.splitStrategy": config.gpu?.splitStrategy,
       "llama.flashAttention": config.flashAttention,
       "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
       "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),
@@ -62,8 +61,8 @@ export class LLMNamespace extends ModelNamespace<
     descriptor: ModelDescriptor,
     validator: Validator,
     logger: SimpleLogger,
-  ): LLMSpecificModel {
-    return new LLMSpecificModel(port, instanceReference, descriptor, validator, logger);
+  ): LLM {
+    return new LLM(port, instanceReference, descriptor, validator, logger);
   }
   /** @internal */
   protected override createDomainDynamicHandle(

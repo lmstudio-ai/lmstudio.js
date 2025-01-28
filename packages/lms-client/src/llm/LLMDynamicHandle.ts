@@ -20,8 +20,6 @@ import {
   type KVConfigStack,
   type LLMApplyPromptTemplateOpts,
   llmApplyPromptTemplateOptsSchema,
-  type LLMCompletionContextInput,
-  llmCompletionContextInputSchema,
   type LLMJinjaInputConfig,
   type LLMPredictionConfig,
   llmPredictionConfigSchema,
@@ -237,13 +235,13 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * @param prompt - The prompt to use for prediction.
    * @param opts - Options for the prediction.
    */
-  public complete(prompt: LLMCompletionContextInput, opts: LLMPredictionOpts = {}) {
+  public complete(prompt: string, opts: LLMPredictionOpts = {}) {
     const stack = getCurrentStack(1);
     [prompt, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "complete",
       ["prompt", "opts"],
-      [llmCompletionContextInputSchema, llmPredictionConfigSchema],
+      [z.string(), llmPredictionConfigSchema],
       [prompt, opts],
       stack,
     );
@@ -292,7 +290,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     return ongoingPrediction;
   }
 
-  private resolveCompletionContext(contextInput: LLMCompletionContextInput): ChatHistoryData {
+  private resolveCompletionContext(contextInput: string): ChatHistoryData {
     return {
       messages: [
         {
@@ -418,26 +416,40 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     ).formatted;
   }
 
-  public async tokenize(inputString: string): Promise<number[]> {
+  public async tokenize(inputString: string): Promise<Array<number>>;
+  public async tokenize(inputStrings: Array<string>): Promise<Array<Array<number>>>;
+  public async tokenize(
+    inputString: string | Array<string>,
+  ): Promise<Array<number> | Array<Array<number>>> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "model",
       "tokenize",
       "inputString",
-      z.string(),
+      z.string().or(z.array(z.string())),
       inputString,
       stack,
     );
-    return (
-      await this.port.callRpc(
-        "tokenize",
-        {
-          specifier: this.specifier,
-          inputString,
-        },
-        { stack },
-      )
-    ).tokens;
+    if (Array.isArray(inputString)) {
+      return (
+        await Promise.all(
+          inputString.map(s =>
+            this.port.callRpc("tokenize", { specifier: this.specifier, inputString: s }, { stack }),
+          ),
+        )
+      ).map(r => r.tokens);
+    } else {
+      return (
+        await this.port.callRpc(
+          "tokenize",
+          {
+            specifier: this.specifier,
+            inputString,
+          },
+          { stack },
+        )
+      ).tokens;
+    }
   }
 
   public async countTokens(inputString: string): Promise<number> {

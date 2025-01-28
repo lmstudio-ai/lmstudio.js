@@ -48,7 +48,16 @@ export {
   diagnosticsLogEventDataSchema,
   diagnosticsLogEventSchema,
 } from "./diagnostics/DiagnosticsLogEvent.js";
-export { DownloadedModel, downloadedModelSchema } from "./DownloadedModel.js";
+export {
+  DownloadedEmbeddingModel,
+  downloadedEmbeddingModelSchema,
+  DownloadedLLM,
+  downloadedLLMSchema,
+  DownloadedModel,
+  DownloadedModelBase,
+  downloadedModelBase,
+  downloadedModelSchema,
+} from "./DownloadedModel.js";
 export {
   EmbeddingLoadModelConfig,
   embeddingLoadModelConfigSchema,
@@ -90,24 +99,6 @@ export {
   llmApplyPromptTemplateOptsSchema,
 } from "./llm/LLMApplyPromptTemplateOpts.js";
 export {
-  LLMChatHistory,
-  LLMChatHistoryMessage,
-  LLMChatHistoryMessageContent,
-  LLMChatHistoryMessageContentPart,
-  llmChatHistoryMessageContentPartSchema,
-  llmChatHistoryMessageContentSchema,
-  llmChatHistoryMessageSchema,
-  LLMChatHistoryRole,
-  llmChatHistoryRoleSchema,
-  llmChatHistorySchema,
-  LLMCompletionContextInput,
-  llmCompletionContextInputSchema,
-  LLMContext,
-  llmContextSchema,
-  LLMConversationContextInput,
-  llmConversationContextInputSchema,
-} from "./llm/LLMChatHistory.js";
-export {
   LLMContextReference,
   LLMContextReferenceJsonFile,
   llmContextReferenceJsonFileSchema,
@@ -116,10 +107,10 @@ export {
   llmContextReferenceYamlFileSchema,
 } from "./llm/LLMContextReference.js";
 export {
+  GPUSetting,
+  gpuSettingSchema,
   LLMLlamaAccelerationOffloadRatio,
   llmLlamaAccelerationOffloadRatioSchema,
-  LLMLlamaAccelerationSetting,
-  llmLlamaAccelerationSettingSchema,
   LLMLlamaCacheQuantizationType,
   llmLlamaCacheQuantizationTypes,
   llmLlamaCacheQuantizationTypeSchema,

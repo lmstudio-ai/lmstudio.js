@@ -1,4 +1,10 @@
-import { accessMaybeMutableInternals, MaybeMutable, text } from "@lmstudio/lms-common";
+import {
+  accessMaybeMutableInternals,
+  getCurrentStack,
+  MaybeMutable,
+  sharedValidator,
+  text,
+} from "@lmstudio/lms-common";
 import {
   type ChatHistoryData,
   chatHistoryDataSchema,
@@ -7,10 +13,17 @@ import {
   type ChatMessagePartFileData,
   type ChatMessagePartTextData,
   type ChatMessageRoleData,
-  type LLMConversationContextInput,
-  llmConversationContextInputSchema,
 } from "@lmstudio/lms-shared-types";
-import { z } from "zod";
+import { z, type ZodSchema } from "zod";
+import {
+  type ChatHistoryInput,
+  chatHistoryInputSchema,
+  type ChatMessageInput,
+  chatMessageInputSchema,
+  chatMessageInputToChatMessageData,
+  isChatMessageInputAsOpposeToChatHistoryData,
+  isChatMessageInputAsOpposeToChatMessageData,
+} from "./ChatHistoryInput.js";
 import { type LMStudioClient } from "./LMStudioClient.js";
 import { FileHandle } from "./files/FileHandle.js";
 
@@ -61,24 +74,38 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
    * ```
    */
   public static from(initializer: ChatHistoryLike) {
+    const stack = getCurrentStack(1);
+    sharedValidator.validateMethodParamOrThrow(
+      "ChatHistory",
+      "from",
+      "initializer",
+      chatHistoryLikeSchema,
+      initializer,
+      stack,
+    );
     if (initializer instanceof ChatHistory) {
       // ChatHistory
       return initializer.asMutableCopy();
     }
-    if (!Array.isArray(initializer)) {
+    if (typeof initializer === "string") {
+      const chatHistory = ChatHistory.createEmpty();
+      chatHistory.append("user", initializer);
+      return chatHistory;
+    }
+    if (Array.isArray(initializer)) {
+      // ChatHistoryInput
+      return new ChatHistory(
+        { messages: initializer.map(chatMessageInputToChatMessageData) },
+        true,
+      );
+    }
+    if (isChatMessageInputAsOpposeToChatHistoryData(initializer)) {
+      // ChatMessageInput
+      return new ChatHistory({ messages: [chatMessageInputToChatMessageData(initializer)] }, true);
+    } else {
       // ChatHistoryData
       return new ChatHistory(initializer, false).asMutableCopy();
     }
-    // LLMConversationContextInput
-    return new ChatHistory(
-      chatHistoryDataSchema.parse({
-        messages: initializer.map(({ role, content }) => ({
-          role,
-          content: [{ type: "text", text: content }],
-        })),
-      }),
-      true,
-    );
   }
 
   /**
@@ -339,18 +366,27 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
 }
 
 /**
- * Represents anything that can be converted to a ChatHistory.
+ * Represents anything that can be converted to a ChatHistory. If you want to quickly construct a
+ * ChatHistory, use {@link ChatHistoryInput}.
+ *
+ * If a string is provided, it will be converted to a chat history with a single user message with
+ * the provided text.
  *
  * @public
  */
-export type ChatHistoryLike = ChatHistory | ChatHistoryData | LLMConversationContextInput;
+export type ChatHistoryLike =
+  | ChatHistoryInput
+  | string
+  | ChatHistory
+  | ChatMessageInput
+  | ChatHistoryData;
 export const chatHistoryLikeSchema = z.union([
-  z.instanceof(ChatHistory as any),
   chatHistoryDataSchema,
-  llmConversationContextInputSchema,
-]) as z.ZodUnion<
-  [z.ZodType<ChatHistory>, z.ZodType<ChatHistoryData>, z.ZodType<LLMConversationContextInput>]
->;
+  z.string(),
+  chatHistoryInputSchema,
+  chatMessageInputSchema,
+  z.instanceof(ChatHistory as any),
+]) as ZodSchema<ChatHistoryLike>;
 
 /**
  * Represents a single message in the history.
@@ -382,6 +418,41 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
       }),
       true,
     );
+  }
+
+  /**
+   * Quickly create a mutable message with something that can be converted to a message.
+   */
+  public static from(initializer: ChatMessageLike) {
+    const stack = getCurrentStack(1);
+    sharedValidator.validateMethodParamOrThrow(
+      "ChatMessage",
+      "from",
+      "initializer",
+      chatMessageLikeSchema,
+      initializer,
+      stack,
+    );
+    if (initializer instanceof ChatMessage) {
+      // ChatMessage
+      return initializer.asMutableCopy();
+    }
+    if (typeof initializer === "string") {
+      return new ChatMessage(
+        chatMessageDataSchema.parse({
+          role: "user",
+          content: [{ type: "text", text: initializer }],
+        }),
+        true,
+      );
+    }
+    if (isChatMessageInputAsOpposeToChatMessageData(initializer)) {
+      // ChatMessageData
+      return new ChatMessage(chatMessageInputToChatMessageData(initializer), true);
+    } else {
+      // ChatMessageInput
+      return new ChatMessage(initializer, true);
+    }
   }
 
   /**
@@ -568,6 +639,33 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
   }
 
   /**
+   * Append a file to the message. Takes in a FileHandle. You can obtain a FileHandle from
+   * `client.files.prepareImage`.
+   */
+  public appendFile(file: FileHandle) {
+    this.guardMutable();
+    switch (this.data.role) {
+      case "assistant":
+      case "user":
+      case "system":
+        this.data.content.push({
+          type: "file",
+          name: file.name,
+          identifier: file.identifier,
+          sizeBytes: file.sizeBytes,
+          fileType: file.type,
+        });
+        break;
+      case "tool":
+        throw new Error(`Cannot append text to a message with role "${this.data.role}"`);
+      default: {
+        const exhaustiveCheck: never = this.data;
+        throw new Error(`Unhandled role in switch statement: ${(exhaustiveCheck as any).role}`);
+      }
+    }
+  }
+
+  /**
    * Replaces all text in the messages.
    *
    * If the message contains other components (such as files), they will kept. The replaced text
@@ -630,3 +728,15 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
     );
   }
 }
+/**
+ * Represents something that can be converted to a ChatMessage.
+ *
+ * If a string is provided, it will be converted to a message sent by the user.
+ */
+export type ChatMessageLike = ChatMessageInput | string | ChatMessage | ChatMessageData;
+export const chatMessageLikeSchema = z.union([
+  chatMessageInputSchema,
+  z.string(),
+  z.instanceof(ChatMessage as any),
+  chatMessageDataSchema,
+]) as ZodSchema<ChatMessageLike>;

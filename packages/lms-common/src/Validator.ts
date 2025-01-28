@@ -240,3 +240,4 @@ export class Validator {
     );
   }
 }
+export const sharedValidator = new Validator();

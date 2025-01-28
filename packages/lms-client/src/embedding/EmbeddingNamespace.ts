@@ -11,7 +11,7 @@ import {
 import { ModelNamespace } from "../modelShared/ModelNamespace.js";
 import { numberToCheckboxNumeric } from "../numberToCheckboxNumeric.js";
 import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle.js";
-import { EmbeddingSpecificModel } from "./EmbeddingSpecificModel.js";
+import { EmbeddingModel } from "./EmbeddingModel.js";
 
 /** @public */
 export class EmbeddingNamespace extends ModelNamespace<
@@ -19,7 +19,7 @@ export class EmbeddingNamespace extends ModelNamespace<
   EmbeddingPort,
   EmbeddingLoadModelConfig,
   EmbeddingDynamicHandle,
-  EmbeddingSpecificModel
+  EmbeddingModel
 > {
   /** @internal */
   protected override readonly namespace = "embedding";
@@ -30,10 +30,9 @@ export class EmbeddingNamespace extends ModelNamespace<
   /** @internal */
   protected override loadConfigToKVConfig(config: EmbeddingLoadModelConfig): KVConfig {
     return embeddingLlamaLoadConfigSchematics.buildPartialConfig({
-      "llama.acceleration.offloadRatio": config.gpuOffload?.ratio,
-      "llama.load.mainGpu": config.gpuOffload?.mainGpu,
-      "llama.load.tensorSplit": config.gpuOffload?.tensorSplit,
-      "llama.load.splitStrategy": config.gpuOffload?.splitStrategy,
+      "llama.acceleration.offloadRatio": config.gpu?.ratio,
+      "llama.load.mainGpu": config.gpu?.mainGpu,
+      "llama.load.splitStrategy": config.gpu?.splitStrategy,
       "contextLength": config.contextLength,
       "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
       "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),
@@ -48,8 +47,8 @@ export class EmbeddingNamespace extends ModelNamespace<
     descriptor: ModelDescriptor,
     validator: Validator,
     logger: SimpleLogger,
-  ): EmbeddingSpecificModel {
-    return new EmbeddingSpecificModel(port, instanceReference, descriptor, validator, logger);
+  ): EmbeddingModel {
+    return new EmbeddingModel(port, instanceReference, descriptor, validator, logger);
   }
   /** @internal */
   protected override createDomainDynamicHandle(

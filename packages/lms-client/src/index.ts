@@ -12,13 +12,13 @@ export {
 } from "./customConfig.js";
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace.js";
 export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle.js";
+export type { EmbeddingModel } from "./embedding/EmbeddingModel.js";
 export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace.js";
-export type { EmbeddingSpecificModel } from "./embedding/EmbeddingSpecificModel.js";
 export type { FileHandle } from "./files/FileHandle.js";
 export type { FilesNamespace } from "./files/FilesNamespace.js";
+export type { LLM } from "./llm/LLM.js";
 export type { LLMDynamicHandle, LLMPredictionOpts } from "./llm/LLMDynamicHandle.js";
 export type { LLMNamespace } from "./llm/LLMNamespace.js";
-export type { LLMSpecificModel } from "./llm/LLMSpecificModel.js";
 export type { OngoingPrediction } from "./llm/OngoingPrediction.js";
 export type { PredictionResult } from "./llm/PredictionResult.js";
 export { LMStudioClient } from "./LMStudioClient.js";
