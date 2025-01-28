@@ -248,7 +248,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         builder.field(
           "kvCacheQuantization",
           "mlxKvCacheQuantizationType",
-          {},
+          { isExperimental: true },
           { enabled: false, bits: 8, groupSize: 64, quantizedStart: 5000 },
         ),
       ),
