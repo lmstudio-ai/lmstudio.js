@@ -468,18 +468,6 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return JSON.stringify(value, null, 2); // TODO: pretty print
     },
   })
-  .valueType("speculativeDecodingEnabled", {
-    paramType: {},
-    schemaMaker: () => {
-      return z.boolean();
-    },
-    effectiveEquals: (a, b) => {
-      return a === b;
-    },
-    stringify: value => {
-      return value ? "ON" : "OFF";
-    },
-  })
   .valueType("speculativeDecodingDraftModel", {
     paramType: {},
     schemaMaker: () => {
