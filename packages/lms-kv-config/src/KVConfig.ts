@@ -778,6 +778,11 @@ export class KVConfigSchematics<
     return field.valueTypeParams;
   }
 
+  public hasFullKey(key: string): boolean {
+    const field = this.getFullKeyMap().get(key);
+    return field !== undefined;
+  }
+
   /**
    * Given a KVConfig, filter it to only include fields that are in the schematics.
    */

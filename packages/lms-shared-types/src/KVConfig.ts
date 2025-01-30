@@ -85,14 +85,20 @@ export const kvConfigStackSchema = z.object({
 
 export type KVConfigFieldDependency = {
   key: string;
-  condition: {
-    type: "equals";
-    value: any;
-  };
+  condition:
+    | {
+        type: "equals";
+        value: any;
+      }
+    | {
+        type: "notEquals";
+        value: any;
+      };
 };
 export const kvConfigFieldDependencySchema = z.object({
   key: z.string(),
   condition: z.discriminatedUnion("type", [
     z.object({ type: z.literal("equals"), value: z.any() }),
+    z.object({ type: z.literal("notEquals"), value: z.any() }),
   ]),
 }) as ZodSchema<KVConfigFieldDependency>;

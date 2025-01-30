@@ -48,32 +48,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("stopStrings", "stringArray", {}, [])
       .field("toolCallStopStrings", "stringArray", {}, [])
       .field("structured", "llamaStructuredOutput", {}, { type: "none" })
-      .field("speculativeDecoding.enabled", "speculativeDecodingEnabled", {}, true)
-      .field(
-        "speculativeDecoding.draftModel",
-        "speculativeDecodingDraftModel",
-        {
-          dependencies: [
-            {
-              key: "llm.prediction.speculativeDecoding.enabled",
-              condition: { type: "equals", value: true },
-            },
-          ],
-        },
-        "",
-      )
       .field(
         "speculativeDecoding.numberOfDraftTokens",
         "numeric",
         {
           min: 1,
           int: true,
-          dependencies: [
-            {
-              key: "llm.prediction.speculativeDecoding.enabled",
-              condition: { type: "equals", value: true },
-            },
-          ],
         },
         1000,
       )
@@ -198,6 +178,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         { int: true, min: -1, uncheckedHint: "config:seedUncheckedHint" },
         { checked: false, value: -1 },
       )
+      .field("speculativeDecoding.draftModel", "speculativeDecodingDraftModel", {}, "")
       .scope("llama", builder =>
         builder
           .scope("acceleration", builder =>
@@ -341,8 +322,6 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
     "minPSampling",
     "topPSampling",
     "logProbs",
-    "speculativeDecoding.enabled",
-    "speculativeDecoding.draftModel",
     "speculativeDecoding.numberOfDraftTokens",
   ),
 );
@@ -357,6 +336,7 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
     "repeatPenalty",
     "minPSampling",
     "topPSampling",
+    "speculativeDecoding.numberOfDraftTokens",
   ),
 );
 
@@ -379,11 +359,11 @@ export const llmSharedLoadConfigSchematics = llmLoadSchematics.sliced(
 const llamaLoadConfigSchematics = globalConfigSchematics.sliced("llama.load.*");
 
 export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics
-  .union(llmLoadSchematics.sliced("llama.*"))
+  .union(llmLoadSchematics.sliced("llama.*", "speculativeDecoding.draftModel"))
   .union(llamaLoadConfigSchematics);
 
 export const llmMlxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
-  llmLoadSchematics.sliced("mlx.*"),
+  llmLoadSchematics.sliced("mlx.*", "speculativeDecoding.draftModel"),
 );
 
 export const llmOnnxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
