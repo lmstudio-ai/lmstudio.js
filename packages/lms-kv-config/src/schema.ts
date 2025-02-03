@@ -179,6 +179,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         { checked: false, value: -1 },
       )
       .field("speculativeDecoding.draftModel", "speculativeDecodingDraftModel", {}, "")
+      .field("vocabOnly", "boolean", {}, false)
       .scope("llama", builder =>
         builder
           .scope("acceleration", builder =>
@@ -359,11 +360,11 @@ export const llmSharedLoadConfigSchematics = llmLoadSchematics.sliced(
 const llamaLoadConfigSchematics = globalConfigSchematics.sliced("llama.load.*");
 
 export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics
-  .union(llmLoadSchematics.sliced("llama.*", "speculativeDecoding.draftModel"))
+  .union(llmLoadSchematics.sliced("llama.*", "speculativeDecoding.draftModel", "vocabOnly"))
   .union(llamaLoadConfigSchematics);
 
 export const llmMlxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
-  llmLoadSchematics.sliced("mlx.*", "speculativeDecoding.draftModel"),
+  llmLoadSchematics.sliced("mlx.*", "speculativeDecoding.draftModel", "vocabOnly"),
 );
 
 export const llmOnnxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
