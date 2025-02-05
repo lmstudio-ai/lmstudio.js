@@ -13,69 +13,80 @@ import { z } from "zod";
 import { createBaseModelBackendInterface } from "./baseModelBackendInterface.js";
 
 export function createLlmBackendInterface() {
-  return createBaseModelBackendInterface()
-    .addChannelEndpoint("predict", {
-      creationParameter: z.object({
-        modelSpecifier: modelSpecifierSchema,
-        history: chatHistoryDataSchema,
-        predictionConfigStack: kvConfigStackSchema,
-        ignoreServerSessionConfig: z.boolean().optional(),
-      }),
-      toClientPacket: z.discriminatedUnion("type", [
-        z.object({
-          type: z.literal("fragment"),
-          fragment: llmPredictionFragmentSchema,
-          logprobs: z
-            .array(z.array(z.object({ text: z.string(), logprob: z.number() })))
-            .optional(),
+  return (
+    createBaseModelBackendInterface()
+      .addChannelEndpoint("predict", {
+        creationParameter: z.object({
+          modelSpecifier: modelSpecifierSchema,
+          history: chatHistoryDataSchema,
+          predictionConfigStack: kvConfigStackSchema,
+          ignoreServerSessionConfig: z.boolean().optional(),
         }),
-        z.object({
-          type: z.literal("promptProcessingProgress"),
-          progress: z.number(),
+        toClientPacket: z.discriminatedUnion("type", [
+          z.object({
+            type: z.literal("fragment"),
+            fragment: llmPredictionFragmentSchema,
+            logprobs: z
+              .array(z.array(z.object({ text: z.string(), logprob: z.number() })))
+              .optional(),
+          }),
+          z.object({
+            type: z.literal("promptProcessingProgress"),
+            progress: z.number(),
+          }),
+          z.object({
+            type: z.literal("success"),
+            stats: llmPredictionStatsSchema,
+            modelInfo: modelDescriptorSchema,
+            loadModelConfig: kvConfigSchema,
+            predictionConfig: kvConfigSchema,
+          }),
+        ]),
+        toServerPacket: z.discriminatedUnion("type", [
+          z.object({
+            type: z.literal("cancel"),
+          }),
+        ]),
+      })
+      .addRpcEndpoint("applyPromptTemplate", {
+        parameter: z.object({
+          specifier: modelSpecifierSchema,
+          history: chatHistoryDataSchema,
+          predictionConfigStack: kvConfigStackSchema,
+          opts: llmApplyPromptTemplateOptsSchema,
         }),
-        z.object({
-          type: z.literal("success"),
-          stats: llmPredictionStatsSchema,
-          modelInfo: modelDescriptorSchema,
-          loadModelConfig: kvConfigSchema,
-          predictionConfig: kvConfigSchema,
+        returns: z.object({
+          formatted: z.string(),
         }),
-      ]),
-      toServerPacket: z.discriminatedUnion("type", [
-        z.object({
-          type: z.literal("cancel"),
+      })
+      .addRpcEndpoint("tokenize", {
+        parameter: z.object({
+          specifier: modelSpecifierSchema,
+          inputString: z.string(),
         }),
-      ]),
-    })
-    .addRpcEndpoint("applyPromptTemplate", {
-      parameter: z.object({
-        specifier: modelSpecifierSchema,
-        history: chatHistoryDataSchema,
-        predictionConfigStack: kvConfigStackSchema,
-        opts: llmApplyPromptTemplateOptsSchema,
-      }),
-      returns: z.object({
-        formatted: z.string(),
-      }),
-    })
-    .addRpcEndpoint("tokenize", {
-      parameter: z.object({
-        specifier: modelSpecifierSchema,
-        inputString: z.string(),
-      }),
-      returns: z.object({
-        tokens: z.array(z.number()),
-      }),
-    })
-    .addRpcEndpoint("countTokens", {
-      parameter: z.object({
-        specifier: modelSpecifierSchema,
-        inputString: z.string(),
-      }),
-      returns: z.object({
-        tokenCount: z.number().int(),
-      }),
-    });
+        returns: z.object({
+          tokens: z.array(z.number()),
+        }),
+      })
+      .addRpcEndpoint("countTokens", {
+        parameter: z.object({
+          specifier: modelSpecifierSchema,
+          inputString: z.string(),
+        }),
+        returns: z.object({
+          tokenCount: z.number().int(),
+        }),
+      })
+      // Starts to eagerly preload a draft model. This is useful when you want a draft model to be
+      // ready for speculative decoding.
+      .addRpcEndpoint("preloadDraftModel", {
+        parameter: z.object({
+          specifier: modelSpecifierSchema,
+          draftModelKey: z.string(),
+        }),
+        returns: z.void(),
+      })
+  );
 }
 
 export type LLMPort = InferClientPort<typeof createLlmBackendInterface>;
