@@ -82,7 +82,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field(
         "promptTemplate",
         "llmPromptTemplate",
-        {},
+        { modelCentric: true },
         {
           type: "manual",
           manualPromptTemplate: {
