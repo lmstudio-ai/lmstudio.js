@@ -473,4 +473,30 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
       )
     ).tokenCount;
   }
+
+  /**
+   * Starts to eagerly preload a draft model. This is useful when you want a draft model to be ready
+   * for speculative decoding.
+   *
+   * Preloading is done on a best-effort basis and may not always succeed. It is not guaranteed that
+   * the draft model is actually loaded when this method returns. Thus, this method should only be
+   * used as an optimization. The actual draft model used only depends on the parameter set when
+   * performing the prediction.
+   */
+  public async unstable_preloadDraftModel(draftModelKey: string): Promise<void> {
+    const stack = getCurrentStack(1);
+    draftModelKey = this.validator.validateMethodParamOrThrow(
+      "model",
+      "unstable_preloadDraftModel",
+      "draftModelKey",
+      z.string(),
+      draftModelKey,
+      stack,
+    );
+    await this.port.callRpc(
+      "preloadDraftModel",
+      { specifier: this.specifier, draftModelKey },
+      { stack },
+    );
+  }
 }

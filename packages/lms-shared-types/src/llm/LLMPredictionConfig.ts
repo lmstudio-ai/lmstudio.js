@@ -120,6 +120,18 @@ export interface LLMPredictionConfig {
    * TODO: Documentation
    */
   promptTemplate?: LLMPromptTemplate;
+  /**
+   * Warning: Experimental and subject to change.
+   *
+   * TODO: Documentation
+   */
+  speculativeDecodingDraftModelKey?: string;
+  /**
+   * Warning: Experimental and subject to change.
+   *
+   * TODO: Documentation
+   */
+  speculativeDecodingDraftTokensCount?: number;
 }
 export const llmPredictionConfigSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional().or(z.literal(false)),
@@ -135,6 +147,8 @@ export const llmPredictionConfigSchema = z.object({
   topPSampling: z.number().optional().or(z.literal(false)),
   cpuThreads: z.number().optional(),
   promptTemplate: llmPromptTemplateSchema.optional(),
+  speculativeDecodingDraftModelKey: z.string().optional(),
+  speculativeDecodingDraftTokensCount: z.number().int().min(2).optional(),
 });
 
 export interface LLMLlamaMirostatSamplingConfig {
