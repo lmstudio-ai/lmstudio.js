@@ -347,6 +347,10 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
   ),
 );
 
+export const llmTransformersPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
+  llmPredictionConfigSchematics.sliced("transformers.*"),
+);
+
 export const llmOnnxPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
   llmPredictionConfigSchematics.sliced("onnx.*", "repeatPenalty", "topPSampling", "topKSampling"),
 );
@@ -371,6 +375,10 @@ export const llmLlamaLoadConfigSchematics = llmSharedLoadConfigSchematics
 
 export const llmMlxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
   llmLoadSchematics.sliced("mlx.*"),
+);
+
+export const llmTransformersLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
+  llmLoadSchematics.sliced("transformers.*"),
 );
 
 export const llmOnnxLoadConfigSchematics = llmSharedLoadConfigSchematics.union(
