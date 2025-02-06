@@ -786,10 +786,25 @@ export class KVConfigSchematics<
   /**
    * Given a KVConfig, filter it to only include fields that are in the schematics.
    */
-  public filterConfig(config: KVConfig): KVConfig {
+  public filterConfig(
+    config: KVConfig,
+    additionalFilter?: ConfigFieldFilter<TKVFieldValueTypeLibraryMap>,
+  ): KVConfig {
     const fullKeyMap = this.getFullKeyMap();
     return {
-      fields: config.fields.filter(field => fullKeyMap.has(field.key)),
+      fields: config.fields.filter(configField => {
+        const field = fullKeyMap.get(configField.key);
+        if (field === undefined) {
+          return false;
+        }
+        if (additionalFilter !== undefined) {
+          return additionalFilter(field.fullKey, {
+            type: field.valueTypeKey,
+            param: field.valueTypeParams,
+          });
+        }
+        return true;
+      }),
     };
   }
 
@@ -805,15 +820,26 @@ export class KVConfigSchematics<
     };
   }
 
-  public twoWayFilterConfig(config: KVConfig): readonly [included: KVConfig, excluded: KVConfig] {
+  public twoWayFilterConfig(
+    config: KVConfig,
+    additionalFilter?: ConfigFieldFilter<TKVFieldValueTypeLibraryMap>,
+  ): readonly [included: KVConfig, excluded: KVConfig] {
     const includedFields: Array<KVConfig["fields"][number]> = [];
     const excludedFields: Array<KVConfig["fields"][number]> = [];
     const fullKeyMap = this.getFullKeyMap();
-    for (const field of config.fields) {
-      if (fullKeyMap.has(field.key)) {
-        includedFields.push(field);
+    for (const configField of config.fields) {
+      const field = fullKeyMap.get(configField.key);
+      let include = field !== undefined;
+      if (field !== undefined && additionalFilter !== undefined) {
+        include = additionalFilter(field.fullKey, {
+          type: field.valueTypeKey,
+          param: field.valueTypeParams,
+        });
+      }
+      if (include) {
+        includedFields.push(configField);
       } else {
-        excludedFields.push(field);
+        excludedFields.push(configField);
       }
     }
     return [{ fields: includedFields }, { fields: excludedFields }];
@@ -991,13 +1017,27 @@ export class KVConfigSchematics<
   public effectiveCompareConfig(
     a: KVConfig,
     b: KVConfig,
+    opts: {
+      fieldFilter?: ConfigFieldFilter<TKVFieldValueTypeLibraryMap>;
+    } = {},
   ): { onlyInA: Array<string>; onlyInB: Array<string>; inBothButDifferent: Array<string> } {
+    const { fieldFilter } = opts;
     const aMap = kvConfigToMap(a);
     const bMap = kvConfigToMap(b);
     const onlyInA: Array<string> = [];
     const onlyInB: Array<string> = [];
     const inBothButDifferent: Array<string> = [];
     for (const field of this.fields.values()) {
+      if (fieldFilter !== undefined) {
+        if (
+          !fieldFilter(field.fullKey, {
+            type: field.valueTypeKey,
+            param: field.valueTypeParams,
+          })
+        ) {
+          continue;
+        }
+      }
       const aValue = aMap.get(field.fullKey);
       const bValue = bMap.get(field.fullKey);
       if (aValue === undefined) {
@@ -1408,3 +1448,17 @@ export type InferValueTypeMap<TLibrary extends KVFieldValueTypeLibrary<any>> =
 export type InferValueTypeKeys<TLibrary extends KVFieldValueTypeLibrary<any>> = UnionKeyOf<
   InferValueTypeMap<TLibrary>
 >;
+
+export type ConfigFieldFilter<TKVFieldValueTypeLibraryMap extends KVVirtualFieldValueTypesMapping> =
+  (
+    fullKey: string,
+    valueTypeDescriptor: {
+      [TType in keyof TKVFieldValueTypeLibraryMap]: {
+        type: TType;
+        param: TKVFieldValueTypeLibraryMap[TType]["param"];
+      };
+    }[keyof TKVFieldValueTypeLibraryMap],
+  ) => boolean;
+
+export type InferConfigFieldFilter<TKVConfigSchematics extends KVConfigSchematics<any, any>> =
+  TKVConfigSchematics extends KVConfigSchematics<infer RMap, any> ? ConfigFieldFilter<RMap> : never;
