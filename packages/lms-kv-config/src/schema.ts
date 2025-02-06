@@ -9,6 +9,7 @@
 
 import {
   KVConfigSchematicsBuilder,
+  type InferConfigFieldFilter,
   type InferConfigSchemaKeys,
   type InferConfigSchemaMap,
   type InferValueTypeKeys,
@@ -50,18 +51,30 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("structured", "llamaStructuredOutput", {}, { type: "none" })
       .scope("speculativeDecoding", builder =>
         builder
-          .field("draftModel", "speculativeDecodingDraftModel", {}, "")
+          .field(
+            "draftModel",
+            "speculativeDecodingDraftModel",
+            {
+              modelCentric: true,
+            },
+            "",
+          )
           .field(
             "numDraftTokens",
             "numeric",
-            { min: 2, int: true, slider: { min: 2, max: 10, step: 1 } },
+            {
+              modelCentric: true,
+              min: 2,
+              int: true,
+              slider: { min: 2, max: 10, step: 1 },
+            },
             2,
           )
-          .field("numReuseTokens", "numeric", { min: 1, int: true }, 256)
+          .field("numReuseTokens", "numeric", { modelCentric: true, min: 1, int: true }, 256)
           .field(
             "minAcceptProbability",
             "numeric",
-            { min: 0, max: 1, step: 0.01, precision: 2 },
+            { modelCentric: true, min: 0, max: 1, step: 0.01, precision: 2 },
             0.9,
           ),
       )
@@ -418,6 +431,11 @@ type ValueTypeMap =
  * Any config schematics that uses the value types defined in the type library.
  */
 export type TypedConfigSchematics = KVConfigSchematics<ValueTypeMap, any>;
+
+/**
+ * Any field filter that uses the value types defined in the type library.
+ */
+export type TypedConfigFieldFilter = InferConfigFieldFilter<TypedConfigSchematics>;
 
 export type GlobalKVValueTypeMap = InferValueTypeMap<typeof kvValueTypesLibrary>;
 /**
