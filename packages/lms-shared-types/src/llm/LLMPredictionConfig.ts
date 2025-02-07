@@ -1,4 +1,5 @@
-import { z } from "zod";
+import { z, type ZodType } from "zod";
+import { zodSchemaSchema } from "../Zod.js";
 import { llmPromptTemplateSchema, type LLMPromptTemplate } from "./LLMPromptTemplate.js";
 import {
   llmStructuredPredictionSettingSchema,
@@ -24,13 +25,12 @@ export const llmContextOverflowPolicySchema = z.enum([
   "truncateMiddle",
   "rollingWindow",
 ]);
-
 /**
  * Shared config for running predictions on an LLM.
  *
  * @public
  */
-export interface LLMPredictionConfig {
+export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
   /**
    * Number of tokens to predict at most. If set to false, the model will predict as many tokens as it
    * wants.
@@ -77,7 +77,7 @@ export interface LLMPredictionConfig {
   /**
    * TODO: Documentation
    */
-  structured?: LLMStructuredPredictionSetting;
+  structured?: ZodType<TStructuredOutputType> | LLMStructuredPredictionSetting;
   /**
    * TODO: Documentation
    */
@@ -133,13 +133,13 @@ export interface LLMPredictionConfig {
    */
   speculativeDecodingDraftTokensCount?: number;
 }
-export const llmPredictionConfigSchema = z.object({
+export const llmPredictionConfigInputSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional().or(z.literal(false)),
   temperature: z.number().min(0).optional(),
   stopStrings: z.array(z.string()).optional(),
   toolCallStopStrings: z.array(z.string()).optional(),
   contextOverflowPolicy: llmContextOverflowPolicySchema.optional(),
-  structured: llmStructuredPredictionSettingSchema.optional(),
+  structured: z.union([zodSchemaSchema, llmStructuredPredictionSettingSchema]).optional(),
   tools: llmToolUseSettingSchema.optional(),
   topKSampling: z.number().optional(),
   repeatPenalty: z.number().optional().or(z.literal(false)),
@@ -149,6 +149,13 @@ export const llmPredictionConfigSchema = z.object({
   promptTemplate: llmPromptTemplateSchema.optional(),
   speculativeDecodingDraftModelKey: z.string().optional(),
   speculativeDecodingDraftTokensCount: z.number().int().min(2).optional(),
+});
+
+export interface LLMPredictionConfig extends LLMPredictionConfigInput<any> {
+  structured?: LLMStructuredPredictionSetting;
+}
+export const llmPredictionConfigSchema = llmPredictionConfigInputSchema.extend({
+  structured: llmStructuredPredictionSettingSchema.optional(),
 });
 
 export interface LLMLlamaMirostatSamplingConfig {

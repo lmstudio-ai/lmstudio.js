@@ -23,5 +23,5 @@ module.exports = {
     commonjs(),
     json(),
   ],
-  external: ["process", "chalk", "zod", "@lmstudio/lms-isomorphic"],
+  external: ["process", "chalk", "zod", "zod-to-json-schema", "@lmstudio/lms-isomorphic"],
 };

@@ -6,7 +6,7 @@ import {
   type LLMPredictionStopReason,
   type ModelDescriptor,
 } from "@lmstudio/lms-shared-types";
-import { PredictionResult } from "./PredictionResult.js";
+import { PredictionResult, StructuredPredictionResult } from "./PredictionResult.js";
 
 /**
  * Represents an ongoing prediction.
@@ -40,15 +40,22 @@ import { PredictionResult } from "./PredictionResult.js";
  *
  * @public
  */
-export class OngoingPrediction extends StreamablePromise<LLMPredictionFragment, PredictionResult> {
+export class OngoingPrediction<TStructuredOutputType = unknown> extends StreamablePromise<
+  LLMPredictionFragment,
+  unknown extends TStructuredOutputType
+    ? // If TStructuredOutputType is unknown, return PredictionResult (no parsed field)
+      PredictionResult
+    : // If TStructuredOutputType is not unknown, return StructuredPredictionResult (with parsed
+      // field)
+      StructuredPredictionResult<TStructuredOutputType>
+> {
   private stats: LLMPredictionStats | null = null;
   private modelInfo: ModelDescriptor | null = null;
   private loadModelConfig: KVConfig | null = null;
   private predictionConfig: KVConfig | null = null;
 
-  protected override async collect(
-    fragments: ReadonlyArray<LLMPredictionFragment>,
-  ): Promise<PredictionResult> {
+  protected override async collect(fragments: ReadonlyArray<LLMPredictionFragment>) {
+    const content = fragments.map(({ content }) => content).join("");
     if (this.stats === null) {
       throw new Error("Stats should not be null");
     }
@@ -61,22 +68,39 @@ export class OngoingPrediction extends StreamablePromise<LLMPredictionFragment, 
     if (this.predictionConfig === null) {
       throw new Error("Prediction config should not be null");
     }
-    return new PredictionResult(
-      fragments.map(({ content }) => content).join(""),
-      this.stats,
-      this.modelInfo,
-      this.loadModelConfig,
-      this.predictionConfig,
-    );
+    if (this.parser === null) {
+      return new PredictionResult(
+        content,
+        this.stats,
+        this.modelInfo,
+        this.loadModelConfig,
+        this.predictionConfig,
+      ) as any;
+    } else {
+      return new StructuredPredictionResult<TStructuredOutputType>(
+        content,
+        this.stats,
+        this.modelInfo,
+        this.loadModelConfig,
+        this.predictionConfig,
+        this.parser(content),
+      ) as any;
+    }
   }
 
-  private constructor(private readonly onCancel: () => void) {
+  private constructor(
+    private readonly onCancel: () => void,
+    private readonly parser: ((content: string) => TStructuredOutputType) | null,
+  ) {
     super();
   }
 
   /** @internal */
-  public static create(onCancel: () => void) {
-    const ongoingPrediction = new OngoingPrediction(onCancel);
+  public static create<TStructuredOutputType>(
+    onCancel: () => void,
+    parser: ((content: string) => TStructuredOutputType) | null,
+  ) {
+    const ongoingPrediction = new OngoingPrediction<TStructuredOutputType>(onCancel, parser);
     const finished = (
       stats: LLMPredictionStats,
       modelInfo: ModelDescriptor,

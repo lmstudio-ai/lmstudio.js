@@ -136,6 +136,8 @@ export {
   LLMLlamaSingleLogitBiasModification,
   llmLlamaSingleLogitBiasModificationSchema,
   LLMPredictionConfig,
+  LLMPredictionConfigInput,
+  llmPredictionConfigInputSchema,
   llmPredictionConfigSchema,
 } from "./llm/LLMPredictionConfig.js";
 export { LLMPredictionFragment, llmPredictionFragmentSchema } from "./llm/LLMPredictionFragment.js";
@@ -288,3 +290,4 @@ export {
   serializedKVConfigSchematicsSchema,
 } from "./SerializedKVConfigSchematics.js";
 export { VirtualModelManifest, virtualModelManifestSchema } from "./VirtualModelManifest.js";
+export { zodSchemaSchema } from "./Zod.js";
