@@ -21,14 +21,17 @@ import {
   type LLMApplyPromptTemplateOpts,
   llmApplyPromptTemplateOptsSchema,
   type LLMJinjaInputConfig,
-  type LLMPredictionConfig,
-  llmPredictionConfigSchema,
+  type LLMPredictionConfigInput,
+  llmPredictionConfigInputSchema,
   type LLMPredictionFragment,
   type LLMPredictionStats,
+  type LLMStructuredPredictionSetting,
   type ModelDescriptor,
   type ModelSpecifier,
+  zodSchemaSchema,
 } from "@lmstudio/lms-shared-types";
-import { z } from "zod";
+import { z, type ZodSchema } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import { ChatHistory, type ChatHistoryLike, chatHistoryLikeSchema } from "../ChatHistory.js";
 import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 import { type LLMNamespace } from "./LLMNamespace.js";
@@ -38,12 +41,13 @@ import { type PredictionResult } from "./PredictionResult.js";
 /**
  * Shared options for any prediction methods (`.complete`/`.respond`).
  *
- * Note, this interface extends the `LLMPredictionConfig` interface, which contains parameters that
- * you can override for the LLM. See {@link LLMPredictionConfig} for more information.
+ * Note, this interface extends the `LLMPredictionConfigInput` interface, which contains parameters
+ * that you can override for the LLM. See {@link LLMPredictionConfigInput} for more information.
  *
  * @public
  */
-export interface LLMPredictionOpts extends LLMPredictionConfig {
+export interface LLMPredictionOpts<TStructuredOutputType = unknown>
+  extends LLMPredictionConfigInput<TStructuredOutputType> {
   // verbose?: boolean | LogLevel;
   /**
    * A callback that is called when the model is processing the prompt. The callback is called with
@@ -57,16 +61,14 @@ export interface LLMPredictionOpts extends LLMPredictionConfig {
    */
   onFirstToken?: () => void;
 }
-export const llmPredictionOptsSchema = z.object({
-  ...llmPredictionConfigSchema.shape,
-  // verbose: z.union([z.boolean(), logLevelSchema]).optional(),
+export const llmPredictionOptsSchema = llmPredictionConfigInputSchema.extend({
   onPromptProcessingProgress: z.function().optional(),
   onFirstToken: z.function().optional(),
 });
 
-type LLMPredictionExtraOpts = Omit<LLMPredictionOpts, keyof LLMPredictionConfig>;
+type LLMPredictionExtraOpts = Omit<LLMPredictionOpts, keyof LLMPredictionConfigInput>;
 
-function splitOpts(opts: LLMPredictionOpts): [LLMPredictionConfig, LLMPredictionExtraOpts] {
+function splitOpts(opts: LLMPredictionOpts): [LLMPredictionConfigInput, LLMPredictionExtraOpts] {
   const { onPromptProcessingProgress, onFirstToken, ...config } = opts;
   return [config, { onPromptProcessingProgress, onFirstToken }];
 }
@@ -190,6 +192,33 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     channel.onError.subscribeOnce(onError);
   }
 
+  private predictionConfigInputToKVConfig(config: LLMPredictionConfigInput): KVConfig {
+    let structuredField: undefined | LLMStructuredPredictionSetting = undefined;
+    if (typeof (config.structured as any)?.parse === "function") {
+      structuredField = {
+        type: "json",
+        jsonSchema: zodToJsonSchema(config.structured as any),
+      };
+    }
+    const convertedConfig = {
+      ...config,
+      structured: structuredField,
+    };
+    return llmPredictionConfigToKVConfig(convertedConfig);
+  }
+
+  private createZodParser(zodSchema: ZodSchema): (content: string) => any {
+    return content => {
+      try {
+        return zodSchema.parse(JSON.parse(content));
+      } catch (e) {
+        throw new Error("Failed to parse structured output: " + JSON.stringify(content), {
+          cause: e,
+        });
+      }
+    };
+  }
+
   /**
    * Use the loaded model to predict text.
    *
@@ -235,19 +264,28 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * @param prompt - The prompt to use for prediction.
    * @param opts - Options for the prediction.
    */
-  public complete(prompt: string, opts: LLMPredictionOpts = {}) {
+  public complete<TStructuredOutputType>(
+    prompt: string,
+    opts: LLMPredictionOpts<TStructuredOutputType> = {},
+  ): OngoingPrediction<TStructuredOutputType> {
     const stack = getCurrentStack(1);
     [prompt, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "complete",
       ["prompt", "opts"],
-      [z.string(), llmPredictionConfigSchema],
+      [z.string(), llmPredictionOptsSchema],
       [prompt, opts],
       stack,
     );
     const [config, extraOpts] = splitOpts(opts);
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
-    const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
+
+    const zodSchemaParseResult = zodSchemaSchema.safeParse(config.structured);
+
+    const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(
+      emitCancelEvent,
+      !zodSchemaParseResult.success ? null : this.createZodParser(zodSchemaParseResult.data),
+    );
     this.predictInternal(
       this.specifier,
       this.resolveCompletionContext(prompt),
@@ -256,7 +294,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
           ...this.internalKVConfigStack.layers,
           {
             layerName: "apiOverride",
-            config: llmPredictionConfigToKVConfig({
+            config: this.predictionConfigInputToKVConfig({
               // If the user did not specify `stopStrings`, we default to an empty array. This is to
               // prevent the model from using the value set in the preset.
               stopStrings: [],
@@ -350,18 +388,27 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * @param history - The LLMChatHistory array to use for generating a response.
    * @param opts - Options for the prediction.
    */
-  public respond(history: ChatHistoryLike, opts: LLMPredictionOpts = {}) {
+  public respond<TStructuredOutputType>(
+    history: ChatHistoryLike,
+    opts: LLMPredictionOpts<TStructuredOutputType> = {},
+  ): OngoingPrediction<TStructuredOutputType> {
     const stack = getCurrentStack(1);
     [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "respond",
       ["history", "opts"],
-      [chatHistoryLikeSchema, llmPredictionConfigSchema],
+      [chatHistoryLikeSchema, llmPredictionOptsSchema],
       [history, opts],
       stack,
     );
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
-    const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(emitCancelEvent);
+
+    const zodSchemaParseResult = zodSchemaSchema.safeParse(opts.structured);
+
+    const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(
+      emitCancelEvent,
+      !zodSchemaParseResult.success ? null : this.createZodParser(zodSchemaParseResult.data),
+    );
     const [config, extraOpts] = splitOpts(opts);
     this.predictInternal(
       this.specifier,
@@ -369,7 +416,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
       addKVConfigToStack(
         this.internalKVConfigStack,
         "apiOverride",
-        llmPredictionConfigToKVConfig(config),
+        this.predictionConfigInputToKVConfig(config),
       ),
       cancelEvent,
       extraOpts,

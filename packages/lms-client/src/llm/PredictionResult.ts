@@ -37,3 +37,19 @@ export class PredictionResult {
     public readonly predictionConfig: KVConfig,
   ) {}
 }
+
+export class StructuredPredictionResult<TStructuredOutputType = unknown> extends PredictionResult {
+  public constructor(
+    content: string,
+    stats: LLMPredictionStats,
+    modelInfo: ModelDescriptor,
+    loadConfig: KVConfig,
+    predictionConfig: KVConfig,
+    /**
+     * Parsed result of the structured output.
+     */
+    public readonly parsed: TStructuredOutputType,
+  ) {
+    super(content, stats, modelInfo, loadConfig, predictionConfig);
+  }
+}

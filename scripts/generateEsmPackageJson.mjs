@@ -1,6 +1,7 @@
 // In order for node.js to correctly recognize the esm folder in dist is an ES module, we need to
 // generate and place a "package.json" with { "type": "module" } in each of the packages that have
 // esm support
+
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 
@@ -21,7 +22,7 @@ for (const dirent of readdirSync(packagesFolder, { withFileTypes: true })) {
   }
   // If none of the exports have specified the "import" field, we don't need to generate a
   // package.json file
-  if (Object.values(exports).every((value: any) => !value || !value.import)) {
+  if (Object.values(exports).every(value => !value || !value.import)) {
     continue;
   }
   const targetFolder = resolve(packageFolder, "dist", "esm");
