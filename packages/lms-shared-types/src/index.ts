@@ -66,6 +66,7 @@ export {
   attachSerializedErrorData,
   ErrorDisplayData,
   errorDisplayDataSchema,
+  extractDisplayData,
   fromSerializedError,
   recreateSerializedError,
   SerializedLMSExtendedError,

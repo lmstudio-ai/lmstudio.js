@@ -1,7 +1,43 @@
 import { z } from "zod";
-import { modelDomainTypeSchema } from "./ModelDomainType.js";
-import { modelQuerySchema } from "./ModelSpecifier.js";
+import { type ModelDomainType, modelDomainTypeSchema } from "./ModelDomainType.js";
+import { type ModelQuery, modelQuerySchema } from "./ModelSpecifier.js";
 
+export type GenericErrorDisplayData =
+  | {
+      code: "generic.specificModelUnloaded";
+    }
+  | {
+      code: "generic.noModelMatchingQuery";
+      query: ModelQuery;
+      loadedModelsSample: Array<string>;
+      totalLoadedModels: number;
+    }
+  | {
+      code: "generic.pathNotFound";
+      path: string;
+      availablePathsSample: Array<string>;
+      totalModels: number;
+    }
+  | {
+      code: "generic.identifierNotFound";
+      identifier: string;
+      loadedModelsSample: Array<string>;
+      totalLoadedModels: number;
+    }
+  | {
+      code: "generic.domainMismatch";
+      path: string;
+      actualDomain: ModelDomainType;
+      expectedDomain: ModelDomainType;
+    }
+  | {
+      code: "generic.engineDoesNotSupportFeature";
+      feature: string;
+      engineName: string;
+      engineType: string;
+      installedVersion: string;
+      supportedVersion: string | null;
+    };
 export const genericErrorDisplayDataSchema = [
   z.object({
     code: z.literal("generic.specificModelUnloaded"),
@@ -29,5 +65,13 @@ export const genericErrorDisplayDataSchema = [
     path: z.string(),
     actualDomain: modelDomainTypeSchema,
     expectedDomain: modelDomainTypeSchema,
+  }),
+  z.object({
+    code: z.literal("generic.engineDoesNotSupportFeature"),
+    feature: z.string(),
+    engineName: z.string(),
+    engineType: z.string(),
+    installedVersion: z.string(),
+    supportedVersion: z.string().nullable(),
   }),
 ] as const;
