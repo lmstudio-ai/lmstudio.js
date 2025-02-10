@@ -10,16 +10,16 @@ export function findLMStudioHome() {
   }
 
   // if applicable, convert relative path to absolute and follow the symlink
-  const homeDir = realpathSync(homedir());
+  const resolvedHomeDir = realpathSync(homedir());
 
-  const pointerFilePath = join(homeDir, ".lmstudio-home-pointer");
+  const pointerFilePath = join(resolvedHomeDir, ".lmstudio-home-pointer");
   if (existsSync(pointerFilePath)) {
     lmstudioHome = readFileSync(pointerFilePath, "utf-8").trim();
     return lmstudioHome;
   }
 
   // See if ~/.cache/lm-studio exists. If it does, use it.
-  const cacheHome = join(homeDir, ".cache", "lm-studio");
+  const cacheHome = join(resolvedHomeDir, ".cache", "lm-studio");
   if (existsSync(cacheHome)) {
     lmstudioHome = cacheHome;
     writeFileSync(pointerFilePath, lmstudioHome, "utf-8");
@@ -27,7 +27,7 @@ export function findLMStudioHome() {
   }
 
   // Otherwise, fallback to ~/.lmstudio
-  const home = join(homeDir, ".lmstudio");
+  const home = join(resolvedHomeDir, ".lmstudio");
   lmstudioHome = home;
   writeFileSync(pointerFilePath, lmstudioHome, "utf-8");
   return lmstudioHome;
