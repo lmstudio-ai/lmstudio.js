@@ -178,7 +178,12 @@ export abstract class ClientTransport extends Transport<
    * usually indicates the `socket.ref()` should be called to prevent the process from exiting.
    */
   public onHavingOneOrMoreOpenCommunication() {}
-  /**
+  // The following snippet is intentionally not a tsdoc (only 1 star as oppose to 2). There is
+  // likely a bug in TypeScript that when we change it to tsdoc, on darwin and linux, it causes the
+  // generated .d.ts file to be invalid. We have considered reporting this to TypeScript, but it is
+  // way too difficult to narrow down, thus we just hope this is the only case that this error
+  // occurs.
+  /*
    * Called by the client port when the number of open communications changes from 1 or more to 0.
    * This usually indicates the `socket.unref()` should be called to allow the process to exit.
    */
