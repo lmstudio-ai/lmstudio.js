@@ -138,11 +138,15 @@ export type ProcessingUpdateContentBlockAppendText = {
   type: "contentBlock.appendText";
   id: string;
   text: string;
+  tokensCount?: number;
+  fromDraftModel?: boolean;
 };
 export const processingUpdateContentBlockAppendTextSchema = z.object({
   type: z.literal("contentBlock.appendText"),
   id: z.string(),
   text: z.string(),
+  tokensCount: z.number().int().optional(),
+  fromDraftModel: z.boolean().optional(),
 });
 
 export type ProcessingUpdateContentBlockReplaceText = {

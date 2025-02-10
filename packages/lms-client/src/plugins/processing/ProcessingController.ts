@@ -478,6 +478,11 @@ export class PredictionProcessDebugInfoBlockController {
   ) {}
 }
 
+interface PredictionProcessContentBlockControllerAppendTextOpts {
+  tokensCount?: number;
+  fromDraftModel?: boolean;
+}
+
 /**
  * @public
  *
@@ -490,11 +495,16 @@ export class PredictionProcessContentBlockController {
     private readonly handle: ProcessingControllerHandle,
     private readonly id: string,
   ) {}
-  public appendText(text: string) {
+  public appendText(
+    text: string,
+    { tokensCount, fromDraftModel }: PredictionProcessContentBlockControllerAppendTextOpts = {},
+  ) {
     this.handle.sendUpdate({
       type: "contentBlock.appendText",
       id: this.id,
       text,
+      tokensCount,
+      fromDraftModel,
     });
   }
   public replaceText(text: string) {
