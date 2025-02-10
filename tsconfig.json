@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ES2021",
+    "target": "ES2022",
+    "useDefineForClassFields": false,
     "moduleResolution": "node",
     "incremental": true,
     "noImplicitOverride": true,
