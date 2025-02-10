@@ -1,13 +1,16 @@
 import { z, type ZodSchema } from "zod";
-import { genericErrorDisplayDataSchema } from "./GenericErrorDisplayData.js";
-import { llmErrorDisplayDataSchema } from "./llm/LLMErrorDisplayData.js";
+import {
+  type GenericErrorDisplayData,
+  genericErrorDisplayDataSchema,
+} from "./GenericErrorDisplayData.js";
+import { type LLMErrorDisplayData, llmErrorDisplayDataSchema } from "./llm/LLMErrorDisplayData.js";
 
 export const errorDisplayDataSchema = z.discriminatedUnion("code", [
   ...llmErrorDisplayDataSchema,
   ...genericErrorDisplayDataSchema,
 ]);
 
-export type ErrorDisplayData = z.infer<typeof errorDisplayDataSchema>;
+export type ErrorDisplayData = LLMErrorDisplayData | GenericErrorDisplayData;
 
 /**
  * Makes a Zod schema that turns a failed parse into an `undefined`.
@@ -101,4 +104,8 @@ export function recreateSerializedError(error: SerializedLMSExtendedError) {
   result.name = "LMSExtendedError";
   attachSerializedErrorData(result, error);
   return result;
+}
+
+export function extractDisplayData(error: Error): ErrorDisplayData | undefined {
+  return (error as any).displayData;
 }
