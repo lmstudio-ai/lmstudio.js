@@ -521,6 +521,20 @@ export class PredictionProcessContentBlockController {
       style,
     });
   }
+  public setPrefix(prefix: string) {
+    this.handle.sendUpdate({
+      type: "contentBlock.setPrefix",
+      id: this.id,
+      prefix,
+    });
+  }
+  public setSuffix(suffix: string) {
+    this.handle.sendUpdate({
+      type: "contentBlock.setSuffix",
+      id: this.id,
+      suffix,
+    });
+  }
   public attachGenInfo(genInfo: LLMGenInfo) {
     this.handle.sendUpdate({
       type: "contentBlock.attachGenInfo",

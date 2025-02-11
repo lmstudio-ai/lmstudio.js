@@ -143,8 +143,15 @@ export class OngoingPrediction<TStructuredOutputType = unknown> extends Streamab
    * await prediction;
    * ```
    */
-  public async result(): Promise<PredictionResult> {
-    return await this;
+  public async result(): Promise<
+    unknown extends TStructuredOutputType
+      ? // If TStructuredOutputType is unknown, return PredictionResult (no parsed field)
+        PredictionResult
+      : // If TStructuredOutputType is not unknown, return StructuredPredictionResult (with parsed
+        // field)
+        StructuredPredictionResult<TStructuredOutputType>
+  > {
+    return (await this) as any;
   }
 
   /**

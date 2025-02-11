@@ -160,6 +160,28 @@ export const processingUpdateContentBlockReplaceTextSchema = z.object({
   text: z.string(),
 });
 
+export type ProcessingUpdateContentBlockSetPrefix = {
+  type: "contentBlock.setPrefix";
+  id: string;
+  prefix: string;
+};
+export const processingUpdateContentBlockSetPrefixSchema = z.object({
+  type: z.literal("contentBlock.setPrefix"),
+  id: z.string(),
+  prefix: z.string(),
+});
+
+export type ProcessingUpdateContentBlockSetSuffix = {
+  type: "contentBlock.setSuffix";
+  id: string;
+  suffix: string;
+};
+export const processingUpdateContentBlockSetSuffixSchema = z.object({
+  type: z.literal("contentBlock.setSuffix"),
+  id: z.string(),
+  suffix: z.string(),
+});
+
 export type ProcessingUpdateContentBlockAttachGenInfo = {
   type: "contentBlock.attachGenInfo";
   id: string;
@@ -202,6 +224,8 @@ export type ProcessingUpdate =
   | ProcessingUpdateContentBlockCreate
   | ProcessingUpdateContentBlockAppendText
   | ProcessingUpdateContentBlockReplaceText
+  | ProcessingUpdateContentBlockSetPrefix
+  | ProcessingUpdateContentBlockSetSuffix
   | ProcessingUpdateContentBlockAttachGenInfo
   | ProcessingUpdateContentBlockSetStyle
   | ProcessingUpdateSetSenderName;
@@ -214,6 +238,8 @@ export const processingUpdateSchema = z.discriminatedUnion("type", [
   processingUpdateContentBlockCreateSchema,
   processingUpdateContentBlockAppendTextSchema,
   processingUpdateContentBlockReplaceTextSchema,
+  processingUpdateContentBlockSetPrefixSchema,
+  processingUpdateContentBlockSetSuffixSchema,
   processingUpdateContentBlockAttachGenInfoSchema,
   processingUpdateContentBlockSetStyleSchema,
   processingUpdateSetSenderNameSchema,
