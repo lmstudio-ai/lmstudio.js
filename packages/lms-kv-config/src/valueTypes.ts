@@ -181,6 +181,10 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       maxLength: z.number().optional(),
       isParagraph: z.boolean().optional(),
       isProtected: z.boolean().optional(),
+      /**
+       * If true, the string should match to a single token.
+       */
+      isToken: z.boolean().optional(),
       placeholder: z.string().optional(),
     },
     schemaMaker: ({ minLength, maxLength }) => {

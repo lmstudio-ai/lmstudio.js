@@ -141,7 +141,12 @@ export {
   llmPredictionConfigInputSchema,
   llmPredictionConfigSchema,
 } from "./llm/LLMPredictionConfig.js";
-export { LLMPredictionFragment, llmPredictionFragmentSchema } from "./llm/LLMPredictionFragment.js";
+export {
+  LLMPredictionFragment,
+  LLMPredictionFragmentReasoningType,
+  llmPredictionFragmentReasoningTypeSchema,
+  llmPredictionFragmentSchema,
+} from "./llm/LLMPredictionFragment.js";
 export {
   LLMGenInfo,
   llmGenInfoSchema,
@@ -204,8 +209,12 @@ export {
   processingUpdateContentBlockCreateSchema,
   ProcessingUpdateContentBlockReplaceText,
   processingUpdateContentBlockReplaceTextSchema,
+  ProcessingUpdateContentBlockSetPrefix,
+  processingUpdateContentBlockSetPrefixSchema,
   ProcessingUpdateContentBlockSetStyle,
   processingUpdateContentBlockSetStyleSchema,
+  ProcessingUpdateContentBlockSetSuffix,
+  processingUpdateContentBlockSetSuffixSchema,
   ProcessingUpdateDebugInfoBlockCreate,
   processingUpdateDebugInfoBlockCreateSchema,
   ProcessingUpdateOf,

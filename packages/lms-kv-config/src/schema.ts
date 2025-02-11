@@ -129,6 +129,11 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         { min: 0, max: 100, int: true },
         { checked: false, value: 0 },
       )
+      .scope("reasoning", builder =>
+        builder
+          .field("startToken", "string", { isToken: true }, "<think>")
+          .field("endToken", "string", { isToken: true }, "</think>"),
+      )
       .scope("llama", builder =>
         builder
           .field("cpuThreads", "numeric", { min: 1, int: true }, 4)
@@ -328,6 +333,7 @@ export const llmSharedPredictionConfigSchematics = llmPredictionConfigSchematics
   "seed",
   "contextPrefill",
   "tools",
+  "reasoning.*",
 );
 
 export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchematics.union(
