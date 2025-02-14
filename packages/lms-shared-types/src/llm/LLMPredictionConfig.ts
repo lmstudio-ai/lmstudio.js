@@ -25,6 +25,24 @@ export const llmContextOverflowPolicySchema = z.enum([
   "truncateMiddle",
   "rollingWindow",
 ]);
+
+/**
+ * How to parse reasoning sections in the model output.
+ */
+export interface LLMReasoningParsing {
+  /**
+   * Whether to enable reasoning parsing.
+   */
+  enabled: boolean;
+  startString: string;
+  endString: string;
+}
+export const llmReasoningParsingSchema = z.object({
+  enabled: z.boolean(),
+  startString: z.string(),
+  endString: z.string(),
+});
+
 /**
  * Shared config for running predictions on an LLM.
  *
@@ -133,15 +151,20 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    */
   speculativeDecodingDraftTokensCount?: number;
   /**
-   * The string that marks the beginning of a reasoning block. For example, "<think>" for DeepSeek
-   * R1. LM Studio will use this to parse reasoning blocks.
+   * How to parse the reasoning sections in the model output. Only need to specify the `startString`
+   * and the `endString`.
+   *
+   * For example, DeepSeek models use:
+   *
+   * ```
+   * reasoningParsing: {
+   *   enabled: true,
+   *   startString: "<think>",
+   *   endString: "</think>",
+   * }
+   * ```
    */
-  reasoningStartString?: string;
-  /**
-   * The string that marks the end of a reasoning block. For example, "</think>" for DeepSeek R1. LM
-   * Studio will use this to parse reasoning blocks.
-   */
-  reasoningEndString?: string;
+  reasoningParsing?: LLMReasoningParsing;
 }
 export const llmPredictionConfigInputSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional().or(z.literal(false)),
@@ -159,8 +182,7 @@ export const llmPredictionConfigInputSchema = z.object({
   promptTemplate: llmPromptTemplateSchema.optional(),
   speculativeDecodingDraftModelKey: z.string().optional(),
   speculativeDecodingDraftTokensCount: z.number().int().min(2).optional(),
-  reasoningStartString: z.string().optional(),
-  reasoningEndString: z.string().optional(),
+  reasoningParsing: llmReasoningParsingSchema.optional(),
 });
 
 export interface LLMPredictionConfig extends LLMPredictionConfigInput<any> {

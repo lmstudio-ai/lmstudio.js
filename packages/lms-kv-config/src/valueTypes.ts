@@ -9,6 +9,7 @@ import {
   llmLlamaMirostatSamplingConfigSchema,
   llmMlxKvCacheQuantizationSchema,
   llmPromptTemplateSchema,
+  llmReasoningParsingSchema,
   llmSplitStrategySchema,
   llmStructuredPredictionSettingSchema,
   llmToolUseSettingSchema,
@@ -452,6 +453,18 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
           throw new Error("Unknown template type: " + exhaustiveCheck);
         }
       }
+    },
+  })
+  .valueType("llmReasoningParsing", {
+    paramType: {},
+    schemaMaker: () => {
+      return llmReasoningParsingSchema;
+    },
+    effectiveEquals: (a, b) => {
+      return a.startString === b.startString && a.endString === b.endString;
+    },
+    stringify: value => {
+      return JSON.stringify(value, null, 2); // TODO: pretty print
     },
   })
   .valueType("llamaStructuredOutput", {
