@@ -97,14 +97,14 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.speculativeDecodingDraftTokensCount = speculativeDecodingDraftTokens;
   }
 
-  const reasoningStartToken = parsed.get("llm.prediction.reasoning.startToken");
-  if (reasoningStartToken !== undefined) {
-    result.reasoningStartToken = reasoningStartToken;
+  const reasoningStartString = parsed.get("llm.prediction.reasoning.startString");
+  if (reasoningStartString !== undefined) {
+    result.reasoningStartString = reasoningStartString;
   }
 
-  const reasoningEndToken = parsed.get("llm.prediction.reasoning.endToken");
-  if (reasoningEndToken !== undefined) {
-    result.reasoningEndToken = reasoningEndToken;
+  const reasoningEndString = parsed.get("llm.prediction.reasoning.endString");
+  if (reasoningEndString !== undefined) {
+    result.reasoningEndString = reasoningEndString;
   }
 
   return result;

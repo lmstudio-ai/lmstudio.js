@@ -133,16 +133,15 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    */
   speculativeDecodingDraftTokensCount?: number;
   /**
-   * The token that marks the beginning of a reasoning block. Must map to exactly one token in the
-   * model. For example, "<think>" for DeepSeek R1. LM Studio will use this to parse reasoning
-   * blocks.
+   * The string that marks the beginning of a reasoning block. For example, "<think>" for DeepSeek
+   * R1. LM Studio will use this to parse reasoning blocks.
    */
-  reasoningStartToken?: string;
+  reasoningStartString?: string;
   /**
-   * The token that marks the end of a reasoning block. Must map to exactly one token in the model.
-   * For example, "</think>" for DeepSeek R1. LM Studio will use this to parse reasoning blocks.
+   * The string that marks the end of a reasoning block. For example, "</think>" for DeepSeek R1. LM
+   * Studio will use this to parse reasoning blocks.
    */
-  reasoningEndToken?: string;
+  reasoningEndString?: string;
 }
 export const llmPredictionConfigInputSchema = z.object({
   maxPredictedTokens: z.number().int().min(-1).optional().or(z.literal(false)),
@@ -160,8 +159,8 @@ export const llmPredictionConfigInputSchema = z.object({
   promptTemplate: llmPromptTemplateSchema.optional(),
   speculativeDecodingDraftModelKey: z.string().optional(),
   speculativeDecodingDraftTokensCount: z.number().int().min(2).optional(),
-  reasoningStartToken: z.string().optional(),
-  reasoningEndToken: z.string().optional(),
+  reasoningStartString: z.string().optional(),
+  reasoningEndString: z.string().optional(),
 });
 
 export interface LLMPredictionConfig extends LLMPredictionConfigInput<any> {
