@@ -131,8 +131,8 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       )
       .scope("reasoning", builder =>
         builder
-          .field("startToken", "string", { isToken: true }, "<think>")
-          .field("endToken", "string", { isToken: true }, "</think>"),
+          .field("startString", "string", {}, "<think>")
+          .field("endString", "string", {}, "</think>"),
       )
       .scope("llama", builder =>
         builder
