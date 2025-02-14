@@ -130,9 +130,16 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
         { checked: false, value: 0 },
       )
       .scope("reasoning", builder =>
-        builder
-          .field("startString", "string", {}, "<think>")
-          .field("endString", "string", {}, "</think>"),
+        builder.field(
+          "parsing",
+          "llmReasoningParsing",
+          {},
+          {
+            enabled: true,
+            startString: "<think>",
+            endString: "</think>",
+          },
+        ),
       )
       .scope("llama", builder =>
         builder

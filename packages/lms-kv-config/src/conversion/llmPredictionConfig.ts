@@ -97,14 +97,9 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.speculativeDecodingDraftTokensCount = speculativeDecodingDraftTokens;
   }
 
-  const reasoningStartString = parsed.get("llm.prediction.reasoning.startString");
-  if (reasoningStartString !== undefined) {
-    result.reasoningStartString = reasoningStartString;
-  }
-
-  const reasoningEndString = parsed.get("llm.prediction.reasoning.endString");
-  if (reasoningEndString !== undefined) {
-    result.reasoningEndString = reasoningEndString;
+  const reasoningParsing = parsed.get("llm.prediction.reasoning.parsing");
+  if (reasoningParsing !== undefined) {
+    result.reasoningParsing = reasoningParsing;
   }
 
   return result;
@@ -130,5 +125,6 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "promptTemplate": config.promptTemplate,
     "speculativeDecoding.draftModel": config.speculativeDecodingDraftModelKey,
     "speculativeDecoding.numDraftTokens": config.speculativeDecodingDraftTokensCount,
+    "reasoning.parsing": config.reasoningParsing,
   });
 }

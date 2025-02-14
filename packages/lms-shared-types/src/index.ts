@@ -140,6 +140,8 @@ export {
   LLMPredictionConfigInput,
   llmPredictionConfigInputSchema,
   llmPredictionConfigSchema,
+  LLMReasoningParsing,
+  llmReasoningParsingSchema,
 } from "./llm/LLMPredictionConfig.js";
 export {
   LLMPredictionFragment,
