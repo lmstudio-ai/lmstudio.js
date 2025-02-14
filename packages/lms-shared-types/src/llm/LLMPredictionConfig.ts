@@ -133,14 +133,13 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    */
   speculativeDecodingDraftTokensCount?: number;
   /**
-   * The token that marks the beginning of a reasoning block. Must map to exactly one token in the
-   * model. For example, "<think>" for DeepSeek R1. LM Studio will use this to parse reasoning
-   * blocks.
+   * The string that marks the beginning of a reasoning block. For example, "<think>" for DeepSeek
+   * R1. LM Studio will use this to parse reasoning blocks.
    */
   reasoningStartString?: string;
   /**
-   * The token that marks the end of a reasoning block. Must map to exactly one token in the model.
-   * For example, "</think>" for DeepSeek R1. LM Studio will use this to parse reasoning blocks.
+   * The string that marks the end of a reasoning block. For example, "</think>" for DeepSeek R1. LM
+   * Studio will use this to parse reasoning blocks.
    */
   reasoningEndString?: string;
 }
