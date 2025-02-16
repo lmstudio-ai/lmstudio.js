@@ -1,14 +1,14 @@
-export { ChatHistory, ChatMessage } from "./ChatHistory.js";
-export type { ChatHistoryLike } from "./ChatHistory.js";
+export { Chat, ChatMessage } from "./Chat.js";
+export type { ChatLike } from "./Chat.js";
 export {
   ConfigSchematics,
-  configSchematicsBrand,
   ConfigSchematicsBuilder,
+  ParsedConfig,
+  VirtualConfigSchematics,
+  configSchematicsBrand,
   configSchematicsBuilderBrand,
   createConfigSchematics,
-  ParsedConfig,
   parsedConfigBrand,
-  VirtualConfigSchematics,
 } from "./customConfig.js";
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace.js";
 export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle.js";

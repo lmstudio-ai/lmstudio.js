@@ -32,7 +32,7 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { ChatHistory, type ChatHistoryLike, chatHistoryLikeSchema } from "../ChatHistory.js";
+import { Chat, chatHistoryLikeSchema, type ChatLike } from "../Chat.js";
 import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 import { type LLMNamespace } from "./LLMNamespace.js";
 import { OngoingPrediction } from "./OngoingPrediction.js";
@@ -389,7 +389,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
    * @param opts - Options for the prediction.
    */
   public respond<TStructuredOutputType>(
-    history: ChatHistoryLike,
+    history: ChatLike,
     opts: LLMPredictionOpts<TStructuredOutputType> = {},
   ): OngoingPrediction<TStructuredOutputType> {
     const stack = getCurrentStack(1);
@@ -412,7 +412,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     const [config, extraOpts] = splitOpts(opts);
     this.predictInternal(
       this.specifier,
-      accessMaybeMutableInternals(ChatHistory.from(history))._internalGetData(),
+      accessMaybeMutableInternals(Chat.from(history))._internalGetData(),
       addKVConfigToStack(
         this.internalKVConfigStack,
         "apiOverride",
@@ -435,7 +435,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
   }
 
   public async applyPromptTemplate(
-    history: ChatHistoryLike,
+    history: ChatLike,
     opts: LLMApplyPromptTemplateOpts = {},
   ): Promise<string> {
     const stack = getCurrentStack(1);
@@ -452,7 +452,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
         "applyPromptTemplate",
         {
           specifier: this.specifier,
-          history: accessMaybeMutableInternals(ChatHistory.from(history))._internalGetData(),
+          history: accessMaybeMutableInternals(Chat.from(history))._internalGetData(),
           predictionConfigStack: this.internalKVConfigStack,
           opts,
         },

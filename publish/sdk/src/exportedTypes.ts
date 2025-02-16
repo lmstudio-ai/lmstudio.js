@@ -1,6 +1,6 @@
 export type {
   BaseLoadModelOpts,
-  ChatHistoryLike,
+  ChatLike,
   ConfigSchematics,
   ConfigSchematicsBuilder,
   CreateContentBlockOpts,
@@ -73,8 +73,8 @@ export type {
   ColorPalette,
   DiagnosticsLogEvent,
   DiagnosticsLogEventData,
-  DownloadedModel,
   DownloadProgressUpdate,
+  DownloadedModel,
   EmbeddingLoadModelConfig,
   FileType,
   GPUSetting,

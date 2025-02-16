@@ -32,7 +32,7 @@ export const chatMessageInputSchema = z.object({
   images: z.array(z.instanceof(FileHandle)).optional(),
 });
 
-export type ChatHistoryInput = Array<ChatMessageInput>;
+export type ChatInput = Array<ChatMessageInput>;
 export const chatHistoryInputSchema = z.array(chatMessageInputSchema);
 
 /**
