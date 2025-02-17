@@ -139,15 +139,22 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    */
   promptTemplate?: LLMPromptTemplate;
   /**
-   * Warning: Experimental and subject to change.
+   * The draft model to use for speculative decoding. Speculative decoding is a technique that can
+   * drastically increase the generation speed (up to 3x for larger models) by paring a main model
+   * with a smaller draft model.
    *
-   * TODO: Documentation
+   * See here for more information: https://lmstudio.ai/docs/advanced/speculative-decoding
+   *
+   * You do not need to load the draft model yourself. Simply specifying its model key here is
+   * enough.
    */
-  speculativeDecodingDraftModelKey?: string;
+  draftModel?: string;
   /**
    * Warning: Experimental and subject to change.
    *
    * TODO: Documentation
+   *
+   * @alpha
    */
   speculativeDecodingDraftTokensCount?: number;
   /**
@@ -180,7 +187,7 @@ export const llmPredictionConfigInputSchema = z.object({
   topPSampling: z.number().optional().or(z.literal(false)),
   cpuThreads: z.number().optional(),
   promptTemplate: llmPromptTemplateSchema.optional(),
-  speculativeDecodingDraftModelKey: z.string().optional(),
+  draftModel: z.string().optional(),
   speculativeDecodingDraftTokensCount: z.number().int().min(2).optional(),
   reasoningParsing: llmReasoningParsingSchema.optional(),
 });

@@ -87,7 +87,7 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
 
   const speculativeDecodingDraftModel = parsed.get("llm.prediction.speculativeDecoding.draftModel");
   if (speculativeDecodingDraftModel !== undefined) {
-    result.speculativeDecodingDraftModelKey = speculativeDecodingDraftModel;
+    result.draftModel = speculativeDecodingDraftModel;
   }
 
   const speculativeDecodingDraftTokens = parsed.get(
@@ -123,7 +123,7 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "logProbs": maybeFalseNumberToCheckboxNumeric(config.logProbs, 0),
     "llama.cpuThreads": config.cpuThreads,
     "promptTemplate": config.promptTemplate,
-    "speculativeDecoding.draftModel": config.speculativeDecodingDraftModelKey,
+    "speculativeDecoding.draftModel": config.draftModel,
     "speculativeDecoding.numDraftTokens": config.speculativeDecodingDraftTokensCount,
     "reasoning.parsing": config.reasoningParsing,
   });
