@@ -8,7 +8,7 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
 
   const maxPredictedTokens = parsed.get("llm.prediction.maxPredictedTokens");
   if (maxPredictedTokens !== undefined) {
-    result.maxPredictedTokens = maxPredictedTokens.checked ? maxPredictedTokens.value : false;
+    result.maxTokens = maxPredictedTokens.checked ? maxPredictedTokens.value : false;
   }
   const temperature = parsed.get("llm.prediction.temperature");
   if (temperature !== undefined) {
@@ -109,7 +109,7 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
   return llmPredictionConfigSchematics.buildPartialConfig({
     "temperature": config.temperature,
     "contextOverflowPolicy": config.contextOverflowPolicy,
-    "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(config.maxPredictedTokens, 1),
+    "maxPredictedTokens": maybeFalseNumberToCheckboxNumeric(config.maxTokens, 1),
     "stopStrings": config.stopStrings,
     "toolCallStopStrings": config.toolCallStopStrings,
     "structured": config.structured,

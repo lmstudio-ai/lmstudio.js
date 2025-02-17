@@ -43,7 +43,7 @@ async function predictWithAnyModel() {
   const model = await client.llm.getAny();
   const prompt = "The meaning of life is";
   const prediction = model.complete(prompt, {
-    maxPredictedTokens: 100,
+    maxTokens: 100,
     temperature: 0.7,
   });
   process.stdout.write(prompt); // Print the prompt

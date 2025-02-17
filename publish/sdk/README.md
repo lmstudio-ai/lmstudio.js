@@ -345,7 +345,7 @@ By default, the inference parameters in the preset is used for the prediction. Y
 ```ts
 const prediction = anyModel.complete("Meaning of life is", {
   contextOverflowPolicy: "stopAtLimit",
-  maxPredictedTokens: 100,
+  maxTokens: 100,
   prePrompt: "Some pre-prompt",
   stopStrings: ["\n"],
   temperature: 0.7,
@@ -379,7 +379,7 @@ const prediction = anyModel.respond(
   ],
   {
     contextOverflowPolicy: "stopAtLimit",
-    maxPredictedTokens: 100,
+    maxTokens: 100,
     stopStrings: ["\n"],
     temperature: 0.7,
     inputPrefix: "Q: ",
@@ -454,7 +454,7 @@ Here is an example of how to use structured prediction:
 
 ```ts
 const prediction = model.complete("Here is a joke in JSON:", {
-  maxPredictedTokens: 100,
+  maxTokens: 100,
   structured: { type: "json" },
 });
 
@@ -498,7 +498,7 @@ const bookSchema = {
 };
 
 const prediction = model.complete("Books that were turned into movies:", {
-  maxPredictedTokens: 100,
+  maxTokens: 100,
   structured: { type: "json", jsonSchema: bookSchema },
 });
 
@@ -532,7 +532,7 @@ try {
 > **Caveats with Structured Prediction**
 >
 > - Although the model is forced to generate predictions that conform to the specified structure, the prediction may be interrupted (for example, if the user stops the prediction). When that happens, the partial result may not conform to the specified structure. Thus, always check the prediction result before using it, for example, by wrapping the `JSON.parse` inside a try-catch block.
-> - In certain cases, the model may get stuck. For example, when forcing it to generate valid JSON, it may generate a opening brace `{` but never generate a closing brace `}`. In such cases, the prediction will go on forever until the context length is reached, which can take a long time. Therefore, it is recommended to always set a `maxPredictedTokens` limit. This also contributes to the point above.
+> - In certain cases, the model may get stuck. For example, when forcing it to generate valid JSON, it may generate a opening brace `{` but never generate a closing brace `}`. In such cases, the prediction will go on forever until the context length is reached, which can take a long time. Therefore, it is recommended to always set a `maxTokens` limit. This also contributes to the point above.
 
 ### Canceling/Aborting a Prediction
 

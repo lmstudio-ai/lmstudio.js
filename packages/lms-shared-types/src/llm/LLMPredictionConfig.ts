@@ -58,7 +58,7 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    *
    * See {@link LLMPredictionStopReason} for other reasons that a prediction might stop.
    */
-  maxPredictedTokens?: number | false;
+  maxTokens?: number | false;
   /**
    * The temperature parameter for the prediction model. A higher value makes the predictions more
    * random, while a lower value makes the predictions more deterministic. The value should be
@@ -167,7 +167,7 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
   reasoningParsing?: LLMReasoningParsing;
 }
 export const llmPredictionConfigInputSchema = z.object({
-  maxPredictedTokens: z.number().int().min(-1).optional().or(z.literal(false)),
+  maxTokens: z.number().int().min(-1).optional().or(z.literal(false)),
   temperature: z.number().min(0).optional(),
   stopStrings: z.array(z.string()).optional(),
   toolCallStopStrings: z.array(z.string()).optional(),
