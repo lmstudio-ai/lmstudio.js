@@ -64,11 +64,16 @@ export interface DownloadedLLM extends DownloadedModelBase {
    * Whether this model is trained natively for tool use.
    */
   trainedForToolUse: boolean;
+  /**
+   * Maximum context length of the model.
+   */
+  contextLength: number;
 }
 export const downloadedLLMSchema = downloadedModelBase.extend({
   type: z.literal("llm"),
   vision: z.boolean(),
   trainedForToolUse: z.boolean(),
+  contextLength: z.number().int(),
 });
 
 /**
