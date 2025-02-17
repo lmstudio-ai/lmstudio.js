@@ -194,7 +194,6 @@ export abstract class ModelNamespace<
    * ```typescript
    * const model = await client.llm.load("llama-3.2-3b-instruct");
    * ```
-   * To unload the model, you can use the `client.llm.unload` method.
    *
    * Once loaded, see {@link LLMDynamicHandle} or {@link EmbeddingDynamicHandle} for how to use the
    * model for inferencing or other things you can do with the model.
