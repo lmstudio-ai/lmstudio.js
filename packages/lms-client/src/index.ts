@@ -2,13 +2,13 @@ export { Chat, ChatMessage } from "./Chat.js";
 export type { ChatLike } from "./Chat.js";
 export {
   ConfigSchematics,
-  ConfigSchematicsBuilder,
-  ParsedConfig,
-  VirtualConfigSchematics,
   configSchematicsBrand,
+  ConfigSchematicsBuilder,
   configSchematicsBuilderBrand,
   createConfigSchematics,
+  ParsedConfig,
   parsedConfigBrand,
+  VirtualConfigSchematics,
 } from "./customConfig.js";
 export type { DiagnosticsNamespace } from "./diagnostics/DiagnosticsNamespace.js";
 export type { EmbeddingDynamicHandle } from "./embedding/EmbeddingDynamicHandle.js";
@@ -16,6 +16,8 @@ export type { EmbeddingModel } from "./embedding/EmbeddingModel.js";
 export type { EmbeddingNamespace } from "./embedding/EmbeddingNamespace.js";
 export type { FileHandle } from "./files/FileHandle.js";
 export type { FilesNamespace } from "./files/FilesNamespace.js";
+export type { RetrievalCallbacks, RetrievalOpts } from "./files/RetrievalOpts.js";
+export type { RetrievalResult, RetrievalResultEntry } from "./files/RetrievalResult.js";
 export type { LLM } from "./llm/LLM.js";
 export type { LLMDynamicHandle, LLMPredictionOpts } from "./llm/LLMDynamicHandle.js";
 export type { LLMNamespace } from "./llm/LLMNamespace.js";
@@ -50,7 +52,4 @@ export type {
 } from "./repository/ModelSearchResultDownloadOption.js";
 export type { ModelSearchResultEntry } from "./repository/ModelSearchResultEntry.js";
 export type { RepositoryNamespace } from "./repository/RepositoryNamespace.js";
-export type { RetrievalNamespace } from "./retrieval/RetrievalNamespace.js";
-export type { RetrievalCallbacks, RetrievalOpts } from "./retrieval/RetrievalOpts.js";
-export type { RetrievalResult, RetrievalResultEntry } from "./retrieval/RetrievalResult.js";
 export type { SystemNamespace } from "./system/SystemNamespace.js";

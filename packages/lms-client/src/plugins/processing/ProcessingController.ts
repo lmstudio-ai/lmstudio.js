@@ -20,14 +20,11 @@ import {
   type ParsedConfig,
   type VirtualConfigSchematics,
 } from "../../customConfig.js";
+import { type RetrievalResult, type RetrievalResultEntry } from "../../files/RetrievalResult.js";
 import { LLMDynamicHandle } from "../../llm/LLMDynamicHandle.js";
 import { type OngoingPrediction } from "../../llm/OngoingPrediction.js";
 import { type PredictionResult } from "../../llm/PredictionResult.js";
 import { type LMStudioClient } from "../../LMStudioClient.js";
-import {
-  type RetrievalResult,
-  type RetrievalResultEntry,
-} from "../../retrieval/RetrievalResult.js";
 
 function stringifyAny(message: any) {
   switch (typeof message) {
