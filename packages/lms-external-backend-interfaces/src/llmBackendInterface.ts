@@ -4,9 +4,10 @@ import {
   kvConfigSchema,
   kvConfigStackSchema,
   llmApplyPromptTemplateOptsSchema,
+  llmInfoSchema,
+  llmInstanceInfoSchema,
   llmPredictionFragmentSchema,
   llmPredictionStatsSchema,
-  modelDescriptorSchema,
   modelSpecifierSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
@@ -14,7 +15,7 @@ import { createBaseModelBackendInterface } from "./baseModelBackendInterface.js"
 
 export function createLlmBackendInterface() {
   return (
-    createBaseModelBackendInterface()
+    createBaseModelBackendInterface(llmInstanceInfoSchema, llmInfoSchema)
       .addChannelEndpoint("predict", {
         creationParameter: z.object({
           modelSpecifier: modelSpecifierSchema,
@@ -37,7 +38,7 @@ export function createLlmBackendInterface() {
           z.object({
             type: z.literal("success"),
             stats: llmPredictionStatsSchema,
-            modelInfo: modelDescriptorSchema,
+            modelInfo: llmInstanceInfoSchema,
             loadModelConfig: kvConfigSchema,
             predictionConfig: kvConfigSchema,
           }),

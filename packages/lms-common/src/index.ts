@@ -11,6 +11,7 @@ export { apiServerPorts } from "./apiServerPorts.js";
 export { BufferedEvent } from "./BufferedEvent.js";
 export { Cleaner } from "./Cleaner.js";
 export { deepFreeze } from "./deepFreeze.js";
+export { DeepReplaceType, DeepReplaceType2 } from "./DeepReplaceType.js";
 export { changeErrorStackInPlace, getCurrentStack } from "./errorStack.js";
 export { Event } from "./Event.js";
 export { doesFileNameIndicateModel, modelExtensions } from "./fileName.js";

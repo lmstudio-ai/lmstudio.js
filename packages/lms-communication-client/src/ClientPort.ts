@@ -698,7 +698,9 @@ export type InferClientPort<TBackendInterfaceOrCreator> =
     infer TWritableSignalEndpoints
   >
     ? ClientPort<TRpcEndpoints, TChannelEndpoints, TSignalEndpoints, TWritableSignalEndpoints>
-    : TBackendInterfaceOrCreator extends () => BackendInterface<
+    : TBackendInterfaceOrCreator extends (
+          ...ars: Array<any>
+        ) => BackendInterface<
           infer _TContext,
           infer TRpcEndpoints,
           infer TChannelEndpoints,

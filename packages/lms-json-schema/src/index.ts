@@ -38,7 +38,10 @@ for (const [key, value] of Object.entries(backendInterfaceCreators)) {
   if (typeof value !== "function") {
     continue;
   }
-  const backendInterface = value() as BackendInterface;
+  if (key === "createBaseModelBackendInterface") {
+    continue;
+  }
+  const backendInterface = (value as any)() as BackendInterface;
   if (!(backendInterface instanceof BackendInterface)) {
     continue;
   }

@@ -20,13 +20,13 @@ import {
   type KVConfigStack,
   type LLMApplyPromptTemplateOpts,
   llmApplyPromptTemplateOptsSchema,
+  type LLMInstanceInfo,
   type LLMJinjaInputConfig,
   type LLMPredictionConfigInput,
   llmPredictionConfigInputSchema,
   type LLMPredictionFragment,
   type LLMPredictionStats,
   type LLMStructuredPredictionSetting,
-  type ModelDescriptor,
   type ModelSpecifier,
   zodSchemaSchema,
 } from "@lmstudio/lms-shared-types";
@@ -96,8 +96,11 @@ const noFormattingInputConfig: LLMJinjaInputConfig = {
  *
  * @public
  */
-export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
-/** @internal */ LLMPort> {
+export class LLMDynamicHandle extends DynamicHandle<
+  // prettier-ignore
+  /** @internal */ LLMPort,
+  LLMInstanceInfo
+> {
   /**
    * Don't construct this on your own. Use {@link LLMNamespace#get} or {@link LLMNamespace#load}
    * instead.
@@ -133,7 +136,7 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
     onFragment: (fragment: LLMPredictionFragment) => void,
     onFinished: (
       stats: LLMPredictionStats,
-      modelInfo: ModelDescriptor,
+      modelInfo: LLMInstanceInfo,
       loadModelConfig: KVConfig,
       predictionConfig: KVConfig,
     ) => void,

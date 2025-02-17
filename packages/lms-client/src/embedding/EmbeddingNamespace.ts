@@ -4,8 +4,9 @@ import { embeddingLlamaLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
   embeddingLoadModelConfigSchema,
   type EmbeddingLoadModelConfig,
+  type EmbeddingModelInfo,
+  type EmbeddingModelInstanceInfo,
   type KVConfig,
-  type ModelDescriptor,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { ModelNamespace } from "../modelShared/ModelNamespace.js";
@@ -18,6 +19,8 @@ export class EmbeddingNamespace extends ModelNamespace<
   /** @internal */
   EmbeddingPort,
   EmbeddingLoadModelConfig,
+  EmbeddingModelInstanceInfo,
+  EmbeddingModelInfo,
   EmbeddingDynamicHandle,
   EmbeddingModel
 > {
@@ -43,12 +46,11 @@ export class EmbeddingNamespace extends ModelNamespace<
   /** @internal */
   protected override createDomainSpecificModel(
     port: EmbeddingPort,
-    instanceReference: string,
-    descriptor: ModelDescriptor,
+    info: EmbeddingModelInstanceInfo,
     validator: Validator,
     logger: SimpleLogger,
   ): EmbeddingModel {
-    return new EmbeddingModel(port, instanceReference, descriptor, validator, logger);
+    return new EmbeddingModel(port, info, validator, logger);
   }
   /** @internal */
   protected override createDomainDynamicHandle(
