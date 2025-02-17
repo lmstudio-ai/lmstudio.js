@@ -16,14 +16,14 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
 import {
-  type ChatHistoryInput,
   chatHistoryInputSchema,
+  type ChatInput,
   type ChatMessageInput,
   chatMessageInputSchema,
   chatMessageInputToChatMessageData,
   isChatMessageInputAsOpposeToChatHistoryData,
   isChatMessageInputAsOpposeToChatMessageData,
-} from "./ChatHistoryInput.js";
+} from "./ChatInput.js";
 import { type LMStudioClient } from "./LMStudioClient.js";
 import { FileHandle } from "./files/FileHandle.js";
 
@@ -32,12 +32,12 @@ import { FileHandle } from "./files/FileHandle.js";
  *
  * @public
  */
-export class ChatHistory extends MaybeMutable<ChatHistoryData> {
+export class Chat extends MaybeMutable<ChatHistoryData> {
   protected override getClassName(): string {
-    return "ChatHistory";
+    return "Chat";
   }
   protected override create(data: ChatHistoryData, mutable: boolean): this {
-    return new ChatHistory(data, mutable) as this;
+    return new Chat(data, mutable) as this;
   }
   protected override cloneData(data: ChatHistoryData): ChatHistoryData {
     return chatHistoryDataSchema.parse(data); // Using zod to clone the data
@@ -45,8 +45,8 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   /**
    * Don't use this constructor directly.
    *
-   * - To create an empty chat history, use `ChatHistory.createEmpty()`.
-   * - To create a chat history with existing data, use `ChatHistory.from()`.
+   * - To create an empty chat history, use `Chat.createEmpty()`.
+   * - To create a chat history with existing data, use `Chat.from()`.
    */
   protected constructor(data: ChatHistoryData, mutable: boolean) {
     super(data, mutable);
@@ -56,7 +56,7 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
    * Creates an empty mutable chat history.
    */
   public static createEmpty() {
-    return new ChatHistory({ messages: [] }, true);
+    return new Chat({ messages: [] }, true);
   }
 
   /**
@@ -66,45 +66,42 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
    *
    * @example
    * ```ts
-   * const history = ChatHistory.from([
+   * const history = Chat.from([
    *   { role: "user", content: "Hello" },
    *   { role: "assistant", content: "Hi!" },
    *   { role: "user", content: "What is your name?" },
    * ]);
    * ```
    */
-  public static from(initializer: ChatHistoryLike) {
+  public static from(initializer: ChatLike) {
     const stack = getCurrentStack(1);
     sharedValidator.validateMethodParamOrThrow(
-      "ChatHistory",
+      "Chat",
       "from",
       "initializer",
       chatHistoryLikeSchema,
       initializer,
       stack,
     );
-    if (initializer instanceof ChatHistory) {
-      // ChatHistory
+    if (initializer instanceof Chat) {
+      // Chat
       return initializer.asMutableCopy();
     }
     if (typeof initializer === "string") {
-      const chatHistory = ChatHistory.createEmpty();
+      const chatHistory = Chat.createEmpty();
       chatHistory.append("user", initializer);
       return chatHistory;
     }
     if (Array.isArray(initializer)) {
-      // ChatHistoryInput
-      return new ChatHistory(
-        { messages: initializer.map(chatMessageInputToChatMessageData) },
-        true,
-      );
+      // ChatInput
+      return new Chat({ messages: initializer.map(chatMessageInputToChatMessageData) }, true);
     }
     if (isChatMessageInputAsOpposeToChatHistoryData(initializer)) {
       // ChatMessageInput
-      return new ChatHistory({ messages: [chatMessageInputToChatMessageData(initializer)] }, true);
+      return new Chat({ messages: [chatMessageInputToChatMessageData(initializer)] }, true);
     } else {
       // ChatHistoryData
-      return new ChatHistory(initializer, false).asMutableCopy();
+      return new Chat(initializer, false).asMutableCopy();
     }
   }
 
@@ -116,7 +113,7 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
    * @internal
    */
   public static createRaw(data: ChatHistoryData, mutable: boolean) {
-    return new ChatHistory(data, mutable);
+    return new Chat(data, mutable);
   }
 
   /**
@@ -163,14 +160,14 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
   /**
    * Make a copy of this history and append a text message to the copy. Return the copy.
    */
-  public withAppended(role: ChatMessageRoleData, content: string): ChatHistory;
+  public withAppended(role: ChatMessageRoleData, content: string): Chat;
   /**
    * Make a copy of this history and append a message to the copy. Return the copy.
    */
-  public withAppended(message: ChatMessage): ChatHistory;
+  public withAppended(message: ChatMessage): Chat;
   public withAppended(
     ...args: [role: ChatMessageRoleData, content: string] | [message: ChatMessage]
-  ): ChatHistory {
+  ): Chat {
     const copy = this.asMutableCopy();
     (copy.append as any)(...args);
     return copy;
@@ -284,7 +281,7 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
    * This method is useful if you are implementing a preprocessor that needs to convert certain
    * types of files.
    *
-   * If the predicate needs to be async, use the {@link ChatHistory#consumeFilesAsync} method.
+   * If the predicate needs to be async, use the {@link Chat#consumeFilesAsync} method.
    *
    * @param client - LMStudio client
    * @param predicate - The predicate to call for each file.
@@ -309,7 +306,7 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
    * This method is useful if you are implementing a preprocessor that needs to convert certain
    * types of files.
    *
-   * If you need a synchronous version, use the {@link ChatHistory#consumeFiles} method.
+   * If you need a synchronous version, use the {@link Chat#consumeFiles} method.
    *
    * @param client - LMStudio client
    * @param predicate - The predicate to call for each file.
@@ -356,7 +353,7 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
 
   public override toString() {
     return (
-      "ChatHistory {\n" +
+      "Chat {\n" +
       this.data.messages
         .map(message => "  " + ChatMessage.createRaw(message, false).toString())
         .join("\n") +
@@ -366,27 +363,22 @@ export class ChatHistory extends MaybeMutable<ChatHistoryData> {
 }
 
 /**
- * Represents anything that can be converted to a ChatHistory. If you want to quickly construct a
- * ChatHistory, use {@link ChatHistoryInput}.
+ * Represents anything that can be converted to a Chat. If you want to quickly construct a
+ * Chat, use {@link ChatInput}.
  *
  * If a string is provided, it will be converted to a chat history with a single user message with
  * the provided text.
  *
  * @public
  */
-export type ChatHistoryLike =
-  | ChatHistoryInput
-  | string
-  | ChatHistory
-  | ChatMessageInput
-  | ChatHistoryData;
+export type ChatLike = ChatInput | string | Chat | ChatMessageInput | ChatHistoryData;
 export const chatHistoryLikeSchema = z.union([
   chatHistoryDataSchema,
   z.string(),
   chatHistoryInputSchema,
   chatMessageInputSchema,
-  z.instanceof(ChatHistory as any),
-]) as ZodSchema<ChatHistoryLike>;
+  z.instanceof(Chat as any),
+]) as ZodSchema<ChatLike>;
 
 /**
  * Represents a single message in the history.

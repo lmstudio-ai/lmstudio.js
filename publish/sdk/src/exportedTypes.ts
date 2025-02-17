@@ -1,6 +1,6 @@
 export type {
   BaseLoadModelOpts,
-  ChatHistoryLike,
+  ChatLike,
   ConfigSchematics,
   ConfigSchematicsBuilder,
   CreateContentBlockOpts,
@@ -37,7 +37,6 @@ export type {
   RegisterDevelopmentPluginResult,
   RepositoryNamespace,
   RetrievalCallbacks,
-  RetrievalNamespace,
   RetrievalOpts,
   RetrievalResult,
   RetrievalResultEntry,

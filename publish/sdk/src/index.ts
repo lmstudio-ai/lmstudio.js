@@ -1,5 +1,5 @@
 export {
-  ChatHistory,
+  Chat,
   ChatMessage,
   FileHandle,
   LMStudioClient,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type ChatMessage } from "../../ChatHistory.js";
+import { type ChatMessage } from "../../Chat.js";
 import { type PreprocessorController } from "./ProcessingController.js";
 
 /**

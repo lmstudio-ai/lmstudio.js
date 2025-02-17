@@ -20,7 +20,7 @@ export const llmStructuredPredictionTypeSchema = z.enum(["none", "json"]);
  *
  * ```ts
  * const prediction = model.complete("...", {
- *   maxPredictedTokens: 100,
+ *   maxTokens: 100,
  *   structured: { type: "json" },
  * });
  * ```
@@ -38,7 +38,7 @@ export const llmStructuredPredictionTypeSchema = z.enum(["none", "json"]);
  *   required: ["name", "age"],
  * };
  * const prediction = model.complete("...", {
- *   maxPredictedTokens: 100,
+ *   maxTokens: 100,
  *   structured: { type: "json", jsonSchema: schema },
  * });
  * ```
@@ -55,7 +55,7 @@ export const llmStructuredPredictionTypeSchema = z.enum(["none", "json"]);
  * - In certain cases, the model may get stuck. For example, when forcing it to generate valid JSON,
  *   it may generate a opening brace `{` but never generate a closing brace `}`. In such cases, the
  *   prediction will go on forever until the context length is reached, which can take a long time.
- *   Therefore, it is recommended to always set a `maxPredictedTokens` limit.
+ *   Therefore, it is recommended to always set a `maxTokens` limit.
  *
  * @public
  */

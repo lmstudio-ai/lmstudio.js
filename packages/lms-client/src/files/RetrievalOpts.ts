@@ -6,7 +6,7 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { EmbeddingDynamicHandle } from "../embedding/EmbeddingDynamicHandle.js";
-import { type FileHandle } from "../files/FileHandle.js";
+import { type FileHandle } from "./FileHandle.js";
 
 /**
  * @public

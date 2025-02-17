@@ -14,7 +14,7 @@ import {
   serializeError,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { ChatMessage } from "../ChatHistory.js";
+import { ChatMessage } from "../Chat.js";
 import { type ConfigSchematics } from "../customConfig.js";
 import { type LMStudioClient } from "../LMStudioClient.js";
 import { type Generator } from "./processing/Generator.js";

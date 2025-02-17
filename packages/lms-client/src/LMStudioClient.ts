@@ -22,7 +22,6 @@ import {
   createLlmBackendInterface,
   createPluginsBackendInterface,
   createRepositoryBackendInterface,
-  createRetrievalBackendInterface,
   createSystemBackendInterface,
   type DiagnosticsPort,
   type EmbeddingPort,
@@ -30,7 +29,6 @@ import {
   type LLMPort,
   type PluginsPort,
   type RepositoryPort,
-  type RetrievalPort,
   type SystemPort,
 } from "@lmstudio/lms-external-backend-interfaces";
 import { generateRandomBase64 } from "@lmstudio/lms-isomorphic";
@@ -45,7 +43,6 @@ import { friendlyErrorDeserializer } from "./friendlyErrorDeserializer.js";
 import { LLMNamespace } from "./llm/LLMNamespace.js";
 import { PluginsNamespace } from "./plugins/PluginsNamespace.js";
 import { RepositoryNamespace } from "./repository/RepositoryNamespace.js";
-import { RetrievalNamespace } from "./retrieval/RetrievalNamespace.js";
 import { SystemNamespace } from "./system/SystemNamespace.js";
 
 /** @public */
@@ -133,8 +130,6 @@ export class LMStudioClient {
   /** @internal */
   private readonly diagnosticsPort: DiagnosticsPort;
   /** @internal */
-  private readonly retrievalPort: RetrievalPort;
-  /** @internal */
   private readonly filesPort: FilesPort;
   /** @internal */
   private readonly repositoryPort: RepositoryPort;
@@ -145,7 +140,6 @@ export class LMStudioClient {
   public readonly embedding: EmbeddingNamespace;
   public readonly system: SystemNamespace;
   public readonly diagnostics: DiagnosticsNamespace;
-  public readonly retrieval: RetrievalNamespace;
   public readonly files: FilesNamespace;
   public readonly repository: RepositoryNamespace;
   /**
@@ -377,8 +371,6 @@ export class LMStudioClient {
     this.diagnosticsPort =
       diagnosticsPort ??
       this.createPort("diagnostics", "Diagnostics", createDiagnosticsBackendInterface());
-    this.retrievalPort =
-      retrievalPort ?? this.createPort("retrieval", "Retrieval", createRetrievalBackendInterface());
     this.filesPort = filesPort ?? this.createPort("files", "Files", createFilesBackendInterface());
     this.repositoryPort =
       repositoryPort ??
@@ -402,12 +394,6 @@ export class LMStudioClient {
     );
     this.system = new SystemNamespace(this.systemPort, validator, this.logger);
     this.diagnostics = new DiagnosticsNamespace(this.diagnosticsPort, validator, this.logger);
-    this.retrieval = new RetrievalNamespace(
-      this.retrievalPort,
-      validator,
-      this.embedding,
-      this.logger,
-    );
     this.files = new FilesNamespace(this.filesPort, validator, this.logger);
     this.repository = new RepositoryNamespace(this.repositoryPort, validator, this.logger);
     this.plugins = new PluginsNamespace(this.pluginsPort, this, validator, this.logger, logger);

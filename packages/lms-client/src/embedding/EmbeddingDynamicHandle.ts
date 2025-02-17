@@ -41,17 +41,15 @@ export class EmbeddingDynamicHandle extends DynamicHandle<// prettier-ignore
     super(port, specifier);
   }
 
-  public async embedString(inputString: string): Promise<{ embedding: Array<number> }>;
-  public async embedString(
-    inputStrings: Array<string>,
-  ): Promise<Array<{ embedding: Array<number> }>>;
-  public async embedString(
+  public async embed(inputString: string): Promise<{ embedding: Array<number> }>;
+  public async embed(inputStrings: Array<string>): Promise<Array<{ embedding: Array<number> }>>;
+  public async embed(
     inputString: string | Array<string>,
   ): Promise<{ embedding: Array<number> } | Array<{ embedding: Array<number> }>> {
     const stack = getCurrentStack(1);
     inputString = this.validator.validateMethodParamOrThrow(
       "client.embedding",
-      "embedString",
+      "embed",
       "inputString",
       z.string().or(z.array(z.string())),
       inputString,

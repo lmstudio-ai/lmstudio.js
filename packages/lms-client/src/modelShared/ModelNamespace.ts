@@ -194,7 +194,6 @@ export abstract class ModelNamespace<
    * ```typescript
    * const model = await client.llm.load("llama-3.2-3b-instruct");
    * ```
-   * To unload the model, you can use the `client.llm.unload` method.
    *
    * Once loaded, see {@link LLMDynamicHandle} or {@link EmbeddingDynamicHandle} for how to use the
    * model for inferencing or other things you can do with the model.
@@ -580,17 +579,17 @@ export abstract class ModelNamespace<
    * For example, to use the DeepSeek r1 distill of Llama 8B:
    *
    * ```typescript
-   * const model = await client.llm.getOrLoad("deepseek-r1-distill-llama-8b");
+   * const model = await client.llm.model("deepseek-r1-distill-llama-8b");
    * ```
    */
-  public async getOrLoad(
+  public async model(
     modelKey: string,
     opts: BaseLoadModelOpts<TLoadModelConfig> = {},
   ): Promise<TSpecificModel> {
     const stack = getCurrentStack(1);
     [modelKey, opts] = this.validator.validateMethodParamsOrThrow(
       `client.${this.namespace}`,
-      "getOrLoad",
+      "model",
       ["modelKey", "opts"],
       [reasonableKeyStringSchema, this.getLoadModelOptsSchema()],
       [modelKey, opts],
@@ -599,7 +598,7 @@ export abstract class ModelNamespace<
     const { identifier, signal, verbose = "info", config, onProgress } = opts;
 
     if (identifier !== undefined) {
-      throw new Error("The identifier option is not allowed in getOrLoad.");
+      throw new Error("The identifier option is not allowed when using `.model`.");
     }
     let lastVerboseCallTime = 0;
 
@@ -637,7 +636,7 @@ export abstract class ModelNamespace<
                 verboseLevel,
                 text`
                   Verbose logging is enabled. To hide progress logs, set the "verbose" option to
-                  false in client.llm.getOrLoad.
+                  false in .model().
                 `,
               );
               this.logger.logAtLevel(

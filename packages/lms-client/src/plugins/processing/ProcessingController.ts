@@ -14,20 +14,17 @@ import {
   type ProcessingUpdate,
   type StatusStepState,
 } from "@lmstudio/lms-shared-types";
-import { ChatHistory } from "../../ChatHistory.js";
+import { Chat } from "../../Chat.js";
 import {
   type ConfigSchematics,
   type ParsedConfig,
   type VirtualConfigSchematics,
 } from "../../customConfig.js";
+import { type RetrievalResult, type RetrievalResultEntry } from "../../files/RetrievalResult.js";
 import { LLMDynamicHandle } from "../../llm/LLMDynamicHandle.js";
 import { type OngoingPrediction } from "../../llm/OngoingPrediction.js";
 import { type PredictionResult } from "../../llm/PredictionResult.js";
 import { type LMStudioClient } from "../../LMStudioClient.js";
-import {
-  type RetrievalResult,
-  type RetrievalResultEntry,
-} from "../../retrieval/RetrievalResult.js";
 
 function stringifyAny(message: any) {
   switch (typeof message) {
@@ -85,7 +82,7 @@ export class ProcessingConnector {
         this.logger.error("Failed to send update", error);
       });
   }
-  public async pullHistory(includeCurrent: boolean): Promise<ChatHistory> {
+  public async pullHistory(includeCurrent: boolean): Promise<Chat> {
     const chatHistoryData = await this.pluginsPort.callRpc("processingPullHistory", {
       pci: this.processingContextIdentifier,
       token: this.token,
@@ -93,7 +90,7 @@ export class ProcessingConnector {
     });
     // We know the result of callRpc is immutable, so we can safely pass false as the second
     // argument.
-    return ChatHistory.createRaw(chatHistoryData, /* mutable */ false).asMutableCopy();
+    return Chat.createRaw(chatHistoryData, /* mutable */ false).asMutableCopy();
   }
   public async getOrLoadModel(): Promise<string> {
     const result = await this.pluginsPort.callRpc("processingGetOrLoadModel", {

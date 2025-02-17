@@ -12,4 +12,5 @@ export interface SpecificModel<
   /** @internal */ TClientPort> {
   readonly identifier: string;
   readonly path: string;
+  unload(): Promise<void>;
 }
