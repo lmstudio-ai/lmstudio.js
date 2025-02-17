@@ -199,6 +199,8 @@ export class LLMDynamicHandle extends DynamicHandle<// prettier-ignore
         type: "json",
         jsonSchema: zodToJsonSchema(config.structured as any),
       };
+    } else {
+      structuredField = config.structured as any;
     }
     const convertedConfig = {
       ...config,
