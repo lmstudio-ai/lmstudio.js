@@ -29,7 +29,7 @@ export interface ModelInfoBase {
    */
   sizeBytes: number;
   /**
-   * A string that represents that number of params in the model.
+   * A string that represents the number of params in the model. May not always be available.
    */
   paramsString?: string;
   /**
