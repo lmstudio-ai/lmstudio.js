@@ -27,7 +27,10 @@ export const llmContextOverflowPolicySchema = z.enum([
 ]);
 
 /**
- * How to parse reasoning sections in the model output.
+ * How to parse reasoning sections in the model output. An easier to use type will be added in the
+ * future.
+ *
+ * @public
  */
 export interface LLMReasoningParsing {
   /**
@@ -201,6 +204,9 @@ export const llmPredictionConfigInputSchema = z.object({
   reasoningParsing: llmReasoningParsingSchema.optional(),
 });
 
+/**
+ * @public
+ */
 export interface LLMPredictionConfig extends LLMPredictionConfigInput<any> {
   structured?: LLMStructuredPredictionSetting;
 }

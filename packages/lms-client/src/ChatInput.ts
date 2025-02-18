@@ -9,6 +9,8 @@ import { FileHandle } from "./files/FileHandle";
 
 /**
  * This type provides an easy way of specifying a single chat message.
+ *
+ * @public
  */
 export interface ChatMessageInput {
   /**
@@ -32,6 +34,21 @@ export const chatMessageInputSchema = z.object({
   images: z.array(z.instanceof(FileHandle)).optional(),
 });
 
+/**
+ * This type provides an easy way of specifying a chat history.
+ *
+ * Example:
+ *
+ * ```ts
+ * const chat = Chat.from([
+ *   { role: "user", content: "Hello" },
+ *   { role: "assistant", content: "Hi" },
+ *   { role: "user", content: "How are you?" },
+ * ]);
+ * ```
+ *
+ * @public
+ */
 export type ChatInput = Array<ChatMessageInput>;
 export const chatHistoryInputSchema = z.array(chatMessageInputSchema);
 

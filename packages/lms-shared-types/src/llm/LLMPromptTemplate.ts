@@ -82,12 +82,15 @@ export const llmJinjaInputMessagesContentConfigTextFieldNameSchema = z.enum(["co
  * Configures how content in ChatHistoryMessages should be input to jinja for prompt rendering.
  *
  * ### string
- * Content is represented as a single string.
- * I.e.: \{ role: "user", content: "Hello" \}
+ *
+ * Content is represented as a single string,
+ *
+ * i.e.: `{ role: "user", content: "Hello" }`
  *
  * ### array
- * Content is represented as an array of typed parts
- * I.e.: \{ role: "user", content: \[ { type: "text", text: "Hello" } \] \}
+ * Content is represented as an array of typed parts,
+ *
+ * i.e.: `{ role: "user", content: [{ type: "text", text: "Hello" }] }`
  *
  * @public
  */

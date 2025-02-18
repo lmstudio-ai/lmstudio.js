@@ -109,6 +109,8 @@ export class FilesNamespace {
    * file. This file will be deleted when the client disconnects.
    *
    * This method can only be used in environments that have file system access (such as Node.js).
+   *
+   * @deprecated Retrieval API is still in active development. Stay tuned for updates.
    */
   public async prepareFile(path: string): Promise<FileHandle> {
     // Currently, exactly the same as prepareImage.
@@ -130,6 +132,8 @@ export class FilesNamespace {
   /**
    * Adds a temporary file to LM Studio. The content of the file is specified using base64. If you
    * are using Node.js and have a file laying around, consider using `prepareFile` instead.
+   *
+   * @deprecated Retrieval API is still in active development. Stay tuned for updates.
    */
   public async prepareFileBase64(fileName: string, contentBase64: string): Promise<FileHandle> {
     // Currently, exactly the same as prepareImageBase64.
@@ -140,6 +144,9 @@ export class FilesNamespace {
     return new FileHandle(this, identifier, fileType, sizeBytes, fileName);
   }
 
+  /**
+   * @deprecated Retrieval API is still in active development. Stay tuned for updates.
+   */
   public async retrieve(
     query: string,
     files: Array<FileHandle>,

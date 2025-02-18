@@ -38,6 +38,15 @@ export class PredictionResult {
   ) {}
 }
 
+/**
+ * Result of a typed structured prediction. In addition to a regular {@link PredictionResult}, there
+ * is one additional field: {@link StructuredPredictionResult#parsed}.
+ *
+ * To enable typed structured prediction, you should pass in a zod schema as the structured option
+ * when constructing the prediction config.
+ *
+ * @public
+ */
 export class StructuredPredictionResult<TStructuredOutputType = unknown> extends PredictionResult {
   public constructor(
     content: string,

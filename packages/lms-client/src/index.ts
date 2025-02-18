@@ -1,5 +1,6 @@
 export { Chat, ChatMessage } from "./Chat.js";
-export type { ChatLike } from "./Chat.js";
+export type { ChatLike, ChatMessageLike } from "./Chat.js";
+export type { ChatInput, ChatMessageInput } from "./ChatInput.js";
 export {
   ConfigSchematics,
   configSchematicsBrand,
@@ -22,7 +23,7 @@ export type { LLM } from "./llm/LLM.js";
 export type { LLMDynamicHandle, LLMPredictionOpts } from "./llm/LLMDynamicHandle.js";
 export type { LLMNamespace } from "./llm/LLMNamespace.js";
 export type { OngoingPrediction } from "./llm/OngoingPrediction.js";
-export type { PredictionResult } from "./llm/PredictionResult.js";
+export type { PredictionResult, StructuredPredictionResult } from "./llm/PredictionResult.js";
 export { LMStudioClient } from "./LMStudioClient.js";
 export type { LMStudioClientConstructorOpts } from "./LMStudioClient.js";
 export type { DynamicHandle } from "./modelShared/DynamicHandle.js";
@@ -37,6 +38,8 @@ export type {
 export type { Generator } from "./plugins/processing/Generator.js";
 export type { Preprocessor } from "./plugins/processing/Preprocessor.js";
 export type {
+  ContentBlockAppendTextOpts,
+  CreateCitationBlockOpts,
   CreateContentBlockOpts,
   GeneratorController,
   PredictionProcessCitationBlockController,
@@ -51,5 +54,10 @@ export type {
   ModelSearchResultDownloadOption,
 } from "./repository/ModelSearchResultDownloadOption.js";
 export type { ModelSearchResultEntry } from "./repository/ModelSearchResultEntry.js";
-export type { RepositoryNamespace } from "./repository/RepositoryNamespace.js";
+export type {
+  DownloadArtifactOpts,
+  EnsureAuthenticatedOpts,
+  PushArtifactOpts,
+  RepositoryNamespace,
+} from "./repository/RepositoryNamespace.js";
 export type { SystemNamespace } from "./system/SystemNamespace.js";

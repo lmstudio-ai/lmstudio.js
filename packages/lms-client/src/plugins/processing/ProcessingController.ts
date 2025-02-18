@@ -126,6 +126,8 @@ interface ProcessingControllerHandle {
 }
 
 /**
+ * Options to use with {@link ProcessingController#createContentBlock}.
+ *
  * @public
  */
 export interface CreateContentBlockOpts {
@@ -136,6 +138,8 @@ export interface CreateContentBlockOpts {
 }
 
 /**
+ * Options to use with {@link ProcessingController#createCitationBlock}.
+ *
  * @public
  */
 export interface CreateCitationBlockOpts {
@@ -475,7 +479,12 @@ export class PredictionProcessDebugInfoBlockController {
   ) {}
 }
 
-interface PredictionProcessContentBlockControllerAppendTextOpts {
+/**
+ * Options to use with {@link PredictionProcessContentBlockController#appendText}.
+ *
+ * @public
+ */
+export interface ContentBlockAppendTextOpts {
   tokensCount?: number;
   fromDraftModel?: boolean;
 }
@@ -494,7 +503,7 @@ export class PredictionProcessContentBlockController {
   ) {}
   public appendText(
     text: string,
-    { tokensCount, fromDraftModel }: PredictionProcessContentBlockControllerAppendTextOpts = {},
+    { tokensCount, fromDraftModel }: ContentBlockAppendTextOpts = {},
   ) {
     this.handle.sendUpdate({
       type: "contentBlock.appendText",

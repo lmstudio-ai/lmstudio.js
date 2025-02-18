@@ -83,6 +83,9 @@ export const kvConfigStackSchema = z.object({
   layers: z.array(kvConfigStackLayerSchema),
 });
 
+/**
+ * @public
+ */
 export type KVConfigFieldDependency = {
   key: string;
   condition:

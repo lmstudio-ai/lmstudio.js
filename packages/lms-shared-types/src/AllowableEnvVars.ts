@@ -1,11 +1,11 @@
 import { z } from "zod";
 
+export const allowableEnvVarKeys = ["HSA_OVERRIDE_GFX_VERSION"] as const;
 /**
  * Type representing the environment variables that can be set by the user.
  *
  * @public
  */
-export const allowableEnvVarKeys = ["HSA_OVERRIDE_GFX_VERSION"] as const;
 export type AllowableEnvVarKeys = "HSA_OVERRIDE_GFX_VERSION";
 export const allowableEnvVarKeysSchema = z.enum(allowableEnvVarKeys);
 

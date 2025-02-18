@@ -143,10 +143,7 @@ export class LMStudioClient {
   public readonly files: FilesNamespace;
   public readonly repository: RepositoryNamespace;
   /**
-   * The namespace for plugin registration APIs used internally by LM Studio and lms cli. Unless you
-   * are writing an alternative external plugin runner, you should not use this namespace.
-   *
-   * If you are developing a plugin, follow our guide on "".
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
    */
   public readonly plugins: PluginsNamespace;
 

@@ -15,7 +15,11 @@ import {
 import { z, type ZodSchema } from "zod";
 import { ModelSearchResultEntry } from "./ModelSearchResultEntry.js";
 
-/** @public */
+/**
+ * Options to use with {@link RepositoryNamespace#downloadArtifact}
+ *
+ * @public
+ */
 export interface DownloadArtifactOpts {
   owner: string;
   name: string;
@@ -39,6 +43,8 @@ const downloadArtifactOptsSchema = z.object({
 }) as ZodSchema<DownloadArtifactOpts>;
 
 /**
+ * Options to use with {@link RepositoryNamespace#pushArtifact}.
+ *
  * @public
  */
 export interface PushArtifactOpts {
@@ -50,6 +56,11 @@ export const pushArtifactOptsSchema = z.object({
   onMessage: z.function().optional(),
 }) as ZodSchema<PushArtifactOpts>;
 
+/**
+ * Options to use with {@link RepositoryNamespace#ensureAuthenticated}.
+ *
+ * @public
+ */
 export interface EnsureAuthenticatedOpts {
   onAuthenticationUrl: (url: string) => void;
 }
@@ -86,6 +97,9 @@ export class RepositoryNamespace {
     );
   }
 
+  /**
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
+   */
   public async installPluginDependencies(pluginFolder: string) {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(
@@ -99,6 +113,9 @@ export class RepositoryNamespace {
     await this.repositoryPort.callRpc("installPluginDependencies", { pluginFolder }, { stack });
   }
 
+  /**
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
+   */
   public async downloadArtifact(opts: DownloadArtifactOpts) {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(
@@ -154,6 +171,9 @@ export class RepositoryNamespace {
     return await promise;
   }
 
+  /**
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
+   */
   public async pushArtifact(opts: PushArtifactOpts): Promise<void> {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(
@@ -188,6 +208,9 @@ export class RepositoryNamespace {
     await promise;
   }
 
+  /**
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
+   */
   public async ensureAuthenticated(opts: EnsureAuthenticatedOpts) {
     const stack = getCurrentStack(1);
     this.validator.validateMethodParamOrThrow(

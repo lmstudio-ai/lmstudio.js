@@ -724,6 +724,8 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
  * Represents something that can be converted to a ChatMessage.
  *
  * If a string is provided, it will be converted to a message sent by the user.
+ *
+ * @public
  */
 export type ChatMessageLike = ChatMessageInput | string | ChatMessage | ChatMessageData;
 export const chatMessageLikeSchema = z.union([
