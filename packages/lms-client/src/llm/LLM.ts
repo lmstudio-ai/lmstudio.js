@@ -1,6 +1,10 @@
 import { getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
-import { type LLMInstanceInfo, type ModelSpecifier } from "@lmstudio/lms-shared-types";
+import {
+  type LLMInstanceInfo,
+  type ModelCompatibilityType,
+  type ModelSpecifier,
+} from "@lmstudio/lms-shared-types";
 import { type SpecificModel } from "../modelShared/SpecificModel.js";
 import { LLMDynamicHandle } from "./LLMDynamicHandle.js";
 
@@ -18,6 +22,13 @@ export class LLM
 {
   public readonly identifier: string;
   public readonly path: string;
+  public readonly modelKey: string;
+  public readonly format: ModelCompatibilityType;
+  public readonly displayName: string;
+  public readonly sizeBytes: number;
+  public readonly vision: boolean;
+  public readonly trainedForToolUse: boolean;
+
   /** @internal */
   public constructor(
     llmPort: LLMPort,
@@ -32,6 +43,12 @@ export class LLM
     super(llmPort, specifier, validator, logger);
     this.identifier = info.identifier;
     this.path = info.path;
+    this.modelKey = info.modelKey;
+    this.format = info.format;
+    this.displayName = info.displayName;
+    this.sizeBytes = info.sizeBytes;
+    this.vision = info.vision;
+    this.trainedForToolUse = info.trainedForToolUse;
   }
   public async unload() {
     const stack = getCurrentStack(1);

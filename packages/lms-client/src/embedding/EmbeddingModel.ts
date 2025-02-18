@@ -1,6 +1,10 @@
 import { getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type EmbeddingPort } from "@lmstudio/lms-external-backend-interfaces";
-import { type EmbeddingModelInstanceInfo, type ModelSpecifier } from "@lmstudio/lms-shared-types";
+import {
+  type EmbeddingModelInstanceInfo,
+  type ModelCompatibilityType,
+  type ModelSpecifier,
+} from "@lmstudio/lms-shared-types";
 import { type SpecificModel } from "../modelShared/SpecificModel.js";
 import { EmbeddingDynamicHandle } from "./EmbeddingDynamicHandle.js";
 
@@ -18,6 +22,11 @@ export class EmbeddingModel
 {
   public readonly identifier: string;
   public readonly path: string;
+  public readonly modelKey: string;
+  public readonly format: ModelCompatibilityType;
+  public readonly displayName: string;
+  public readonly sizeBytes: number;
+
   /** @internal */
   public constructor(
     embeddingPort: EmbeddingPort,
@@ -32,6 +41,10 @@ export class EmbeddingModel
     super(embeddingPort, specifier, validator, logger);
     this.identifier = info.identifier;
     this.path = info.path;
+    this.modelKey = info.modelKey;
+    this.format = info.format;
+    this.displayName = info.displayName;
+    this.sizeBytes = info.sizeBytes;
   }
   public async unload() {
     const stack = getCurrentStack(1);
