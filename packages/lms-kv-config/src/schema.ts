@@ -75,7 +75,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             "minAcceptProbability",
             "numeric",
             { modelCentric: true, min: 0, max: 1, step: 0.01, precision: 2 },
-            0.9,
+            0.75,
           ),
       )
       .field("tools", "toolUse", {}, { type: "none" })
