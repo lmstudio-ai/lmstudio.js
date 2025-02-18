@@ -72,7 +72,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
           )
           .field("numReuseTokens", "numeric", { modelCentric: true, min: 1, int: true }, 256)
           .field(
-            "minAcceptProbability",
+            "minContinueDraftingProbability",
             "numeric",
             { modelCentric: true, min: 0, max: 1, step: 0.01, precision: 2 },
             0.75,

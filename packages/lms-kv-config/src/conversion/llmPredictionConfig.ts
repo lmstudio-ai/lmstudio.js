@@ -97,6 +97,14 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.speculativeDecodingDraftTokensCount = speculativeDecodingDraftTokens;
   }
 
+  const speculativeDecodingMinContinueDraftingProbability = parsed.get(
+    "llm.prediction.speculativeDecoding.minContinueDraftingProbability",
+  );
+  if (speculativeDecodingMinContinueDraftingProbability !== undefined) {
+    result.speculativeDecodingMinContinueDraftingProbability =
+      speculativeDecodingMinContinueDraftingProbability;
+  }
+
   const reasoningParsing = parsed.get("llm.prediction.reasoning.parsing");
   if (reasoningParsing !== undefined) {
     result.reasoningParsing = reasoningParsing;
@@ -125,6 +133,8 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "promptTemplate": config.promptTemplate,
     "speculativeDecoding.draftModel": config.draftModel,
     "speculativeDecoding.numDraftTokens": config.speculativeDecodingDraftTokensCount,
+    "speculativeDecoding.minContinueDraftingProbability":
+      config.speculativeDecodingMinContinueDraftingProbability,
     "reasoning.parsing": config.reasoningParsing,
   });
 }

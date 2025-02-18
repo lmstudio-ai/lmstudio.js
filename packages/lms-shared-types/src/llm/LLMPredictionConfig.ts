@@ -158,6 +158,14 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    */
   speculativeDecodingDraftTokensCount?: number;
   /**
+   * Warning: Experimental and subject to change.
+   *
+   * TODO: Documentation
+   *
+   * @alpha
+   */
+  speculativeDecodingMinContinueDraftingProbability?: number;
+  /**
    * How to parse the reasoning sections in the model output. Only need to specify the `startString`
    * and the `endString`.
    *
@@ -189,6 +197,7 @@ export const llmPredictionConfigInputSchema = z.object({
   promptTemplate: llmPromptTemplateSchema.optional(),
   draftModel: z.string().optional(),
   speculativeDecodingDraftTokensCount: z.number().int().min(2).optional(),
+  speculativeDecodingMinContinueDraftingProbability: z.number().optional(),
   reasoningParsing: llmReasoningParsingSchema.optional(),
 });
 
