@@ -97,6 +97,11 @@ export function createBaseModelBackendInterface<
           info: modelInfoSchema,
         }),
         z.object({
+          // We are unloading other JIT model
+          type: z.literal("unloadingOtherJITModel"),
+          info: modelInstanceInfoSchema,
+        }),
+        z.object({
           type: z.literal("loadProgress"),
           progress: z.number(),
         }),

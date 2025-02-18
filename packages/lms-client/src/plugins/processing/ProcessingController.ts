@@ -313,7 +313,7 @@ export class ProcessingController {
   public readonly model = Object.freeze({
     getOrLoad: async () => {
       const identifier = await this.connector.getOrLoadModel();
-      const model = await this.client.llm.get({ identifier });
+      const model = await this.client.llm.model(identifier);
       // Don't use the server session config for this model
       (model as any).internalIgnoreServerSessionConfig = true;
       // Inject the prediction config

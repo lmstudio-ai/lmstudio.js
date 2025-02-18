@@ -343,95 +343,9 @@ export abstract class ModelNamespace<
   }
 
   /**
-   * Get a specific model that satisfies the given query. The returned model is tied to the specific
-   * model at the time of the call.
-   *
-   * For more information on the query, see {@link ModelQuery}.
-   *
-   * @example
-   *
-   * If you have loaded a model with the identifier "my-model", you can use it like this:
-   *
-   * ```ts
-   * const model = await client.llm.get({ identifier: "my-model" });
-   * const prediction = model.complete("...");
-   * ```
-   *
-   * Or just
-   *
-   * ```ts
-   * const model = await client.llm.get("my-model");
-   * const prediction = model.complete("...");
-   * ```
-   *
-   * @example
-   *
-   * Use the Gemma 2B IT model (given it is already loaded elsewhere):
-   *
-   * ```ts
-   * const model = await client.llm.get({ path: "lmstudio-community/Meta-Llama-3-8B-Instruct-GGUF" });
-   * const prediction = model.complete("...");
-   * ```
+   * Get any loaded model of this domain.
    */
-  public get(query: ModelQuery): Promise<TSpecificModel>;
-  /**
-   * Get a specific model by its identifier. The returned model is tied to the specific model at the
-   * time of the call.
-   *
-   * @example
-   *
-   * If you have loaded a model with the identifier "my-model", you can use it like this:
-   *
-   * ```ts
-   * const model = await client.llm.get("my-model");
-   * const prediction = model.complete("...");
-   * ```
-   *
-   */
-  public get(path: string): Promise<TSpecificModel>;
-  public async get(param: string | ModelQuery): Promise<TSpecificModel> {
-    const stack = getCurrentStack(1);
-    this.validator.validateMethodParamOrThrow(
-      `client.${this.namespace}`,
-      "get",
-      "param",
-      z.union([reasonableKeyStringSchema, modelQuerySchema]),
-      param,
-      stack,
-    );
-    let query: ModelQuery;
-    if (typeof param === "string") {
-      query = {
-        identifier: param,
-      };
-    } else {
-      query = param;
-    }
-    query.domain = this.namespace;
-    const info = await this.port.callRpc(
-      "getModelInfo",
-      {
-        specifier: {
-          type: "query",
-          query,
-        },
-        throwIfNotFound: true,
-      },
-      { stack },
-    );
-    if (info === undefined) {
-      throw new Error("Backend should have thrown.");
-    }
-    return this.createDomainSpecificModel(
-      this.port,
-      info,
-      this.validator,
-      new SimpleLogger("LLM", this.logger),
-    );
-  }
-
-  public async getAny() {
-    const stack = getCurrentStack(1);
+  private async getAny(stack: string) {
     const info = await this.port.callRpc(
       "getModelInfo",
       { specifier: { type: "query", query: {} }, throwIfNotFound: true },
@@ -581,9 +495,22 @@ export abstract class ModelNamespace<
    */
   public async model(
     modelKey: string,
+    opts?: BaseLoadModelOpts<TLoadModelConfig>,
+  ): Promise<TSpecificModel>;
+  /**
+   * Get any loaded model of this domain. If you want to use a specific model, pass in the model key
+   * as a parameter.
+   */
+  public async model(): Promise<TSpecificModel>;
+  public async model(
+    modelKey?: string,
     opts: BaseLoadModelOpts<TLoadModelConfig> = {},
   ): Promise<TSpecificModel> {
     const stack = getCurrentStack(1);
+    if (modelKey === undefined) {
+      // We want to get any loaded model.
+      return await this.getAny(stack);
+    }
     [modelKey, opts] = this.validator.validateMethodParamsOrThrow(
       `client.${this.namespace}`,
       "model",
@@ -620,6 +547,18 @@ export abstract class ModelNamespace<
             return resolve(
               this.createDomainSpecificModel(this.port, message.info, this.validator, this.logger),
             );
+          }
+          case "unloadingOtherJITModel": {
+            if (verbose) {
+              this.logger.logAtLevel(
+                verboseLevel,
+                text`
+                  Unloading other JIT model ${message.info.modelKey}. (You can disable this behavior
+                  by going to LM Studio -> Settings -> Developer -> Turn OFF JIT models auto-evict)
+                `,
+              );
+            }
+            break;
           }
           case "startLoading": {
             if (verbose) {
