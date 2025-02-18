@@ -125,6 +125,8 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "promptTemplate": config.promptTemplate,
     "speculativeDecoding.draftModel": config.draftModel,
     "speculativeDecoding.numDraftTokens": config.speculativeDecodingDraftTokensCount,
+    "speculativeDecoding.minContinueDraftingProbability":
+      config.speculativeDecodingMinContinueDraftingProbability,
     "reasoning.parsing": config.reasoningParsing,
   });
 }
