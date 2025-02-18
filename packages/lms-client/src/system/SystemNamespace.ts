@@ -9,7 +9,7 @@ import { type SystemPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
   backendNotificationSchema,
   type BackendNotification,
-  type DownloadedModel,
+  type ModelInfo,
 } from "@lmstudio/lms-shared-types";
 
 /** @public */
@@ -28,7 +28,7 @@ export class SystemNamespace {
    * List all downloaded models.
    * @public
    */
-  public async listDownloadedModels(): Promise<Array<DownloadedModel>> {
+  public async listDownloadedModels(): Promise<Array<ModelInfo>> {
     return this.systemPort.callRpc("listDownloadedModels", undefined, {
       stack: getCurrentStack(1),
     });

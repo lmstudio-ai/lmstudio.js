@@ -1,7 +1,7 @@
 import {
   type KVConfig,
+  type LLMInstanceInfo,
   type LLMPredictionStats,
-  type ModelDescriptor,
 } from "@lmstudio/lms-shared-types";
 
 /**
@@ -26,13 +26,13 @@ export class PredictionResult {
     /**
      * Information about the model used for the prediction.
      */
-    public readonly modelInfo: ModelDescriptor,
+    public readonly modelInfo: LLMInstanceInfo,
     /**
-     * The configuration used to load the model.
+     * The configuration used to load the model. Not stable, subject to change.
      */
     public readonly loadConfig: KVConfig,
     /**
-     * The configuration used for the prediction.
+     * The configuration used for the prediction. Not stable, subject to change.
      */
     public readonly predictionConfig: KVConfig,
   ) {}
@@ -42,7 +42,7 @@ export class StructuredPredictionResult<TStructuredOutputType = unknown> extends
   public constructor(
     content: string,
     stats: LLMPredictionStats,
-    modelInfo: ModelDescriptor,
+    modelInfo: LLMInstanceInfo,
     loadConfig: KVConfig,
     predictionConfig: KVConfig,
     /**

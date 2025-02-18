@@ -15,8 +15,9 @@ import {
   reasonableKeyStringSchema,
   type KVConfig,
   type LogLevel,
-  type ModelDescriptor,
   type ModelDomainType,
+  type ModelInfoBase,
+  type ModelInstanceInfoBase,
   type ModelQuery,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
@@ -118,10 +119,15 @@ function makeLoadModelOptsSchema<TLoadModelConfig>(
  */
 export abstract class ModelNamespace<
   /** @internal */
-  TClientPort extends BaseModelPort,
+  TClientPort extends BaseModelPort<TModelInstanceInfo, TModelInfo>,
   TLoadModelConfig,
-  TDynamicHandle extends DynamicHandle<// prettier-ignore
-  /** @internal */ TClientPort>,
+  TModelInstanceInfo extends ModelInstanceInfoBase,
+  TModelInfo extends ModelInfoBase,
+  TDynamicHandle extends DynamicHandle<
+    // prettier-ignore
+    /** @internal */ TClientPort,
+    TModelInstanceInfo
+  >,
   TSpecificModel,
 > {
   /**
@@ -147,8 +153,7 @@ export abstract class ModelNamespace<
   /** @internal */
   protected abstract createDomainSpecificModel(
     port: TClientPort,
-    instanceReference: string,
-    descriptor: ModelDescriptor,
+    info: TModelInstanceInfo,
     validator: Validator,
     logger: SimpleLogger,
   ): TSpecificModel;
@@ -237,7 +242,7 @@ export abstract class ModelNamespace<
     const channel = this.port.createChannel(
       "loadModel",
       {
-        path: modelKey,
+        modelKey,
         identifier,
         ttlMs: opts.ttl === undefined ? undefined : opts.ttl * 1000,
         loadConfigStack: singleLayerKVConfigStackOf(
@@ -248,7 +253,7 @@ export abstract class ModelNamespace<
       message => {
         switch (message.type) {
           case "resolved": {
-            fullPath = message.fullPath;
+            fullPath = message.info.modelKey;
             if (message.ambiguous !== undefined) {
               this.logger.warn(text`
                 Multiple models found for key ${modelKey}:
@@ -276,13 +281,7 @@ export abstract class ModelNamespace<
               );
             }
             resolve(
-              this.createDomainSpecificModel(
-                this.port,
-                message.instanceReference,
-                { identifier: message.identifier, path: modelKey },
-                this.validator,
-                this.logger,
-              ),
+              this.createDomainSpecificModel(this.port, message.info, this.validator, this.logger),
             );
             break;
           }
@@ -338,9 +337,9 @@ export abstract class ModelNamespace<
   /**
    * List all the currently loaded models.
    */
-  public listLoaded(): Promise<Array<ModelDescriptor>> {
+  public async listLoaded(): Promise<Array<TModelInstanceInfo>> {
     const stack = getCurrentStack(1);
-    return this.port.callRpc("listLoaded", undefined, { stack });
+    return await this.port.callRpc("listLoaded", undefined, { stack });
   }
 
   /**
@@ -425,8 +424,7 @@ export abstract class ModelNamespace<
     }
     return this.createDomainSpecificModel(
       this.port,
-      info.instanceReference,
-      info.descriptor,
+      info,
       this.validator,
       new SimpleLogger("LLM", this.logger),
     );
@@ -444,8 +442,7 @@ export abstract class ModelNamespace<
     }
     return this.createDomainSpecificModel(
       this.port,
-      info.instanceReference,
-      info.descriptor,
+      info,
       this.validator,
       new SimpleLogger("LLM", this.logger),
     );
@@ -621,13 +618,7 @@ export abstract class ModelNamespace<
         switch (message.type) {
           case "alreadyLoaded": {
             return resolve(
-              this.createDomainSpecificModel(
-                this.port,
-                message.instanceReference,
-                { identifier: message.identifier, path: message.fullPath },
-                this.validator,
-                this.logger,
-              ),
+              this.createDomainSpecificModel(this.port, message.info, this.validator, this.logger),
             );
           }
           case "startLoading": {
@@ -670,18 +661,12 @@ export abstract class ModelNamespace<
               this.logger.logAtLevel(
                 verboseLevel,
                 text`
-                  Successfully loaded model ${message.fullPath} in ${Date.now() - startTime}ms
+                  Successfully loaded model ${message.info.modelKey} in ${Date.now() - startTime}ms
                 `,
               );
             }
             resolve(
-              this.createDomainSpecificModel(
-                this.port,
-                message.instanceReference,
-                { identifier: message.identifier, path: message.fullPath },
-                this.validator,
-                this.logger,
-              ),
+              this.createDomainSpecificModel(this.port, message.info, this.validator, this.logger),
             );
           }
         }

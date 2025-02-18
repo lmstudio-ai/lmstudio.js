@@ -2,7 +2,8 @@ import { getCurrentStack } from "@lmstudio/lms-common";
 import { type BaseModelPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
   type KVConfig,
-  type ModelDescriptor,
+  type ModelInfoBase,
+  type ModelInstanceInfoBase,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 
@@ -19,7 +20,8 @@ import {
  */
 export abstract class DynamicHandle<
   /** @internal */
-  TClientPort extends BaseModelPort,
+  TClientPort extends BaseModelPort<TModelInstanceInfo, ModelInfoBase>,
+  TModelInstanceInfo extends ModelInstanceInfoBase,
 > {
   /**
    * Don't construct this on your own. Use {@link LLMNamespace#get} or {@link LLMNamespace#load}
@@ -41,7 +43,7 @@ export abstract class DynamicHandle<
    * Note: As models are loaded/unloaded, the model associated with this `LLMModel` may change at
    * any moment.
    */
-  public async getModelInfo(): Promise<ModelDescriptor | undefined> {
+  public async getModelInfo(): Promise<TModelInstanceInfo | undefined> {
     const info = await this.port.callRpc(
       "getModelInfo",
       { specifier: this.specifier, throwIfNotFound: false },
@@ -50,7 +52,7 @@ export abstract class DynamicHandle<
     if (info === undefined) {
       return undefined;
     }
-    return info.descriptor;
+    return info;
   }
 
   protected async getLoadConfig(stack: string): Promise<KVConfig> {

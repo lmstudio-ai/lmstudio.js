@@ -1,10 +1,10 @@
 import { StreamablePromise } from "@lmstudio/lms-common";
 import {
   type KVConfig,
+  type LLMInstanceInfo,
   type LLMPredictionFragment,
   type LLMPredictionStats,
   type LLMPredictionStopReason,
-  type ModelDescriptor,
 } from "@lmstudio/lms-shared-types";
 import { PredictionResult, StructuredPredictionResult } from "./PredictionResult.js";
 
@@ -50,7 +50,7 @@ export class OngoingPrediction<TStructuredOutputType = unknown> extends Streamab
       StructuredPredictionResult<TStructuredOutputType>
 > {
   private stats: LLMPredictionStats | null = null;
-  private modelInfo: ModelDescriptor | null = null;
+  private modelInfo: LLMInstanceInfo | null = null;
   private loadModelConfig: KVConfig | null = null;
   private predictionConfig: KVConfig | null = null;
 
@@ -103,7 +103,7 @@ export class OngoingPrediction<TStructuredOutputType = unknown> extends Streamab
     const ongoingPrediction = new OngoingPrediction<TStructuredOutputType>(onCancel, parser);
     const finished = (
       stats: LLMPredictionStats,
-      modelInfo: ModelDescriptor,
+      modelInfo: LLMInstanceInfo,
       loadModelConfig: KVConfig,
       predictionConfig: KVConfig,
     ) => {

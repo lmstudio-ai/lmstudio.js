@@ -4,7 +4,7 @@ import {
   embeddingSharedLoadConfigSchematics,
   globalConfigSchematics,
 } from "@lmstudio/lms-kv-config";
-import { type ModelSpecifier } from "@lmstudio/lms-shared-types";
+import { type EmbeddingModelInstanceInfo, type ModelSpecifier } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 
@@ -19,8 +19,11 @@ import { DynamicHandle } from "../modelShared/DynamicHandle.js";
  *
  * @public
  */
-export class EmbeddingDynamicHandle extends DynamicHandle<// prettier-ignore
-/** @internal */ EmbeddingPort> {
+export class EmbeddingDynamicHandle extends DynamicHandle<
+  // prettier-ignore
+  /** @internal */ EmbeddingPort,
+  EmbeddingModelInstanceInfo
+> {
   /**
    * Don't construct this on your own. Use {@link EmbeddingNamespace#get} or
    * {@link EmbeddingNamespace#load}

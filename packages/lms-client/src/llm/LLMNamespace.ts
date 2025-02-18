@@ -4,8 +4,9 @@ import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
   llmLoadModelConfigSchema,
   type KVConfig,
+  type LLMInfo,
+  type LLMInstanceInfo,
   type LLMLoadModelConfig,
-  type ModelDescriptor,
   type ModelSpecifier,
 } from "@lmstudio/lms-shared-types";
 import { cacheQuantizationTypeToCheckbox } from "../cacheQuantizationTypeToCheckbox.js";
@@ -19,6 +20,8 @@ export class LLMNamespace extends ModelNamespace<
   /** @internal */
   LLMPort,
   LLMLoadModelConfig,
+  LLMInstanceInfo,
+  LLMInfo,
   LLMDynamicHandle,
   LLM
 > {
@@ -57,12 +60,11 @@ export class LLMNamespace extends ModelNamespace<
   /** @internal */
   protected override createDomainSpecificModel(
     port: LLMPort,
-    instanceReference: string,
-    descriptor: ModelDescriptor,
+    info: LLMInstanceInfo,
     validator: Validator,
     logger: SimpleLogger,
   ): LLM {
-    return new LLM(port, instanceReference, descriptor, validator, logger);
+    return new LLM(port, info, validator, logger);
   }
   /** @internal */
   protected override createDomainDynamicHandle(

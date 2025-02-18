@@ -1,22 +1,30 @@
+import { type DeepReplaceType2 } from "@lmstudio/lms-common";
 import { BackendInterface } from "@lmstudio/lms-communication";
-import { type InferClientPort } from "@lmstudio/lms-communication-client";
+import { type ClientPort } from "@lmstudio/lms-communication-client";
 import {
   kvConfigSchema,
   kvConfigStackSchema,
-  modelDescriptorSchema,
+  type ModelInfoBase,
+  type ModelInstanceInfoBase,
   modelSpecifierSchema,
 } from "@lmstudio/lms-shared-types";
-import { z } from "zod";
+import { z, type ZodSchema } from "zod";
 
 /**
  * Create a base model backend interface that are used by all domain-specific model backend
  * interfaces.
  */
-export function createBaseModelBackendInterface() {
+export function createBaseModelBackendInterface<
+  TModelInstanceInfo extends ModelInstanceInfoBase,
+  TModelInfoSchema extends ModelInfoBase,
+>(
+  modelInstanceInfoSchema: ZodSchema<TModelInstanceInfo>,
+  modelInfoSchema: ZodSchema<TModelInfoSchema>,
+) {
   return new BackendInterface()
     .addChannelEndpoint("loadModel", {
       creationParameter: z.object({
-        path: z.string(),
+        modelKey: z.string(),
         identifier: z.string().optional(),
         /**
          * If provided, when the model is not used for this amount of time, it will be unloaded.
@@ -27,7 +35,7 @@ export function createBaseModelBackendInterface() {
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
           type: z.literal("resolved"),
-          fullPath: z.string(),
+          info: modelInfoSchema,
           ambiguous: z.array(z.string()).optional(),
         }),
         z.object({
@@ -36,8 +44,7 @@ export function createBaseModelBackendInterface() {
         }),
         z.object({
           type: z.literal("success"),
-          identifier: z.string(),
-          instanceReference: z.string(),
+          info: modelInstanceInfoSchema,
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
@@ -54,19 +61,14 @@ export function createBaseModelBackendInterface() {
     })
     .addRpcEndpoint("listLoaded", {
       parameter: z.undefined(),
-      returns: z.array(modelDescriptorSchema),
+      returns: z.array(modelInstanceInfoSchema),
     })
     .addRpcEndpoint("getModelInfo", {
       parameter: z.object({
         specifier: modelSpecifierSchema,
         throwIfNotFound: z.boolean(),
       }),
-      returns: z
-        .object({
-          instanceReference: z.string(),
-          descriptor: modelDescriptorSchema,
-        })
-        .optional(),
+      returns: modelInstanceInfoSchema.optional(),
     })
     .addRpcEndpoint("getLoadConfig", {
       parameter: z.object({
@@ -87,14 +89,12 @@ export function createBaseModelBackendInterface() {
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
           type: z.literal("alreadyLoaded"),
-          identifier: z.string(),
-          fullPath: z.string(),
-          instanceReference: z.string(),
+          info: modelInstanceInfoSchema,
         }),
         z.object({
           type: z.literal("startLoading"),
           identifier: z.string(),
-          fullPath: z.string(),
+          info: modelInfoSchema,
         }),
         z.object({
           type: z.literal("loadProgress"),
@@ -102,9 +102,7 @@ export function createBaseModelBackendInterface() {
         }),
         z.object({
           type: z.literal("loadSuccess"),
-          identifier: z.string(),
-          instanceReference: z.string(),
-          fullPath: z.string(),
+          info: modelInstanceInfoSchema,
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
@@ -115,5 +113,90 @@ export function createBaseModelBackendInterface() {
     });
 }
 
-export type BaseModelPort = InferClientPort<typeof createBaseModelBackendInterface>;
-export type BaseModelBackendInterface = ReturnType<typeof createBaseModelBackendInterface>;
+export type BaseModelPort<
+  TModelInstanceInfo extends ModelInstanceInfoBase,
+  TModelInfo extends ModelInfoBase,
+> = typeof createBaseModelBackendInterface extends (
+  ...args: any[]
+) => BackendInterface<
+  infer _RContext,
+  infer RRpcEndpoints,
+  infer RChannelEndpoints,
+  infer RSignalEndpoints,
+  infer RWritableSignalEndpoints
+>
+  ? ClientPort<
+      DeepReplaceType2<
+        RRpcEndpoints,
+        ModelInstanceInfoBase,
+        TModelInstanceInfo,
+        ModelInfoBase,
+        TModelInfo
+      >,
+      DeepReplaceType2<
+        RChannelEndpoints,
+        ModelInstanceInfoBase,
+        TModelInstanceInfo,
+        ModelInfoBase,
+        TModelInfo
+      >,
+      DeepReplaceType2<
+        RSignalEndpoints,
+        ModelInstanceInfoBase,
+        TModelInstanceInfo,
+        ModelInfoBase,
+        TModelInfo
+      >,
+      DeepReplaceType2<
+        RWritableSignalEndpoints,
+        ModelInstanceInfoBase,
+        TModelInstanceInfo,
+        ModelInfoBase,
+        TModelInfo
+      >
+    >
+  : never;
+export type BaseModelBackendInterface<
+  TModelInstanceInfo extends ModelInstanceInfoBase,
+  TModelInfo extends ModelInfoBase,
+> = typeof createBaseModelBackendInterface extends (
+  ...args: any[]
+) => BackendInterface<
+  infer RContext,
+  infer RRpcEndpoints,
+  infer RChannelEndpoints,
+  infer RSignalEndpoints,
+  infer RWritableSignalEndpoints
+>
+  ? BackendInterface<
+      RContext,
+      DeepReplaceType2<
+        RRpcEndpoints,
+        ModelInstanceInfoBase,
+        TModelInstanceInfo,
+        ModelInfoBase,
+        TModelInfo
+      >,
+      DeepReplaceType2<
+        RChannelEndpoints,
+        ModelInstanceInfoBase,
+        TModelInstanceInfo,
+        ModelInfoBase,
+        TModelInfo
+      >,
+      DeepReplaceType2<
+        RSignalEndpoints,
+        ModelInstanceInfoBase,
+        TModelInstanceInfo,
+        ModelInfoBase,
+        TModelInfo
+      >,
+      DeepReplaceType2<
+        RWritableSignalEndpoints,
+        ModelInstanceInfoBase,
+        TModelInstanceInfo,
+        ModelInfoBase,
+        TModelInfo
+      >
+    >
+  : never;

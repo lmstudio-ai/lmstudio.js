@@ -49,19 +49,19 @@ export {
   diagnosticsLogEventSchema,
 } from "./diagnostics/DiagnosticsLogEvent.js";
 export {
-  DownloadedEmbeddingModel,
-  downloadedEmbeddingModelSchema,
-  DownloadedLLM,
-  downloadedLLMSchema,
-  DownloadedModel,
-  DownloadedModelBase,
-  downloadedModelBase,
-  downloadedModelSchema,
-} from "./DownloadedModel.js";
-export {
   EmbeddingLoadModelConfig,
   embeddingLoadModelConfigSchema,
 } from "./embedding/EmbeddingLoadModelConfig.js";
+export {
+  EmbeddingModelAdditionalInfo,
+  embeddingModelAdditionalInfoSchema,
+  EmbeddingModelInfo,
+  embeddingModelInfoSchema,
+  EmbeddingModelInstanceAdditionalInfo,
+  embeddingModelInstanceAdditionalInfoSchema,
+  EmbeddingModelInstanceInfo,
+  embeddingModelInstanceInfoSchema,
+} from "./embedding/EmbeddingModelInfo.js";
 export {
   attachSerializedErrorData,
   ErrorDisplayData,
@@ -127,6 +127,16 @@ export {
   LLMSplitStrategy,
   llmSplitStrategySchema,
 } from "./llm/LLMLoadModelConfig.js";
+export {
+  LLMAdditionalInfo,
+  llmAdditionalInfoSchema,
+  LLMInfo,
+  llmInfoSchema,
+  LLMInstanceAdditionalInfo,
+  llmInstanceAdditionalInfoSchema,
+  LLMInstanceInfo,
+  llmInstanceInfoSchema,
+} from "./llm/LLMModelInfo.js";
 export {
   LLMContextOverflowPolicy,
   llmContextOverflowPolicySchema,
@@ -237,8 +247,19 @@ export {
 } from "./llm/processing/ProcessingUpdate.js";
 export { GetModelOpts, getModelOptsSchema } from "./llm/processing/Processor.js";
 export { ModelCompatibilityType, modelCompatibilityTypeSchema } from "./ModelCompatibilityType.js";
-export { ModelDescriptor, modelDescriptorSchema } from "./ModelDescriptor.js";
 export { ModelDomainType, modelDomainTypeSchema } from "./ModelDomainType.js";
+export {
+  ModelInfo,
+  modelInfoSchema,
+  ModelInstanceInfo,
+  modelInstanceInfoSchema,
+} from "./ModelInfo.js";
+export {
+  ModelInfoBase,
+  modelInfoBaseSchema,
+  ModelInstanceInfoBase,
+  modelInstanceInfoBaseSchema,
+} from "./ModelInfoBase.js";
 export {
   ModelQuery,
   modelQuerySchema,

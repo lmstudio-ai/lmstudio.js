@@ -185,7 +185,7 @@ export const llmPredictionConfigInputSchema = z.object({
   repeatPenalty: z.number().optional().or(z.literal(false)),
   minPSampling: z.number().optional().or(z.literal(false)),
   topPSampling: z.number().optional().or(z.literal(false)),
-  cpuThreads: z.number().optional(),
+  cpuThreads: z.number().int().optional(),
   promptTemplate: llmPromptTemplateSchema.optional(),
   draftModel: z.string().optional(),
   speculativeDecodingDraftTokensCount: z.number().int().min(2).optional(),
