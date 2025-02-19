@@ -91,18 +91,26 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
   }
 
   const speculativeDecodingDraftTokens = parsed.get(
-    "llm.prediction.speculativeDecoding.numDraftTokens",
+    "llm.prediction.mlx.speculativeDecoding.numDraftTokens",
   );
   if (speculativeDecodingDraftTokens !== undefined) {
-    result.speculativeDecodingDraftTokensCount = speculativeDecodingDraftTokens;
+    result.speculativeDecodingExactNumDraftTokens = speculativeDecodingDraftTokens;
   }
 
   const speculativeDecodingMinContinueDraftingProbability = parsed.get(
-    "llm.prediction.speculativeDecoding.minContinueDraftingProbability",
+    "llm.prediction.llama.speculativeDecoding.minContinueDraftingProbability",
   );
   if (speculativeDecodingMinContinueDraftingProbability !== undefined) {
     result.speculativeDecodingMinContinueDraftingProbability =
       speculativeDecodingMinContinueDraftingProbability;
+  }
+
+  const speculativeDecodingMinDraftLengthToConsider = parsed.get(
+    "llm.prediction.llama.speculativeDecoding.minDraftLengthToConsider",
+  );
+  if (speculativeDecodingMinDraftLengthToConsider !== undefined) {
+    result.speculativeDecodingMinDraftLengthToConsider =
+      speculativeDecodingMinDraftLengthToConsider;
   }
 
   const reasoningParsing = parsed.get("llm.prediction.reasoning.parsing");
@@ -132,8 +140,10 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "llama.cpuThreads": config.cpuThreads,
     "promptTemplate": config.promptTemplate,
     "speculativeDecoding.draftModel": config.draftModel,
-    "speculativeDecoding.numDraftTokens": config.speculativeDecodingDraftTokensCount,
-    "speculativeDecoding.minContinueDraftingProbability":
+    "mlx.speculativeDecoding.numDraftTokens": config.speculativeDecodingExactNumDraftTokens,
+    "llama.speculativeDecoding.minDraftLengthToConsider":
+      config.speculativeDecodingMinDraftLengthToConsider,
+    "llama.speculativeDecoding.minContinueDraftingProbability":
       config.speculativeDecodingMinContinueDraftingProbability,
     "reasoning.parsing": config.reasoningParsing,
   });
