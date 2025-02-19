@@ -3,6 +3,7 @@ import {
   type EmbeddingModelInfo,
   embeddingModelInfoSchema,
   type EmbeddingModelInstanceInfo,
+  embeddingModelInstanceInfoSchema,
 } from "./embedding/EmbeddingModelInfo.js";
 import {
   type LLMInfo,
@@ -30,5 +31,5 @@ export const modelInfoSchema = z.discriminatedUnion("type", [
 export type ModelInstanceInfo = LLMInstanceInfo | EmbeddingModelInstanceInfo;
 export const modelInstanceInfoSchema = z.discriminatedUnion("type", [
   llmInstanceInfoSchema as any,
-  embeddingModelInfoSchema as any,
+  embeddingModelInstanceInfoSchema as any,
 ]) as z.ZodSchema<ModelInstanceInfo>;
