@@ -12,9 +12,14 @@ import {
  * @public
  */
 export interface EmbeddingModelAdditionalInfo {
-  // Nothing for now
+  /**
+   * The maximum context length supported by the model.
+   */
+  maxContextLength: number;
 }
-export const embeddingModelAdditionalInfoSchema = z.object({});
+export const embeddingModelAdditionalInfoSchema = z.object({
+  maxContextLength: z.number().int(),
+});
 
 /**
  * Additional information of an embedding model instance.
@@ -22,9 +27,14 @@ export const embeddingModelAdditionalInfoSchema = z.object({});
  * @public
  */
 export interface EmbeddingModelInstanceAdditionalInfo {
-  // Nothing for now
+  /**
+   * The currently loaded context length.
+   */
+  contextLength: number;
 }
-export const embeddingModelInstanceAdditionalInfoSchema = z.object({});
+export const embeddingModelInstanceAdditionalInfoSchema = z.object({
+  contextLength: z.number().int(),
+});
 
 /**
  * Info of an embedding model. It is a combination of {@link ModelInfoBase} and
