@@ -337,9 +337,12 @@ export abstract class ModelNamespace<
   /**
    * List all the currently loaded models.
    */
-  public async listLoaded(): Promise<Array<TModelInstanceInfo>> {
+  public async listLoaded(): Promise<Array<TSpecificModel>> {
     const stack = getCurrentStack(1);
-    return await this.port.callRpc("listLoaded", undefined, { stack });
+    const infos = await this.port.callRpc("listLoaded", undefined, { stack });
+    return infos.map(info =>
+      this.createDomainSpecificModel(this.port, info, this.validator, this.logger),
+    );
   }
 
   /**
