@@ -45,7 +45,7 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
   /**
    * Don't use this constructor directly.
    *
-   * - To create an empty chat history, use `Chat.createEmpty()`.
+   * - To create an empty chat history, use `Chat.empty()`.
    * - To create a chat history with existing data, use `Chat.from()`.
    */
   protected constructor(data: ChatHistoryData, mutable: boolean) {
@@ -55,7 +55,7 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
   /**
    * Creates an empty mutable chat history.
    */
-  public static createEmpty() {
+  public static empty() {
     return new Chat({ messages: [] }, true);
   }
 
@@ -88,7 +88,7 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
       return initializer.asMutableCopy();
     }
     if (typeof initializer === "string") {
-      const chatHistory = Chat.createEmpty();
+      const chatHistory = Chat.empty();
       chatHistory.append("user", initializer);
       return chatHistory;
     }
