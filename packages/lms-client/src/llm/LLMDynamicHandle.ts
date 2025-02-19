@@ -32,7 +32,7 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { Chat, chatHistoryLikeSchema, type ChatLike } from "../Chat.js";
+import { Chat, chatHistoryLikeSchema, type ChatLike, ChatMessage } from "../Chat.js";
 import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 import { type LLMNamespace } from "./LLMNamespace.js";
 import { OngoingPrediction } from "./OngoingPrediction.js";
@@ -41,8 +41,10 @@ import { type PredictionResult } from "./PredictionResult.js";
 /**
  * Shared options for any prediction methods (`.complete`/`.respond`).
  *
- * Note, this interface extends the `LLMPredictionConfigInput` interface, which contains parameters
- * that you can override for the LLM. See {@link LLMPredictionConfigInput} for more information.
+ * Note, this interface extends {@link LLMPredictionConfigInput}. See its documentation for more
+ * fields.
+ *
+ * Alternatively, use your IDE/editor's intellisense to see the fields.
  *
  * @public
  */
@@ -60,17 +62,66 @@ export interface LLMPredictionOpts<TStructuredOutputType = unknown>
    * A callback that is called when the model has output the first token.
    */
   onFirstToken?: () => void;
+  /**
+   * A callback for each fragment that is output by the model.
+   */
+  onFragment?: (fragment: LLMPredictionFragment) => void;
 }
 export const llmPredictionOptsSchema = llmPredictionConfigInputSchema.extend({
   onPromptProcessingProgress: z.function().optional(),
   onFirstToken: z.function().optional(),
+  onFragment: z.function().optional(),
 });
 
-type LLMPredictionExtraOpts = Omit<LLMPredictionOpts, keyof LLMPredictionConfigInput>;
+type LLMPredictionExtraOpts<TStructuredOutputType = unknown> = Omit<
+  LLMPredictionOpts<TStructuredOutputType>,
+  keyof LLMPredictionConfigInput<TStructuredOutputType>
+>;
 
-function splitOpts(opts: LLMPredictionOpts): [LLMPredictionConfigInput, LLMPredictionExtraOpts] {
-  const { onPromptProcessingProgress, onFirstToken, ...config } = opts;
-  return [config, { onPromptProcessingProgress, onFirstToken }];
+function splitOpts<TStructuredOutputType>(
+  opts: LLMPredictionOpts<TStructuredOutputType>,
+): [
+  LLMPredictionConfigInput<TStructuredOutputType>,
+  LLMPredictionExtraOpts<TStructuredOutputType>,
+] {
+  const { onPromptProcessingProgress, onFirstToken, onFragment, ...config } = opts;
+  return [config, { onPromptProcessingProgress, onFirstToken, onFragment }];
+}
+
+/**
+ * Options for {@link LLMDynamicHandle#respond}.
+ *
+ * Note, this interface extends {@link LLMPredictionOpts} and {@link LLMPredictionConfigInput}. See
+ * their documentation for more fields.
+ *
+ * Alternatively, use your IDE/editor's intellisense to see the fields.
+ *
+ * @public
+ */
+export interface LLMRespondOpts<TStructuredOutputType = unknown>
+  extends LLMPredictionOpts<TStructuredOutputType> {
+  onMessage?: (message: ChatMessage) => void;
+}
+export const llmRespondOptsSchema = llmPredictionOptsSchema;
+
+type LLMRespondExtraOpts<TStructuredOutputType = unknown> = Omit<
+  LLMRespondOpts<TStructuredOutputType>,
+  keyof LLMPredictionOpts<TStructuredOutputType>
+>;
+
+/**
+ * Split a llmRespondOpts into its parts.
+ */
+function splitRespondOpts<TStructuredOutputType>(
+  opts: LLMRespondOpts<TStructuredOutputType>,
+): [
+  LLMPredictionConfigInput<TStructuredOutputType>,
+  LLMPredictionExtraOpts<TStructuredOutputType>,
+  LLMRespondExtraOpts<TStructuredOutputType>,
+] {
+  const { onMessage, ...remaining } = opts;
+  const [config, llmPredictionOpts] = splitOpts(remaining);
+  return [config, llmPredictionOpts, { onMessage }];
 }
 
 const noFormattingTemplate = text`
@@ -157,10 +208,9 @@ export class LLMDynamicHandle extends DynamicHandle<
           case "fragment":
             if (!firstTokenTriggered) {
               firstTokenTriggered = true;
-              if (extraOpts.onFirstToken) {
-                safeCallCallback(this.logger, "onFirstToken", extraOpts.onFirstToken, []);
-              }
+              safeCallCallback(this.logger, "onFirstToken", extraOpts.onFirstToken, []);
             }
+            safeCallCallback(this.logger, "onFragment", extraOpts.onFragment, [message.fragment]);
             onFragment(message.fragment);
             break;
           case "promptProcessingProgress":
@@ -286,11 +336,11 @@ export class LLMDynamicHandle extends DynamicHandle<
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
 
     const zodSchemaParseResult = zodSchemaSchema.safeParse(config.structured);
-
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(
       emitCancelEvent,
       !zodSchemaParseResult.success ? null : this.createZodParser(zodSchemaParseResult.data),
     );
+
     this.predictInternal(
       this.specifier,
       this.resolveCompletionContext(prompt),
@@ -395,26 +445,27 @@ export class LLMDynamicHandle extends DynamicHandle<
    */
   public respond<TStructuredOutputType>(
     history: ChatLike,
-    opts: LLMPredictionOpts<TStructuredOutputType> = {},
+    opts: LLMRespondOpts<TStructuredOutputType> = {},
   ): OngoingPrediction<TStructuredOutputType> {
     const stack = getCurrentStack(1);
     [history, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "respond",
       ["history", "opts"],
-      [chatHistoryLikeSchema, llmPredictionOptsSchema],
+      [chatHistoryLikeSchema, llmRespondOptsSchema],
       [history, opts],
       stack,
     );
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
 
-    const zodSchemaParseResult = zodSchemaSchema.safeParse(opts.structured);
+    const [config, predictionOpts, respondOpts] = splitRespondOpts(opts);
 
+    const zodSchemaParseResult = zodSchemaSchema.safeParse(config.structured);
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(
       emitCancelEvent,
       !zodSchemaParseResult.success ? null : this.createZodParser(zodSchemaParseResult.data),
     );
-    const [config, extraOpts] = splitOpts(opts);
+
     this.predictInternal(
       this.specifier,
       accessMaybeMutableInternals(Chat.from(history))._internalGetData(),
@@ -424,12 +475,18 @@ export class LLMDynamicHandle extends DynamicHandle<
         this.predictionConfigInputToKVConfig(config),
       ),
       cancelEvent,
-      extraOpts,
+      predictionOpts,
       fragment => push(fragment),
       (stats, modelInfo, loadModelConfig, predictionConfig) =>
         finished(stats, modelInfo, loadModelConfig, predictionConfig),
       error => failed(error),
     );
+    ongoingPrediction.then(result => {
+      // Call the onMessage callback with the result.
+      safeCallCallback(this.logger, "onMessage", respondOpts.onMessage, [
+        ChatMessage.create("assistant", result.content),
+      ]);
+    });
     return ongoingPrediction;
   }
 

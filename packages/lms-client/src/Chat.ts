@@ -355,7 +355,28 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
     return (
       "Chat {\n" +
       this.data.messages
-        .map(message => "  " + ChatMessage.createRaw(message, false).toString())
+        .map(message => {
+          const messageString = ChatMessage.createRaw(message, false).toString();
+          if (messageString.includes("\n")) {
+            const colonIndex = messageString.indexOf(": ");
+            if (colonIndex === -1) {
+              return "  " + messageString;
+            }
+            const role = messageString.slice(0, colonIndex);
+            const content = messageString.slice(colonIndex + 2);
+            return (
+              "  " +
+              role +
+              ": \\\n" +
+              content
+                .split("\n")
+                .map(line => "    " + line)
+                .join("\n")
+            );
+          } else {
+            return "  " + messageString;
+          }
+        })
         .join("\n") +
       "\n}"
     );
