@@ -2,6 +2,7 @@ import {
   accessMaybeMutableInternals,
   BufferedEvent,
   getCurrentStack,
+  makePromise,
   safeCallCallback,
   SimpleLogger,
   text,
@@ -16,6 +17,7 @@ import {
 } from "@lmstudio/lms-kv-config";
 import {
   type ChatHistoryData,
+  type ChatMessagePartToolCallResultData,
   type KVConfig,
   type KVConfigStack,
   type LLMApplyPromptTemplateOpts,
@@ -27,7 +29,9 @@ import {
   type LLMPredictionFragment,
   type LLMPredictionStats,
   type LLMStructuredPredictionSetting,
+  type LLMToolUseSetting,
   type ModelSpecifier,
+  type ToolCallRequest,
   zodSchemaSchema,
 } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
@@ -37,9 +41,10 @@ import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 import { type LLMNamespace } from "./LLMNamespace.js";
 import { OngoingPrediction } from "./OngoingPrediction.js";
 import { type PredictionResult } from "./PredictionResult.js";
+import { type Tool, toolSchema, toolToLLMTool } from "./tool.js";
 
 /**
- * Shared options for any prediction methods (`.complete`/`.respond`).
+ * Options for {@link LLMDynamicHandle#complete}.
  *
  * Note, this interface extends {@link LLMPredictionConfigInput}. See its documentation for more
  * fields.
@@ -50,7 +55,6 @@ import { type PredictionResult } from "./PredictionResult.js";
  */
 export interface LLMPredictionOpts<TStructuredOutputType = unknown>
   extends LLMPredictionConfigInput<TStructuredOutputType> {
-  // verbose?: boolean | LogLevel;
   /**
    * A callback that is called when the model is processing the prompt. The callback is called with
    * a number between 0 and 1, representing the progress of the prompt processing.
@@ -66,11 +70,16 @@ export interface LLMPredictionOpts<TStructuredOutputType = unknown>
    * A callback for each fragment that is output by the model.
    */
   onFragment?: (fragment: LLMPredictionFragment) => void;
+  /**
+   * An abort signal that can be used to cancel the prediction.
+   */
+  signal?: AbortSignal;
 }
-export const llmPredictionOptsSchema = llmPredictionConfigInputSchema.extend({
+const llmPredictionOptsSchema = llmPredictionConfigInputSchema.extend({
   onPromptProcessingProgress: z.function().optional(),
   onFirstToken: z.function().optional(),
   onFragment: z.function().optional(),
+  signal: z.instanceof(AbortSignal).optional(),
 });
 
 type LLMPredictionExtraOpts<TStructuredOutputType = unknown> = Omit<
@@ -78,14 +87,14 @@ type LLMPredictionExtraOpts<TStructuredOutputType = unknown> = Omit<
   keyof LLMPredictionConfigInput<TStructuredOutputType>
 >;
 
-function splitOpts<TStructuredOutputType>(
+function splitPredictionOpts<TStructuredOutputType>(
   opts: LLMPredictionOpts<TStructuredOutputType>,
 ): [
   LLMPredictionConfigInput<TStructuredOutputType>,
   LLMPredictionExtraOpts<TStructuredOutputType>,
 ] {
-  const { onPromptProcessingProgress, onFirstToken, onFragment, ...config } = opts;
-  return [config, { onPromptProcessingProgress, onFirstToken, onFragment }];
+  const { onPromptProcessingProgress, onFirstToken, onFragment, signal, ...config } = opts;
+  return [config, { onPromptProcessingProgress, onFirstToken, onFragment, signal }];
 }
 
 /**
@@ -100,9 +109,28 @@ function splitOpts<TStructuredOutputType>(
  */
 export interface LLMRespondOpts<TStructuredOutputType = unknown>
   extends LLMPredictionOpts<TStructuredOutputType> {
+  /**
+   * A convenience callback that is called when the model finishes generation. The callback is
+   * called with a message that has the role set to "assistant" and the content set to the generated
+   * text.
+   *
+   * This callback is useful if you want to add the generated message to a chat.
+   *
+   * For example:
+   *
+   * ```ts
+   * const chat = Chat.empty();
+   * chat.append("user", "When will The Winds of Winter be released?");
+   *
+   * const llm = client.llm.model();
+   * const prediction = llm.respond(chat, {
+   *   onMessage: message => chat.append(message),
+   * });
+   * ```
+   */
   onMessage?: (message: ChatMessage) => void;
 }
-export const llmRespondOptsSchema = llmPredictionOptsSchema;
+const llmRespondOptsSchema = llmPredictionOptsSchema;
 
 type LLMRespondExtraOpts<TStructuredOutputType = unknown> = Omit<
   LLMRespondOpts<TStructuredOutputType>,
@@ -120,8 +148,203 @@ function splitRespondOpts<TStructuredOutputType>(
   LLMRespondExtraOpts<TStructuredOutputType>,
 ] {
   const { onMessage, ...remaining } = opts;
-  const [config, llmPredictionOpts] = splitOpts(remaining);
+  const [config, llmPredictionOpts] = splitPredictionOpts(remaining);
   return [config, llmPredictionOpts, { onMessage }];
+}
+
+/**
+ * A {@link LLMPredictionFragment} with the index of the prediction within the operate invocation.
+ *
+ * See {@link LLMPredictionFragment} for more fields.
+ */
+export type LLMPredictionFragmentWithPredictionIndex = LLMPredictionFragment & {
+  predictionIndex: number;
+};
+
+/**
+ * Options for {@link LLMDynamicHandle#operate}.
+ */
+export interface LLMOperateOpts<TStructuredOutputType = unknown>
+  extends LLMPredictionConfigInput<TStructuredOutputType> {
+  /**
+   * An array of tools that the model can use during the operation. You can create tools by using
+   * the `tool` function.
+   *
+   * Example:
+   *
+   * ```
+   * import { LMStudioClient, tool } from "@lmstudio/sdk";
+   * import { z } from "zod";
+   *
+   * const client = new LMStudioClient();
+   * const llm = await client.llm.model();
+   *
+   * await llm.operate("What is 1234 + 4321?", {
+   *   tools: [tool({
+   *     name: "add",
+   *     description: "Add two numbers",
+   *     parameters: {
+   *       a: z.number(),
+   *       b: z.number(),
+   *     },
+   *     implementation: ({ a, b }) => a + b,
+   *   })],
+   *   // ... Other options ...
+   * });
+   * ```
+   */
+  tools: Array<Tool>;
+  /**
+   * A callback that is called when the model is processing the prompt. The callback is called with
+   * the prediction index (the index of the prediction within the operate invocation, 0-indexed) and
+   * a number between 0 and 1, representing the progress of the prompt processing.
+   *
+   * For example, for an `.operate` invocation with 2 predictions, the callback may be called in the
+   * following sequence.
+   *
+   * - `(0, 0.3)` when the first prediction's prompt processing is 30% done.
+   * - `(0, 0.7)` when the first prediction's prompt processing is 70% done.
+   * - ... The model starts to stream the first prediction's output, during which, this callback is
+   *   not called.
+   * - `(1, 0.3)` when the second prediction's prompt processing is 50% done.
+   * - `(1, 0.7)` when the second prediction's prompt processing is 70% done.
+   */
+  onPromptProcessingProgress?: (predictionIndex: number, progress: number) => void;
+  /**
+   * A callback that is called when the model has output the first token of a prediction. This
+   * callback is called with prediction index (the index of the prediction within the operate
+   * invocation, 0-indexed).
+   */
+  onFirstToken?: (predictionIndex: number) => void;
+  /**
+   * A callback for each fragment that is output by the model. This callback is called with the
+   * fragment that is emitted. The fragment itself is augmented with the prediction index (the index
+   * of the prediction within the operate invocation, 0-indexed).
+   *
+   * For example, for an `.operate` invocation with 2 predictions, the callback may be called in the
+   * following sequence.
+   *
+   * - `{ predictionIndex: 0, content: "f1", ... }` when the first prediction emits `f1`.
+   * - `{ predictionIndex: 0, content: "f2", ... }` when the first prediction emits `f2`.
+   * - `{ predictionIndex: 1, content: "f3", ... }` when the second prediction emits `f3`.
+   * - `{ predictionIndex: 1, content: "f4", ... }` when the second prediction emits `f4`.
+   */
+  onFragment?: (fragment: LLMPredictionFragmentWithPredictionIndex) => void;
+  /**
+   * A callback that is called when a message is generated and should be added to the Chat. This is
+   * useful if you want to add the generated content to a chat so you can continue the conversation.
+   *
+   * Note that, during one `operate` call, multiple messages may be generated, and this callback
+   * will be called multiple times. For example, if the model requests to use a tool during the
+   * first prediction and stops after the second prediction, three messages will be created (and
+   * thus this callback will be called three times):
+   *
+   * 1. The first prediction's generated message, which contains information about the tool request.
+   * 2. The result of running the tool.
+   * 3. The second prediction's generated message.
+   */
+  onMessage?: (message: ChatMessage) => void;
+  /**
+   * A callback that is called when a tool request is made by the model but is invalid. If you do
+   * not provide this callback and an invalid tool request is encountered, the `.operate` call will
+   * immediately fail. Provide this callback to handle this case gracefully.
+   *
+   * There are multiple ways for a tool request to be invalid. For example, the model can simply
+   * output a string that claims to be a tool request, but cannot at all be parsed as JSON. Or it
+   * may request to use a tool that doesn't exist, or the parameters are invalid.
+   *
+   * When this happens, LM Studio will provide why it failed in the error parameter. We will also
+   * try to parse the tool request and provide it as the second parameter. However, this is not
+   * guaranteed to success, and the second parameter may be `undefined`.
+   *
+   * If we successfully parsed the request (thus the request parameter is not undefined), anything
+   * returned in this callback will be used as the result of the tool call. However, if nothing is
+   * returned, LM Studio will not provide a result to the given tool call.
+   *
+   * If we failed to parsed the request (thus the request parameter is undefined), the return value
+   * of this callback will be ignored as LM Studio cannot provide results to a tool call that has
+   * failed to parse.
+   *
+   * If you decide the failure is too severe to continue, you can always throw an error in this
+   * callback, which will immediately fail the `.operate` call with the same error you provided.
+   *
+   * A common implementation that will let the model know about the failure so it can try again is
+   * provided below.
+   *
+   * ```ts
+   * const result = await llm.operate(opts, {
+   *   handleInvalidToolRequest: (error, request) => {
+   *     if (request) {
+   *       return error.message;
+   *     }
+   *     throw error;
+   *   },
+   * });
+   * ```
+   *
+   * Note, when an invalid tool request occurs due to parameters type mismatch, we will never call
+   * the original tool automatically due to security considerations. If you do decide to call the
+   * original tool, you can do so manually within this callback.
+   *
+   * This callback can also be async.
+   */
+  handleInvalidToolRequest?: (
+    error: Error,
+    request: ToolCallRequest | undefined,
+  ) => any | Promise<any>;
+  /**
+   * Limit the number of predictions that the model can perform. In the last prediction, the model
+   * will not be allowed to use more tools.
+   *
+   * Note, some models may requests multiple tool calls within a single prediction. This option only
+   * limits the number of predictions, not the total number of tool calls.
+   */
+  maxPredictions?: number;
+  /**
+   * An abort signal that can be used to cancel the prediction.
+   */
+  signal?: AbortSignal;
+}
+const llmOperateOptsSchema = llmPredictionConfigInputSchema.extend({
+  tools: z.array(toolSchema),
+  onPromptProcessingProgress: z.function().optional(),
+  onFirstToken: z.function().optional(),
+  onFragment: z.function().optional(),
+  onMessage: z.function().optional(),
+  handleInvalidToolRequest: z.function().optional(),
+  maxPredictions: z.number().int().min(1).optional(),
+});
+
+type LLMOperateExtraOpts<TStructuredOutputType = unknown> = Omit<
+  LLMOperateOpts<TStructuredOutputType>,
+  keyof LLMPredictionConfigInput<TStructuredOutputType>
+>;
+
+function splitOperationOpts<TStructuredOutputType>(
+  opts: LLMOperateOpts<TStructuredOutputType>,
+): [LLMPredictionConfigInput<TStructuredOutputType>, LLMOperateExtraOpts<TStructuredOutputType>] {
+  const {
+    tools,
+    onPromptProcessingProgress,
+    onFirstToken,
+    onFragment,
+    onMessage,
+    handleInvalidToolRequest,
+    maxPredictions,
+    ...config
+  } = opts;
+  return [
+    config,
+    {
+      tools,
+      onPromptProcessingProgress,
+      onFirstToken,
+      onFragment,
+      onMessage,
+      handleInvalidToolRequest,
+      maxPredictions,
+    },
+  ];
 }
 
 const noFormattingTemplate = text`
@@ -179,7 +402,6 @@ export class LLMDynamicHandle extends DynamicHandle<
 
   /** @internal */
   private predictInternal(
-    modelSpecifier: ModelSpecifier,
     history: ChatHistoryData,
     predictionConfigStack: KVConfigStack,
     cancelEvent: BufferedEvent<void>,
@@ -198,7 +420,7 @@ export class LLMDynamicHandle extends DynamicHandle<
     const channel = this.port.createChannel(
       "predict",
       {
-        modelSpecifier,
+        modelSpecifier: this.specifier,
         history,
         predictionConfigStack,
         ignoreServerSessionConfig: this.internalIgnoreServerSessionConfig,
@@ -214,14 +436,12 @@ export class LLMDynamicHandle extends DynamicHandle<
             onFragment(message.fragment);
             break;
           case "promptProcessingProgress":
-            if (extraOpts.onPromptProcessingProgress) {
-              safeCallCallback(
-                this.logger,
-                "onPromptProcessingProgress",
-                extraOpts.onPromptProcessingProgress,
-                [message.progress],
-              );
-            }
+            safeCallCallback(
+              this.logger,
+              "onPromptProcessingProgress",
+              extraOpts.onPromptProcessingProgress,
+              [message.progress],
+            );
             break;
           case "success":
             finished = true;
@@ -332,8 +552,18 @@ export class LLMDynamicHandle extends DynamicHandle<
       [prompt, opts],
       stack,
     );
-    const [config, extraOpts] = splitOpts(opts);
+    const [config, extraOpts] = splitPredictionOpts(opts);
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
+
+    if (extraOpts.signal !== undefined) {
+      extraOpts.signal.addEventListener(
+        "abort",
+        () => {
+          emitCancelEvent();
+        },
+        { once: true },
+      );
+    }
 
     const zodSchemaParseResult = zodSchemaSchema.safeParse(config.structured);
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(
@@ -342,7 +572,6 @@ export class LLMDynamicHandle extends DynamicHandle<
     );
 
     this.predictInternal(
-      this.specifier,
       this.resolveCompletionContext(prompt),
       {
         layers: [
@@ -440,25 +669,34 @@ export class LLMDynamicHandle extends DynamicHandle<
    * console.log(result.stats);
    * ```
    *
-   * @param history - The LLMChatHistory array to use for generating a response.
+   * @param chat - The LLMChatHistory array to use for generating a response.
    * @param opts - Options for the prediction.
    */
   public respond<TStructuredOutputType>(
-    history: ChatLike,
+    chat: ChatLike,
     opts: LLMRespondOpts<TStructuredOutputType> = {},
   ): OngoingPrediction<TStructuredOutputType> {
     const stack = getCurrentStack(1);
-    [history, opts] = this.validator.validateMethodParamsOrThrow(
+    [chat, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
       "respond",
-      ["history", "opts"],
+      ["chat", "opts"],
       [chatHistoryLikeSchema, llmRespondOptsSchema],
-      [history, opts],
+      [chat, opts],
       stack,
     );
     const [cancelEvent, emitCancelEvent] = BufferedEvent.create<void>();
-
     const [config, predictionOpts, respondOpts] = splitRespondOpts(opts);
+
+    if (predictionOpts.signal !== undefined) {
+      predictionOpts.signal.addEventListener(
+        "abort",
+        () => {
+          emitCancelEvent();
+        },
+        { once: true },
+      );
+    }
 
     const zodSchemaParseResult = zodSchemaSchema.safeParse(config.structured);
     const { ongoingPrediction, finished, failed, push } = OngoingPrediction.create(
@@ -467,8 +705,7 @@ export class LLMDynamicHandle extends DynamicHandle<
     );
 
     this.predictInternal(
-      this.specifier,
-      accessMaybeMutableInternals(Chat.from(history))._internalGetData(),
+      accessMaybeMutableInternals(Chat.from(chat))._internalGetData(),
       addKVConfigToStack(
         this.internalKVConfigStack,
         "apiOverride",
@@ -488,6 +725,361 @@ export class LLMDynamicHandle extends DynamicHandle<
       ]);
     });
     return ongoingPrediction;
+  }
+
+  public async operate(chat: ChatLike, opts: LLMOperateOpts): Promise<void> {
+    const stack = getCurrentStack(1);
+    [chat, opts] = this.validator.validateMethodParamsOrThrow(
+      "model",
+      "operate",
+      ["chat", "opts"],
+      [chatHistoryLikeSchema, llmOperateOptsSchema],
+      [chat, opts],
+      stack,
+    );
+
+    const [config, extraOpts] = splitOperationOpts(opts);
+    const abortController = new AbortController();
+    const mutableChat = Chat.from(chat); // Make a copy
+
+    if (extraOpts.signal !== undefined) {
+      extraOpts.signal.addEventListener(
+        "abort",
+        () => {
+          abortController.abort(extraOpts.signal?.reason);
+        },
+        { once: true },
+      );
+    }
+
+    if (config.structured !== undefined) {
+      throw new Error("Structured output is currently not supported in operate.");
+    }
+    if (config.rawTools !== undefined) {
+      throw new Error("`rawTools` is not supported in operate. Use `tools` instead");
+    }
+
+    let shouldContinue = false;
+    let predictionsPerformed = 0;
+
+    let rawTools: LLMToolUseSetting;
+
+    if (extraOpts.tools.length === 0) {
+      rawTools = { type: "none" };
+    } else {
+      rawTools = {
+        type: "toolArray",
+        tools: extraOpts.tools.map(toolToLLMTool),
+      };
+    }
+
+    const configWithTools = addKVConfigToStack(
+      this.internalKVConfigStack,
+      "apiOverride",
+      this.predictionConfigInputToKVConfig({
+        ...config,
+        rawTools,
+      }),
+    );
+    const configWithoutTools = addKVConfigToStack(
+      this.internalKVConfigStack,
+      "apiOverride",
+      this.predictionConfigInputToKVConfig({
+        ...config,
+        rawTools: { type: "none" },
+      }),
+    );
+
+    const toolsMap = new Map<string, Tool>();
+    for (const tool of extraOpts.tools) {
+      if (toolsMap.has(tool.name)) {
+        this.logger.warnText`
+          Duplicate tool (${tool.name}) found in the tools array. The last tool with the same name
+          will be used.
+        `;
+      }
+      toolsMap.set(tool.name, tool);
+    }
+
+    do {
+      // Main loop - execute as many times as the model requests tools
+      let configToUse: KVConfigStack = configWithTools;
+      if (
+        // If there is a defined number of max predictions,
+        extraOpts.maxPredictions !== undefined &&
+        // ... and this is the last chance to perform predictions, don't allow the model to use
+        // tools.
+        predictionsPerformed + 1 >= extraOpts.maxPredictions
+      ) {
+        configToUse = configWithoutTools;
+      }
+
+      // Start the prediction
+      let finished = false;
+      let firstTokenTriggered = false;
+      const contentArray: Array<string> = [];
+
+      let nextToolCallIndex = 0;
+      const toolCallResults: Array<{
+        /**
+         * The index of the tool call (i.e. the order that this tool call was requested). This is
+         * important because tool calls can finish out-of-order, and we need to sort them back into
+         * the order they were requested.
+         */
+        index: number;
+        data: ChatMessagePartToolCallResultData;
+      }> = [];
+
+      /**
+       * All promises that need to be awaited. Once they are done, they will add their own results
+       * to the toolCallResults array in-place.
+       */
+      const toolCallPromises: Array<Promise<void>> = [];
+      /**
+       * The promise that represents the prediction itself (The RPC call).
+       */
+      const {
+        promise: predictionPromise,
+        resolve: predictionResolve,
+        reject: predictionReject,
+      } = makePromise<void>();
+      /**
+       * The final promise that will be awaited on for this prediction. It is resolved when the
+       * prediction is done and all tool calls have been resolved.
+       */
+      const {
+        promise: finalPromise,
+        resolve: finalResolve,
+        reject: finalReject,
+      } = makePromise<void>();
+
+      const internalHandleInvalidToolCallRequest = async (
+        error: Error,
+        request: ToolCallRequest | undefined,
+        /**
+         * In the case this tool call got a replacement, the index to use.
+         */
+        toolCallIndex: number,
+      ) => {
+        if (extraOpts.handleInvalidToolRequest === undefined) {
+          abortController.abort();
+          throw new Error(
+            text`
+              The model has made an invalid tool request. Provide an handleInvalidToolRequest callback
+              to handle this case gracefully.
+            `,
+            { cause: error },
+          );
+        }
+        let result: any;
+        try {
+          result = await extraOpts.handleInvalidToolRequest(error, request);
+        } catch (error) {
+          abortController.abort();
+          throw error; // Rethrow the error.
+        }
+        if (result === undefined) {
+          // No replacement.
+          return;
+        }
+        let resultString: string;
+        try {
+          resultString = JSON.stringify(result);
+        } catch (error) {
+          abortController.abort();
+          throw new Error(
+            "handleInvalidToolRequest returned a value that cannot be converted to JSON.",
+            { cause: error },
+          );
+        }
+        // The handleInvalidToolRequest has returned a "replacement"
+        if (request === undefined) {
+          // We cannot provide a result to a tool call that has failed to parse.
+          this.logger.warnText`
+            The "handleInvalidToolRequest" callback has returned a result, but the tool request has
+            completely failed to parse, thus LM Studio cannot provide the result to the tool call.
+            Please avoid returning a result when the second parameter of the callback is undefined.
+            See the documentation for "handleInvalidToolRequest" for more information.
+          `;
+        } else {
+          toolCallResults.push({
+            index: toolCallIndex,
+            data: {
+              type: "toolCallResult",
+              toolCallId: request.id,
+              content: resultString,
+            },
+          });
+          nextToolCallIndex++;
+        }
+      };
+
+      abortController.signal.throwIfAborted();
+
+      const channel = this.port.createChannel(
+        "predict",
+        {
+          modelSpecifier: this.specifier,
+          history: accessMaybeMutableInternals(mutableChat)._internalGetData(),
+          predictionConfigStack: configToUse,
+          ignoreServerSessionConfig: this.internalIgnoreServerSessionConfig,
+        },
+        message => {
+          switch (message.type) {
+            case "fragment": {
+              if (!firstTokenTriggered) {
+                firstTokenTriggered = true;
+                safeCallCallback(this.logger, "onFirstToken", extraOpts.onFirstToken, [
+                  predictionsPerformed,
+                ]);
+              }
+              safeCallCallback(this.logger, "onFragment", extraOpts.onFragment, [
+                { predictionIndex: predictionsPerformed, ...message.fragment },
+              ]);
+              contentArray.push(message.fragment.content);
+              break;
+            }
+            case "promptProcessingProgress": {
+              safeCallCallback(
+                this.logger,
+                "onPromptProcessingProgress",
+                extraOpts.onPromptProcessingProgress,
+                [predictionsPerformed, message.progress],
+              );
+              break;
+            }
+            case "toolCallGenerationEnd": {
+              const toolCallIndex = nextToolCallIndex;
+              nextToolCallIndex++;
+              // We have now received a tool call request. Now let's see if we can call the tool and
+              // get the result.
+              const toolCallRequest = message.toolCallRequest;
+              const tool = toolsMap.get(toolCallRequest.name);
+              if (tool === undefined) {
+                // Tool does not exist.
+                toolCallPromises.push(
+                  internalHandleInvalidToolCallRequest(
+                    new Error(`Cannot find tool with name ${toolCallRequest.name}.`),
+                    toolCallRequest,
+                    toolCallIndex,
+                  ).catch(finalReject),
+                );
+                break;
+              }
+              const parseResult = tool.parametersSchema.safeParse(toolCallRequest.arguments ?? {});
+              if (!parseResult.success) {
+                // Failed to parse the parameters
+                toolCallPromises.push(
+                  internalHandleInvalidToolCallRequest(
+                    new Error(text`
+                      Failed to parse arguments for tool ${toolCallRequest.name}:
+                      ${parseResult.error.message}
+                    `),
+                    toolCallRequest,
+                    toolCallIndex,
+                  ).catch(finalReject),
+                );
+                break;
+              }
+              // We have successfully parsed the parameters. Let's call the tool.
+              toolCallPromises.push(
+                (async () => {
+                  const result = await tool.implementation(parseResult.data);
+                  let resultString: string;
+                  if (result === undefined) {
+                    resultString = "undefined";
+                  } else {
+                    try {
+                      resultString = JSON.stringify(result);
+                    } catch (error) {
+                      throw new Error(
+                        `Return value of tool ${tool.name} cannot be converted to JSON.`,
+                        { cause: error },
+                      );
+                    }
+                  }
+                  toolCallResults.push({
+                    index: toolCallIndex,
+                    data: {
+                      type: "toolCallResult",
+                      toolCallId: toolCallRequest.id,
+                      content: resultString,
+                    },
+                  });
+                })().catch(finalReject),
+              );
+              break;
+            }
+            case "toolCallGenerationFailed": {
+              toolCallPromises.push(
+                internalHandleInvalidToolCallRequest(
+                  new Error(`Failed to parse tool call request.`),
+                  // We don't have a request in this because the model has failed miserably.
+                  undefined,
+                  // Tool call index. Doesn't matter because if there is no request, there cannot be
+                  // a replacement.
+                  0,
+                ).catch(finalReject),
+              );
+              break;
+            }
+            case "success": {
+              predictionResolve();
+              break;
+            }
+          }
+        },
+        { stack },
+      );
+      const abortListener = () => {
+        if (finished) {
+          return;
+        }
+        finished = true;
+        channel.send({ type: "cancel" });
+      };
+      abortController.signal.addEventListener("abort", abortListener);
+      channel.onError.subscribeOnce(error => {
+        finished = true;
+        predictionReject(error);
+      });
+
+      predictionPromise
+        // When the prediction is completed, wait for all tool calls to be completed.
+        .then(() => Promise.all(toolCallPromises))
+        .then(() => finalResolve(), finalReject);
+
+      await finalPromise;
+
+      // Append and emit the assistant message.
+      const assistantMessage = ChatMessage.create("assistant", contentArray.join(""));
+      mutableChat.append(assistantMessage.asMutableCopy());
+      safeCallCallback(this.logger, "onMessage", extraOpts.onMessage, [assistantMessage]);
+
+      shouldContinue = false;
+      if (toolCallResults.length > 0) {
+        // Sort the tool call results back into the order they were requested.
+        toolCallResults.sort((a, b) => a.index - b.index);
+
+        // Emit the tool call results.
+        const toolMessage = ChatMessage.from({
+          role: "tool",
+          content: toolCallResults.map(r => r.data),
+        });
+        mutableChat.append(toolMessage.asMutableCopy());
+        safeCallCallback(this.logger, "onMessage", extraOpts.onMessage, [toolMessage]);
+        shouldContinue = true;
+      }
+
+      predictionsPerformed++;
+      // Don't continue if we've reached the max predictions.
+      if (
+        extraOpts.maxPredictions !== undefined &&
+        predictionsPerformed >= extraOpts.maxPredictions
+      ) {
+        shouldContinue = false;
+      }
+    } while (shouldContinue);
   }
 
   public async getContextLength(): Promise<number> {

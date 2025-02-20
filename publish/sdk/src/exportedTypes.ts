@@ -18,6 +18,7 @@ export type {
   EmbeddingNamespace,
   EnsureAuthenticatedOpts,
   FilesNamespace,
+  FunctionTool,
   Generator,
   GeneratorController,
   LLM,
@@ -52,6 +53,8 @@ export type {
   SpecificModel,
   StructuredPredictionResult,
   SystemNamespace,
+  Tool,
+  ToolBase,
   VirtualConfigSchematics,
 } from "@lmstudio/lms-client";
 export type { LoggerInterface, StreamablePromise } from "@lmstudio/lms-common";

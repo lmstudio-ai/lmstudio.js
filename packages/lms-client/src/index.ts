@@ -28,6 +28,7 @@ export type {
 export type { LLMNamespace } from "./llm/LLMNamespace.js";
 export type { OngoingPrediction } from "./llm/OngoingPrediction.js";
 export type { PredictionResult, StructuredPredictionResult } from "./llm/PredictionResult.js";
+export { FunctionTool, Tool, tool, ToolBase } from "./llm/tool.js";
 export { LMStudioClient } from "./LMStudioClient.js";
 export type { LMStudioClientConstructorOpts } from "./LMStudioClient.js";
 export type { DynamicHandle } from "./modelShared/DynamicHandle.js";

@@ -100,9 +100,10 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    */
   structured?: ZodType<TStructuredOutputType> | LLMStructuredPredictionSetting;
   /**
-   * TODO: Documentation
+   * @deprecated Raw tools are currently not well-supported. It may or may not work. If you want to
+   * use tools, use `model.operate` instead.
    */
-  tools?: LLMToolUseSetting;
+  rawTools?: LLMToolUseSetting;
   /**
    * TODO: Documentation
    */
@@ -200,7 +201,7 @@ export const llmPredictionConfigInputSchema = z.object({
   toolCallStopStrings: z.array(z.string()).optional(),
   contextOverflowPolicy: llmContextOverflowPolicySchema.optional(),
   structured: z.union([zodSchemaSchema, llmStructuredPredictionSettingSchema]).optional(),
-  tools: llmToolUseSettingSchema.optional(),
+  rawTools: llmToolUseSettingSchema.optional(),
   topKSampling: z.number().optional(),
   repeatPenalty: z.number().optional().or(z.literal(false)),
   minPSampling: z.number().optional().or(z.literal(false)),
