@@ -37,14 +37,14 @@ export function createLlmBackendInterface() {
             progress: z.number(),
           }),
           z.object({
-            type: z.literal("onToolCallGenerationStart"),
+            type: z.literal("toolCallGenerationStart"),
           }),
           z.object({
-            type: z.literal("onToolCallGenerationEnd"),
+            type: z.literal("toolCallGenerationEnd"),
             toolCallRequest: toolCallRequestSchema,
           }),
           z.object({
-            type: z.literal("onToolCallGenerationFailed"),
+            type: z.literal("toolCallGenerationFailed"),
           }),
           z.object({
             type: z.literal("success"),
