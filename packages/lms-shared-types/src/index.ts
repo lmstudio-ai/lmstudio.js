@@ -27,10 +27,6 @@ export {
   chatMessagePartDataSchema,
   ChatMessagePartFileData,
   chatMessagePartFileDataSchema,
-  ChatMessagePartSubPartFunctionCallRequestData,
-  chatMessagePartSubPartFunctionCallRequestDataSchema,
-  ChatMessagePartSubPartToolCallRequest,
-  chatMessagePartSubPartToolCallRequestSchema,
   ChatMessagePartTextData,
   chatMessagePartTextDataSchema,
   ChatMessagePartToolCallRequestData,
@@ -39,6 +35,10 @@ export {
   chatMessagePartToolCallResultDataSchema,
   ChatMessageRoleData,
   chatMessageRoleDataSchema,
+  FunctionToolCallRequest,
+  functionToolCallRequestSchema,
+  ToolCallRequest,
+  toolCallRequestSchema,
 } from "./ChatHistoryData.js";
 export { CitationSource, citationSourceSchema } from "./CitationSource.js";
 export { ColorPalette, colorPalette, colorPaletteSchema } from "./ColorPalette.js";

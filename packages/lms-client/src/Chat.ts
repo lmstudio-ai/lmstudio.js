@@ -728,7 +728,7 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
             case "file":
               return "<file>";
             case "toolCallRequest":
-              return JSON.stringify(part.toolCallRequests, null, 2);
+              return JSON.stringify(part.toolCallRequest, null, 2);
             case "toolCallResult":
               return part.content;
             default: {
