@@ -159,7 +159,7 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    *
    * @alpha
    */
-  speculativeDecodingExactNumDraftTokens?: number;
+  speculativeDecodingNumDraftTokensExact?: number;
   /**
    * Warning: Experimental and subject to change.
    *
@@ -208,7 +208,7 @@ export const llmPredictionConfigInputSchema = z.object({
   cpuThreads: z.number().int().optional(),
   promptTemplate: llmPromptTemplateSchema.optional(),
   draftModel: z.string().optional(),
-  speculativeDecodingExactNumDraftTokens: z.number().int().min(2).optional(),
+  speculativeDecodingNumDraftTokensExact: z.number().int().min(2).optional(),
   speculativeDecodingMinDraftLengthToConsider: z.number().int().min(0).optional(),
   speculativeDecodingMinContinueDraftingProbability: z.number().optional(),
   reasoningParsing: llmReasoningParsingSchema.optional(),

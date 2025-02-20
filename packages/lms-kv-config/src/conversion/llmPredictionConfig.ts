@@ -90,11 +90,11 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.draftModel = speculativeDecodingDraftModel;
   }
 
-  const speculativeDecodingDraftTokens = parsed.get(
-    "llm.prediction.mlx.speculativeDecoding.numDraftTokens",
+  const speculativeDecodingDraftTokensExact = parsed.get(
+    "llm.prediction.mlx.speculativeDecoding.numDraftTokensExact",
   );
-  if (speculativeDecodingDraftTokens !== undefined) {
-    result.speculativeDecodingExactNumDraftTokens = speculativeDecodingDraftTokens;
+  if (speculativeDecodingDraftTokensExact !== undefined) {
+    result.speculativeDecodingNumDraftTokensExact = speculativeDecodingDraftTokensExact;
   }
 
   const speculativeDecodingMinContinueDraftingProbability = parsed.get(
@@ -140,7 +140,7 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "llama.cpuThreads": config.cpuThreads,
     "promptTemplate": config.promptTemplate,
     "speculativeDecoding.draftModel": config.draftModel,
-    "mlx.speculativeDecoding.numDraftTokens": config.speculativeDecodingExactNumDraftTokens,
+    "mlx.speculativeDecoding.numDraftTokensExact": config.speculativeDecodingNumDraftTokensExact,
     "llama.speculativeDecoding.minDraftLengthToConsider":
       config.speculativeDecodingMinDraftLengthToConsider,
     "llama.speculativeDecoding.minContinueDraftingProbability":

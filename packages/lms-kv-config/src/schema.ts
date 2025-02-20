@@ -199,7 +199,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .scope("mlx", builder =>
         builder.scope("speculativeDecoding", builder =>
           builder.field(
-            "numDraftTokens",
+            "numDraftTokensExact",
             "numeric",
             {
               modelCentric: true,
