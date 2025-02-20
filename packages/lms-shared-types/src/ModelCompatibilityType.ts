@@ -9,12 +9,12 @@ export type ModelCompatibilityType =
   | "onnx"
   | "ggml"
   | "mlx_placeholder"
-  | "pytorch_safetensors";
+  | "torch_safetensors";
 export const modelCompatibilityTypeSchema = z.enum([
   "gguf",
   "safetensors",
   "onnx",
   "ggml",
   "mlx_placeholder",
-  "pytorch_safetensors",
+  "torch_safetensors",
 ]);
