@@ -10,6 +10,13 @@
 <p align="center"><code>Use local LLMs in JS/TS/Node</code></p>
 <p align="center"><i>LM Studio Client SDK - Pre-Release</i></p>
 
+> [!WARNING]
+> LM Studio 0.3.10 has breaking changes with published lmstudio-js.
+>
+> New and exciting updates are coming soon.
+>
+> **Please stay on LM Studio 0.3.9 in the meantime.**
+
 ### Pre-Release Alpha
 
 `lmstudio.js` is in pre-release alpha, and is undergoing rapid and continuous development. Expect breaking changes!
