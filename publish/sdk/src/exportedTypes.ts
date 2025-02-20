@@ -24,6 +24,7 @@ export type {
   LLMDynamicHandle,
   LLMNamespace,
   LLMPredictionOpts,
+  LLMRespondOpts,
   LMStudioClientConstructorOpts,
   ModelNamespace,
   ModelSearchResultDownloadOption,

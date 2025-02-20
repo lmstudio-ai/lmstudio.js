@@ -20,7 +20,11 @@ export type { FilesNamespace } from "./files/FilesNamespace.js";
 export type { RetrievalCallbacks, RetrievalOpts } from "./files/RetrievalOpts.js";
 export type { RetrievalResult, RetrievalResultEntry } from "./files/RetrievalResult.js";
 export type { LLM } from "./llm/LLM.js";
-export type { LLMDynamicHandle, LLMPredictionOpts } from "./llm/LLMDynamicHandle.js";
+export type {
+  LLMDynamicHandle,
+  LLMPredictionOpts,
+  LLMRespondOpts,
+} from "./llm/LLMDynamicHandle.js";
 export type { LLMNamespace } from "./llm/LLMNamespace.js";
 export type { OngoingPrediction } from "./llm/OngoingPrediction.js";
 export type { PredictionResult, StructuredPredictionResult } from "./llm/PredictionResult.js";
