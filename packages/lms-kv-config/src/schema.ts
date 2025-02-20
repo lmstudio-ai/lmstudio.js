@@ -200,7 +200,12 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
                 },
                 0.75,
               )
-              .field("maxTokensToDraft", "numeric", { modelCentric: true, min: 1, int: true }, 16),
+              .field(
+                "maxTokensToDraft",
+                "numeric",
+                { modelCentric: true, min: 1, int: true, slider: { min: 10, max: 30, step: 1 } },
+                16,
+              ),
           ),
       )
       .scope("mlx", builder =>
