@@ -5,7 +5,10 @@ import {
 } from "./ModelCompatibilityType";
 
 /**
- * Represents info of a model that is downloaded and sits on the disk.
+ * Represents info of a model that is downloaded and sits on the disk. This is the base type shared
+ * by all models of different domains.
+ *
+ * @public
  */
 export interface ModelInfoBase {
   /**
@@ -48,7 +51,10 @@ export const modelInfoBaseSchema = z.object({
 });
 
 /**
- * Represents info of a model that is already loaded. Contains all fields from {@link ModelInfoBase}.
+ * Represents info of a model that is already loaded. Contains all fields from
+ * {@link ModelInfoBase}. This is the base typed share by all model instances of different domains.
+ *
+ * @public
  */
 export interface ModelInstanceInfoBase extends ModelInfoBase {
   /**

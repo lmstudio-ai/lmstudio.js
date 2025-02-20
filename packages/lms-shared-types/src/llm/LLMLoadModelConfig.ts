@@ -51,11 +51,6 @@ export const gpuSettingSchema = z.object({
   splitStrategy: llmSplitStrategySchema.optional(),
 });
 
-/**
- * Settings related to llama.cpp KV cache quantization
- *
- * @public
- */
 export const llmLlamaCacheQuantizationTypes = [
   "f32",
   "f16",
@@ -66,7 +61,20 @@ export const llmLlamaCacheQuantizationTypes = [
   "q5_0",
   "q5_1",
 ] as const;
-export type LLMLlamaCacheQuantizationType = (typeof llmLlamaCacheQuantizationTypes)[number];
+/**
+ * TODO: Add documentation
+ *
+ * @public
+ */
+export type LLMLlamaCacheQuantizationType =
+  | "f32"
+  | "f16"
+  | "q8_0"
+  | "q4_0"
+  | "q4_1"
+  | "iq4_nl"
+  | "q5_0"
+  | "q5_1";
 export const llmLlamaCacheQuantizationTypeSchema = z.enum(llmLlamaCacheQuantizationTypes);
 
 // MLX KV cache quantization

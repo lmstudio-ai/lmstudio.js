@@ -45,7 +45,7 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
   /**
    * Don't use this constructor directly.
    *
-   * - To create an empty chat history, use `Chat.createEmpty()`.
+   * - To create an empty chat history, use `Chat.empty()`.
    * - To create a chat history with existing data, use `Chat.from()`.
    */
   protected constructor(data: ChatHistoryData, mutable: boolean) {
@@ -55,7 +55,7 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
   /**
    * Creates an empty mutable chat history.
    */
-  public static createEmpty() {
+  public static empty() {
     return new Chat({ messages: [] }, true);
   }
 
@@ -88,7 +88,7 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
       return initializer.asMutableCopy();
     }
     if (typeof initializer === "string") {
-      const chatHistory = Chat.createEmpty();
+      const chatHistory = Chat.empty();
       chatHistory.append("user", initializer);
       return chatHistory;
     }
@@ -355,7 +355,28 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
     return (
       "Chat {\n" +
       this.data.messages
-        .map(message => "  " + ChatMessage.createRaw(message, false).toString())
+        .map(message => {
+          const messageString = ChatMessage.createRaw(message, false).toString();
+          if (messageString.includes("\n")) {
+            const colonIndex = messageString.indexOf(": ");
+            if (colonIndex === -1) {
+              return "  " + messageString;
+            }
+            const role = messageString.slice(0, colonIndex);
+            const content = messageString.slice(colonIndex + 2);
+            return (
+              "  " +
+              role +
+              ": \\\n" +
+              content
+                .split("\n")
+                .map(line => "    " + line)
+                .join("\n")
+            );
+          } else {
+            return "  " + messageString;
+          }
+        })
         .join("\n") +
       "\n}"
     );
@@ -724,6 +745,8 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
  * Represents something that can be converted to a ChatMessage.
  *
  * If a string is provided, it will be converted to a message sent by the user.
+ *
+ * @public
  */
 export type ChatMessageLike = ChatMessageInput | string | ChatMessage | ChatMessageData;
 export const chatMessageLikeSchema = z.union([

@@ -27,6 +27,8 @@ import {
 } from "./processing/ProcessingController.js";
 
 /**
+ * Options to use with {@link PluginsNamespace#registerDevelopmentPlugin}.
+ *
  * @public
  */
 export interface RegisterDevelopmentPluginOpts {
@@ -41,6 +43,11 @@ interface RegisterDevelopmentPluginResultBase {
   clientPasskey: string;
 }
 
+/**
+ * Result of {@link PluginsNamespace#registerDevelopmentPlugin}.
+ *
+ * @public
+ */
 export interface RegisterDevelopmentPluginResult {
   clientIdentifier: string;
   clientPasskey: string;
@@ -67,6 +74,9 @@ export class PluginsNamespace {
     this.logger = new SimpleLogger("Plugins", parentLogger);
   }
 
+  /**
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
+   */
   public async registerDevelopmentPlugin(
     opts: RegisterDevelopmentPluginOpts,
   ): Promise<RegisterDevelopmentPluginResult> {
@@ -117,6 +127,8 @@ export class PluginsNamespace {
    *
    * CAVEAT: Currently, we do not wait for the reindex to complete before returning. In the future,
    * we will change this behavior and only return after the reindex is completed.
+   *
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
    */
   public async reindexPlugins() {
     const stack = getCurrentStack(1);
@@ -125,6 +137,8 @@ export class PluginsNamespace {
 
   /**
    * Sets the preprocessor to be used by the plugin represented by this client.
+   *
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
    */
   public setPreprocessor(preprocessor: Preprocessor) {
     const stack = getCurrentStack(1);
@@ -254,6 +268,8 @@ export class PluginsNamespace {
 
   /**
    * Sets the preprocessor to be used by the plugin represented by this client.
+   *
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
    */
   public setGenerator(generator: Generator) {
     const stack = getCurrentStack(1);
@@ -358,6 +374,9 @@ export class PluginsNamespace {
       { stack },
     );
   }
+  /**
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
+   */
   public async setConfigSchematics(configSchematics: ConfigSchematics<any>) {
     const stack = getCurrentStack(1);
 
@@ -380,6 +399,9 @@ export class PluginsNamespace {
       { stack },
     );
   }
+  /**
+   * @deprecated Plugin support is still in development. Stay tuned for updates.
+   */
   public async initCompleted() {
     const stack = getCurrentStack(1);
 

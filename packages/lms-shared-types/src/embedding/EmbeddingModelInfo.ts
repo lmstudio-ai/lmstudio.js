@@ -6,16 +6,42 @@ import {
   type ModelInstanceInfoBase,
 } from "../ModelInfoBase.js";
 
+/**
+ * Embedding model specific information.
+ *
+ * @public
+ */
 export interface EmbeddingModelAdditionalInfo {
-  // Nothing for now
+  /**
+   * The maximum context length supported by the model.
+   */
+  maxContextLength: number;
 }
-export const embeddingModelAdditionalInfoSchema = z.object({});
+export const embeddingModelAdditionalInfoSchema = z.object({
+  maxContextLength: z.number().int(),
+});
 
+/**
+ * Additional information of an embedding model instance.
+ *
+ * @public
+ */
 export interface EmbeddingModelInstanceAdditionalInfo {
-  // Nothing for now
+  /**
+   * The currently loaded context length.
+   */
+  contextLength: number;
 }
-export const embeddingModelInstanceAdditionalInfoSchema = z.object({});
+export const embeddingModelInstanceAdditionalInfoSchema = z.object({
+  contextLength: z.number().int(),
+});
 
+/**
+ * Info of an embedding model. It is a combination of {@link ModelInfoBase} and
+ * {@link EmbeddingModelAdditionalInfo}.
+ *
+ * @public
+ */
 export type EmbeddingModelInfo = { type: "embedding" } & ModelInfoBase &
   EmbeddingModelAdditionalInfo;
 export const embeddingModelInfoSchema = z
@@ -25,6 +51,12 @@ export const embeddingModelInfoSchema = z
   .extend(modelInfoBaseSchema.shape)
   .extend(embeddingModelAdditionalInfoSchema.shape) as z.ZodSchema<EmbeddingModelInfo>;
 
+/**
+ * Info of a loaded embedding model instance. It is a combination of {@link ModelInstanceInfoBase},
+ * {@link EmbeddingModelAdditionalInfo} and {@link EmbeddingModelInstanceAdditionalInfo}.
+ *
+ * @public
+ */
 export type EmbeddingModelInstanceInfo = { type: "embedding" } & ModelInstanceInfoBase &
   EmbeddingModelAdditionalInfo &
   EmbeddingModelInstanceAdditionalInfo;

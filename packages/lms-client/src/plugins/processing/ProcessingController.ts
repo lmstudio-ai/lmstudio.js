@@ -126,6 +126,8 @@ interface ProcessingControllerHandle {
 }
 
 /**
+ * Options to use with {@link ProcessingController#createContentBlock}.
+ *
  * @public
  */
 export interface CreateContentBlockOpts {
@@ -136,6 +138,8 @@ export interface CreateContentBlockOpts {
 }
 
 /**
+ * Options to use with {@link ProcessingController#createCitationBlock}.
+ *
  * @public
  */
 export interface CreateCitationBlockOpts {
@@ -309,7 +313,7 @@ export class ProcessingController {
   public readonly model = Object.freeze({
     getOrLoad: async () => {
       const identifier = await this.connector.getOrLoadModel();
-      const model = await this.client.llm.get({ identifier });
+      const model = await this.client.llm.model(identifier);
       // Don't use the server session config for this model
       (model as any).internalIgnoreServerSessionConfig = true;
       // Inject the prediction config
@@ -475,7 +479,12 @@ export class PredictionProcessDebugInfoBlockController {
   ) {}
 }
 
-interface PredictionProcessContentBlockControllerAppendTextOpts {
+/**
+ * Options to use with {@link PredictionProcessContentBlockController#appendText}.
+ *
+ * @public
+ */
+export interface ContentBlockAppendTextOpts {
   tokensCount?: number;
   fromDraftModel?: boolean;
 }
@@ -494,7 +503,7 @@ export class PredictionProcessContentBlockController {
   ) {}
   public appendText(
     text: string,
-    { tokensCount, fromDraftModel }: PredictionProcessContentBlockControllerAppendTextOpts = {},
+    { tokensCount, fromDraftModel }: ContentBlockAppendTextOpts = {},
   ) {
     this.handle.sendUpdate({
       type: "contentBlock.appendText",

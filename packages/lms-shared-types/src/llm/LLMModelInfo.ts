@@ -6,6 +6,11 @@ import {
   type ModelInstanceInfoBase,
 } from "../ModelInfoBase.js";
 
+/**
+ * LLM specific information.
+ *
+ * @public
+ */
 export interface LLMAdditionalInfo {
   /**
    * Whether this model is vision-enabled (i.e. supports image input).
@@ -26,6 +31,11 @@ export const llmAdditionalInfoSchema = z.object({
   maxContextLength: z.number().int(),
 });
 
+/**
+ * Additional information of an LLM instance.
+ *
+ * @public
+ */
 export interface LLMInstanceAdditionalInfo {
   contextLength: number;
 }
@@ -33,6 +43,11 @@ export const llmInstanceAdditionalInfoSchema = z.object({
   contextLength: z.number().int(),
 });
 
+/**
+ * Info of an LLM. It is a combination of {@link ModelInfoBase} and {@link LLMAdditionalInfo}.
+ *
+ * @public
+ */
 export type LLMInfo = { type: "llm" } & ModelInfoBase & LLMAdditionalInfo;
 export const llmInfoSchema = z
   .object({
@@ -41,6 +56,12 @@ export const llmInfoSchema = z
   .extend(modelInfoBaseSchema.shape)
   .extend(llmAdditionalInfoSchema.shape) as ZodSchema<LLMInfo>;
 
+/**
+ * Info of a loaded LLM instance. It is a combination of {@link ModelInstanceInfoBase},
+ * {@link LLMAdditionalInfo} and {@link LLMInstanceAdditionalInfo}.
+ *
+ * @public
+ */
 export type LLMInstanceInfo = { type: "llm" } & ModelInstanceInfoBase &
   LLMAdditionalInfo &
   LLMInstanceAdditionalInfo;

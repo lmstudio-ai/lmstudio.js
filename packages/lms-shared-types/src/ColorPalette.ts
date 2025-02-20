@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 /**
- * Theme color options
+ * Theme color options.
+ *
+ * @public
  */
 export type ColorPalette = "red" | "green" | "blue" | "yellow" | "orange" | "purple" | "default";
 /**
