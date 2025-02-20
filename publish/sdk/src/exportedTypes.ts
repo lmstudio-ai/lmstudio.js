@@ -73,8 +73,6 @@ export type {
   ChatMessageData,
   ChatMessagePartData,
   ChatMessagePartFileData,
-  ChatMessagePartSubPartFunctionCallRequestData,
-  ChatMessagePartSubPartToolCallRequest,
   ChatMessagePartTextData,
   ChatMessagePartToolCallRequestData,
   ChatMessagePartToolCallResultData,
@@ -91,6 +89,7 @@ export type {
   EmbeddingModelInstanceAdditionalInfo,
   EmbeddingModelInstanceInfo,
   FileType,
+  FunctionToolCallRequest,
   GPUSetting,
   KVConfig,
   KVConfigField,
@@ -144,4 +143,5 @@ export type {
   RetrievalFileProcessingStep,
   StatusStepState,
   StatusStepStatus,
+  ToolCallRequest,
 } from "@lmstudio/lms-shared-types";

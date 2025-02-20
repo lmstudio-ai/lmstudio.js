@@ -9,6 +9,7 @@ import {
   llmPredictionFragmentSchema,
   llmPredictionStatsSchema,
   modelSpecifierSchema,
+  toolCallRequestSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
 import { createBaseModelBackendInterface } from "./baseModelBackendInterface.js";
@@ -34,6 +35,13 @@ export function createLlmBackendInterface() {
           z.object({
             type: z.literal("promptProcessingProgress"),
             progress: z.number(),
+          }),
+          z.object({
+            type: z.literal("onToolCallGenerationStart"),
+          }),
+          z.object({
+            type: z.literal("onToolCallGenerationEnd"),
+            toolCallRequest: toolCallRequestSchema,
           }),
           z.object({
             type: z.literal("success"),
