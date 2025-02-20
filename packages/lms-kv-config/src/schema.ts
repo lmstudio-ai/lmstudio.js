@@ -190,7 +190,14 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
               .field(
                 "minContinueDraftingProbability",
                 "numeric",
-                { modelCentric: true, min: 0, max: 1, step: 0.01, precision: 2 },
+                {
+                  modelCentric: true,
+                  min: 0,
+                  max: 1,
+                  step: 0.01,
+                  precision: 2,
+                  slider: { min: 0, max: 1, step: 0.01 },
+                },
                 0.75,
               )
               .field("maxTokensToDraft", "numeric", { modelCentric: true, min: 1, int: true }, 16),
