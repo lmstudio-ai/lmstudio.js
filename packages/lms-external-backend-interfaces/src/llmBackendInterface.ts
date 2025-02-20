@@ -44,6 +44,9 @@ export function createLlmBackendInterface() {
             toolCallRequest: toolCallRequestSchema,
           }),
           z.object({
+            type: z.literal("onToolCallGenerationFailed"),
+          }),
+          z.object({
             type: z.literal("success"),
             stats: llmPredictionStatsSchema,
             modelInfo: llmInstanceInfoSchema,
