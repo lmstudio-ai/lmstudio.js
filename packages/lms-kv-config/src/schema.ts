@@ -50,14 +50,57 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
       .field("toolCallStopStrings", "stringArray", {}, [])
       .field("structured", "llamaStructuredOutput", {}, { type: "none" })
       .scope("speculativeDecoding", builder =>
-        builder.field(
-          "draftModel",
-          "speculativeDecodingDraftModel",
-          {
-            modelCentric: true,
-          },
-          "",
-        ),
+        builder
+          .field(
+            "draftModel",
+            "speculativeDecodingDraftModel",
+            {
+              modelCentric: true,
+            },
+            "",
+          )
+          .field(
+            "minDraftLengthToConsider",
+            "numeric",
+            {
+              modelCentric: true,
+              min: 0,
+              int: true,
+              slider: { min: 0, max: 10, step: 1 },
+            },
+            0,
+          )
+          .field("numReuseTokens", "numeric", { modelCentric: true, min: 1, int: true }, 256)
+          .field(
+            "minContinueDraftingProbability",
+            "numeric",
+            {
+              modelCentric: true,
+              min: 0,
+              max: 1,
+              step: 0.01,
+              precision: 2,
+              slider: { min: 0, max: 1, step: 0.01 },
+            },
+            0.75,
+          )
+          .field(
+            "maxTokensToDraft",
+            "numeric",
+            { modelCentric: true, min: 1, int: true, slider: { min: 10, max: 30, step: 1 } },
+            16,
+          )
+          .field(
+            "numDraftTokensExact",
+            "numeric",
+            {
+              modelCentric: true,
+              min: 1,
+              int: true,
+              slider: { min: 1, max: 10, step: 1 },
+            },
+            2,
+          ),
       )
       .field("tools", "toolUse", {}, { type: "none" })
       .field(
@@ -172,56 +215,7 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             { min: 0, max: 1, step: 0.01, precision: 2, slider: { min: 0, max: 1, step: 0.01 } },
             { checked: false, value: 0.9 },
           )
-          .field("logitBias", "llamaLogitBias", {}, [])
-          .scope("speculativeDecoding", builder =>
-            builder
-              .field(
-                "minDraftLengthToConsider",
-                "numeric",
-                {
-                  modelCentric: true,
-                  min: 0,
-                  int: true,
-                  slider: { min: 0, max: 10, step: 1 },
-                },
-                0,
-              )
-              .field("numReuseTokens", "numeric", { modelCentric: true, min: 1, int: true }, 256)
-              .field(
-                "minContinueDraftingProbability",
-                "numeric",
-                {
-                  modelCentric: true,
-                  min: 0,
-                  max: 1,
-                  step: 0.01,
-                  precision: 2,
-                  slider: { min: 0, max: 1, step: 0.01 },
-                },
-                0.75,
-              )
-              .field(
-                "maxTokensToDraft",
-                "numeric",
-                { modelCentric: true, min: 1, int: true, slider: { min: 10, max: 30, step: 1 } },
-                16,
-              ),
-          ),
-      )
-      .scope("mlx", builder =>
-        builder.scope("speculativeDecoding", builder =>
-          builder.field(
-            "numDraftTokensExact",
-            "numeric",
-            {
-              modelCentric: true,
-              min: 1,
-              int: true,
-              slider: { min: 1, max: 10, step: 1 },
-            },
-            2,
-          ),
-        ),
+          .field("logitBias", "llamaLogitBias", {}, []),
       ),
   )
   .scope("llm.load", builder =>
@@ -385,7 +379,11 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
     "minPSampling",
     "topPSampling",
     "logProbs",
-    "speculativeDecoding.*",
+    "speculativeDecoding.draftModel",
+    "speculativeDecoding.minContinueDraftingProbability",
+    "speculativeDecoding.minDraftLengthToConsider",
+    "speculativeDecoding.maxTokensToDraft",
+    "speculativeDecoding.numReuseTokens",
   ),
 );
 
@@ -399,7 +397,8 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
     "repeatPenalty",
     "minPSampling",
     "topPSampling",
-    "speculativeDecoding.*",
+    "speculativeDecoding.draftModel",
+    "speculativeDecoding.numDraftTokensExact",
   ),
 );
 

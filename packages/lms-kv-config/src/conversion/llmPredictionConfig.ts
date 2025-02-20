@@ -91,14 +91,14 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
   }
 
   const speculativeDecodingDraftTokensExact = parsed.get(
-    "llm.prediction.mlx.speculativeDecoding.numDraftTokensExact",
+    "llm.prediction.speculativeDecoding.numDraftTokensExact",
   );
   if (speculativeDecodingDraftTokensExact !== undefined) {
     result.speculativeDecodingNumDraftTokensExact = speculativeDecodingDraftTokensExact;
   }
 
   const speculativeDecodingMinContinueDraftingProbability = parsed.get(
-    "llm.prediction.llama.speculativeDecoding.minContinueDraftingProbability",
+    "llm.prediction.speculativeDecoding.minContinueDraftingProbability",
   );
   if (speculativeDecodingMinContinueDraftingProbability !== undefined) {
     result.speculativeDecodingMinContinueDraftingProbability =
@@ -106,7 +106,7 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
   }
 
   const speculativeDecodingMinDraftLengthToConsider = parsed.get(
-    "llm.prediction.llama.speculativeDecoding.minDraftLengthToConsider",
+    "llm.prediction.speculativeDecoding.minDraftLengthToConsider",
   );
   if (speculativeDecodingMinDraftLengthToConsider !== undefined) {
     result.speculativeDecodingMinDraftLengthToConsider =
@@ -140,10 +140,10 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "llama.cpuThreads": config.cpuThreads,
     "promptTemplate": config.promptTemplate,
     "speculativeDecoding.draftModel": config.draftModel,
-    "mlx.speculativeDecoding.numDraftTokensExact": config.speculativeDecodingNumDraftTokensExact,
-    "llama.speculativeDecoding.minDraftLengthToConsider":
+    "speculativeDecoding.numDraftTokensExact": config.speculativeDecodingNumDraftTokensExact,
+    "speculativeDecoding.minDraftLengthToConsider":
       config.speculativeDecodingMinDraftLengthToConsider,
-    "llama.speculativeDecoding.minContinueDraftingProbability":
+    "speculativeDecoding.minContinueDraftingProbability":
       config.speculativeDecodingMinContinueDraftingProbability,
     "reasoning.parsing": config.reasoningParsing,
   });
