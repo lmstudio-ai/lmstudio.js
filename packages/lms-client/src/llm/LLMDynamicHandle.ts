@@ -2,6 +2,7 @@ import {
   accessMaybeMutableInternals,
   BufferedEvent,
   getCurrentStack,
+  makePrettyError,
   makePromise,
   safeCallCallback,
   SimpleLogger,
@@ -41,8 +42,9 @@ import { Chat, chatHistoryLikeSchema, type ChatLike, ChatMessage } from "../Chat
 import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 import { type LLMNamespace } from "./LLMNamespace.js";
 import { OngoingPrediction } from "./OngoingPrediction.js";
-import { PredictionResult } from "./PredictionResult.js";
-import { type Tool, toolSchema, toolToLLMTool } from "./tool.js";
+import { OperationResult } from "./OperationResult.js";
+import { PredictionResult, PredictionResultWithRoundIndex } from "./PredictionResult.js";
+import { type Tool, toolToLLMTool } from "./tool.js";
 
 /**
  * Options for {@link LLMDynamicHandle#complete}.
@@ -70,7 +72,7 @@ export interface LLMPredictionOpts<TStructuredOutputType = unknown>
   /**
    * A callback for each fragment that is output by the model.
    */
-  onFragment?: (fragment: LLMPredictionFragment) => void;
+  onPredictionFragment?: (fragment: LLMPredictionFragment) => void;
   /**
    * An abort signal that can be used to cancel the prediction.
    */
@@ -79,7 +81,7 @@ export interface LLMPredictionOpts<TStructuredOutputType = unknown>
 const llmPredictionOptsSchema = llmPredictionConfigInputSchema.extend({
   onPromptProcessingProgress: z.function().optional(),
   onFirstToken: z.function().optional(),
-  onFragment: z.function().optional(),
+  onPredictionFragment: z.function().optional(),
   signal: z.instanceof(AbortSignal).optional(),
 });
 
@@ -94,8 +96,9 @@ function splitPredictionOpts<TStructuredOutputType>(
   LLMPredictionConfigInput<TStructuredOutputType>,
   LLMPredictionExtraOpts<TStructuredOutputType>,
 ] {
-  const { onPromptProcessingProgress, onFirstToken, onFragment, signal, ...config } = opts;
-  return [config, { onPromptProcessingProgress, onFirstToken, onFragment, signal }];
+  const { onPromptProcessingProgress, onFirstToken, onPredictionFragment, signal, ...config } =
+    opts;
+  return [config, { onPromptProcessingProgress, onFirstToken, onPredictionFragment, signal }];
 }
 
 /**
@@ -168,34 +171,6 @@ export type LLMPredictionFragmentWithRoundIndex = LLMPredictionFragment & {
 export interface LLMOperateOpts<TStructuredOutputType = unknown>
   extends LLMPredictionConfigInput<TStructuredOutputType> {
   /**
-   * An array of tools that the model can use during the operation. You can create tools by using
-   * the `tool` function.
-   *
-   * Example:
-   *
-   * ```
-   * import { LMStudioClient, tool } from "@lmstudio/sdk";
-   * import { z } from "zod";
-   *
-   * const client = new LMStudioClient();
-   * const llm = await client.llm.model();
-   *
-   * await llm.operate("What is 1234 + 4321?", {
-   *   tools: [tool({
-   *     name: "add",
-   *     description: "Add two numbers",
-   *     parameters: {
-   *       a: z.number(),
-   *       b: z.number(),
-   *     },
-   *     implementation: ({ a, b }) => a + b,
-   *   })],
-   *   // ... Other options ...
-   * });
-   * ```
-   */
-  tools: Array<Tool>;
-  /**
    * A callback that is called when the model is processing the prompt. The callback is called with
    * the round index (the index of the prediction within the operate invocation, 0-indexed) and a
    * number between 0 and 1, representing the progress of the prompt processing.
@@ -230,7 +205,7 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    * - `{ roundIndex: 1, content: "f3", ... }` when the second prediction emits `f3`.
    * - `{ roundIndex: 1, content: "f4", ... }` when the second prediction emits `f4`.
    */
-  onFragment?: (fragment: LLMPredictionFragmentWithRoundIndex) => void;
+  onPredictionFragment?: (fragment: LLMPredictionFragmentWithRoundIndex) => void;
   /**
    * A callback that is called when a message is generated and should be added to the Chat. This is
    * useful if you want to add the generated content to a chat so you can continue the conversation.
@@ -254,18 +229,16 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    */
   onRoundEnd?: (roundIndex: number) => void;
   /**
-   * A callback that will be called when a prediction in a round is completed. This callback is
-   * called with the round index (the index of the prediction within the operate invocation,
-   * 0-indexed) and the prediction result.
+   * A callback that will be called when a prediction in a round is completed. The callback is
+   * called with the result of the prediction augmented with the round index (the index of the
+   * prediction within the operate invocation, 0-indexed) ({@link PredictionResultWithRoundIndex}).
    *
    * Note: this is called immediately after the prediction is completed. The tools may still be
    * running.
    */
-  onPredictionCompleted?: (roundIndex: number, predictionResult: PredictionResult) => void;
+  onPredictionCompleted?: (predictionResult: PredictionResultWithRoundIndex) => void;
   /**
-   * A handler that is called when a tool request is made by the model but is invalid. If you do
-   * not provide this callback and an invalid tool request is encountered, the `.operate` call will
-   * immediately fail. Provide this callback to handle this case gracefully.
+   * A handler that is called when a tool request is made by the model but is invalid.
    *
    * There are multiple ways for a tool request to be invalid. For example, the model can simply
    * output a string that claims to be a tool request, but cannot at all be parsed as one. Or it may
@@ -287,19 +260,21 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    * If you decide the failure is too severe to continue, you can always throw an error in this
    * callback, which will immediately fail the `.operate` call with the same error you provided.
    *
-   * A common implementation that will let the model know about the failure so it can try again is
-   * provided below.
+   * By default, we use the following implementation:
    *
    * ```ts
-   * const result = await llm.operate(opts, {
-   *   handleInvalidToolRequest: (error, request) => {
-   *     if (request) {
-   *       return error.message;
-   *     }
-   *     throw error;
-   *   },
-   * });
+   * handleInvalidToolRequest: (error, request) => {
+   *   if (request) {
+   *     return error.message;
+   *   }
+   *   throw error;
+   * },
    * ```
+   *
+   * The default handler will do the following: If the model requested a tool that can be parsed but
+   * is still invalid, we will return the error message as the result of the tool call. If the model
+   * requested a tool that cannot be parsed, we will throw an error, which will immediately fail the
+   * `.operate` call.
    *
    * Note, when an invalid tool request occurs due to parameters type mismatch, we will never call
    * the original tool automatically due to security considerations. If you do decide to call the
@@ -312,27 +287,36 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
     request: ToolCallRequest | undefined,
   ) => any | Promise<any>;
   /**
-   * Limit the number of predictions that the model can perform. In the last prediction, the model
-   * will not be allowed to use more tools.
+   * Limit the number of prediction rounds that the model can perform. In the last prediction, the
+   * model will not be allowed to use more tools.
    *
    * Note, some models may requests multiple tool calls within a single prediction round. This
    * option only limits the number of prediction rounds, not the total number of tool calls.
    */
-  maxPredictions?: number;
+  maxPredictionRounds?: number;
   /**
    * An abort signal that can be used to cancel the prediction.
    */
   signal?: AbortSignal;
 }
 const llmOperateOptsSchema = llmPredictionConfigInputSchema.extend({
-  tools: z.array(toolSchema),
   onPromptProcessingProgress: z.function().optional(),
   onFirstToken: z.function().optional(),
-  onFragment: z.function().optional(),
+  onPredictionFragment: z.function().optional(),
   onMessage: z.function().optional(),
+  onRoundStart: z.function().optional(),
+  onRoundEnd: z.function().optional(),
+  onPredictionCompleted: z.function().optional(),
   handleInvalidToolRequest: z.function().optional(),
-  maxPredictions: z.number().int().min(1).optional(),
+  maxPredictionRounds: z.number().int().min(1).optional(),
 });
+
+const defaultHandleInvalidToolRequest = (error: Error, request: ToolCallRequest | undefined) => {
+  if (request) {
+    return error.message;
+  }
+  throw error;
+};
 
 type LLMOperateExtraOpts<TStructuredOutputType = unknown> = Omit<
   LLMOperateOpts<TStructuredOutputType>,
@@ -343,25 +327,29 @@ function splitOperationOpts<TStructuredOutputType>(
   opts: LLMOperateOpts<TStructuredOutputType>,
 ): [LLMPredictionConfigInput<TStructuredOutputType>, LLMOperateExtraOpts<TStructuredOutputType>] {
   const {
-    tools,
     onPromptProcessingProgress,
     onFirstToken,
-    onFragment,
+    onPredictionFragment,
     onMessage,
+    onRoundStart,
+    onRoundEnd,
+    onPredictionCompleted,
     handleInvalidToolRequest,
-    maxPredictions,
+    maxPredictionRounds,
     ...config
   } = opts;
   return [
     config,
     {
-      tools,
       onPromptProcessingProgress,
       onFirstToken,
-      onFragment,
+      onPredictionFragment,
       onMessage,
+      onRoundStart,
+      onRoundEnd,
+      onPredictionCompleted,
       handleInvalidToolRequest,
-      maxPredictions,
+      maxPredictionRounds,
     },
   ];
 }
@@ -451,7 +439,9 @@ export class LLMDynamicHandle extends DynamicHandle<
               firstTokenTriggered = true;
               safeCallCallback(this.logger, "onFirstToken", extraOpts.onFirstToken, []);
             }
-            safeCallCallback(this.logger, "onFragment", extraOpts.onFragment, [message.fragment]);
+            safeCallCallback(this.logger, "onFragment", extraOpts.onPredictionFragment, [
+              message.fragment,
+            ]);
             onFragment(message.fragment);
             break;
           case "promptProcessingProgress":
@@ -746,7 +736,41 @@ export class LLMDynamicHandle extends DynamicHandle<
     return ongoingPrediction;
   }
 
-  public async operate(chat: ChatLike, opts: LLMOperateOpts): Promise<void> {
+  /**
+   * @param chat - The LLMChatHistory array to operate from as the base
+   * @param tool - An array of tools that the model can use during the operation. You can create
+   * tools by using the `tool` function.
+   * @param opts - Additional options
+   *
+   * Example:
+   *
+   * ```
+   * import { LMStudioClient, tool } from "@lmstudio/sdk";
+   * import { z } from "zod";
+   *
+   * const client = new LMStudioClient();
+   * const llm = await client.llm.model();
+   *
+   * await llm.operate("What is 1234 + 4321?", {
+   *   tools: [tool({
+   *     name: "add",
+   *     description: "Add two numbers",
+   *     parameters: {
+   *       a: z.number(),
+   *       b: z.number(),
+   *     },
+   *     implementation: ({ a, b }) => a + b,
+   *   })],
+   *   // ... Other options ...
+   * });
+   * ```
+   */
+  public async operate(
+    chat: ChatLike,
+    tools: Array<Tool>,
+    opts: LLMOperateOpts = {},
+  ): Promise<OperationResult> {
+    const startTime = performance.now();
     const stack = getCurrentStack(1);
     [chat, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
@@ -772,10 +796,10 @@ export class LLMDynamicHandle extends DynamicHandle<
     }
 
     if (config.structured !== undefined) {
-      throw new Error("Structured output is currently not supported in operate.");
+      throw makePrettyError("Structured output is currently not supported in operate.", stack);
     }
     if (config.rawTools !== undefined) {
-      throw new Error("`rawTools` is not supported in operate. Use `tools` instead");
+      throw makePrettyError("`rawTools` is not supported in operate. Use `tools` instead", stack);
     }
 
     let shouldContinue = false;
@@ -783,12 +807,12 @@ export class LLMDynamicHandle extends DynamicHandle<
 
     let rawTools: LLMToolUseSetting;
 
-    if (extraOpts.tools.length === 0) {
+    if (tools.length === 0) {
       rawTools = { type: "none" };
     } else {
       rawTools = {
         type: "toolArray",
-        tools: extraOpts.tools.map(toolToLLMTool),
+        tools: tools.map(toolToLLMTool),
       };
     }
 
@@ -810,7 +834,7 @@ export class LLMDynamicHandle extends DynamicHandle<
     );
 
     const toolsMap = new Map<string, Tool>();
-    for (const tool of extraOpts.tools) {
+    for (const tool of tools) {
       if (toolsMap.has(tool.name)) {
         this.logger.warnText`
           Duplicate tool (${tool.name}) found in the tools array. The last tool with the same name
@@ -825,10 +849,10 @@ export class LLMDynamicHandle extends DynamicHandle<
       let configToUse: KVConfigStack = configWithTools;
       if (
         // If there is a defined number of max predictions,
-        extraOpts.maxPredictions !== undefined &&
+        extraOpts.maxPredictionRounds !== undefined &&
         // ... and this is the last chance to perform predictions, don't allow the model to use
         // tools.
-        predictionsPerformed + 1 >= extraOpts.maxPredictions
+        predictionsPerformed + 1 >= extraOpts.maxPredictionRounds
       ) {
         configToUse = configWithoutTools;
       }
@@ -881,19 +905,12 @@ export class LLMDynamicHandle extends DynamicHandle<
          */
         toolCallIndex: number,
       ) => {
-        if (extraOpts.handleInvalidToolRequest === undefined) {
-          abortController.abort();
-          throw new Error(
-            text`
-              The model has made an invalid tool request. Provide an handleInvalidToolRequest callback
-              to handle this case gracefully.
-            `,
-            { cause: error },
-          );
-        }
         let result: any;
         try {
-          result = await extraOpts.handleInvalidToolRequest(error, request);
+          result = await (extraOpts.handleInvalidToolRequest ?? defaultHandleInvalidToolRequest)(
+            error,
+            request,
+          );
         } catch (error) {
           abortController.abort();
           throw error; // Rethrow the error.
@@ -907,9 +924,9 @@ export class LLMDynamicHandle extends DynamicHandle<
           resultString = JSON.stringify(result);
         } catch (error) {
           abortController.abort();
-          throw new Error(
+          throw makePrettyError(
             "handleInvalidToolRequest returned a value that cannot be converted to JSON.",
-            { cause: error },
+            stack,
           );
         }
         // The handleInvalidToolRequest has returned a "replacement"
@@ -956,7 +973,7 @@ export class LLMDynamicHandle extends DynamicHandle<
                   predictionsPerformed,
                 ]);
               }
-              safeCallCallback(this.logger, "onFragment", extraOpts.onFragment, [
+              safeCallCallback(this.logger, "onFragment", extraOpts.onPredictionFragment, [
                 { roundIndex: predictionsPerformed, ...message.fragment },
               ]);
               contentArray.push(message.fragment.content);
@@ -1016,9 +1033,9 @@ export class LLMDynamicHandle extends DynamicHandle<
                     try {
                       resultString = JSON.stringify(result);
                     } catch (error) {
-                      throw new Error(
+                      throw makePrettyError(
                         `Return value of tool ${tool.name} cannot be converted to JSON.`,
-                        { cause: error },
+                        stack,
                       );
                     }
                   }
@@ -1048,18 +1065,19 @@ export class LLMDynamicHandle extends DynamicHandle<
               break;
             }
             case "success": {
-              const predictionResult = new PredictionResult(
+              const predictionResult = new PredictionResultWithRoundIndex(
                 contentArray.join(""),
                 message.stats,
                 message.modelInfo,
                 message.loadModelConfig,
                 message.predictionConfig,
+                predictionsPerformed,
               );
               safeCallCallback(
                 this.logger,
                 "onPredictionCompleted",
                 extraOpts.onPredictionCompleted,
-                [predictionsPerformed, predictionResult],
+                [predictionResult],
               );
               predictionResolve();
               break;
@@ -1125,12 +1143,13 @@ export class LLMDynamicHandle extends DynamicHandle<
       predictionsPerformed++;
       // Don't continue if we've reached the max predictions.
       if (
-        extraOpts.maxPredictions !== undefined &&
-        predictionsPerformed >= extraOpts.maxPredictions
+        extraOpts.maxPredictionRounds !== undefined &&
+        predictionsPerformed >= extraOpts.maxPredictionRounds
       ) {
         shouldContinue = false;
       }
     } while (shouldContinue);
+    return new OperationResult(predictionsPerformed, (performance.now() - startTime) / 1_000);
   }
 
   public async getContextLength(): Promise<number> {

@@ -1,6 +1,6 @@
 import { zodSchemaSchema, type LLMTool } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToJsonSchema } from "zod-to-json-schema";
 
 export interface ToolBase {
   name: string;

@@ -367,7 +367,7 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
             return (
               "  " +
               role +
-              ": \\\n" +
+              ":\n" +
               content
                 .split("\n")
                 .map(line => "    " + line)
@@ -726,9 +726,11 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
             case "text":
               return part.text;
             case "file":
-              return "<file>";
+              return `<file ${part.name}>`;
             case "toolCallRequest":
-              return JSON.stringify(part.toolCallRequest, null, 2);
+              return (
+                part.toolCallRequest.name + `(${JSON.stringify(part.toolCallRequest.arguments)})`
+              );
             case "toolCallResult":
               return part.content;
             default: {

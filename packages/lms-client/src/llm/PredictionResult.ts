@@ -38,6 +38,22 @@ export class PredictionResult {
   ) {}
 }
 
+export class PredictionResultWithRoundIndex extends PredictionResult {
+  public constructor(
+    content: string,
+    stats: LLMPredictionStats,
+    modelInfo: LLMInstanceInfo,
+    loadConfig: KVConfig,
+    predictionConfig: KVConfig,
+    /**
+     * The round index of the prediction.
+     */
+    public readonly roundIndex: number,
+  ) {
+    super(content, stats, modelInfo, loadConfig, predictionConfig);
+  }
+}
+
 /**
  * Result of a typed structured prediction. In addition to a regular {@link PredictionResult}, there
  * is one additional field: {@link StructuredPredictionResult#parsed}.
