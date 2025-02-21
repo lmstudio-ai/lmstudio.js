@@ -232,6 +232,17 @@ export class LLMDynamicHandle extends DynamicHandle<
               message.predictionConfig,
             );
             break;
+          case "toolCallGenerationStart":
+          case "toolCallGenerationEnd":
+          case "toolCallGenerationFailed":
+            this.logger.info(text`
+              Received tool generation message: ${JSON.stringify(message, null, 2)}
+            `);
+            break;
+          default: {
+            const exhaustiveCheck: never = message;
+            throw new Error(`Unhandled message type: ${exhaustiveCheck}`);
+          }
         }
       },
       { stack: getCurrentStack(2) },
