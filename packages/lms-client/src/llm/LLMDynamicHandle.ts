@@ -17,6 +17,7 @@ import {
 } from "@lmstudio/lms-kv-config";
 import {
   type ChatHistoryData,
+  type ChatMessagePartToolCallRequestData,
   type ChatMessagePartToolCallResultData,
   type KVConfig,
   type KVConfigStack,
@@ -40,7 +41,7 @@ import { Chat, chatHistoryLikeSchema, type ChatLike, ChatMessage } from "../Chat
 import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 import { type LLMNamespace } from "./LLMNamespace.js";
 import { OngoingPrediction } from "./OngoingPrediction.js";
-import { type PredictionResult } from "./PredictionResult.js";
+import { PredictionResult } from "./PredictionResult.js";
 import { type Tool, toolSchema, toolToLLMTool } from "./tool.js";
 
 /**
@@ -157,8 +158,8 @@ function splitRespondOpts<TStructuredOutputType>(
  *
  * See {@link LLMPredictionFragment} for more fields.
  */
-export type LLMPredictionFragmentWithPredictionIndex = LLMPredictionFragment & {
-  predictionIndex: number;
+export type LLMPredictionFragmentWithRoundIndex = LLMPredictionFragment & {
+  roundIndex: number;
 };
 
 /**
@@ -196,11 +197,11 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
   tools: Array<Tool>;
   /**
    * A callback that is called when the model is processing the prompt. The callback is called with
-   * the prediction index (the index of the prediction within the operate invocation, 0-indexed) and
-   * a number between 0 and 1, representing the progress of the prompt processing.
+   * the round index (the index of the prediction within the operate invocation, 0-indexed) and a
+   * number between 0 and 1, representing the progress of the prompt processing.
    *
-   * For example, for an `.operate` invocation with 2 predictions, the callback may be called in the
-   * following sequence.
+   * For example, for an `.operate` invocation with 2 prediction rounds, the callback may be called
+   * in the following sequence.
    *
    * - `(0, 0.3)` when the first prediction's prompt processing is 30% done.
    * - `(0, 0.7)` when the first prediction's prompt processing is 70% done.
@@ -209,27 +210,27 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    * - `(1, 0.3)` when the second prediction's prompt processing is 50% done.
    * - `(1, 0.7)` when the second prediction's prompt processing is 70% done.
    */
-  onPromptProcessingProgress?: (predictionIndex: number, progress: number) => void;
+  onPromptProcessingProgress?: (roundIndex: number, progress: number) => void;
   /**
    * A callback that is called when the model has output the first token of a prediction. This
-   * callback is called with prediction index (the index of the prediction within the operate
-   * invocation, 0-indexed).
+   * callback is called with round index (the index of the prediction within the operate invocation,
+   * 0-indexed).
    */
-  onFirstToken?: (predictionIndex: number) => void;
+  onFirstToken?: (roundIndex: number) => void;
   /**
    * A callback for each fragment that is output by the model. This callback is called with the
-   * fragment that is emitted. The fragment itself is augmented with the prediction index (the index
-   * of the prediction within the operate invocation, 0-indexed).
+   * fragment that is emitted. The fragment itself is augmented with the round index (the index of
+   * the prediction within the operate invocation, 0-indexed).
    *
    * For example, for an `.operate` invocation with 2 predictions, the callback may be called in the
    * following sequence.
    *
-   * - `{ predictionIndex: 0, content: "f1", ... }` when the first prediction emits `f1`.
-   * - `{ predictionIndex: 0, content: "f2", ... }` when the first prediction emits `f2`.
-   * - `{ predictionIndex: 1, content: "f3", ... }` when the second prediction emits `f3`.
-   * - `{ predictionIndex: 1, content: "f4", ... }` when the second prediction emits `f4`.
+   * - `{ roundIndex: 0, content: "f1", ... }` when the first prediction emits `f1`.
+   * - `{ roundIndex: 0, content: "f2", ... }` when the first prediction emits `f2`.
+   * - `{ roundIndex: 1, content: "f3", ... }` when the second prediction emits `f3`.
+   * - `{ roundIndex: 1, content: "f4", ... }` when the second prediction emits `f4`.
    */
-  onFragment?: (fragment: LLMPredictionFragmentWithPredictionIndex) => void;
+  onFragment?: (fragment: LLMPredictionFragmentWithRoundIndex) => void;
   /**
    * A callback that is called when a message is generated and should be added to the Chat. This is
    * useful if you want to add the generated content to a chat so you can continue the conversation.
@@ -245,20 +246,38 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    */
   onMessage?: (message: ChatMessage) => void;
   /**
-   * A callback that is called when a tool request is made by the model but is invalid. If you do
+   * A callback that will be called when a new round of prediction starts.
+   */
+  onRoundStart?: (roundIndex: number) => void;
+  /**
+   * A callback that will be called when a round of prediction ends.
+   */
+  onRoundEnd?: (roundIndex: number) => void;
+  /**
+   * A callback that will be called when a prediction in a round is completed. This callback is
+   * called with the round index (the index of the prediction within the operate invocation,
+   * 0-indexed) and the prediction result.
+   *
+   * Note: this is called immediately after the prediction is completed. The tools may still be
+   * running.
+   */
+  onPredictionCompleted?: (roundIndex: number, predictionResult: PredictionResult) => void;
+  /**
+   * A handler that is called when a tool request is made by the model but is invalid. If you do
    * not provide this callback and an invalid tool request is encountered, the `.operate` call will
    * immediately fail. Provide this callback to handle this case gracefully.
    *
    * There are multiple ways for a tool request to be invalid. For example, the model can simply
-   * output a string that claims to be a tool request, but cannot at all be parsed as JSON. Or it
-   * may request to use a tool that doesn't exist, or the parameters are invalid.
+   * output a string that claims to be a tool request, but cannot at all be parsed as one. Or it may
+   * request to use a tool that doesn't exist, or the parameters provided are invalid.
    *
    * When this happens, LM Studio will provide why it failed in the error parameter. We will also
    * try to parse the tool request and provide it as the second parameter. However, this is not
    * guaranteed to success, and the second parameter may be `undefined`.
    *
    * If we successfully parsed the request (thus the request parameter is not undefined), anything
-   * returned in this callback will be used as the result of the tool call. However, if nothing is
+   * returned in this callback will be used as the result of the tool call. This is useful for
+   * providing a error message to the model so it may try again. However, if nothing (undefined) is
    * returned, LM Studio will not provide a result to the given tool call.
    *
    * If we failed to parsed the request (thus the request parameter is undefined), the return value
@@ -296,8 +315,8 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    * Limit the number of predictions that the model can perform. In the last prediction, the model
    * will not be allowed to use more tools.
    *
-   * Note, some models may requests multiple tool calls within a single prediction. This option only
-   * limits the number of predictions, not the total number of tool calls.
+   * Note, some models may requests multiple tool calls within a single prediction round. This
+   * option only limits the number of prediction rounds, not the total number of tool calls.
    */
   maxPredictions?: number;
   /**
@@ -363,10 +382,10 @@ const noFormattingInputConfig: LLMJinjaInputConfig = {
  * This represents a set of requirements for a model. It is not tied to a specific model, but rather
  * to a set of requirements that a model must satisfy.
  *
- * For example, if you got the model via `client.llm.get("my-identifier")`, you will get a
- * `LLMModel` for the model with the identifier `my-identifier`. If the model is unloaded, and
- * another model is loaded with the same identifier, using the same `LLMModel` will use the new
- * model.
+ * For example, if you got the model via `client.llm.model("my-identifier")`, you will get a
+ * `LLMDynamicHandle` for the model with the identifier `my-identifier`. If the model is unloaded,
+ * and another model is loaded with the same identifier, using the same `LLMDynamicHandle` will use
+ * the new model.
  *
  * @public
  */
@@ -532,7 +551,7 @@ export class LLMDynamicHandle extends DynamicHandle<
    * for await (const { content } of prediction) {
    *   process.stdout.write(content);
    * }
-   * const result = await prediction;
+   * const result = await prediction.result();
    * console.log(result.stats);
    * ```
    *
@@ -819,6 +838,7 @@ export class LLMDynamicHandle extends DynamicHandle<
       let firstTokenTriggered = false;
       const contentArray: Array<string> = [];
 
+      const toolCallRequests: Array<ToolCallRequest> = [];
       let nextToolCallIndex = 0;
       const toolCallResults: Array<{
         /**
@@ -916,6 +936,9 @@ export class LLMDynamicHandle extends DynamicHandle<
 
       abortController.signal.throwIfAborted();
 
+      // Round start callback
+      safeCallCallback(this.logger, "onRoundStart", extraOpts.onRoundStart, [predictionsPerformed]);
+
       const channel = this.port.createChannel(
         "predict",
         {
@@ -934,7 +957,7 @@ export class LLMDynamicHandle extends DynamicHandle<
                 ]);
               }
               safeCallCallback(this.logger, "onFragment", extraOpts.onFragment, [
-                { predictionIndex: predictionsPerformed, ...message.fragment },
+                { roundIndex: predictionsPerformed, ...message.fragment },
               ]);
               contentArray.push(message.fragment.content);
               break;
@@ -954,6 +977,7 @@ export class LLMDynamicHandle extends DynamicHandle<
               // We have now received a tool call request. Now let's see if we can call the tool and
               // get the result.
               const toolCallRequest = message.toolCallRequest;
+              toolCallRequests.push(toolCallRequest);
               const tool = toolsMap.get(toolCallRequest.name);
               if (tool === undefined) {
                 // Tool does not exist.
@@ -1024,6 +1048,19 @@ export class LLMDynamicHandle extends DynamicHandle<
               break;
             }
             case "success": {
+              const predictionResult = new PredictionResult(
+                contentArray.join(""),
+                message.stats,
+                message.modelInfo,
+                message.loadModelConfig,
+                message.predictionConfig,
+              );
+              safeCallCallback(
+                this.logger,
+                "onPredictionCompleted",
+                extraOpts.onPredictionCompleted,
+                [predictionsPerformed, predictionResult],
+              );
               predictionResolve();
               break;
             }
@@ -1052,7 +1089,19 @@ export class LLMDynamicHandle extends DynamicHandle<
       await finalPromise;
 
       // Append and emit the assistant message.
-      const assistantMessage = ChatMessage.create("assistant", contentArray.join(""));
+      const assistantMessage = ChatMessage.from({
+        role: "assistant",
+        content: [
+          {
+            type: "text",
+            text: contentArray.join(""),
+          },
+          ...toolCallRequests.map<ChatMessagePartToolCallRequestData>(toolCallRequest => ({
+            type: "toolCallRequest",
+            toolCallRequest,
+          })),
+        ],
+      });
       mutableChat.append(assistantMessage.asMutableCopy());
       safeCallCallback(this.logger, "onMessage", extraOpts.onMessage, [assistantMessage]);
 
@@ -1070,6 +1119,8 @@ export class LLMDynamicHandle extends DynamicHandle<
         safeCallCallback(this.logger, "onMessage", extraOpts.onMessage, [toolMessage]);
         shouldContinue = true;
       }
+
+      safeCallCallback(this.logger, "onRoundEnd", extraOpts.onRoundEnd, [predictionsPerformed]);
 
       predictionsPerformed++;
       // Don't continue if we've reached the max predictions.

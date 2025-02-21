@@ -18,7 +18,7 @@ export interface FunctionTool extends ToolBase {
 }
 export const functionToolSchema = toolBaseSchema.extend({
   type: z.literal("function"),
-  parametersSchema: z.map(z.string(), zodSchemaSchema),
+  parametersSchema: zodSchemaSchema,
   implementation: z.function(),
 });
 
