@@ -157,7 +157,7 @@ function splitRespondOpts<TStructuredOutputType>(
 }
 
 /**
- * A {@link LLMPredictionFragment} with the index of the prediction within the operate invocation.
+ * A {@link LLMPredictionFragment} with the index of the prediction within `.operate(...)`.
  *
  * See {@link LLMPredictionFragment} for more fields.
  */
@@ -171,31 +171,15 @@ export type LLMPredictionFragmentWithRoundIndex = LLMPredictionFragment & {
 export interface LLMOperateOpts<TStructuredOutputType = unknown>
   extends LLMPredictionConfigInput<TStructuredOutputType> {
   /**
-   * A callback that is called when the model is processing the prompt. The callback is called with
-   * the round index (the index of the prediction within the operate invocation, 0-indexed) and a
-   * number between 0 and 1, representing the progress of the prompt processing.
-   *
-   * For example, for an `.operate` invocation with 2 prediction rounds, the callback may be called
-   * in the following sequence.
-   *
-   * - `(0, 0.3)` when the first prediction's prompt processing is 30% done.
-   * - `(0, 0.7)` when the first prediction's prompt processing is 70% done.
-   * - ... The model starts to stream the first prediction's output, during which, this callback is
-   *   not called.
-   * - `(1, 0.3)` when the second prediction's prompt processing is 50% done.
-   * - `(1, 0.7)` when the second prediction's prompt processing is 70% done.
-   */
-  onPromptProcessingProgress?: (roundIndex: number, progress: number) => void;
-  /**
    * A callback that is called when the model has output the first token of a prediction. This
-   * callback is called with round index (the index of the prediction within the operate invocation,
+   * callback is called with round index (the index of the prediction within `.operate(...)`,
    * 0-indexed).
    */
   onFirstToken?: (roundIndex: number) => void;
   /**
    * A callback for each fragment that is output by the model. This callback is called with the
    * fragment that is emitted. The fragment itself is augmented with the round index (the index of
-   * the prediction within the operate invocation, 0-indexed).
+   * the prediction within `.operate(...)`, 0-indexed).
    *
    * For example, for an `.operate` invocation with 2 predictions, the callback may be called in the
    * following sequence.
@@ -231,12 +215,28 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
   /**
    * A callback that will be called when a prediction in a round is completed. The callback is
    * called with the result of the prediction augmented with the round index (the index of the
-   * prediction within the operate invocation, 0-indexed) ({@link PredictionResultWithRoundIndex}).
+   * prediction within `.operate(...)`, 0-indexed) ({@link PredictionResultWithRoundIndex}).
    *
    * Note: this is called immediately after the prediction is completed. The tools may still be
    * running.
    */
   onPredictionCompleted?: (predictionResult: PredictionResultWithRoundIndex) => void;
+  /**
+   * A callback that is called when the model is processing the prompt. The callback is called with
+   * the round index (the index of the prediction within `.operate(...)`, 0-indexed) and a number
+   * between 0 and 1, representing the progress of the prompt processing.
+   *
+   * For example, for an `.operate` invocation with 2 prediction rounds, the callback may be called
+   * in the following sequence.
+   *
+   * - `(0, 0.3)` when the first prediction's prompt processing is 30% done.
+   * - `(0, 0.7)` when the first prediction's prompt processing is 70% done.
+   * - ... The model starts to stream the first prediction's output, during which, this callback is
+   *   not called.
+   * - `(1, 0.3)` when the second prediction's prompt processing is 50% done.
+   * - `(1, 0.7)` when the second prediction's prompt processing is 70% done.
+   */
+  onPromptProcessingProgress?: (roundIndex: number, progress: number) => void;
   /**
    * A handler that is called when a tool request is made by the model but is invalid.
    *
@@ -300,13 +300,13 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
   signal?: AbortSignal;
 }
 const llmOperateOptsSchema = llmPredictionConfigInputSchema.extend({
-  onPromptProcessingProgress: z.function().optional(),
   onFirstToken: z.function().optional(),
   onPredictionFragment: z.function().optional(),
   onMessage: z.function().optional(),
   onRoundStart: z.function().optional(),
   onRoundEnd: z.function().optional(),
   onPredictionCompleted: z.function().optional(),
+  onPromptProcessingProgress: z.function().optional(),
   handleInvalidToolRequest: z.function().optional(),
   maxPredictionRounds: z.number().int().min(1).optional(),
 });
@@ -327,13 +327,13 @@ function splitOperationOpts<TStructuredOutputType>(
   opts: LLMOperateOpts<TStructuredOutputType>,
 ): [LLMPredictionConfigInput<TStructuredOutputType>, LLMOperateExtraOpts<TStructuredOutputType>] {
   const {
-    onPromptProcessingProgress,
     onFirstToken,
     onPredictionFragment,
     onMessage,
     onRoundStart,
     onRoundEnd,
     onPredictionCompleted,
+    onPromptProcessingProgress,
     handleInvalidToolRequest,
     maxPredictionRounds,
     ...config
@@ -341,13 +341,13 @@ function splitOperationOpts<TStructuredOutputType>(
   return [
     config,
     {
-      onPromptProcessingProgress,
       onFirstToken,
       onPredictionFragment,
       onMessage,
       onRoundStart,
       onRoundEnd,
       onPredictionCompleted,
+      onPromptProcessingProgress,
       handleInvalidToolRequest,
       maxPredictionRounds,
     },

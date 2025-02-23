@@ -17,11 +17,13 @@ export class OperationResult {
      * - The calculator's output is then fed back to the model for a second round of prediction.
      * - The model sees the output and generates a paragraph explaining the result.
      *
-     * There are 2 rounds.
+     * There are 2 rounds. On the beginning of a round, the callback `onRoundStart` is triggered.
+     * On the end of a round, the callback `onRoundEnd` is triggered.
      */
     public readonly rounds: number,
     /**
-     * Total time taken to run the operation in seconds.
+     * Total time taken to run the operation in seconds, measured from beginning of the `.operate`
+     * invocation to when the entire operation is finished.
      */
     public readonly totalOperationTimeSeconds: number,
   ) {}
