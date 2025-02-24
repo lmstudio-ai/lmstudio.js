@@ -60,22 +60,46 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
             "",
           )
           .field(
-            "numDraftTokens",
+            "minDraftLengthToConsider",
             "numeric",
             {
               modelCentric: true,
-              min: 2,
+              min: 0,
               int: true,
-              slider: { min: 2, max: 10, step: 1 },
+              slider: { min: 0, max: 10, step: 1 },
             },
-            2,
+            0,
           )
           .field("numReuseTokens", "numeric", { modelCentric: true, min: 1, int: true }, 256)
           .field(
             "minContinueDraftingProbability",
             "numeric",
-            { modelCentric: true, min: 0, max: 1, step: 0.01, precision: 2 },
+            {
+              modelCentric: true,
+              min: 0,
+              max: 1,
+              step: 0.01,
+              precision: 2,
+              slider: { min: 0, max: 1, step: 0.01 },
+            },
             0.75,
+          )
+          .field(
+            "maxTokensToDraft",
+            "numeric",
+            { modelCentric: true, min: 1, int: true, slider: { min: 10, max: 30, step: 1 } },
+            16,
+          )
+          .field(
+            "numDraftTokensExact",
+            "numeric",
+            {
+              modelCentric: true,
+              min: 1,
+              int: true,
+              slider: { min: 1, max: 10, step: 1 },
+            },
+            2,
           ),
       )
       .field("tools", "toolUse", {}, { type: "none" })
@@ -355,7 +379,11 @@ export const llmLlamaPredictionConfigSchematics = llmSharedPredictionConfigSchem
     "minPSampling",
     "topPSampling",
     "logProbs",
-    "speculativeDecoding.*",
+    "speculativeDecoding.draftModel",
+    "speculativeDecoding.minContinueDraftingProbability",
+    "speculativeDecoding.minDraftLengthToConsider",
+    "speculativeDecoding.maxTokensToDraft",
+    "speculativeDecoding.numReuseTokens",
   ),
 );
 
@@ -369,7 +397,8 @@ export const llmMlxPredictionConfigSchematics = llmSharedPredictionConfigSchemat
     "repeatPenalty",
     "minPSampling",
     "topPSampling",
-    "speculativeDecoding.*",
+    "speculativeDecoding.draftModel",
+    "speculativeDecoding.numDraftTokensExact",
   ),
 );
 

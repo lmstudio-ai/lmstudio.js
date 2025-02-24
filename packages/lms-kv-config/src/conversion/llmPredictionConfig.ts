@@ -90,11 +90,11 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
     result.draftModel = speculativeDecodingDraftModel;
   }
 
-  const speculativeDecodingDraftTokens = parsed.get(
-    "llm.prediction.speculativeDecoding.numDraftTokens",
+  const speculativeDecodingDraftTokensExact = parsed.get(
+    "llm.prediction.speculativeDecoding.numDraftTokensExact",
   );
-  if (speculativeDecodingDraftTokens !== undefined) {
-    result.speculativeDecodingDraftTokensCount = speculativeDecodingDraftTokens;
+  if (speculativeDecodingDraftTokensExact !== undefined) {
+    result.speculativeDecodingNumDraftTokensExact = speculativeDecodingDraftTokensExact;
   }
 
   const speculativeDecodingMinContinueDraftingProbability = parsed.get(
@@ -103,6 +103,14 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
   if (speculativeDecodingMinContinueDraftingProbability !== undefined) {
     result.speculativeDecodingMinContinueDraftingProbability =
       speculativeDecodingMinContinueDraftingProbability;
+  }
+
+  const speculativeDecodingMinDraftLengthToConsider = parsed.get(
+    "llm.prediction.speculativeDecoding.minDraftLengthToConsider",
+  );
+  if (speculativeDecodingMinDraftLengthToConsider !== undefined) {
+    result.speculativeDecodingMinDraftLengthToConsider =
+      speculativeDecodingMinDraftLengthToConsider;
   }
 
   const reasoningParsing = parsed.get("llm.prediction.reasoning.parsing");
@@ -132,7 +140,9 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "llama.cpuThreads": config.cpuThreads,
     "promptTemplate": config.promptTemplate,
     "speculativeDecoding.draftModel": config.draftModel,
-    "speculativeDecoding.numDraftTokens": config.speculativeDecodingDraftTokensCount,
+    "speculativeDecoding.numDraftTokensExact": config.speculativeDecodingNumDraftTokensExact,
+    "speculativeDecoding.minDraftLengthToConsider":
+      config.speculativeDecodingMinDraftLengthToConsider,
     "speculativeDecoding.minContinueDraftingProbability":
       config.speculativeDecodingMinContinueDraftingProbability,
     "reasoning.parsing": config.reasoningParsing,
