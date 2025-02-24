@@ -96,7 +96,14 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    */
   contextOverflowPolicy?: LLMContextOverflowPolicy;
   /**
-   * TODO: Documentation
+   * Configures the model to output structured JSON data that follows a specific schema defined
+   * using Zod.
+   *
+   * When you provide a Zod schema, the model will be instructed to generate JSON that conforms to
+   * that schema rather than free-form text.
+   *
+   * This is particularly useful for extracting specific data points from model responses or when
+   * you need the output in a format that can be directly used by your application.
    */
   structured?: ZodType<TStructuredOutputType> | LLMStructuredPredictionSetting;
   /**
@@ -105,41 +112,94 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    */
   rawTools?: LLMToolUseSetting;
   /**
-   * TODO: Documentation
+   * Controls token sampling diversity by limiting consideration to the K most likely next tokens.
+   *
+   * For example, if set to 40, only the 40 tokens with the highest probabilities will be considered
+   * for the next token selection. A lower value (e.g., 20) will make the output more focused and
+   * conservative, while a higher value (e.g., 100) allows for more creative and diverse outputs.
+   *
+   * Typical values range from 20 to 100.
    */
   topKSampling?: number;
   /**
-   * TODO: Documentation
+   * Applies a penalty to repeated tokens to prevent the model from getting stuck in repetitive
+   * patterns.
+   *
+   * A value of 1.0 means no penalty. Values greater than 1.0 increase the penalty. For example, 1.2
+   * would reduce the probability of previously used tokens by 20%. This is particularly useful for
+   * preventing the model from repeating phrases or getting stuck in loops.
+   *
+   * Set to false to disable the penalty completely.
    */
   repeatPenalty?: number | false;
   /**
-   * TODO: Documentation
+   * Sets a minimum probability threshold that a token must meet to be considered for generation.
+   *
+   * For example, if set to 0.05, any token with less than 5% probability will be excluded from
+   * consideration. This helps filter out unlikely or irrelevant tokens, potentially improving
+   * output quality.
+   *
+   * Value should be between 0 and 1. Set to false to disable this filter.
    */
   minPSampling?: number | false;
   /**
-   * TODO: Documentation
+   * Implements nucleus sampling by only considering tokens whose cumulative probabilities reach a
+   * specified threshold.
+   *
+   * For example, if set to 0.9, the model will consider only the most likely tokens that together
+   * add up to 90% of the probability mass. This helps balance between diversity and quality by
+   * dynamically adjusting the number of tokens considered based on their probability distribution.
+   *
+   * Value should be between 0 and 1. Set to false to disable nucleus sampling.
    */
   topPSampling?: number | false;
   /**
-   * TODO: Documentation
+   * Controls how often the XTC (Exclude Top Choices) sampling technique is applied during
+   * generation.
+   *
+   * XTC sampling can boost creativity and reduce clichés by occasionally filtering out common
+   * tokens. For example, if set to 0.3, there's a 30% chance that XTC sampling will be applied when
+   * generating each token.
+   *
+   * Value should be between 0 and 1. Set to false to disable XTC completely.
    */
   xtcProbability?: number | false;
   /**
-   * TODO: Documentation
+   * Defines the lower probability threshold for the XTC (Exclude Top Choices) sampling technique.
+   *
+   * When XTC sampling is activated (based on xtcProbability), the algorithm identifies tokens with
+   * probabilities between this threshold and 0.5, then removes all such tokens except the least
+   * probable one. This helps introduce more diverse and unexpected tokens into the generation.
+   *
+   * Only takes effect when xtcProbability is enabled.
    */
   xtcThreshold?: number | false;
   /**
-   * TODO: Documentation
+   * @deprecated We are still working on bringing logProbs to SDK. Stay tuned for updates.
    */
   logProbs?: number | false;
   /**
-   * TODO: Documentation
+   * Specifies the number of CPU threads to allocate for model inference.
+   *
+   * Higher values can improve performance on multi-core systems but may compete with other
+   * processes. For example, on an 8-core system, a value of 4-6 might provide good performance
+   * while leaving resources for other tasks.
+   *
+   * If not specified, the system will use a default value based on available hardware.
    */
   cpuThreads?: number;
   /**
-   * This is WIP. Will have an easier to use type in the future.
+   * Defines a custom template for formatting prompts before sending them to the model.
    *
-   * TODO: Documentation
+   * Prompt templates allow you to control exactly how conversations are formatted, including
+   * system messages, user inputs, and assistant responses. This is particularly useful when
+   * working with models that expect specific formatting conventions.
+   *
+   * Different models may have different optimal prompt templates, so this allows for
+   * model-specific customization.
+   *
+   * @deprecated The current type for promptTemplate is not yet finalized. We are working on a new
+   * type that will be more flexible and easier to use. Stay tuned for updates.
    */
   promptTemplate?: LLMPromptTemplate;
   /**
@@ -156,9 +216,8 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
   /**
    * Warning: Experimental and subject to change.
    *
-   * TODO: Documentation
-   *
    * @alpha
+   * @deprecated This feature is experimental and may change or be removed in the future.
    */
   speculativeDecodingNumDraftTokensExact?: number;
   /**
@@ -173,9 +232,8 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
   /**
    * Warning: Experimental and subject to change.
    *
-   * TODO: Documentation
-   *
    * @alpha
+   * @deprecated This feature is experimental and may change or be removed in the future.
    */
   speculativeDecodingMinContinueDraftingProbability?: number;
   /**
