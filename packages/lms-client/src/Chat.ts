@@ -27,6 +27,10 @@ import {
 import { type LMStudioClient } from "./LMStudioClient.js";
 import { FileHandle } from "./files/FileHandle.js";
 
+export interface ChatAppendOpts {
+  images?: Array<FileHandle>;
+}
+
 /**
  * Represents a chat history.
  *
@@ -130,24 +134,40 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
   /**
    * Append a text message to the history.
    */
-  public append(role: ChatMessageRoleData, content: string): void;
+  public append(role: ChatMessageRoleData, content: string, opts?: ChatAppendOpts): void;
   /**
    * Append a message to the history.
    */
-  public append(message: ChatMessage): void;
-  public append(...args: [role: ChatMessageRoleData, content: string] | [message: ChatMessage]) {
+  public append(message: ChatMessageLike): void;
+  public append(
+    ...args:
+      | [role: ChatMessageRoleData, content: string, opts?: ChatAppendOpts]
+      | [message: ChatMessageLike]
+  ) {
     this.guardMutable();
     if (args.length === 1) {
-      const [message] = args;
-      const messageMutable = accessMaybeMutableInternals(message)._internalToMutable();
+      const [chatMessageLike] = args;
+      const chatMessage = ChatMessage.from(chatMessageLike);
+      const messageMutable = accessMaybeMutableInternals(chatMessage)._internalToMutable();
       this.data.messages.push(accessMaybeMutableInternals(messageMutable)._internalGetData());
     } else {
-      const [role, content] = args;
+      const [role, content, opts = {}] = args;
       if (role === "user" || role === "system" || role === "assistant") {
-        this.data.messages.push({
-          role,
-          content: [{ type: "text", text: content }],
-        });
+        const parts: Array<ChatMessagePartTextData | ChatMessagePartFileData> = [
+          { type: "text", text: content },
+        ];
+        if (opts.images !== undefined) {
+          for (const image of opts.images) {
+            parts.push({
+              type: "file",
+              name: image.name,
+              identifier: image.identifier,
+              sizeBytes: image.sizeBytes,
+              fileType: image.type,
+            });
+          }
+        }
+        this.data.messages.push({ role, content: parts });
       } else {
         throw new Error(text`
           Unsupported role for append() API with [role, content] parameters: ${role}.
@@ -160,13 +180,15 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
   /**
    * Make a copy of this history and append a text message to the copy. Return the copy.
    */
-  public withAppended(role: ChatMessageRoleData, content: string): Chat;
+  public withAppended(role: ChatMessageRoleData, content: string, opts?: ChatAppendOpts): Chat;
   /**
    * Make a copy of this history and append a message to the copy. Return the copy.
    */
-  public withAppended(message: ChatMessage): Chat;
+  public withAppended(message: ChatMessageLike): Chat;
   public withAppended(
-    ...args: [role: ChatMessageRoleData, content: string] | [message: ChatMessage]
+    ...args:
+      | [role: ChatMessageRoleData, content: string, opts?: ChatAppendOpts]
+      | [message: ChatMessageLike]
   ): Chat {
     const copy = this.asMutableCopy();
     (copy.append as any)(...args);

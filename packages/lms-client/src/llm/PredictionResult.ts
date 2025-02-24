@@ -29,10 +29,14 @@ export class PredictionResult {
     public readonly modelInfo: LLMInstanceInfo,
     /**
      * The configuration used to load the model. Not stable, subject to change.
+     *
+     * @deprecated Not stable - subject to change
      */
     public readonly loadConfig: KVConfig,
     /**
      * The configuration used for the prediction. Not stable, subject to change.
+     *
+     * @deprecated Not stable - subject to change
      */
     public readonly predictionConfig: KVConfig,
   ) {}
