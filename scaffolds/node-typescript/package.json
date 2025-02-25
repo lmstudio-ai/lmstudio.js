@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
-    "start": "tsc && node dist/index.js",
+    "start": "tsc && node --enable-source-maps dist/index.js",
     "build": "tsc"
   },
   "author": "Your Name",

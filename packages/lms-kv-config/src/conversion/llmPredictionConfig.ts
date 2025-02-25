@@ -37,7 +37,7 @@ export function kvConfigToLLMPredictionConfig(config: KVConfig) {
 
   const tools = parsed.get("llm.prediction.tools");
   if (tools !== undefined) {
-    result.tools = tools;
+    result.rawTools = tools;
   }
 
   const topKSampling = parsed.get("llm.prediction.topKSampling");
@@ -129,7 +129,7 @@ export function llmPredictionConfigToKVConfig(config: LLMPredictionConfig): KVCo
     "stopStrings": config.stopStrings,
     "toolCallStopStrings": config.toolCallStopStrings,
     "structured": config.structured,
-    "tools": config.tools,
+    "tools": config.rawTools,
     "topKSampling": config.topKSampling,
     "repeatPenalty": maybeFalseNumberToCheckboxNumeric(config.repeatPenalty, 1.1),
     "minPSampling": maybeFalseNumberToCheckboxNumeric(config.minPSampling, 0.05),
