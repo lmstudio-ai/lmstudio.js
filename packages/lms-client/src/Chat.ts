@@ -27,6 +27,11 @@ import {
 import { type LMStudioClient } from "./LMStudioClient.js";
 import { FileHandle } from "./files/FileHandle.js";
 
+/**
+ * Options to use with {@link Chat#append}.
+ *
+ * @public
+ */
 export interface ChatAppendOpts {
   images?: Array<FileHandle>;
 }

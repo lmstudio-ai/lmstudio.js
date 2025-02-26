@@ -3,6 +3,8 @@
  * information.
  *
  * If you think more information/fields should be added, please open an issue or a PR on GitHub.
+ *
+ * @public
  */
 export class OperationResult {
   public constructor(

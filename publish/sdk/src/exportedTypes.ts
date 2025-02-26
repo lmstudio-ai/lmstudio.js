@@ -1,5 +1,6 @@
 export type {
   BaseLoadModelOpts,
+  ChatAppendOpts,
   ChatInput,
   ChatLike,
   ChatMessageInput,
@@ -24,6 +25,8 @@ export type {
   LLM,
   LLMDynamicHandle,
   LLMNamespace,
+  LLMOperateOpts,
+  LLMPredictionFragmentWithRoundIndex,
   LLMPredictionOpts,
   LLMRespondOpts,
   LMStudioClientConstructorOpts,
@@ -31,6 +34,7 @@ export type {
   ModelSearchResultDownloadOption,
   ModelSearchResultEntry,
   OngoingPrediction,
+  OperationResult,
   ParsedConfig,
   PluginContext,
   PluginsNamespace,

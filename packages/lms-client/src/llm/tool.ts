@@ -2,6 +2,11 @@ import { zodSchemaSchema, type LLMTool } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
+/**
+ * Shared properties of all tools.
+ *
+ * @public
+ */
 export interface ToolBase {
   name: string;
   description: string;
@@ -11,6 +16,11 @@ export const toolBaseSchema = z.object({
   description: z.string(),
 });
 
+/**
+ * A tool that is a function.
+ *
+ * @public
+ */
 export interface FunctionTool extends ToolBase {
   type: "function";
   parametersSchema: ZodSchema;
@@ -22,9 +32,20 @@ export const functionToolSchema = toolBaseSchema.extend({
   implementation: z.function(),
 });
 
+/**
+ * Represents a tool that can be given to an LLM with `.operate`.
+ *
+ * @public
+ */
 export type Tool = FunctionTool;
 export const toolSchema = z.discriminatedUnion("type", [functionToolSchema]);
 
+/**
+ * A function that can be used to create a function `Tool` given a function definition and its
+ * implementation.
+ *
+ * @public
+ */
 export function tool<const TParameters extends Record<string, ZodSchema>>({
   name,
   description,

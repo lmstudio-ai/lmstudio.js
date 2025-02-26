@@ -73,6 +73,9 @@ export class OngoingPrediction<TStructuredOutputType = unknown> extends Streamab
         content,
         this.stats,
         this.modelInfo,
+        // Currently, OngoingPrediction is only used with single round predictions. Thus always
+        // use roundIndex 0.
+        /* roundIndex */ 0,
         this.loadModelConfig,
         this.predictionConfig,
       ) as any;
@@ -81,6 +84,9 @@ export class OngoingPrediction<TStructuredOutputType = unknown> extends Streamab
         content,
         this.stats,
         this.modelInfo,
+        // Currently, OngoingPrediction is only used with single round predictions. Thus always
+        // use roundIndex 0.
+        /* predictionIndex */ 0,
         this.loadModelConfig,
         this.predictionConfig,
         this.parser(content),

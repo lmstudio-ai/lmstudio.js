@@ -43,7 +43,7 @@ import { DynamicHandle } from "../modelShared/DynamicHandle.js";
 import { type LLMNamespace } from "./LLMNamespace.js";
 import { OngoingPrediction } from "./OngoingPrediction.js";
 import { OperationResult } from "./OperationResult.js";
-import { PredictionResult, PredictionResultWithRoundIndex } from "./PredictionResult.js";
+import { PredictionResult } from "./PredictionResult.js";
 import { type Tool, toolToLLMTool } from "./tool.js";
 
 /**
@@ -160,6 +160,8 @@ function splitRespondOpts<TStructuredOutputType>(
  * A {@link LLMPredictionFragment} with the index of the prediction within `.operate(...)`.
  *
  * See {@link LLMPredictionFragment} for more fields.
+ *
+ * @public
  */
 export type LLMPredictionFragmentWithRoundIndex = LLMPredictionFragment & {
   roundIndex: number;
@@ -167,6 +169,8 @@ export type LLMPredictionFragmentWithRoundIndex = LLMPredictionFragment & {
 
 /**
  * Options for {@link LLMDynamicHandle#operate}.
+ *
+ * @public
  */
 export interface LLMOperateOpts<TStructuredOutputType = unknown>
   extends LLMPredictionConfigInput<TStructuredOutputType> {
@@ -214,13 +218,13 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
   onRoundEnd?: (roundIndex: number) => void;
   /**
    * A callback that will be called when a prediction in a round is completed. The callback is
-   * called with the result of the prediction augmented with the round index (the index of the
-   * prediction within `.operate(...)`, 0-indexed) ({@link PredictionResultWithRoundIndex}).
+   * called with the result of the prediction. You can access the roundIndex via the `.roundIndex`
+   * property. (See {@link PredictionResult} for more info).
    *
    * Note: this is called immediately after the prediction is completed. The tools may still be
    * running.
    */
-  onPredictionCompleted?: (predictionResult: PredictionResultWithRoundIndex) => void;
+  onPredictionCompleted?: (predictionResult: PredictionResult) => void;
   /**
    * A callback that is called when the model is processing the prompt. The callback is called with
    * the round index (the index of the prediction within `.operate(...)`, 0-indexed) and a number
@@ -1065,13 +1069,13 @@ export class LLMDynamicHandle extends DynamicHandle<
               break;
             }
             case "success": {
-              const predictionResult = new PredictionResultWithRoundIndex(
+              const predictionResult = new PredictionResult(
                 contentArray.join(""),
                 message.stats,
                 message.modelInfo,
+                predictionsPerformed,
                 message.loadModelConfig,
                 message.predictionConfig,
-                predictionsPerformed,
               );
               safeCallCallback(
                 this.logger,

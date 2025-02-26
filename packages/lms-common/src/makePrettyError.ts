@@ -7,7 +7,7 @@ import { changeErrorStackInPlace } from "./errorStack.js";
 export function makeTitledPrettyError(title: string, content: string, stack?: string) {
   return makePrettyError(chalk.redBright(` ${title} `) + "\n\n" + content, stack);
 }
-export function makePrettyError(content: string, stack?: string) {
+export function makePrettyError(content: string, stack?: string): Error {
   if ((process as any).browser || process.env.LMS_NO_FANCY_ERRORS || terminalSize().columns < 80) {
     const error = new Error(content);
     if (stack === undefined) {

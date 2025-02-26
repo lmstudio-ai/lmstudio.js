@@ -53,8 +53,8 @@ export const llmReasoningParsingSchema = z.object({
  */
 export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
   /**
-   * Number of tokens to predict at most. If set to false, the model will predict as many tokens as it
-   * wants.
+   * Number of tokens to predict at most. If set to false, the model will predict as many tokens as
+   * it wants.
    *
    * When the prediction is stopped because of this limit, the `stopReason` in the prediction stats
    * will be set to `maxPredictedTokensReached`.
