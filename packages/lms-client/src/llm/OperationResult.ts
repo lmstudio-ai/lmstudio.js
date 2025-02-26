@@ -1,5 +1,5 @@
 /**
- * Represents the result of running `llm.operate`. Currently only contains minimum amount of
+ * Represents the result of running `llm.act`. Currently only contains minimum amount of
  * information.
  *
  * If you think more information/fields should be added, please open an issue or a PR on GitHub.
@@ -24,7 +24,7 @@ export class OperationResult {
      */
     public readonly rounds: number,
     /**
-     * Total time taken to run the operation in seconds, measured from beginning of the `.operate`
+     * Total time taken to run the operation in seconds, measured from beginning of the `.act`
      * invocation to when the entire operation is finished.
      */
     public readonly totalOperationTimeSeconds: number,

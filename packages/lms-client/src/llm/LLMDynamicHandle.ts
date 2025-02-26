@@ -157,7 +157,7 @@ function splitRespondOpts<TStructuredOutputType>(
 }
 
 /**
- * A {@link LLMPredictionFragment} with the index of the prediction within `.operate(...)`.
+ * A {@link LLMPredictionFragment} with the index of the prediction within `.act(...)`.
  *
  * See {@link LLMPredictionFragment} for more fields.
  *
@@ -168,24 +168,24 @@ export type LLMPredictionFragmentWithRoundIndex = LLMPredictionFragment & {
 };
 
 /**
- * Options for {@link LLMDynamicHandle#operate}.
+ * Options for {@link LLMDynamicHandle#act}.
  *
  * @public
  */
-export interface LLMOperateOpts<TStructuredOutputType = unknown>
+export interface LLMActOpts<TStructuredOutputType = unknown>
   extends LLMPredictionConfigInput<TStructuredOutputType> {
   /**
    * A callback that is called when the model has output the first token of a prediction. This
-   * callback is called with round index (the index of the prediction within `.operate(...)`,
+   * callback is called with round index (the index of the prediction within `.act(...)`,
    * 0-indexed).
    */
   onFirstToken?: (roundIndex: number) => void;
   /**
    * A callback for each fragment that is output by the model. This callback is called with the
    * fragment that is emitted. The fragment itself is augmented with the round index (the index of
-   * the prediction within `.operate(...)`, 0-indexed).
+   * the prediction within `.act(...)`, 0-indexed).
    *
-   * For example, for an `.operate` invocation with 2 predictions, the callback may be called in the
+   * For example, for an `.act` invocation with 2 predictions, the callback may be called in the
    * following sequence.
    *
    * - `{ roundIndex: 0, content: "f1", ... }` when the first prediction emits `f1`.
@@ -198,7 +198,7 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    * A callback that is called when a message is generated and should be added to the Chat. This is
    * useful if you want to add the generated content to a chat so you can continue the conversation.
    *
-   * Note that, during one `operate` call, multiple messages may be generated, and this callback
+   * Note that, during one `act` call, multiple messages may be generated, and this callback
    * will be called multiple times. For example, if the model requests to use a tool during the
    * first prediction and stops after the second prediction, three messages will be created (and
    * thus this callback will be called three times):
@@ -227,10 +227,10 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
   onPredictionCompleted?: (predictionResult: PredictionResult) => void;
   /**
    * A callback that is called when the model is processing the prompt. The callback is called with
-   * the round index (the index of the prediction within `.operate(...)`, 0-indexed) and a number
+   * the round index (the index of the prediction within `.act(...)`, 0-indexed) and a number
    * between 0 and 1, representing the progress of the prompt processing.
    *
-   * For example, for an `.operate` invocation with 2 prediction rounds, the callback may be called
+   * For example, for an `.act` invocation with 2 prediction rounds, the callback may be called
    * in the following sequence.
    *
    * - `(0, 0.3)` when the first prediction's prompt processing is 30% done.
@@ -262,7 +262,7 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    * failed to parse.
    *
    * If you decide the failure is too severe to continue, you can always throw an error in this
-   * callback, which will immediately fail the `.operate` call with the same error you provided.
+   * callback, which will immediately fail the `.act` call with the same error you provided.
    *
    * By default, we use the following implementation:
    *
@@ -278,7 +278,7 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    * The default handler will do the following: If the model requested a tool that can be parsed but
    * is still invalid, we will return the error message as the result of the tool call. If the model
    * requested a tool that cannot be parsed, we will throw an error, which will immediately fail the
-   * `.operate` call.
+   * `.act` call.
    *
    * Note, when an invalid tool request occurs due to parameters type mismatch, we will never call
    * the original tool automatically due to security considerations. If you do decide to call the
@@ -303,7 +303,7 @@ export interface LLMOperateOpts<TStructuredOutputType = unknown>
    */
   signal?: AbortSignal;
 }
-const llmOperateOptsSchema = llmPredictionConfigInputSchema.extend({
+const llmActOptsSchema = llmPredictionConfigInputSchema.extend({
   onFirstToken: z.function().optional(),
   onPredictionFragment: z.function().optional(),
   onMessage: z.function().optional(),
@@ -322,14 +322,14 @@ const defaultHandleInvalidToolRequest = (error: Error, request: ToolCallRequest 
   throw error;
 };
 
-type LLMOperateExtraOpts<TStructuredOutputType = unknown> = Omit<
-  LLMOperateOpts<TStructuredOutputType>,
+type LLMActExtraOpts<TStructuredOutputType = unknown> = Omit<
+  LLMActOpts<TStructuredOutputType>,
   keyof LLMPredictionConfigInput<TStructuredOutputType>
 >;
 
 function splitOperationOpts<TStructuredOutputType>(
-  opts: LLMOperateOpts<TStructuredOutputType>,
-): [LLMPredictionConfigInput<TStructuredOutputType>, LLMOperateExtraOpts<TStructuredOutputType>] {
+  opts: LLMActOpts<TStructuredOutputType>,
+): [LLMPredictionConfigInput<TStructuredOutputType>, LLMActExtraOpts<TStructuredOutputType>] {
   const {
     onFirstToken,
     onPredictionFragment,
@@ -741,7 +741,7 @@ export class LLMDynamicHandle extends DynamicHandle<
   }
 
   /**
-   * @param chat - The LLMChatHistory array to operate from as the base
+   * @param chat - The LLMChatHistory array to act from as the base
    * @param tool - An array of tools that the model can use during the operation. You can create
    * tools by using the `tool` function.
    * @param opts - Additional options
@@ -755,32 +755,33 @@ export class LLMDynamicHandle extends DynamicHandle<
    * const client = new LMStudioClient();
    * const llm = await client.llm.model();
    *
-   * await llm.operate("What is 1234 + 4321?", {
-   *   tools: [tool({
-   *     name: "add",
-   *     description: "Add two numbers",
-   *     parameters: {
-   *       a: z.number(),
-   *       b: z.number(),
-   *     },
-   *     implementation: ({ a, b }) => a + b,
-   *   })],
-   *   // ... Other options ...
+   * const additionTool = tool({
+   *   name: "add",
+   *   description: "Add two numbers",
+   *   parameters: {
+   *     a: z.number(),
+   *     b: z.number(),
+   *   },
+   *   implementation: ({ a, b }) => a + b,
+   * });
+   *
+   * await llm.act("What is 1234 + 4321?", [additionTool], {
+   *   onMessage: message => console.log(message.toString()),
    * });
    * ```
    */
-  public async operate(
+  public async act(
     chat: ChatLike,
     tools: Array<Tool>,
-    opts: LLMOperateOpts = {},
+    opts: LLMActOpts = {},
   ): Promise<OperationResult> {
     const startTime = performance.now();
     const stack = getCurrentStack(1);
     [chat, opts] = this.validator.validateMethodParamsOrThrow(
       "model",
-      "operate",
+      "act",
       ["chat", "opts"],
-      [chatHistoryLikeSchema, llmOperateOptsSchema],
+      [chatHistoryLikeSchema, llmActOptsSchema],
       [chat, opts],
       stack,
     );
@@ -800,10 +801,10 @@ export class LLMDynamicHandle extends DynamicHandle<
     }
 
     if (config.structured !== undefined) {
-      throw makePrettyError("Structured output is currently not supported in operate.", stack);
+      throw makePrettyError("Structured output is currently not supported in act.", stack);
     }
     if (config.rawTools !== undefined) {
-      throw makePrettyError("`rawTools` is not supported in operate. Use `tools` instead", stack);
+      throw makePrettyError("`rawTools` is not supported in act. Use `tools` instead", stack);
     }
 
     let shouldContinue = false;

@@ -33,7 +33,7 @@ export const functionToolSchema = toolBaseSchema.extend({
 });
 
 /**
- * Represents a tool that can be given to an LLM with `.operate`.
+ * Represents a tool that can be given to an LLM with `.act`.
  *
  * @public
  */
