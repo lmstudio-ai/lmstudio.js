@@ -1104,28 +1104,29 @@ export class LLMDynamicHandle extends DynamicHandle<
       });
 
       predictionPromise
+        .then(() => {
+          // Append and emit the assistant message.
+          const assistantMessage = ChatMessage.from({
+            role: "assistant",
+            content: [
+              {
+                type: "text",
+                text: contentArray.join(""),
+              },
+              ...toolCallRequests.map<ChatMessagePartToolCallRequestData>(toolCallRequest => ({
+                type: "toolCallRequest",
+                toolCallRequest,
+              })),
+            ],
+          });
+          mutableChat.append(assistantMessage.asMutableCopy());
+          safeCallCallback(this.logger, "onMessage", extraOpts.onMessage, [assistantMessage]);
+        })
         // When the prediction is completed, wait for all tool calls to be completed.
         .then(() => Promise.all(toolCallPromises))
         .then(() => finalResolve(), finalReject);
 
       await finalPromise;
-
-      // Append and emit the assistant message.
-      const assistantMessage = ChatMessage.from({
-        role: "assistant",
-        content: [
-          {
-            type: "text",
-            text: contentArray.join(""),
-          },
-          ...toolCallRequests.map<ChatMessagePartToolCallRequestData>(toolCallRequest => ({
-            type: "toolCallRequest",
-            toolCallRequest,
-          })),
-        ],
-      });
-      mutableChat.append(assistantMessage.asMutableCopy());
-      safeCallCallback(this.logger, "onMessage", extraOpts.onMessage, [assistantMessage]);
 
       shouldContinue = false;
       if (toolCallResults.length > 0) {
