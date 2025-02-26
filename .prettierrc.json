@@ -3,5 +3,7 @@
   "printWidth": 100,
   "quoteProps": "consistent",
   "arrowParens": "avoid",
-  "trailingComma": "all"
+  "trailingComma": "all",
+  "tabs": false,
+  "tabWidth": 2
 }

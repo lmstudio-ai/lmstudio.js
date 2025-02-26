@@ -1,0 +1,106 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LLM .complete should work with streaming 1`] = `
+[
+  {
+    "containsDrafted": false,
+    "content": "4",
+    "reasoningType": "none",
+    "tokensCount": 1,
+  },
+]
+`;
+
+exports[`LLM .complete should work with streaming 2`] = `
+{
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 1,
+  "promptTokensCount": 15,
+  "stopReason": "stopStringFound",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalTokensCount": 16,
+}
+`;
+
+exports[`LLM .complete should work with streaming 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 0.5B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "1B",
+  "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 397807936,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
+
+exports[`LLM .complete should work without streaming 1`] = `
+{
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 1,
+  "promptTokensCount": 15,
+  "stopReason": "stopStringFound",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalTokensCount": 16,
+}
+`;
+
+exports[`LLM .complete should work without streaming 2`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 0.5B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "1B",
+  "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 397807936,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
+
+exports[`LLM can apply prompt template to a regular chat 1`] = `
+"<|im_start|>system
+This is the system prompt.<|im_end|>
+<|im_start|>user
+User message 1<|im_end|>
+<|im_start|>assistant
+Assistant message 1<|im_end|>
+<|im_start|>user
+User message 2<|im_end|>
+<|im_start|>assistant
+"
+`;
+
+exports[`LLM can get model info 1`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 0.5B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "1B",
+  "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 397807936,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
