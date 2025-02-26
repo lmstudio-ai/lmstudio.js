@@ -9,7 +9,7 @@
     "watch-tsc": "npm run gen && tsc --build tsconfig.build.json --watch",
     "watch-jest": "jest --watch --testMatch \"**/?(*.)+(test).ts\" --testMatch \"!**/?(*.)+(heavy).(test).ts\"",
     "test": "jest --testMatch \"**/?(*.)+(test).ts\" --testMatch \"!**/?(*.)+(heavy).(test).ts\"",
-    "test-sequential": "jest --testMatch \"**/?(*.)+(test).ts\" --testMatch \"!**/?(*.)+(heavy).(test).ts --runInBand\"",
+    "test-sequential": "jest --testMatch \"**/?(*.)+(test).ts\" --testMatch \"!**/?(*.)+(heavy).(test).ts\" --runInBand",
     "test-full": "jest --testMatch \"**/?(*.)+(test).ts\" --runInBand",
     "watch-ui-css": "cd packages/lms-ui && npm run watch-css",
     "watch-sdk-ae": "cd publish/sdk && npm run watch-ae",

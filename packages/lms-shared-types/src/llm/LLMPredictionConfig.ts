@@ -108,7 +108,7 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
   structured?: ZodType<TStructuredOutputType> | LLMStructuredPredictionSetting;
   /**
    * @deprecated Raw tools are currently not well-supported. It may or may not work. If you want to
-   * use tools, use `model.operate` instead.
+   * use tools, use `model.act` instead.
    */
   rawTools?: LLMToolUseSetting;
   /**

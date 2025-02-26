@@ -29,7 +29,7 @@ export class PredictionResult {
     public readonly modelInfo: LLMInstanceInfo,
     /**
      * The 0-indexed round index of the prediction in multi-round scenario (for example,
-     * `.operate`). Will always be 0 for single-round predictions such as `.respond` or `.complete`.
+     * `.act`). Will always be 0 for single-round predictions such as `.respond` or `.complete`.
      */
     public readonly roundIndex: number,
     /**
