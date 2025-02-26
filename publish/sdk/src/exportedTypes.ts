@@ -23,7 +23,7 @@ export type {
   Generator,
   GeneratorController,
   LLM,
-  LLMActOpts,
+  LLMActionOpts,
   LLMDynamicHandle,
   LLMNamespace,
   LLMPredictionFragmentWithRoundIndex,

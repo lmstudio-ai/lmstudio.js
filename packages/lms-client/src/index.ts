@@ -21,7 +21,7 @@ export type { RetrievalCallbacks, RetrievalOpts } from "./files/RetrievalOpts.js
 export type { RetrievalResult, RetrievalResultEntry } from "./files/RetrievalResult.js";
 export type { LLM } from "./llm/LLM.js";
 export type {
-  LLMActOpts,
+  LLMActionOpts,
   LLMDynamicHandle,
   LLMPredictionFragmentWithRoundIndex,
   LLMPredictionOpts,

@@ -172,7 +172,7 @@ export type LLMPredictionFragmentWithRoundIndex = LLMPredictionFragment & {
  *
  * @public
  */
-export interface LLMActOpts<TStructuredOutputType = unknown>
+export interface LLMActionOpts<TStructuredOutputType = unknown>
   extends LLMPredictionConfigInput<TStructuredOutputType> {
   /**
    * A callback that is called when the model has output the first token of a prediction. This
@@ -303,7 +303,7 @@ export interface LLMActOpts<TStructuredOutputType = unknown>
    */
   signal?: AbortSignal;
 }
-const llmActOptsSchema = llmPredictionConfigInputSchema.extend({
+const llmActionOptsSchema = llmPredictionConfigInputSchema.extend({
   onFirstToken: z.function().optional(),
   onPredictionFragment: z.function().optional(),
   onMessage: z.function().optional(),
@@ -323,12 +323,12 @@ const defaultHandleInvalidToolRequest = (error: Error, request: ToolCallRequest 
 };
 
 type LLMActExtraOpts<TStructuredOutputType = unknown> = Omit<
-  LLMActOpts<TStructuredOutputType>,
+  LLMActionOpts<TStructuredOutputType>,
   keyof LLMPredictionConfigInput<TStructuredOutputType>
 >;
 
 function splitOperationOpts<TStructuredOutputType>(
-  opts: LLMActOpts<TStructuredOutputType>,
+  opts: LLMActionOpts<TStructuredOutputType>,
 ): [LLMPredictionConfigInput<TStructuredOutputType>, LLMActExtraOpts<TStructuredOutputType>] {
   const {
     onFirstToken,
@@ -753,7 +753,7 @@ export class LLMDynamicHandle extends DynamicHandle<
    * import { z } from "zod";
    *
    * const client = new LMStudioClient();
-   * const llm = await client.llm.model();
+   * const model = await client.llm.model();
    *
    * const additionTool = tool({
    *   name: "add",
@@ -765,7 +765,7 @@ export class LLMDynamicHandle extends DynamicHandle<
    *   implementation: ({ a, b }) => a + b,
    * });
    *
-   * await llm.act("What is 1234 + 4321?", [additionTool], {
+   * await model.act("What is 1234 + 4321?", [additionTool], {
    *   onMessage: message => console.log(message.toString()),
    * });
    * ```
@@ -773,7 +773,7 @@ export class LLMDynamicHandle extends DynamicHandle<
   public async act(
     chat: ChatLike,
     tools: Array<Tool>,
-    opts: LLMActOpts = {},
+    opts: LLMActionOpts = {},
   ): Promise<OperationResult> {
     const startTime = performance.now();
     const stack = getCurrentStack(1);
@@ -781,7 +781,7 @@ export class LLMDynamicHandle extends DynamicHandle<
       "model",
       "act",
       ["chat", "opts"],
-      [chatHistoryLikeSchema, llmActOptsSchema],
+      [chatHistoryLikeSchema, llmActionOptsSchema],
       [chat, opts],
       stack,
     );
