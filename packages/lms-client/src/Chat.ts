@@ -384,25 +384,10 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
       this.data.messages
         .map(message => {
           const messageString = ChatMessage.createRaw(message, false).toString();
-          if (messageString.includes("\n")) {
-            const colonIndex = messageString.indexOf(": ");
-            if (colonIndex === -1) {
-              return "  " + messageString;
-            }
-            const role = messageString.slice(0, colonIndex);
-            const content = messageString.slice(colonIndex + 2);
-            return (
-              "  " +
-              role +
-              ":\n" +
-              content
-                .split("\n")
-                .map(line => "    " + line)
-                .join("\n")
-            );
-          } else {
-            return "  " + messageString;
-          }
+          return messageString
+            .split("\n")
+            .map(line => "  " + line)
+            .join("\n");
         })
         .join("\n") +
       "\n}"
@@ -744,30 +729,38 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
   }
 
   public override toString() {
-    return (
-      this.data.role +
-      ": " +
-      this.data.content
-        .map(part => {
-          switch (part.type) {
-            case "text":
-              return part.text;
-            case "file":
-              return `<file ${part.name}>`;
-            case "toolCallRequest":
-              return (
-                part.toolCallRequest.name + `(${JSON.stringify(part.toolCallRequest.arguments)})`
-              );
-            case "toolCallResult":
-              return part.content;
-            default: {
-              const exhaustiveCheck: never = part;
-              throw new Error(`Unknown part type: ${(exhaustiveCheck as any).type}`);
-            }
+    const text = this.data.content
+      .map(part => {
+        switch (part.type) {
+          case "text":
+            return part.text;
+          case "file":
+            return `<file ${part.name}>`;
+          case "toolCallRequest":
+            return (
+              part.toolCallRequest.name + `(${JSON.stringify(part.toolCallRequest.arguments)})`
+            );
+          case "toolCallResult":
+            return part.content;
+          default: {
+            const exhaustiveCheck: never = part;
+            throw new Error(`Unknown part type: ${(exhaustiveCheck as any).type}`);
           }
-        })
-        .join(" ")
-    );
+        }
+      })
+      .join(" ");
+    if (text.includes("\n")) {
+      return (
+        this.data.role +
+        ":\n" +
+        text
+          .split("\n")
+          .map(line => "  " + line)
+          .join("\n")
+      );
+    } else {
+      return this.data.role + ": " + text;
+    }
   }
 }
 /**
