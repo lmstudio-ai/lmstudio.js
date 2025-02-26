@@ -77,5 +77,14 @@ describe("LLM", () => {
         modelKey: expect.any(String),
       });
     });
+    it("should allow cancel via .cancel()", async () => {
+      const prediction = model.complete("1 + 1 = 2; 2 + 2 = ", {
+        temperature: 0,
+        maxTokens: 50,
+      });
+      prediction.cancel();
+      const result = await prediction.result();
+      expect(result.stats.stopReason).toEqual("userStopped");
+    });
   });
 });

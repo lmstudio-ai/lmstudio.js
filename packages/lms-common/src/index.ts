@@ -9,6 +9,7 @@ export {
 
 export { apiServerPorts } from "./apiServerPorts.js";
 export { BufferedEvent } from "./BufferedEvent.js";
+export { CancelEvent } from "./CancelEvent.js";
 export { Cleaner } from "./Cleaner.js";
 export { deepFreeze } from "./deepFreeze.js";
 export { DeepReplaceType, DeepReplaceType2 } from "./DeepReplaceType.js";
