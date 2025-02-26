@@ -1,4 +1,9 @@
-import { getCurrentStack, SimpleLogger, type Validator } from "@lmstudio/lms-common";
+import {
+  getCurrentStack,
+  makePrettyError,
+  SimpleLogger,
+  type Validator,
+} from "@lmstudio/lms-common";
 import { type EmbeddingPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
   type EmbeddingModelInstanceInfo,
@@ -49,5 +54,13 @@ export class EmbeddingModel
   public async unload() {
     const stack = getCurrentStack(1);
     await this.port.callRpc("unloadModel", { identifier: this.identifier }, { stack });
+  }
+  public override async getModelInfo(): Promise<EmbeddingModelInstanceInfo> {
+    const info = await super.getModelInfo();
+    if (info === undefined) {
+      const stack = getCurrentStack(1);
+      throw makePrettyError("This model has already been unloaded", stack);
+    }
+    return info;
   }
 }

@@ -28,11 +28,20 @@ export class PredictionResult {
      */
     public readonly modelInfo: LLMInstanceInfo,
     /**
+     * The 0-indexed round index of the prediction in multi-round scenario (for example,
+     * `.operate`). Will always be 0 for single-round predictions such as `.respond` or `.complete`.
+     */
+    public readonly roundIndex: number,
+    /**
      * The configuration used to load the model. Not stable, subject to change.
+     *
+     * @deprecated Not stable - subject to change
      */
     public readonly loadConfig: KVConfig,
     /**
      * The configuration used for the prediction. Not stable, subject to change.
+     *
+     * @deprecated Not stable - subject to change
      */
     public readonly predictionConfig: KVConfig,
   ) {}
@@ -52,6 +61,7 @@ export class StructuredPredictionResult<TStructuredOutputType = unknown> extends
     content: string,
     stats: LLMPredictionStats,
     modelInfo: LLMInstanceInfo,
+    roundIndex: number,
     loadConfig: KVConfig,
     predictionConfig: KVConfig,
     /**
@@ -59,6 +69,6 @@ export class StructuredPredictionResult<TStructuredOutputType = unknown> extends
      */
     public readonly parsed: TStructuredOutputType,
   ) {
-    super(content, stats, modelInfo, loadConfig, predictionConfig);
+    super(content, stats, modelInfo, roundIndex, loadConfig, predictionConfig);
   }
 }

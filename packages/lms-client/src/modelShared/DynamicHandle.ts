@@ -37,7 +37,7 @@ export abstract class DynamicHandle<
   ) {}
 
   /**
-   * Gets the information of the model that is currently associated with this `LLMModel`. If no
+   * Gets the information of the model that is currently associated with this `DynamicHandle`. If no
    * model is currently associated, this will return `undefined`.
    *
    * Note: As models are loaded/unloaded, the model associated with this `LLMModel` may change at
