@@ -11,7 +11,13 @@ import {
 } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
 
-// Hack to allow search and replace parameterized types
+// Hack to allow search and replace parameterized types:
+//
+// We mark these types with a brand field so they cannot be mistaken for other types. Later, we use
+// `DeepReplaceType2` to replace these types with concrete ModelInstanceInfo and ModelInfo types.
+//
+// It is very unfortunate that we have to do this. It is trying to work around the fact that
+// TypeScript does not support higher order types.
 type SpecificModelInstanceInfo = ModelInstanceInfoBase & { brand: true };
 type SpecificModelInfo = ModelInfoBase & { brand: true };
 
