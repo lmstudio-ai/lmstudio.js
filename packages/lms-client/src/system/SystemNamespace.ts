@@ -47,7 +47,7 @@ export class SystemNamespace {
     const models = await this.systemPort.callRpc("listDownloadedModels", undefined, {
       stack: getCurrentStack(1),
     });
-    if (models === undefined) {
+    if (domain === undefined) {
       return models;
     }
     return models.filter(model => model.type === domain);
