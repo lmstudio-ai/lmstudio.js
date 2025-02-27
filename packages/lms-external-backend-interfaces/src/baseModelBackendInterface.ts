@@ -6,9 +6,14 @@ import {
   kvConfigStackSchema,
   type ModelInfoBase,
   type ModelInstanceInfoBase,
+  modelInstanceInfoSchema,
   modelSpecifierSchema,
 } from "@lmstudio/lms-shared-types";
 import { z, type ZodSchema } from "zod";
+
+// Hack to allow search and replace parameterized types
+type SpecificModelInstanceInfo = ModelInstanceInfoBase & { brand: true };
+type SpecificModelInfo = ModelInfoBase & { brand: true };
 
 /**
  * Create a base model backend interface that are used by all domain-specific model backend
@@ -18,9 +23,13 @@ export function createBaseModelBackendInterface<
   TModelInstanceInfo extends ModelInstanceInfoBase,
   TModelInfoSchema extends ModelInfoBase,
 >(
-  modelInstanceInfoSchema: ZodSchema<TModelInstanceInfo>,
-  modelInfoSchema: ZodSchema<TModelInfoSchema>,
+  specificModelInstanceInfoSchemaInput: ZodSchema<TModelInstanceInfo>,
+  specificModelInfoSchemaInput: ZodSchema<TModelInfoSchema>,
 ) {
+  const specificModelInstanceInfoSchema =
+    specificModelInstanceInfoSchemaInput as any as ZodSchema<SpecificModelInstanceInfo>;
+  const specificModelInfoSchema =
+    specificModelInfoSchemaInput as any as ZodSchema<SpecificModelInfo>;
   return new BackendInterface()
     .addChannelEndpoint("loadModel", {
       creationParameter: z.object({
@@ -35,7 +44,7 @@ export function createBaseModelBackendInterface<
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
           type: z.literal("resolved"),
-          info: modelInfoSchema,
+          info: specificModelInfoSchema,
           ambiguous: z.array(z.string()).optional(),
         }),
         z.object({
@@ -44,7 +53,7 @@ export function createBaseModelBackendInterface<
         }),
         z.object({
           type: z.literal("success"),
-          info: modelInstanceInfoSchema,
+          info: specificModelInstanceInfoSchema,
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
@@ -61,14 +70,14 @@ export function createBaseModelBackendInterface<
     })
     .addRpcEndpoint("listLoaded", {
       parameter: z.undefined(),
-      returns: z.array(modelInstanceInfoSchema),
+      returns: z.array(specificModelInstanceInfoSchema),
     })
     .addRpcEndpoint("getModelInfo", {
       parameter: z.object({
         specifier: modelSpecifierSchema,
         throwIfNotFound: z.boolean(),
       }),
-      returns: modelInstanceInfoSchema.optional(),
+      returns: specificModelInstanceInfoSchema.optional(),
     })
     .addRpcEndpoint("getLoadConfig", {
       parameter: z.object({
@@ -89,12 +98,12 @@ export function createBaseModelBackendInterface<
       toClientPacket: z.discriminatedUnion("type", [
         z.object({
           type: z.literal("alreadyLoaded"),
-          info: modelInstanceInfoSchema,
+          info: specificModelInstanceInfoSchema,
         }),
         z.object({
           type: z.literal("startLoading"),
           identifier: z.string(),
-          info: modelInfoSchema,
+          info: specificModelInfoSchema,
         }),
         z.object({
           // We are unloading other JIT model
@@ -107,7 +116,7 @@ export function createBaseModelBackendInterface<
         }),
         z.object({
           type: z.literal("loadSuccess"),
-          info: modelInstanceInfoSchema,
+          info: specificModelInstanceInfoSchema,
         }),
       ]),
       toServerPacket: z.discriminatedUnion("type", [
@@ -133,30 +142,30 @@ export type BaseModelPort<
   ? ClientPort<
       DeepReplaceType2<
         RRpcEndpoints,
-        ModelInstanceInfoBase,
+        SpecificModelInstanceInfo,
         TModelInstanceInfo,
-        ModelInfoBase,
+        SpecificModelInfo,
         TModelInfo
       >,
       DeepReplaceType2<
         RChannelEndpoints,
-        ModelInstanceInfoBase,
+        SpecificModelInstanceInfo,
         TModelInstanceInfo,
-        ModelInfoBase,
+        SpecificModelInfo,
         TModelInfo
       >,
       DeepReplaceType2<
         RSignalEndpoints,
-        ModelInstanceInfoBase,
+        SpecificModelInstanceInfo,
         TModelInstanceInfo,
-        ModelInfoBase,
+        SpecificModelInfo,
         TModelInfo
       >,
       DeepReplaceType2<
         RWritableSignalEndpoints,
-        ModelInstanceInfoBase,
+        SpecificModelInstanceInfo,
         TModelInstanceInfo,
-        ModelInfoBase,
+        SpecificModelInfo,
         TModelInfo
       >
     >
@@ -177,30 +186,30 @@ export type BaseModelBackendInterface<
       RContext,
       DeepReplaceType2<
         RRpcEndpoints,
-        ModelInstanceInfoBase,
+        SpecificModelInstanceInfo,
         TModelInstanceInfo,
-        ModelInfoBase,
+        SpecificModelInfo,
         TModelInfo
       >,
       DeepReplaceType2<
         RChannelEndpoints,
-        ModelInstanceInfoBase,
+        SpecificModelInstanceInfo,
         TModelInstanceInfo,
-        ModelInfoBase,
+        SpecificModelInfo,
         TModelInfo
       >,
       DeepReplaceType2<
         RSignalEndpoints,
-        ModelInstanceInfoBase,
+        SpecificModelInstanceInfo,
         TModelInstanceInfo,
-        ModelInfoBase,
+        SpecificModelInfo,
         TModelInfo
       >,
       DeepReplaceType2<
         RWritableSignalEndpoints,
-        ModelInstanceInfoBase,
+        SpecificModelInstanceInfo,
         TModelInstanceInfo,
-        ModelInfoBase,
+        SpecificModelInfo,
         TModelInfo
       >
     >
