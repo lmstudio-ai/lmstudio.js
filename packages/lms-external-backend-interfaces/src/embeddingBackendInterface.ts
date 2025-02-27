@@ -35,6 +35,15 @@ export function createEmbeddingBackendInterface() {
       returns: z.object({
         tokens: z.array(z.number()),
       }),
+    })
+    .addRpcEndpoint("countTokens", {
+      parameter: z.object({
+        specifier: modelSpecifierSchema,
+        inputString: z.string(),
+      }),
+      returns: z.object({
+        tokenCount: z.number().int(),
+      }),
     });
 }
 

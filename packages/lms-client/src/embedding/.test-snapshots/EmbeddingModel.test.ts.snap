@@ -1,5 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`EmbeddingModel Can tokenize correctly 1`] = `
+[
+  101,
+  8488,
+  2003,
+  1037,
+  10535,
+  1012,
+  102,
+]
+`;
+
 exports[`EmbeddingModel can get model info 1`] = `
 {
   "architecture": "nomic-bert",

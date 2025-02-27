@@ -28,4 +28,12 @@ describe("EmbeddingModel", () => {
       modelKey: expect.any(String),
     });
   });
+  it("Can tokenize correctly", async () => {
+    const tokens = await model.tokenize("Chaos is a ladder.");
+    expect(tokens).toMatchSnapshot();
+  });
+  it("Can count tokens correctly", async () => {
+    const tokenCount = await model.countTokens("Chaos is a ladder.");
+    expect(tokenCount).toMatchInlineSnapshot(`5`);
+  });
 });
