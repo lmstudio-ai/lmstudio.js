@@ -1,4 +1,5 @@
 export type {
+  ActResult,
   BaseLoadModelOpts,
   ChatAppendOpts,
   ChatInput,
@@ -34,7 +35,6 @@ export type {
   ModelSearchResultDownloadOption,
   ModelSearchResultEntry,
   OngoingPrediction,
-  OperationResult,
   ParsedConfig,
   PluginContext,
   PluginsNamespace,

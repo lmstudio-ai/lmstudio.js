@@ -40,9 +40,9 @@ import { z, type ZodSchema } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { Chat, chatHistoryLikeSchema, type ChatLike, ChatMessage } from "../Chat.js";
 import { DynamicHandle } from "../modelShared/DynamicHandle.js";
+import { ActResult } from "./ActResult.js";
 import { type LLMNamespace } from "./LLMNamespace.js";
 import { OngoingPrediction } from "./OngoingPrediction.js";
-import { OperationResult } from "./OperationResult.js";
 import { PredictionResult } from "./PredictionResult.js";
 import { type Tool, toolToLLMTool } from "./tool.js";
 
@@ -774,7 +774,7 @@ export class LLMDynamicHandle extends DynamicHandle<
     chat: ChatLike,
     tools: Array<Tool>,
     opts: LLMActionOpts = {},
-  ): Promise<OperationResult> {
+  ): Promise<ActResult> {
     const startTime = performance.now();
     const stack = getCurrentStack(1);
     [chat, opts] = this.validator.validateMethodParamsOrThrow(
@@ -1155,7 +1155,7 @@ export class LLMDynamicHandle extends DynamicHandle<
         shouldContinue = false;
       }
     } while (shouldContinue);
-    return new OperationResult(predictionsPerformed, (performance.now() - startTime) / 1_000);
+    return new ActResult(predictionsPerformed, (performance.now() - startTime) / 1_000);
   }
 
   public async getContextLength(): Promise<number> {

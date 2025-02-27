@@ -6,7 +6,7 @@
  *
  * @public
  */
-export class OperationResult {
+export class ActResult {
   public constructor(
     /**
      * Number of rounds performed.
@@ -24,9 +24,9 @@ export class OperationResult {
      */
     public readonly rounds: number,
     /**
-     * Total time taken to run the operation in seconds, measured from beginning of the `.act`
-     * invocation to when the entire operation is finished.
+     * Total time taken to run `.act` in seconds. measured from beginning of the `.act` invocation
+     * to when the entire operation is finished.
      */
-    public readonly totalOperationTimeSeconds: number,
+    public readonly totalExecutionTimeSeconds: number,
   ) {}
 }
