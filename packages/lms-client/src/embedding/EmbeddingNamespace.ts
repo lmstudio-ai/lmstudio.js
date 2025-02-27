@@ -34,8 +34,9 @@ export class EmbeddingNamespace extends ModelNamespace<
   protected override loadConfigToKVConfig(config: EmbeddingLoadModelConfig): KVConfig {
     return embeddingLlamaLoadConfigSchematics.buildPartialConfig({
       "llama.acceleration.offloadRatio": config.gpu?.ratio,
-      "llama.load.mainGpu": config.gpu?.mainGpu,
-      "llama.load.splitStrategy": config.gpu?.splitStrategy,
+      "load.mainGpu": config.gpu?.mainGpu,
+      "load.splitStrategy": config.gpu?.splitStrategy,
+      "load.disabledGpus": config.gpu?.disabledGpus,
       "contextLength": config.contextLength,
       "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
       "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),

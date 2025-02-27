@@ -44,11 +44,16 @@ export type GPUSetting = {
    * How to split computation across multiple GPUs.
    */
   splitStrategy?: LLMSplitStrategy;
+  /**
+   * Indices of GPUs to disable.
+   */
+  disabledGpus?: number[];
 };
 export const gpuSettingSchema = z.object({
   ratio: llmLlamaAccelerationOffloadRatioSchema.optional(),
   mainGpu: z.number().int().optional(),
   splitStrategy: llmSplitStrategySchema.optional(),
+  disabledGpus: z.array(z.number().int()).optional(),
 });
 
 export const llmLlamaCacheQuantizationTypes = [
