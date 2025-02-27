@@ -37,6 +37,30 @@ exports[`LLM .respond should call onPredictionFragment callback 1`] = `
 ]
 `;
 
+exports[`LLM .respond should support structured prediction with JSON schema 1`] = `
+{
+  "author": "J.R.R. Tolkien",
+  "title": "The Hobbit",
+  "year": 1937,
+}
+`;
+
+exports[`LLM .respond should support structured prediction with zod schema 1`] = `
+{
+  "author": "J.R.R. Tolkien",
+  "title": "The Hobbit",
+  "year": 1937,
+}
+`;
+
+exports[`LLM .respond should support structured prediction with zod schema 2`] = `
+{
+  "author": "J.R.R. Tolkien",
+  "title": "The Hobbit",
+  "year": 1937,
+}
+`;
+
 exports[`LLM .respond should work with array of messages input 2`] = `
 {
   "numGpuLayers": Any<Number>,
@@ -93,6 +117,43 @@ exports[`LLM .respond should work with single string input 3`] = `
   "paramsString": "1B",
   "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
   "sizeBytes": 397807936,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
+
+exports[`LLM .respond should work with speculative decoding 1`] = `"Assistant message 2"`;
+
+exports[`LLM .respond should work with speculative decoding 2`] = `
+{
+  "acceptedDraftTokensCount": Any<Number>,
+  "ignoredDraftTokensCount": 0,
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 5,
+  "promptTokensCount": 41,
+  "rejectedDraftTokensCount": Any<Number>,
+  "stopReason": "eosFound",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalDraftTokensCount": Any<Number>,
+  "totalTokensCount": 46,
+  "usedDraftModelKey": "qwen2.5-0.5b-instruct",
+}
+`;
+
+exports[`LLM .respond should work with speculative decoding 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 3B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "path": "lmstudio-community/Qwen2.5-3B-Instruct-GGUF/Qwen2.5-3B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 1929903008,
   "trainedForToolUse": true,
   "type": "llm",
   "vision": false,

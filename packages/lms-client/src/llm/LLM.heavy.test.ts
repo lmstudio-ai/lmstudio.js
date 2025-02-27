@@ -139,4 +139,13 @@ describe("LLM", () => {
     const count = await model.countTokens("Chaos is a ladder.");
     expect(count).toMatchInlineSnapshot(`6`);
   });
+  it("Has correct properties", async () => {
+    expect(model.displayName).toMatchInlineSnapshot(`"Qwen2.5 0.5B Instruct"`);
+    expect(model.format).toMatchInlineSnapshot(`"gguf"`);
+    expect(model.identifier).toEqual(llmTestingModel);
+    expect(model.path).toEqual(llmTestingModel);
+    expect(model.sizeBytes).toMatchInlineSnapshot(`397807936`);
+    expect(model.trainedForToolUse).toMatchInlineSnapshot(`true`);
+    expect(model.vision).toMatchInlineSnapshot(`false`);
+  });
 });

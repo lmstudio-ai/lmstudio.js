@@ -263,12 +263,14 @@ export abstract class ModelNamespace<
                 Using the first one.
               `);
             }
-            this.logger.logAtLevel(
-              verboseLevel,
-              text`
-                Start loading model ${fullPath}...
-              `,
-            );
+            if (verbose) {
+              this.logger.logAtLevel(
+                verboseLevel,
+                text`
+                  Start loading model ${fullPath}...
+                `,
+              );
+            }
             break;
           }
           case "success": {

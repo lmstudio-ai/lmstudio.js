@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { type LLM, LMStudioClient } from "../index.js";
 import { ensureHeavyTestsEnvironment, llmTestingModel } from "../shared.heavy.test.js";
 
@@ -107,6 +108,36 @@ describe("LLM", () => {
       // Note: The this seem to contain wrong results as it only has 2 tokens. It might be an engine
       // but. We can correct the snapshot once the engine bug is fixed.
       expect(calls).toMatchSnapshot();
+    });
+    it("should support structured prediction with JSON schema", async () => {
+      const resultJSONSchema = {
+        type: "object",
+        properties: {
+          answer: { type: "number" },
+        },
+        required: ["answer"],
+      };
+      const result = await model.complete("1 + 1 in JSON is", {
+        temperature: 0,
+        maxTokens: 15,
+        structured: {
+          type: "json",
+          jsonSchema: resultJSONSchema,
+        },
+      });
+      expect(JSON.parse(result.content)).toMatchSnapshot();
+    });
+    it("should support structured prediction with zod schema", async () => {
+      const resultSchema = z.object({
+        answer: z.number(),
+      });
+      const result = await model.complete("1 + 1 in JSON is", {
+        temperature: 0,
+        maxTokens: 15,
+        structured: resultSchema,
+      });
+      expect(JSON.parse(result.content)).toMatchSnapshot();
+      expect(result.parsed).toMatchSnapshot();
     });
   });
 });
