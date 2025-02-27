@@ -1,0 +1,193 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LLM .respond should call onPredictionFragment callback 1`] = `
+[
+  [
+    {
+      "containsDrafted": false,
+      "content": "Assistant",
+      "reasoningType": "none",
+      "tokensCount": 1,
+    },
+  ],
+  [
+    {
+      "containsDrafted": false,
+      "content": " message",
+      "reasoningType": "none",
+      "tokensCount": 1,
+    },
+  ],
+  [
+    {
+      "containsDrafted": false,
+      "content": " ",
+      "reasoningType": "none",
+      "tokensCount": 1,
+    },
+  ],
+  [
+    {
+      "containsDrafted": false,
+      "content": "2",
+      "reasoningType": "none",
+      "tokensCount": 1,
+    },
+  ],
+]
+`;
+
+exports[`LLM .respond should work with array of messages input 2`] = `
+{
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 5,
+  "promptTokensCount": 41,
+  "stopReason": "eosFound",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalTokensCount": 46,
+}
+`;
+
+exports[`LLM .respond should work with array of messages input 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 0.5B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "1B",
+  "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 397807936,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
+
+exports[`LLM .respond should work with single string input 2`] = `
+{
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 10,
+  "promptTokensCount": 33,
+  "stopReason": "maxPredictedTokensReached",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalTokensCount": 43,
+}
+`;
+
+exports[`LLM .respond should work with single string input 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 0.5B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "1B",
+  "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 397807936,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
+
+exports[`LLM .respond should work with streaming 1`] = `
+[
+  {
+    "containsDrafted": false,
+    "content": "Assistant",
+    "reasoningType": "none",
+    "tokensCount": 1,
+  },
+  {
+    "containsDrafted": false,
+    "content": " message",
+    "reasoningType": "none",
+    "tokensCount": 1,
+  },
+  {
+    "containsDrafted": false,
+    "content": " ",
+    "reasoningType": "none",
+    "tokensCount": 1,
+  },
+  {
+    "containsDrafted": false,
+    "content": "2",
+    "reasoningType": "none",
+    "tokensCount": 1,
+  },
+]
+`;
+
+exports[`LLM .respond should work with streaming 2`] = `"Assistant message 2"`;
+
+exports[`LLM .respond should work with streaming 3`] = `
+{
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 5,
+  "promptTokensCount": 41,
+  "stopReason": "eosFound",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalTokensCount": 46,
+}
+`;
+
+exports[`LLM .respond should work with streaming 4`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 0.5B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "1B",
+  "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 397807936,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
+
+exports[`LLM .respond should work without streaming 2`] = `
+{
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 5,
+  "promptTokensCount": 41,
+  "stopReason": "eosFound",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalTokensCount": 46,
+}
+`;
+
+exports[`LLM .respond should work without streaming 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 0.5B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "1B",
+  "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 397807936,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;

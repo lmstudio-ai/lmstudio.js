@@ -1,4 +1,4 @@
-import { Chat, type LLM, LMStudioClient } from "../index.js";
+import { Chat, ChatMessage, type LLM, LMStudioClient } from "../index.js";
 import { ensureHeavyTestsEnvironment, llmTestingModel } from "../shared.heavy.test.js";
 
 describe("LLM", () => {
@@ -17,30 +17,13 @@ describe("LLM", () => {
   beforeEach(async () => {
     model = await client.llm.model(llmTestingModel, { verbose: false });
   });
-  it("can apply prompt template to a regular chat", async () => {
-    const formatted = await model.applyPromptTemplate(chat);
-    expect(formatted).toMatchSnapshot();
-  });
-  it("can get model context length", async () => {
-    const contextLength = await model.getContextLength();
-    expect(contextLength).toMatchInlineSnapshot(`4096`);
-  });
-  it("can get model info", async () => {
-    const modelInfo = await model.getModelInfo();
-    expect(modelInfo).toMatchSnapshot({
-      identifier: expect.any(String),
-      instanceReference: expect.any(String),
-      modelKey: expect.any(String),
-    });
-  });
-  describe(".complete", () => {
+  describe(".respond", () => {
     it("should work without streaming", async () => {
-      const result = await model.complete("1 + 1 = 2; 2 + 2 = ", {
+      const result = await model.respond(chat, {
         temperature: 0,
-        maxTokens: 3,
-        stopStrings: [";"],
+        maxTokens: 10,
       });
-      expect(result.content).toMatchInlineSnapshot(`"4"`);
+      expect(result.content).toMatchInlineSnapshot(`"Assistant message 2"`);
       expect(result.stats).toMatchSnapshot({
         numGpuLayers: expect.any(Number),
         timeToFirstTokenSec: expect.any(Number),
@@ -54,10 +37,9 @@ describe("LLM", () => {
       expect(result.roundIndex).toEqual(0);
     });
     it("should work with streaming", async () => {
-      const prediction = model.complete("1 + 1 = 2; 2 + 2 = ", {
+      const prediction = model.respond(chat, {
         temperature: 0,
-        maxTokens: 3,
-        stopStrings: [";"],
+        maxTokens: 10,
       });
       const fragments = [];
       for await (const fragment of prediction) {
@@ -65,7 +47,7 @@ describe("LLM", () => {
       }
       expect(fragments).toMatchSnapshot();
       const result = await prediction.result();
-      expect(result.content).toEqual("4");
+      expect(result.content).toMatchSnapshot();
       expect(result.stats).toMatchSnapshot({
         numGpuLayers: expect.any(Number),
         timeToFirstTokenSec: expect.any(Number),
@@ -78,7 +60,7 @@ describe("LLM", () => {
       });
     });
     it("should allow cancel via .cancel()", async () => {
-      const prediction = model.complete("1 + 1 = 2; 2 + 2 = ", {
+      const prediction = model.respond(chat, {
         temperature: 0,
         maxTokens: 50,
       });
@@ -88,7 +70,7 @@ describe("LLM", () => {
     });
     it("should allow cancel via abort controller", async () => {
       const controller = new AbortController();
-      const prediction = model.complete("1 + 1 = 2; 2 + 2 = ", {
+      const prediction = model.respond(chat, {
         temperature: 0,
         maxTokens: 50,
         signal: controller.signal,
@@ -97,46 +79,92 @@ describe("LLM", () => {
       const result = await prediction.result();
       expect(result.stats.stopReason).toEqual("userStopped");
     });
-    it("should call onFirstToken", async () => {
+    it("should call onFirstToken callback", async () => {
       const onFirstToken = jest.fn();
-      await model.complete("1 + 1 = 2; 2 + 2 = ", {
+      await model.respond(chat, {
         temperature: 0,
         maxTokens: 1,
-        stopStrings: [";"],
         onFirstToken,
       });
       expect(onFirstToken).toHaveBeenCalled();
     });
-    it("should call onPromptProcessingProgress", async () => {
+    it("should call onPromptProcessingProgress callback", async () => {
       const onPromptProcessingProgress = jest.fn();
-      await model.complete("1 + 1 = 2; 2 + 2 = ", {
+      await model.respond(chat, {
         temperature: 0,
         maxTokens: 1,
-        stopStrings: [";"],
         onPromptProcessingProgress,
       });
       expect(onPromptProcessingProgress).toHaveBeenCalledWith(0);
       expect(onPromptProcessingProgress).toHaveBeenCalledWith(1);
     });
-    it("should call onPredictionFragment", async () => {
+    it("should call onPredictionFragment callback", async () => {
       const onPredictionFragment = jest.fn();
-      await model.complete("1 + 1 = 2; 2 + 2 = ", {
+      await model.respond(chat, {
         temperature: 0,
-        maxTokens: 3,
+        maxTokens: 10,
         onPredictionFragment,
       });
       const calls = onPredictionFragment.mock.calls;
-      // Note: The this seem to contain wrong results as it only has 2 tokens. It might be an engine
-      // but. We can correct the snapshot once the engine bug is fixed.
       expect(calls).toMatchSnapshot();
     });
-  });
-  it("Can tokenize correctly", async () => {
-    const tokens = await model.tokenize("Chaos is a ladder.");
-    expect(tokens).toMatchSnapshot();
-  });
-  it("Can count tokens correctly", async () => {
-    const count = await model.countTokens("Chaos is a ladder.");
-    expect(count).toMatchInlineSnapshot(`6`);
+    it("should call onMessage callback", async () => {
+      const onMessage = jest.fn();
+      await model.respond(chat, {
+        temperature: 0,
+        maxTokens: 10,
+        onMessage,
+      });
+      expect(onMessage).toHaveBeenCalledTimes(1);
+      const call = onMessage.mock.calls[0];
+      const message = call[0] as ChatMessage;
+      expect(message).toBeInstanceOf(ChatMessage);
+      expect(message.getRole()).toEqual("assistant");
+      expect(message.getText()).toEqual("Assistant message 2");
+    });
+    it("should work with single string input", async () => {
+      const result = await model.respond("User message 1", {
+        temperature: 0,
+        maxTokens: 10,
+      });
+      expect(result.content).toMatchInlineSnapshot(`"Hello! How can I assist you today?"`);
+      expect(result.stats).toMatchSnapshot({
+        numGpuLayers: expect.any(Number),
+        timeToFirstTokenSec: expect.any(Number),
+        tokensPerSecond: expect.any(Number),
+      });
+      expect(result.modelInfo).toMatchSnapshot({
+        identifier: expect.any(String),
+        instanceReference: expect.any(String),
+        modelKey: expect.any(String),
+      });
+      expect(result.roundIndex).toEqual(0);
+    });
+    it("should work with array of messages input", async () => {
+      const result = await model.respond(
+        [
+          { role: "system", content: "This is the system prompt." },
+          { role: "user", content: "User message 1" },
+          { role: "assistant", content: "Assistant message 1" },
+          { role: "user", content: "User message 2" },
+        ],
+        {
+          temperature: 0,
+          maxTokens: 10,
+        },
+      );
+      expect(result.content).toMatchInlineSnapshot(`"Assistant message 2"`);
+      expect(result.stats).toMatchSnapshot({
+        numGpuLayers: expect.any(Number),
+        timeToFirstTokenSec: expect.any(Number),
+        tokensPerSecond: expect.any(Number),
+      });
+      expect(result.modelInfo).toMatchSnapshot({
+        identifier: expect.any(String),
+        instanceReference: expect.any(String),
+        modelKey: expect.any(String),
+      });
+      expect(result.roundIndex).toEqual(0);
+    });
   });
 });
