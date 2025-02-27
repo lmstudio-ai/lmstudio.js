@@ -1,37 +1,15 @@
-import { Chat, type LLM, LMStudioClient } from "../index.js";
+import { type LLM, LMStudioClient } from "../index.js";
 import { ensureHeavyTestsEnvironment, llmTestingModel } from "../shared.heavy.test.js";
 
 describe("LLM", () => {
   let client: LMStudioClient;
   let model: LLM;
-  const chat = Chat.from([
-    { role: "system", content: "This is the system prompt." },
-    { role: "user", content: "User message 1" },
-    { role: "assistant", content: "Assistant message 1" },
-    { role: "user", content: "User message 2" },
-  ]);
   beforeAll(async () => {
     client = new LMStudioClient();
     await ensureHeavyTestsEnvironment(client);
   });
   beforeEach(async () => {
     model = await client.llm.model(llmTestingModel, { verbose: false });
-  });
-  it("can apply prompt template to a regular chat", async () => {
-    const formatted = await model.applyPromptTemplate(chat);
-    expect(formatted).toMatchSnapshot();
-  });
-  it("can get model context length", async () => {
-    const contextLength = await model.getContextLength();
-    expect(contextLength).toMatchInlineSnapshot(`4096`);
-  });
-  it("can get model info", async () => {
-    const modelInfo = await model.getModelInfo();
-    expect(modelInfo).toMatchSnapshot({
-      identifier: expect.any(String),
-      instanceReference: expect.any(String),
-      modelKey: expect.any(String),
-    });
   });
   describe(".complete", () => {
     it("should work without streaming", async () => {
@@ -130,13 +108,5 @@ describe("LLM", () => {
       // but. We can correct the snapshot once the engine bug is fixed.
       expect(calls).toMatchSnapshot();
     });
-  });
-  it("Can tokenize correctly", async () => {
-    const tokens = await model.tokenize("Chaos is a ladder.");
-    expect(tokens).toMatchSnapshot();
-  });
-  it("Can count tokens correctly", async () => {
-    const count = await model.countTokens("Chaos is a ladder.");
-    expect(count).toMatchInlineSnapshot(`6`);
   });
 });
