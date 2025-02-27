@@ -9,8 +9,11 @@ import { type SystemPort } from "@lmstudio/lms-external-backend-interfaces";
 import {
   backendNotificationSchema,
   type BackendNotification,
+  type EmbeddingModelInfo,
+  type LLMInfo,
   type ModelInfo,
 } from "@lmstudio/lms-shared-types";
+import { z } from "zod";
 
 /** @public */
 export class SystemNamespace {
@@ -28,10 +31,26 @@ export class SystemNamespace {
    * List all downloaded models.
    * @public
    */
-  public async listDownloadedModels(): Promise<Array<ModelInfo>> {
-    return this.systemPort.callRpc("listDownloadedModels", undefined, {
+  public async listDownloadedModels(): Promise<Array<ModelInfo>>;
+  public async listDownloadedModels(domain: "llm"): Promise<Array<LLMInfo>>;
+  public async listDownloadedModels(domain: "embedding"): Promise<Array<EmbeddingModelInfo>>;
+  public async listDownloadedModels(domain?: "llm" | "embedding"): Promise<Array<ModelInfo>> {
+    const stack = getCurrentStack(1);
+    domain = this.validator.validateMethodParamOrThrow(
+      "client.system",
+      "listDownloadedModels",
+      "domain",
+      z.union([z.literal("llm"), z.literal("embedding"), z.undefined()]),
+      domain,
+      stack,
+    );
+    const models = await this.systemPort.callRpc("listDownloadedModels", undefined, {
       stack: getCurrentStack(1),
     });
+    if (models === undefined) {
+      return models;
+    }
+    return models.filter(model => model.type === domain);
   }
   public async whenDisconnected(): Promise<void> {
     const stack = getCurrentStack(1);
