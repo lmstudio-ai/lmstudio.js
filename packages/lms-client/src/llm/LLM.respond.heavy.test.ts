@@ -1,5 +1,10 @@
+import { z } from "zod";
 import { Chat, ChatMessage, type LLM, LMStudioClient } from "../index.js";
-import { ensureHeavyTestsEnvironment, llmTestingModel } from "../shared.heavy.test.js";
+import {
+  ensureHeavyTestsEnvironment,
+  llmTestingModel,
+  llmTestingSDMainModel,
+} from "../shared.heavy.test.js";
 
 describe("LLM", () => {
   let client: LMStudioClient;
@@ -45,6 +50,8 @@ describe("LLM", () => {
       for await (const fragment of prediction) {
         fragments.push(fragment);
       }
+      // There is a very small chance for this to fail currently due to missing the last fragment.
+      // Still investigating.
       expect(fragments).toMatchSnapshot();
       const result = await prediction.result();
       expect(result.content).toMatchSnapshot();
@@ -166,5 +173,64 @@ describe("LLM", () => {
       });
       expect(result.roundIndex).toEqual(0);
     });
+    it("should support structured prediction with JSON schema", async () => {
+      const bookJSONSchema = {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          author: { type: "string" },
+          year: { type: "integer" },
+        },
+        required: ["title", "author", "year"],
+      };
+      const result = await model.respond("Tell me about The Hobbit", {
+        temperature: 0,
+        structured: {
+          type: "json",
+          jsonSchema: bookJSONSchema,
+        },
+      });
+      expect(JSON.parse(result.content)).toMatchSnapshot();
+    });
+    it("should support structured prediction with zod schema", async () => {
+      const bookSchema = z.object({
+        title: z.string(),
+        author: z.string(),
+        year: z.number(),
+      });
+      const result = await model.respond("Tell me about The Hobbit", {
+        temperature: 0,
+        structured: bookSchema,
+      });
+      expect(JSON.parse(result.content)).toMatchSnapshot();
+      expect(result.parsed).toMatchSnapshot();
+    });
+    it("should work with speculative decoding", async () => {
+      const mainModel = await client.llm.load(llmTestingSDMainModel, { verbose: false });
+      try {
+        const result = await mainModel.respond(chat, {
+          draftModel: llmTestingModel,
+        });
+        expect(result.content).toMatchSnapshot();
+        expect(result.stats).toMatchSnapshot({
+          numGpuLayers: expect.any(Number),
+          timeToFirstTokenSec: expect.any(Number),
+          tokensPerSecond: expect.any(Number),
+
+          // Number of draft tokens does not appear to be deterministic
+          totalDraftTokensCount: expect.any(Number),
+          acceptedDraftTokensCount: expect.any(Number),
+          rejectedDraftTokensCount: expect.any(Number),
+        });
+        expect(result.modelInfo).toMatchSnapshot({
+          identifier: expect.any(String),
+          instanceReference: expect.any(String),
+          modelKey: expect.any(String),
+        });
+        expect(result.roundIndex).toEqual(0);
+      } finally {
+        await mainModel.unload();
+      }
+    }, 60_000);
   });
 });

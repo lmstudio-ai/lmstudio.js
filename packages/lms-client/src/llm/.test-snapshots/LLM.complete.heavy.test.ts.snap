@@ -21,6 +21,24 @@ exports[`LLM .complete should call onPredictionFragment 1`] = `
 ]
 `;
 
+exports[`LLM .complete should support structured prediction with JSON schema 1`] = `
+{
+  "answer": 2,
+}
+`;
+
+exports[`LLM .complete should support structured prediction with zod schema 1`] = `
+{
+  "answer": 2,
+}
+`;
+
+exports[`LLM .complete should support structured prediction with zod schema 2`] = `
+{
+  "answer": 2,
+}
+`;
+
 exports[`LLM .complete should work with streaming 1`] = `
 [
   {
