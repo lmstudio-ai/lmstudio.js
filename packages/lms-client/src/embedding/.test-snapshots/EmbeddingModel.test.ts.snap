@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmbeddingModel can get model info 1`] = `
+{
+  "architecture": "nomic-bert",
+  "contextLength": 2048,
+  "displayName": "Nomic Embed Text v1.5",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 2048,
+  "modelKey": Any<String>,
+  "path": "nomic-ai/nomic-embed-text-v1.5-GGUF/nomic-embed-text-v1.5.Q4_K_M.gguf",
+  "sizeBytes": 84106624,
+  "type": "embedding",
+}
+`;

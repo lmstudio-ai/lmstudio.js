@@ -1,0 +1,118 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LLM + speculative decoding should fail with invalid model 1`] = `
+"
+[91m[39m
+[91m┌ Error ──────────────────────────────────────────────────────────────────────┐[39m
+[91m│[39m                                                                             [91m│[39m
+[91m│[39m   [91mCannot find model "invalid-model".[39m                                        [91m│[39m
+[91m│[39m                                                                             [91m│[39m
+[91m│[39m                                                                             [91m│[39m
+[91m│[39m   [47m[30m</> STACK TRACE[39m[49m                                                           [91m│[39m
+[91m│[39m                                                                             [91m│[39m
+[91m│[39m   [90mat complete (C:\\lmstudio\\llmster\\ryuko\\packages\\lms-client\\src\\llm\\LLM.[39m   [91m│[39m
+[91m│[39m   [90mspeculativeDecoding.heavy.test.ts:66:19)[39m                                  [91m│[39m
+[91m│[39m   [90mat Object.toThrowErrorMatchingSnapshot (C:\\lmstudio\\llmster\\ryuko\\node_[39m   [91m│[39m
+[91m│[39m   [90mmodules\\@jest\\expect\\node_modules\\expect\\build\\index.js:2097:56)[39m          [91m│[39m
+[91m│[39m   [90mat Object.toThrowErrorMatchingSnapshot (C:\\lmstudio\\llmster\\ryuko\\packa[39m   [91m│[39m
+[91m│[39m   [90mges\\lms-client\\src\\llm\\LLM.speculativeDecoding.heavy.test.ts:69:16)[39m       [91m│[39m
+[91m│[39m   [90mat Promise.finally.completed (C:\\lmstudio\\llmster\\ryuko\\node_modules\\je[39m   [91m│[39m
+[91m│[39m   [90mst-circus\\build\\jestAdapterInit.js:1535:28)[39m                               [91m│[39m
+[91m│[39m   [90mat new Promise (<anonymous>)[39m                                              [91m│[39m
+[91m│[39m   [90mat callAsyncCircusFn (C:\\lmstudio\\llmster\\ryuko\\node_modules\\jest-circu[39m   [91m│[39m
+[91m│[39m   [90ms\\build\\jestAdapterInit.js:1475:10)[39m                                       [91m│[39m
+[91m│[39m   [90mat _callCircusTest (C:\\lmstudio\\llmster\\ryuko\\node_modules\\jest-circus\\[39m   [91m│[39m
+[91m│[39m   [90mbuild\\jestAdapterInit.js:998:40)[39m                                          [91m│[39m
+[91m│[39m   [90mat processTicksAndRejections (node:internal/process/task_queues:95:5)[39m     [91m│[39m
+[91m│[39m   [90mat _runTest (C:\\lmstudio\\llmster\\ryuko\\node_modules\\jest-circus\\build\\j[39m   [91m│[39m
+[91m│[39m   [90mestAdapterInit.js:938:3)[39m                                                  [91m│[39m
+[91m│[39m   [90mat _runTestsForDescribeBlock (C:\\lmstudio\\llmster\\ryuko\\node_modules\\je[39m   [91m│[39m
+[91m│[39m   [90mst-circus\\build\\jestAdapterInit.js:828:13)[39m                                [91m│[39m
+[91m│[39m   [90mat _runTestsForDescribeBlock (C:\\lmstudio\\llmster\\ryuko\\node_modules\\je[39m   [91m│[39m
+[91m│[39m   [90mst-circus\\build\\jestAdapterInit.js:818:11)[39m                                [91m│[39m
+[91m│[39m   [90mat run (C:\\lmstudio\\llmster\\ryuko\\node_modules\\jest-circus\\build\\jestAd[39m   [91m│[39m
+[91m│[39m   [90mapterInit.js:746:3)[39m                                                       [91m│[39m
+[91m│[39m   [90mat runAndTransformResultsToJestFormat (C:\\lmstudio\\llmster\\ryuko\\node_m[39m   [91m│[39m
+[91m│[39m   [90modules\\jest-circus\\build\\jestAdapterInit.js:1896:21)[39m                      [91m│[39m
+[91m│[39m   [90mat jestAdapter (C:\\lmstudio\\llmster\\ryuko\\node_modules\\jest-circus\\buil[39m   [91m│[39m
+[91m│[39m   [90md\\runner.js:101:19)[39m                                                       [91m│[39m
+[91m│[39m   [90mat runTestInternal (c:\\lmstudio\\llmster\\ryuko\\node_modules\\jest-runner\\[39m   [91m│[39m
+[91m│[39m   [90mbuild\\index.js:273:16)[39m                                                    [91m│[39m
+[91m│[39m   [90mat runTest (c:\\lmstudio\\llmster\\ryuko\\node_modules\\jest-runner\\build\\in[39m   [91m│[39m
+[91m│[39m   [90mdex.js:340:7)[39m                                                             [91m│[39m
+[91m│[39m                                                                             [91m│[39m
+[91m└─────────────────────────────────────────────────────────────────────────────┘[39m
+[91m[39m"
+`;
+
+exports[`LLM + speculative decoding should work with .complete 2`] = `
+{
+  "acceptedDraftTokensCount": 2,
+  "ignoredDraftTokensCount": 0,
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 5,
+  "promptTokensCount": 15,
+  "rejectedDraftTokensCount": 1,
+  "stopReason": "maxPredictedTokensReached",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalDraftTokensCount": 3,
+  "totalTokensCount": 20,
+  "usedDraftModelKey": Any<String>,
+}
+`;
+
+exports[`LLM + speculative decoding should work with .complete 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 3B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "path": "lmstudio-community/Qwen2.5-3B-Instruct-GGUF/Qwen2.5-3B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 1929903008,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
+
+exports[`LLM + speculative decoding should work with .respond 1`] = `"Assistant message 2"`;
+
+exports[`LLM + speculative decoding should work with .respond 2`] = `
+{
+  "acceptedDraftTokensCount": 4,
+  "ignoredDraftTokensCount": 0,
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 5,
+  "promptTokensCount": 41,
+  "rejectedDraftTokensCount": 3,
+  "stopReason": "eosFound",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalDraftTokensCount": 7,
+  "totalTokensCount": 46,
+  "usedDraftModelKey": Any<String>,
+}
+`;
+
+exports[`LLM + speculative decoding should work with .respond 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 3B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "path": "lmstudio-community/Qwen2.5-3B-Instruct-GGUF/Qwen2.5-3B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 1929903008,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
