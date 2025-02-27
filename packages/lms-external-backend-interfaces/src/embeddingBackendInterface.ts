@@ -1,14 +1,23 @@
 import { type InferClientPort } from "@lmstudio/lms-communication-client";
 import {
+  type EmbeddingModelInfo,
   embeddingModelInfoSchema,
+  type EmbeddingModelInstanceInfo,
   embeddingModelInstanceInfoSchema,
   modelSpecifierSchema,
 } from "@lmstudio/lms-shared-types";
 import { z } from "zod";
-import { createBaseModelBackendInterface } from "./baseModelBackendInterface.js";
+import {
+  type BaseModelBackendInterface,
+  createBaseModelBackendInterface,
+} from "./baseModelBackendInterface.js";
 
 export function createEmbeddingBackendInterface() {
-  return createBaseModelBackendInterface(embeddingModelInstanceInfoSchema, embeddingModelInfoSchema)
+  const baseModelBackendInterface = createBaseModelBackendInterface(
+    embeddingModelInstanceInfoSchema,
+    embeddingModelInfoSchema,
+  ) as any as BaseModelBackendInterface<EmbeddingModelInstanceInfo, EmbeddingModelInfo>;
+  return baseModelBackendInterface
     .addRpcEndpoint("embedString", {
       parameter: z.object({
         modelSpecifier: modelSpecifierSchema,
@@ -25,6 +34,15 @@ export function createEmbeddingBackendInterface() {
       }),
       returns: z.object({
         tokens: z.array(z.number()),
+      }),
+    })
+    .addRpcEndpoint("countTokens", {
+      parameter: z.object({
+        specifier: modelSpecifierSchema,
+        inputString: z.string(),
+      }),
+      returns: z.object({
+        tokenCount: z.number().int(),
       }),
     });
 }

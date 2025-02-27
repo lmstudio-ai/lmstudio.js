@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`LLM .complete should call onPredictionFragment 1`] = `
+exports[`LLM.complete should call onPredictionFragment 1`] = `
 [
   [
     {
@@ -21,25 +21,25 @@ exports[`LLM .complete should call onPredictionFragment 1`] = `
 ]
 `;
 
-exports[`LLM .complete should support structured prediction with JSON schema 1`] = `
+exports[`LLM.complete should support structured prediction with JSON schema 1`] = `
 {
   "answer": 2,
 }
 `;
 
-exports[`LLM .complete should support structured prediction with zod schema 1`] = `
+exports[`LLM.complete should support structured prediction with zod schema 1`] = `
 {
   "answer": 2,
 }
 `;
 
-exports[`LLM .complete should support structured prediction with zod schema 2`] = `
+exports[`LLM.complete should support structured prediction with zod schema 2`] = `
 {
   "answer": 2,
 }
 `;
 
-exports[`LLM .complete should work with streaming 1`] = `
+exports[`LLM.complete should work with streaming 1`] = `
 [
   {
     "containsDrafted": false,
@@ -50,7 +50,7 @@ exports[`LLM .complete should work with streaming 1`] = `
 ]
 `;
 
-exports[`LLM .complete should work with streaming 2`] = `
+exports[`LLM.complete should work with streaming 2`] = `
 {
   "numGpuLayers": Any<Number>,
   "predictedTokensCount": 1,
@@ -62,7 +62,7 @@ exports[`LLM .complete should work with streaming 2`] = `
 }
 `;
 
-exports[`LLM .complete should work with streaming 3`] = `
+exports[`LLM.complete should work with streaming 3`] = `
 {
   "architecture": "qwen2",
   "contextLength": 4096,
@@ -81,7 +81,7 @@ exports[`LLM .complete should work with streaming 3`] = `
 }
 `;
 
-exports[`LLM .complete should work without streaming 2`] = `
+exports[`LLM.complete should work without streaming 2`] = `
 {
   "numGpuLayers": Any<Number>,
   "predictedTokensCount": 1,
@@ -93,7 +93,7 @@ exports[`LLM .complete should work without streaming 2`] = `
 }
 `;
 
-exports[`LLM .complete should work without streaming 3`] = `
+exports[`LLM.complete should work without streaming 3`] = `
 {
   "architecture": "qwen2",
   "contextLength": 4096,

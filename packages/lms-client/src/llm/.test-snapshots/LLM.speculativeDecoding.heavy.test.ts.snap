@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LLM + speculative decoding should work with .complete 2`] = `
+{
+  "acceptedDraftTokensCount": 2,
+  "ignoredDraftTokensCount": 0,
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 5,
+  "promptTokensCount": 15,
+  "rejectedDraftTokensCount": 1,
+  "stopReason": "maxPredictedTokensReached",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalDraftTokensCount": 3,
+  "totalTokensCount": 20,
+  "usedDraftModelKey": Any<String>,
+}
+`;
+
+exports[`LLM + speculative decoding should work with .complete 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 3B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "path": "lmstudio-community/Qwen2.5-3B-Instruct-GGUF/Qwen2.5-3B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 1929903008,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;
+
+exports[`LLM + speculative decoding should work with .respond 1`] = `"Assistant message 2"`;
+
+exports[`LLM + speculative decoding should work with .respond 2`] = `
+{
+  "acceptedDraftTokensCount": 4,
+  "ignoredDraftTokensCount": 0,
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 5,
+  "promptTokensCount": 41,
+  "rejectedDraftTokensCount": 3,
+  "stopReason": "eosFound",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalDraftTokensCount": 7,
+  "totalTokensCount": 46,
+  "usedDraftModelKey": Any<String>,
+}
+`;
+
+exports[`LLM + speculative decoding should work with .respond 3`] = `
+{
+  "architecture": "qwen2",
+  "contextLength": 4096,
+  "displayName": "Qwen2.5 3B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "path": "lmstudio-community/Qwen2.5-3B-Instruct-GGUF/Qwen2.5-3B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 1929903008,
+  "trainedForToolUse": true,
+  "type": "llm",
+  "vision": false,
+}
+`;

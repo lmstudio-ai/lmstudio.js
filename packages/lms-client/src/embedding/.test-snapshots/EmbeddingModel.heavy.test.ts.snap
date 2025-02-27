@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmbeddingModel Can tokenize correctly 1`] = `
+[
+  101,
+  8488,
+  2003,
+  1037,
+  10535,
+  1012,
+  102,
+]
+`;
+
+exports[`EmbeddingModel Can tokenize multiple strings correctly 1`] = `
+[
+  [
+    101,
+    8292,
+    22573,
+    2072,
+    19821,
+    1996,
+    8465,
+    1997,
+    2014,
+    6438,
+    102,
+  ],
+  [
+    101,
+    1998,
+    2016,
+    2003,
+    9962,
+    4312,
+    102,
+  ],
+]
+`;
+
+exports[`EmbeddingModel can get model info 1`] = `
+{
+  "architecture": "nomic-bert",
+  "contextLength": 2048,
+  "displayName": "Nomic Embed Text v1.5",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 2048,
+  "modelKey": Any<String>,
+  "path": "nomic-ai/nomic-embed-text-v1.5-GGUF/nomic-embed-text-v1.5.Q4_K_M.gguf",
+  "sizeBytes": 84106624,
+  "type": "embedding",
+}
+`;

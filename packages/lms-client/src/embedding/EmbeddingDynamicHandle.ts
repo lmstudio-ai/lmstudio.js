@@ -124,4 +124,26 @@ export class EmbeddingDynamicHandle extends DynamicHandle<
       ).tokens;
     }
   }
+
+  public async countTokens(inputString: string): Promise<number> {
+    const stack = getCurrentStack(1);
+    inputString = this.validator.validateMethodParamOrThrow(
+      "model",
+      "countTokens",
+      "inputString",
+      z.string(),
+      inputString,
+      stack,
+    );
+    return (
+      await this.port.callRpc(
+        "countTokens",
+        {
+          specifier: this.specifier,
+          inputString,
+        },
+        { stack },
+      )
+    ).tokenCount;
+  }
 }
