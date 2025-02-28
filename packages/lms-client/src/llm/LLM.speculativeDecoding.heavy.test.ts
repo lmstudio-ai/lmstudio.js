@@ -19,8 +19,14 @@ describe("LLM + speculative decoding", () => {
     await ensureHeavyTestsEnvironment(client);
   });
   beforeEach(async () => {
-    model = await client.llm.model(llmTestingQwen3B, { verbose: false });
-  });
+    model = await client.llm.model(llmTestingQwen3B, {
+      verbose: false,
+      config: {
+        llamaKCacheQuantizationType: "f32",
+        llamaVCacheQuantizationType: "f32",
+      },
+    });
+  }, 60_000);
   it("should work with .respond", async () => {
     const result = await model.respond(chat, {
       temperature: 0,

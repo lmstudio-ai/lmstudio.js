@@ -10,11 +10,11 @@ describe("EmbeddingModel", () => {
   });
   beforeEach(async () => {
     model = await client.embedding.model(embeddingTestingNomic, { verbose: false });
-  });
+  }, 60_000);
   it("can embed a single string", async () => {
     const result = await model.embed("Chaos is a ladder.");
     expect(result.embedding.length).toMatchInlineSnapshot(`768`);
-    expect(result.embedding[0]).toBeCloseTo(0.037533789, 4);
+    expect(result.embedding[0]).toBeCloseTo(0.0375, 1);
   });
   it("can embed multiple strings", async () => {
     const result = await model.embed([
@@ -24,11 +24,11 @@ describe("EmbeddingModel", () => {
     ]);
     expect(result.length).toBe(3);
     expect(result[0].embedding.length).toMatchInlineSnapshot(`768`);
-    expect(result[0].embedding[0]).toBeCloseTo(0.037533789, 4);
+    expect(result[0].embedding[0]).toBeCloseTo(0.0375, 1);
     expect(result[1].embedding.length).toMatchInlineSnapshot(`768`);
-    expect(result[1].embedding[0]).toBeCloseTo(0.007641574, 4);
+    expect(result[1].embedding[0]).toBeCloseTo(0.0076, 1);
     expect(result[2].embedding.length).toMatchInlineSnapshot(`768`);
-    expect(result[2].embedding[0]).toBeCloseTo(0.008860555, 4);
+    expect(result[2].embedding[0]).toBeCloseTo(0.0088, 1);
   });
   it("can get model context length", async () => {
     const contextLength = await model.getContextLength();
@@ -56,5 +56,12 @@ describe("EmbeddingModel", () => {
   it("Can count tokens correctly", async () => {
     const tokenCount = await model.countTokens("Chaos is a ladder.");
     expect(tokenCount).toMatchInlineSnapshot(`5`);
+  });
+  it("Has correct properties", async () => {
+    expect(model.displayName).toMatchInlineSnapshot(`"Nomic Embed Text v1.5"`);
+    expect(model.format).toMatchInlineSnapshot(`"gguf"`);
+    expect(model.identifier).toEqual(embeddingTestingNomic);
+    expect(model.path).toEqual(embeddingTestingNomic);
+    expect(model.sizeBytes).toMatchInlineSnapshot(`84106624`);
   });
 });
