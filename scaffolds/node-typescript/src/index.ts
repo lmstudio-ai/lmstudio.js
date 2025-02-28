@@ -40,7 +40,7 @@ async function printLoadedModels() {
 }
 
 async function predictWithAnyModel() {
-  const model = await client.llm.getAny();
+  const model = await client.llm.model();
   const prompt = "The meaning of life is";
   const prediction = model.complete(prompt, {
     maxTokens: 100,
