@@ -304,6 +304,32 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return quoted.join(", ");
     },
   })
+  .valueType("numericArray", {
+    paramType: {
+      min: z.number().optional(),
+      max: z.number().optional(),
+      int: z.boolean().optional(),
+    },
+    schemaMaker: ({ min, max, int }) => {
+      let numberSchema = z.number();
+      if (min !== undefined) {
+        numberSchema = numberSchema.min(min);
+      }
+      if (max !== undefined) {
+        numberSchema = numberSchema.max(max);
+      }
+      if (int) {
+        numberSchema = numberSchema.int();
+      }
+      return z.array(numberSchema);
+    },
+    effectiveEquals: (a, b) => {
+      return a.length === b.length && a.every((v, i) => v === b[i]);
+    },
+    stringify: (value, { int }) => {
+      return value.map(v => (int ? String(Math.round(v)) : String(v))).join(", ");
+    },
+  })
   .valueType("contextOverflowPolicy", {
     paramType: {},
     schemaMaker: () => {
@@ -542,7 +568,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return (value * 100).toFixed(0) + "%";
     },
   })
-  .valueType("llamaAccelerationMainGpu", {
+  .valueType("mainGpu", {
     paramType: {},
     schemaMaker: () => {
       return z.number().int().nonnegative();
@@ -554,7 +580,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return String(value); // TODO: Show GPU name
     },
   })
-  .valueType("llamaAccelerationTensorSplit", {
+  .valueType("tensorSplit", {
     paramType: {},
     schemaMaker: () => {
       return z.array(z.number().nonnegative());
@@ -566,7 +592,7 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return value.join(", "); // TODO: Better display
     },
   })
-  .valueType("llamaAccelerationSplitStrategy", {
+  .valueType("gpuSplitStrategy", {
     paramType: {},
     schemaMaker: () => {
       return llmSplitStrategySchema;
@@ -577,12 +603,9 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     stringify: (value, _typeParam, { t }) => {
       switch (value) {
         case "evenly":
-          return t("config:customInputs.llamaAccelerationSplitStrategy.evenly", "Evenly");
+          return t("config:customInputs.gpuSplitStrategy.evenly", "Evenly");
         case "favorMainGpu":
-          return t(
-            "config:customInputs.llamaAccelerationSplitStrategy.favorMainGpu",
-            "Favor Main GPU",
-          );
+          return t("config:customInputs.gpuSplitStrategy.favorMainGpu", "Favor Main GPU");
       }
     },
   })
