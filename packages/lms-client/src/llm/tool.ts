@@ -46,7 +46,7 @@ export const toolSchema = z.discriminatedUnion("type", [functionToolSchema]);
  *
  * @public
  */
-export function tool<const TParameters extends Record<string, ZodSchema>>({
+export function tool<const TParameters extends Record<string, { parse(input: any): any }>>({
   name,
   description,
   parameters,
@@ -54,16 +54,33 @@ export function tool<const TParameters extends Record<string, ZodSchema>>({
 }: {
   name: string;
   description: string;
+  /**
+   * The parameters of the function. Must be an with values being zod schemas.
+   *
+   * IMPORTANT
+   *
+   * The type here only requires an object with a `parse` function. This is not enough! We need an
+   * actual zod schema because we will need to extract the JSON schema from it.
+   *
+   * The reason we only have a `parse` function here (as oppose to actually requiring ZodType is due
+   * to this zod bug causing TypeScript breakage, when multiple versions of zod exist.
+   *
+   * - https://github.com/colinhacks/zod/issues/577
+   * - https://github.com/colinhacks/zod/issues/2697
+   * - https://github.com/colinhacks/zod/issues/3435
+   */
   parameters: TParameters;
-  implementation: (params: { [K in keyof TParameters]: z.infer<TParameters[K]> }) =>
-    | any
-    | Promise<any>;
+  implementation: (params: {
+    [K in keyof TParameters]: TParameters[K] extends { parse: (input: any) => infer RReturnType }
+      ? RReturnType
+      : never;
+  }) => any | Promise<any>;
 }): Tool {
   return {
     name,
     description,
     type: "function",
-    parametersSchema: z.object(parameters),
+    parametersSchema: z.object(parameters as any),
     implementation: implementation as any, // Erase types
   };
 }
