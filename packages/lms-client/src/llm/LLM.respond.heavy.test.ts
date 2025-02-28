@@ -16,8 +16,14 @@ describe("LLM.respond", () => {
     await ensureHeavyTestsEnvironment(client);
   });
   beforeEach(async () => {
-    model = await client.llm.model(llmTestingQwen05B, { verbose: false });
-  });
+    model = await client.llm.model(llmTestingQwen05B, {
+      verbose: false,
+      config: {
+        llamaKCacheQuantizationType: "f32",
+        llamaVCacheQuantizationType: "f32",
+      },
+    });
+  }, 60_000);
   it("should work without streaming", async () => {
     const result = await model.respond(chat, {
       temperature: 0,

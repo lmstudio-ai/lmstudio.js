@@ -15,8 +15,14 @@ describe("LLM", () => {
     await ensureHeavyTestsEnvironment(client);
   });
   beforeEach(async () => {
-    model = await client.llm.model(llmTestingQwen05B, { verbose: false });
-  });
+    model = await client.llm.model(llmTestingQwen05B, {
+      verbose: false,
+      config: {
+        llamaKCacheQuantizationType: "f32",
+        llamaVCacheQuantizationType: "f32",
+      },
+    });
+  }, 60_000);
   it("can apply prompt template to a regular chat", async () => {
     const formatted = await model.applyPromptTemplate(chat);
     expect(formatted).toMatchSnapshot();
@@ -35,6 +41,13 @@ describe("LLM", () => {
   });
   it("Can tokenize correctly", async () => {
     const tokens = await model.tokenize("Chaos is a ladder.");
+    expect(tokens).toMatchSnapshot();
+  });
+  it("Can tokenize multiple strings correctly", async () => {
+    const tokens = await model.tokenize([
+      "Cersei understands the consequences of her absence",
+      "and she is absent anyway",
+    ]);
     expect(tokens).toMatchSnapshot();
   });
   it("Can count tokens correctly", async () => {

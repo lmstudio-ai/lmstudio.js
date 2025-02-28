@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LLM with vision should work with base64 upload 1`] = `"I see the W3C logo, which"`;
+
+exports[`LLM with vision should work with base64 upload 2`] = `
+{
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 10,
+  "promptTokensCount": 27,
+  "stopReason": "maxPredictedTokensReached",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalTokensCount": 37,
+}
+`;
+
+exports[`LLM with vision should work with base64 upload 3`] = `
+{
+  "architecture": "qwen2vl",
+  "contextLength": 4096,
+  "displayName": "Qwen2 VL 2B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "2B",
+  "path": "lmstudio-community/Qwen2-VL-2B-Instruct-GGUF/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 3647162336,
+  "trainedForToolUse": false,
+  "type": "llm",
+  "vision": true,
+}
+`;
+
+exports[`LLM with vision should work with file upload 1`] = `"I see the W3C logo, which"`;
+
+exports[`LLM with vision should work with file upload 2`] = `
+{
+  "numGpuLayers": Any<Number>,
+  "predictedTokensCount": 10,
+  "promptTokensCount": 27,
+  "stopReason": "maxPredictedTokensReached",
+  "timeToFirstTokenSec": Any<Number>,
+  "tokensPerSecond": Any<Number>,
+  "totalTokensCount": 37,
+}
+`;
+
+exports[`LLM with vision should work with file upload 3`] = `
+{
+  "architecture": "qwen2vl",
+  "contextLength": 4096,
+  "displayName": "Qwen2 VL 2B Instruct",
+  "format": "gguf",
+  "identifier": Any<String>,
+  "instanceReference": Any<String>,
+  "maxContextLength": 32768,
+  "modelKey": Any<String>,
+  "paramsString": "2B",
+  "path": "lmstudio-community/Qwen2-VL-2B-Instruct-GGUF/Qwen2-VL-2B-Instruct-Q4_K_M.gguf",
+  "sizeBytes": 3647162336,
+  "trainedForToolUse": false,
+  "type": "llm",
+  "vision": true,
+}
+`;

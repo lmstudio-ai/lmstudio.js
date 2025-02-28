@@ -10,8 +10,14 @@ describe("LLM.complete", () => {
     await ensureHeavyTestsEnvironment(client);
   });
   beforeEach(async () => {
-    model = await client.llm.model(llmTestingQwen05B, { verbose: false });
-  });
+    model = await client.llm.model(llmTestingQwen05B, {
+      verbose: false,
+      config: {
+        llamaKCacheQuantizationType: "f32",
+        llamaVCacheQuantizationType: "f32",
+      },
+    });
+  }, 60_000);
   it("should work without streaming", async () => {
     const result = await model.complete("1 + 1 = 2; 2 + 2 = ", {
       temperature: 0,
