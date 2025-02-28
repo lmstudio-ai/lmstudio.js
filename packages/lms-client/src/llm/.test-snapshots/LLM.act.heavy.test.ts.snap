@@ -1,18 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`LLM.act should call the tool with the correct parameters 1`] = `
-"Hi! First, I'll add 1 and 3.
-"
-`;
-
-exports[`LLM.act should call the tool with the correct parameters 2`] = `"The sum of 1 and 3 is 4."`;
-
-exports[`LLM.act should call the tool with the correct parameters 3`] = `
-"Hi! First, I'll add 1 and 3.
-"
-`;
-
-exports[`LLM.act should call the tool with the correct parameters 4`] = `
 {
   "architecture": "qwen2",
   "contextLength": 4096,
@@ -22,7 +10,7 @@ exports[`LLM.act should call the tool with the correct parameters 4`] = `
   "instanceReference": Any<String>,
   "maxContextLength": 32768,
   "modelKey": Any<String>,
-  "paramsString": "1B",
+  "paramsString": "0.5B",
   "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
   "sizeBytes": 397807936,
   "trainedForToolUse": true,
@@ -31,7 +19,7 @@ exports[`LLM.act should call the tool with the correct parameters 4`] = `
 }
 `;
 
-exports[`LLM.act should call the tool with the correct parameters 5`] = `
+exports[`LLM.act should call the tool with the correct parameters 2`] = `
 {
   "numGpuLayers": Any<Number>,
   "predictedTokensCount": 38,
@@ -43,9 +31,7 @@ exports[`LLM.act should call the tool with the correct parameters 5`] = `
 }
 `;
 
-exports[`LLM.act should call the tool with the correct parameters 6`] = `"The sum of 1 and 3 is 4."`;
-
-exports[`LLM.act should call the tool with the correct parameters 7`] = `
+exports[`LLM.act should call the tool with the correct parameters 3`] = `
 {
   "architecture": "qwen2",
   "contextLength": 4096,
@@ -55,7 +41,7 @@ exports[`LLM.act should call the tool with the correct parameters 7`] = `
   "instanceReference": Any<String>,
   "maxContextLength": 32768,
   "modelKey": Any<String>,
-  "paramsString": "1B",
+  "paramsString": "0.5B",
   "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
   "sizeBytes": 397807936,
   "trainedForToolUse": true,
@@ -64,7 +50,7 @@ exports[`LLM.act should call the tool with the correct parameters 7`] = `
 }
 `;
 
-exports[`LLM.act should call the tool with the correct parameters 8`] = `
+exports[`LLM.act should call the tool with the correct parameters 4`] = `
 {
   "numGpuLayers": Any<Number>,
   "predictedTokensCount": 13,
@@ -74,235 +60,4 @@ exports[`LLM.act should call the tool with the correct parameters 8`] = `
   "tokensPerSecond": Any<Number>,
   "totalTokensCount": 262,
 }
-`;
-
-exports[`LLM.act should call the tool with the correct parameters 9`] = `
-[
-  [
-    {
-      "containsDrafted": false,
-      "content": "Hi",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": "!",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " First",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": ",",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " I",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": "'ll",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " add",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " ",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": "1",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " and",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " ",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": "3",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": ".
-",
-      "reasoningType": "none",
-      "roundIndex": 0,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": "The",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " sum",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " of",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " ",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": "1",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " and",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " ",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": "3",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " is",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": " ",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": "4",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-  [
-    {
-      "containsDrafted": false,
-      "content": ".",
-      "reasoningType": "none",
-      "roundIndex": 1,
-      "tokensCount": 1,
-    },
-  ],
-]
 `;

@@ -57,7 +57,7 @@ exports[`LLM can get model info 1`] = `
   "instanceReference": Any<String>,
   "maxContextLength": 32768,
   "modelKey": Any<String>,
-  "paramsString": "1B",
+  "paramsString": "0.5B",
   "path": "lmstudio-community/Qwen2.5-0.5B-Instruct-GGUF/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
   "sizeBytes": 397807936,
   "trainedForToolUse": true,

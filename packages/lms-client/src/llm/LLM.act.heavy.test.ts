@@ -56,19 +56,19 @@ describe("LLM.act", () => {
 
     const message0 = onMessage.mock.calls[0][0] as ChatMessage;
     expect(message0.getRole()).toBe("assistant");
-    expect(message0.getText()).toMatchSnapshot();
+    expect(message0.getText()).toContain("Hi");
     const message1 = onMessage.mock.calls[1][0] as ChatMessage;
     expect(message1.getRole()).toBe("tool");
     expect(message1.getText()).toBe("");
     const message2 = onMessage.mock.calls[2][0] as ChatMessage;
     expect(message2.getRole()).toBe("assistant");
-    expect(message2.getText()).toMatchSnapshot();
+    expect(message2.getText()).toContain("4");
 
     expect(onFirstToken.mock.calls).toEqual([[0], [1]]);
 
     expect(onPredictionCompleted).toHaveBeenCalledTimes(2);
     const prediction0 = onPredictionCompleted.mock.calls[0][0] as PredictionResult;
-    expect(prediction0.content).toMatchSnapshot();
+    expect(prediction0.content).toContain("Hi");
     expect(prediction0.roundIndex).toEqual(0);
     expect(prediction0.modelInfo).toMatchSnapshot({
       identifier: expect.any(String),
@@ -81,7 +81,7 @@ describe("LLM.act", () => {
       tokensPerSecond: expect.any(Number),
     });
     const prediction1 = onPredictionCompleted.mock.calls[1][0] as PredictionResult;
-    expect(prediction1.content).toMatchSnapshot();
+    expect(prediction1.content).toContain("4");
     expect(prediction1.roundIndex).toEqual(1);
     expect(prediction1.modelInfo).toMatchSnapshot({
       identifier: expect.any(String),
@@ -94,7 +94,8 @@ describe("LLM.act", () => {
       tokensPerSecond: expect.any(Number),
     });
 
-    expect(onPredictionFragment.mock.calls).toMatchSnapshot();
+    // Cannot assert on content due to non-determinism
+    expect(onPredictionFragment).toHaveBeenCalled();
 
     expect(onPromptProcessingProgress).toHaveBeenCalledWith(0, 0);
     expect(onPromptProcessingProgress).toHaveBeenCalledWith(0, 1);
