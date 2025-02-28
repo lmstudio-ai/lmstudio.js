@@ -1,4 +1,4 @@
-import { z, type ZodType } from "zod";
+import { z } from "zod";
 import { zodSchemaSchema } from "../Zod.js";
 import { llmPromptTemplateSchema, type LLMPromptTemplate } from "./LLMPromptTemplate.js";
 import {
@@ -105,7 +105,28 @@ export interface LLMPredictionConfigInput<TStructuredOutputType = unknown> {
    * This is particularly useful for extracting specific data points from model responses or when
    * you need the output in a format that can be directly used by your application.
    */
-  structured?: ZodType<TStructuredOutputType> | LLMStructuredPredictionSetting;
+  structured?:
+    | {
+        /**
+         * IMPORTANT
+         *
+         * When passing in a zod schema as the structured generation option, you must provide an
+         * actual zod schema object. (returned by z.something()). The type here only requires an
+         * object with a `parse` function. This is not enough! We need an actual zod schema because
+         * we will need to extract the JSON schema from it. If you don't want use zod, consider
+         * passing in a `LLMStructuredPredictionSetting` instead.
+         *
+         * The reason we only have a `parse` function here (as oppose to actually requiring
+         * ZodType<TStructuredOutputType> is due to this zod bug causing TypeScript breakage, when
+         * multiple versions of zod exist.
+         *
+         * - https://github.com/colinhacks/zod/issues/577
+         * - https://github.com/colinhacks/zod/issues/2697
+         * - https://github.com/colinhacks/zod/issues/3435
+         */
+        parse: (input: any) => TStructuredOutputType;
+      }
+    | LLMStructuredPredictionSetting;
   /**
    * @deprecated Raw tools are currently not well-supported. It may or may not work. If you want to
    * use tools, use `model.act` instead.
