@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SlicedSignal should be able to subscribe with regular signals containing maps 1`] = `
+[
+  {
+    "c": 2,
+  },
+  [
+    {
+      "op": "replace",
+      "path": [
+        "c",
+      ],
+      "value": 2,
+    },
+  ],
+  [],
+]
+`;
+
+exports[`SlicedSignal should be able to subscribe with regular signals containing maps 2`] = `
+[
+  {
+    "c": 3,
+  },
+  [
+    {
+      "op": "replace",
+      "path": [],
+      "value": {
+        "c": 3,
+      },
+    },
+  ],
+  [],
+]
+`;
+
+exports[`SlicedSignal should be able to subscribe with regular signals containing maps 3`] = `
+[
+  {
+    "c": 4,
+  },
+  [
+    {
+      "op": "replace",
+      "path": [],
+      "value": {
+        "c": 4,
+      },
+    },
+  ],
+  [],
+]
+`;

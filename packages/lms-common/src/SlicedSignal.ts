@@ -14,8 +14,17 @@ type PathSegment =
       key: string | number;
     }
   | {
+      type: "mapKey";
+      key: any;
+    }
+  | {
       type: "keyWithDefault";
       key: string | number;
+      default: any;
+    }
+  | {
+      type: "mapKeyWithDefault";
+      key: any;
       default: any;
     };
 
@@ -58,6 +67,17 @@ function drill(value: any, path: Array<PathSegment>, defaultUsed?: (index: numbe
         }
         break;
       }
+      case "mapKey":
+        current = current.get(key.key);
+        break;
+      case "mapKeyWithDefault":
+        if (!current.has(key.key)) {
+          current = key.default;
+          defaultUsed?.(index);
+        } else {
+          current = current.get(key.key);
+        }
+        break;
       default: {
         const _exhaustiveCheck: never = key;
         return _exhaustiveCheck;
@@ -109,7 +129,7 @@ function pathStartsWith(path: Array<string | number>, prefix: Array<string | num
 
 class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends boolean> {
   private readonly accessPath: Array<PathSegment> = [];
-  private readonly path: Array<string | number> = [];
+  private readonly path: Array<any> = [];
   private readonly tagKey = String(Math.random());
   public constructor(
     private readonly sourceSignal: SignalLike<TSource>,
@@ -127,6 +147,31 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
     defaultValue: TCurrent[TKey],
   ): SlicedSignalBuilderImpl<TSource, TCurrent[TKey], TCanBeNotAvailable> {
     this.accessPath.push({ type: "keyWithDefault", key, default: defaultValue });
+    this.path.push(key);
+    return this as any;
+  }
+  public mapAccess<TKey extends TCurrent extends Map<infer RKey, any> ? RKey : never>(
+    key: TKey,
+  ): SlicedSignalBuilderImpl<
+    TSource,
+    TCurrent extends Map<any, infer RValue> ? RValue : never,
+    TCanBeNotAvailable
+  > {
+    this.accessPath.push({ type: "mapKey", key });
+    this.path.push(key);
+    return this as any;
+  }
+  public mapAccessWithDefault<
+    TKey extends TCurrent extends Map<infer RKey, infer _RValue> ? RKey : never,
+  >(
+    key: TKey,
+    defaultValue: TCurrent extends Map<TKey, infer RValue> ? RValue : never,
+  ): SlicedSignalBuilderImpl<
+    TSource,
+    TCurrent extends Map<TKey, infer RValue> ? RValue : never,
+    TCanBeNotAvailable
+  > {
+    this.accessPath.push({ type: "mapKeyWithDefault", key, default: defaultValue });
     this.path.push(key);
     return this as any;
   }
