@@ -566,4 +566,142 @@ describe("SlicedSignal", () => {
       [],
     );
   });
+  it("should be able to read with regular signals containing maps", () => {
+    const [sourceSignal, setSource] = Signal.create({ a: new Map([["b", { c: 1 }]]) });
+    const [slicedSignal, _setSliced] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .mapAccess("b")
+      .done();
+
+    expect(slicedSignal.get()).toEqual({ c: 1 });
+  });
+  it("should be able to subscribe with regular signals containing maps", () => {
+    const [sourceSignal, setSource] = Signal.create({ a: new Map([["b", { c: 1 }]]), d: 5 });
+    const [slicedSignal, setSliced] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .mapAccess("b")
+      .done();
+
+    const subscriber = jest.fn();
+    const fullSubscriber = jest.fn();
+    slicedSignal.subscribe(subscriber);
+    slicedSignal.subscribeFull(fullSubscriber);
+
+    expect(subscriber).not.toHaveBeenCalled();
+    expect(fullSubscriber).not.toHaveBeenCalled();
+
+    setSource.withProducer(draft => {
+      draft.a.get("b")!.c = 2;
+    });
+
+    expect(subscriber).toHaveBeenCalledWith({ c: 2 });
+    expect(fullSubscriber.mock.calls[0]).toMatchSnapshot();
+
+    setSource.withProducer(draft => {
+      draft.a.set("b", { c: 3 });
+    });
+
+    expect(subscriber).toHaveBeenCalledWith({ c: 3 });
+    expect(fullSubscriber.mock.calls[1]).toMatchSnapshot();
+
+    setSource.withProducer(draft => {
+      draft.a = new Map([["b", { c: 4 }]]);
+    });
+
+    expect(subscriber).toHaveBeenCalledWith({ c: 4 });
+    expect(fullSubscriber.mock.calls[2]).toMatchSnapshot();
+
+    expect(subscriber).toHaveBeenCalledTimes(3);
+    expect(fullSubscriber).toHaveBeenCalledTimes(3);
+
+    setSource.withProducer(draft => {
+      draft.d = 6;
+    });
+
+    expect(subscriber).toHaveBeenCalledTimes(3);
+    expect(fullSubscriber).toHaveBeenCalledTimes(3);
+  });
+
+  it("should be able to set regular signals containing maps", () => {
+    const [sourceSignal, setSource] = Signal.create({ a: new Map([["b", { c: 1 }]]) });
+    const [_slicedSignal, setSliced] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .mapAccess("b")
+      .done();
+
+    setSliced({ c: 2 });
+
+    expect(sourceSignal.get()).toEqual({ a: new Map([["b", { c: 2 }]]) });
+
+    setSliced.withProducer(draft => {
+      draft.c = 3;
+    });
+
+    expect(sourceSignal.get()).toEqual({ a: new Map([["b", { c: 3 }]]) });
+  });
+
+  it("should be able to trigger subscription with regular signals containing maps", () => {
+    const [sourceSignal, setSource] = Signal.create({ a: new Map([["b", { c: 1 }]]) });
+    const [slicedSignal, setSliced] = makeSlicedSignalFrom([sourceSignal, setSource])
+      .access("a")
+      .mapAccess("b")
+      .done();
+
+    const sourceSubscriber = jest.fn();
+    const slicedSubscriber = jest.fn();
+    sourceSignal.subscribeFull(sourceSubscriber);
+    slicedSignal.subscribeFull(slicedSubscriber);
+
+    setSliced.withProducer(draft => {
+      draft.c = 2;
+    });
+
+    expect(sourceSubscriber).toHaveBeenCalledWith(
+      { a: new Map([["b", { c: 2 }]]) },
+      [
+        {
+          op: "replace",
+          path: ["a", "b", "c"],
+          value: 2,
+        },
+      ],
+      [],
+    );
+    expect(slicedSubscriber).toHaveBeenCalledWith(
+      { c: 2 },
+      [
+        {
+          op: "replace",
+          path: ["c"],
+          value: 2,
+        },
+      ],
+      [],
+    );
+
+    setSliced({ c: 3 });
+
+    expect(sourceSubscriber).toHaveBeenCalledWith(
+      { a: new Map([["b", { c: 3 }]]) },
+      [
+        {
+          op: "replace",
+          path: ["a", "b"],
+          value: { c: 3 },
+        },
+      ],
+      [],
+    );
+    expect(slicedSubscriber).toHaveBeenCalledWith(
+      { c: 3 },
+      [
+        {
+          op: "replace",
+          path: [],
+          value: { c: 3 },
+        },
+      ],
+      [],
+    );
+  });
 });
