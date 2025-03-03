@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { type GPUSetting } from ".";
 
-export type GPUSplitStrategyType = "evenly" | "priorityOrder";
-export const gpuSplitStrategyTypeSchema = z.enum(["evenly", "priorityOrder"]);
+export type GPUSplitStrategy = "evenly" | "priorityOrder";
+export const gpuSplitStrategySchema = z.enum(["evenly", "priorityOrder"]);
 
 /**
  * Settings related to splitting work across multiple GPUs.
@@ -11,11 +11,11 @@ export const gpuSplitStrategyTypeSchema = z.enum(["evenly", "priorityOrder"]);
  *
  * @public
  */
-export type GPUSplitStrategy = {
+export type GPUSplitConfig = {
   /**
    * Different modalities for splitting work across multiple GPUs.
    */
-  type: GPUSplitStrategyType;
+  strategy: GPUSplitStrategy;
   /**
    * Indices of GPUs to disable.
    */
@@ -25,15 +25,15 @@ export type GPUSplitStrategy = {
    */
   priority: number[];
 };
-export const gpuSplitStrategySchema = z.object({
-  type: gpuSplitStrategyTypeSchema,
+export const gpuSplitConfigSchema = z.object({
+  strategy: gpuSplitStrategySchema,
   disabledGpus: z.array(z.number().int().min(0)),
   priority: z.array(z.number().int().min(0)),
 });
 
-export function convertGPUSettingToGPUSplitStrategy(gpuSetting?: GPUSetting): GPUSplitStrategy {
+export function convertGPUSettingToGPUSplitConfig(gpuSetting?: GPUSetting): GPUSplitConfig {
   return {
-    type:
+    strategy:
       gpuSetting?.splitStrategy == "favorMainGpu"
         ? "priorityOrder"
         : gpuSetting?.splitStrategy ?? "evenly",

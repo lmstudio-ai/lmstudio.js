@@ -292,10 +292,10 @@ export const globalConfigSchematics = new KVConfigSchematicsBuilder(kvValueTypes
   )
   .scope("load", builder =>
     builder.field(
-      "gpuSplitStrategy",
-      "gpuSplitStrategy",
+      "gpuSplitConfig",
+      "gpuSplitConfig",
       {},
-      { type: "evenly", disabledGpus: [], priority: [] },
+      { strategy: "evenly", disabledGpus: [], priority: [] },
     ),
   )
   .scope("embedding.load", builder =>

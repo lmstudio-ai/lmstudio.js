@@ -81,11 +81,11 @@ export {
 } from "./files/FileIdentifier.js";
 export { FileType, fileTypeSchema } from "./files/FileType.js";
 export {
-  convertGPUSettingToGPUSplitStrategy,
-  GPUSplitStrategy,
-  gpuSplitStrategySchema,
-  GPUSplitStrategyType,
-  gpuSplitStrategyTypeSchema,
+  convertGPUSettingToGPUSplitConfig as convertGPUSettingToGPUSplitConfig,
+  gpuSplitConfigSchema,
+  GPUSplitConfig as GPUSplitStrategy,
+  GPUSplitStrategy as GPUSplitStrategyType,
+  gpuSplitStrategySchema as gpuSplitStrategyTypeSchema,
 } from "./GPUSplitStrategy.js";
 export {
   KVConfig,

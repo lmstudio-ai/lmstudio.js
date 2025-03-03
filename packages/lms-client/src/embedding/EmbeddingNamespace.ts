@@ -2,7 +2,7 @@ import { type SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type EmbeddingPort } from "@lmstudio/lms-external-backend-interfaces";
 import { embeddingLlamaLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
-  convertGPUSettingToGPUSplitStrategy,
+  convertGPUSettingToGPUSplitConfig,
   embeddingLoadModelConfigSchema,
   type EmbeddingLoadModelConfig,
   type EmbeddingModelInfo,
@@ -35,7 +35,7 @@ export class EmbeddingNamespace extends ModelNamespace<
   protected override loadConfigToKVConfig(config: EmbeddingLoadModelConfig): KVConfig {
     return embeddingLlamaLoadConfigSchematics.buildPartialConfig({
       "llama.acceleration.offloadRatio": config.gpu?.ratio,
-      "load.gpuSplitStrategy": convertGPUSettingToGPUSplitStrategy(config.gpu),
+      "load.gpuSplitConfig": convertGPUSettingToGPUSplitConfig(config.gpu),
       "contextLength": config.contextLength,
       "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
       "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),

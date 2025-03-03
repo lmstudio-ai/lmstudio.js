@@ -1,6 +1,6 @@
 import {
   allowableEnvVarsSchema,
-  gpuSplitStrategySchema,
+  gpuSplitConfigSchema,
   kvConfigFieldDependencySchema,
   llmContextOverflowPolicySchema,
   llmContextReferenceSchema,
@@ -660,10 +660,10 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return JSON.stringify(value, null, 2);
     },
   })
-  .valueType("gpuSplitStrategy", {
+  .valueType("gpuSplitConfig", {
     paramType: {},
     schemaMaker: () => {
-      return gpuSplitStrategySchema;
+      return gpuSplitConfigSchema;
     },
     effectiveEquals: (a, b) => {
       return deepEquals(a, b);
