@@ -2,6 +2,7 @@ import { type SimpleLogger, type Validator } from "@lmstudio/lms-common";
 import { type LLMPort } from "@lmstudio/lms-external-backend-interfaces";
 import { llmLlamaMoeLoadConfigSchematics } from "@lmstudio/lms-kv-config";
 import {
+  convertGPUSettingToGPUSplitStrategy,
   llmLoadModelConfigSchema,
   type KVConfig,
   type LLMInfo,
@@ -37,9 +38,7 @@ export class LLMNamespace extends ModelNamespace<
       "contextLength": config.contextLength,
       "llama.evalBatchSize": config.evalBatchSize,
       "llama.acceleration.offloadRatio": config.gpu?.ratio,
-      "load.mainGpu": config.gpu?.mainGpu,
-      "load.splitStrategy": config.gpu?.splitStrategy,
-      "load.disabledGpus": config.gpu?.disabledGpus,
+      "load.gpuSplitStrategy": convertGPUSettingToGPUSplitStrategy(config.gpu),
       "llama.flashAttention": config.flashAttention,
       "llama.ropeFrequencyBase": numberToCheckboxNumeric(config.ropeFrequencyBase, 0, 0),
       "llama.ropeFrequencyScale": numberToCheckboxNumeric(config.ropeFrequencyScale, 0, 0),
