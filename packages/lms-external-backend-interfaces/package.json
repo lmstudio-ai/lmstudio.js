@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-external-backend-interfaces",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -10,13 +10,13 @@
   },
   "author": "",
   "dependencies": {
-    "@lmstudio/lms-common": "^0.8.0",
-    "@lmstudio/lms-communication": "^0.6.9",
+    "@lmstudio/lms-common": "^0.8.1",
+    "@lmstudio/lms-communication": "^0.6.10",
     "@lmstudio/lms-shared-types": "^0.6.6",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@lmstudio/lms-communication-client": "^0.6.9"
+    "@lmstudio/lms-communication-client": "^0.6.10"
   },
   "exports": {
     ".": {
@@ -34,5 +34,5 @@
   ],
   "license": "Apache-2.0",
   "sideEffects": false,
-  "gitHead": "803a488fc9d4c398991ac1991d537450a3b866d9"
+  "gitHead": "e2d9b355053c25dd0e12984f99fbd58db6f1b939"
 }

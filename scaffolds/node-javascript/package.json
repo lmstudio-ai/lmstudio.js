@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/scaffold-node-javascript",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
   "type": "module",
@@ -10,7 +10,7 @@
   "author": "Your Name",
   "license": "UNLICENSED",
   "dependencies": {
-    "@lmstudio/sdk": "^0.5.0"
+    "@lmstudio/sdk": "^1.0.0"
   },
-  "gitHead": "803a488fc9d4c398991ac1991d537450a3b866d9"
+  "gitHead": "e2d9b355053c25dd0e12984f99fbd58db6f1b939"
 }
