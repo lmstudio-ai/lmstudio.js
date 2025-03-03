@@ -82,10 +82,10 @@ export {
 export { FileType, fileTypeSchema } from "./files/FileType.js";
 export {
   convertGPUSettingToGPUSplitConfig as convertGPUSettingToGPUSplitConfig,
+  GPUSplitConfig,
   gpuSplitConfigSchema,
-  GPUSplitConfig as GPUSplitStrategy,
-  GPUSplitStrategy as GPUSplitStrategyType,
-  gpuSplitStrategySchema as gpuSplitStrategyTypeSchema,
+  GPUSplitStrategy,
+  gpuSplitStrategySchema,
 } from "./GPUSplitStrategy.js";
 export {
   KVConfig,
