@@ -243,8 +243,11 @@ class SlicedSignalBuilderImpl<TSource, TCurrent, TCanBeNotAvailable extends bool
           // A default value has been used. We need to inject a patch that adds the default value
           // to the parent object.
           const defaultPathSegment = this.accessPath[index];
-          if (defaultPathSegment.type !== "keyWithDefault") {
-            throw new Error("Expected keyWithDefault");
+          if (
+            defaultPathSegment.type !== "keyWithDefault" &&
+            defaultPathSegment.type !== "mapKeyWithDefault"
+          ) {
+            throw new Error("Expected keyWithDefault or mapKeyWithDefault");
           }
           const defaultValue = defaultPathSegment.default;
           newPatches.push({
