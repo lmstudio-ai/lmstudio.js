@@ -81,7 +81,7 @@ export {
 } from "./files/FileIdentifier.js";
 export { FileType, fileTypeSchema } from "./files/FileType.js";
 export {
-  convertGPUSettingToGPUSplitConfig as convertGPUSettingToGPUSplitConfig,
+  convertGPUSettingToGPUSplitConfig,
   GPUSplitConfig,
   gpuSplitConfigSchema,
   GPUSplitStrategy,
