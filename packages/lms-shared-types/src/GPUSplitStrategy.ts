@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { type GPUSetting } from ".";
 
-export type GPUSplitStrategy = "evenly" | "priorityOrder";
-export const gpuSplitStrategySchema = z.enum(["evenly", "priorityOrder"]);
+export const gpuSplitStrategies = ["evenly", "priorityOrder"] as const;
+export type GPUSplitStrategy = (typeof gpuSplitStrategies)[number];
+export const gpuSplitStrategySchema = z.enum(gpuSplitStrategies);
 
 /**
  * Settings related to splitting work across multiple GPUs.

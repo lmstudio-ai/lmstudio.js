@@ -84,6 +84,7 @@ export {
   convertGPUSettingToGPUSplitConfig,
   GPUSplitConfig,
   gpuSplitConfigSchema,
+  gpuSplitStrategies,
   GPUSplitStrategy,
   gpuSplitStrategySchema,
 } from "./GPUSplitStrategy.js";
