@@ -14,7 +14,7 @@ export interface EmbeddingLoadModelConfig {
   tryMmap?: boolean;
 }
 export const embeddingLoadModelConfigSchema = z.object({
-  gpuOffload: gpuSettingSchema.optional(),
+  gpu: gpuSettingSchema.optional(),
   contextLength: z.number().int().min(1).optional(),
   ropeFrequencyBase: z.number().optional(),
   ropeFrequencyScale: z.number().optional(),
