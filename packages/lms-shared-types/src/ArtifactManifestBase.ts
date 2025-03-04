@@ -16,7 +16,7 @@ export interface ArtifactManifestBase {
 }
 export const artifactManifestBaseSchema = z.object({
   owner: kebabCaseSchema,
-  name: kebabCaseSchema,
-  description: z.string(),
+  name: kebabCaseSchema.min(1, "Name is required").max(100, "Name too long"),
+  description: z.string().max(1000, "Description too long"),
   revision: z.number().int().optional(),
 });
