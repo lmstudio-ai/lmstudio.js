@@ -1,5 +1,6 @@
 import {
   allowableEnvVarsSchema,
+  gpuSplitConfigSchema,
   kvConfigFieldDependencySchema,
   llmContextOverflowPolicySchema,
   llmContextReferenceSchema,
@@ -10,7 +11,6 @@ import {
   llmMlxKvCacheQuantizationSchema,
   llmPromptTemplateSchema,
   llmReasoningParsingSchema,
-  llmSplitStrategySchema,
   llmStructuredPredictionSettingSchema,
   llmToolUseSettingSchema,
   modelDomainTypeSchema,
@@ -568,47 +568,6 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
       return (value * 100).toFixed(0) + "%";
     },
   })
-  .valueType("mainGpu", {
-    paramType: {},
-    schemaMaker: () => {
-      return z.number().int().nonnegative();
-    },
-    effectiveEquals: (a, b) => {
-      return a === b;
-    },
-    stringify: value => {
-      return String(value); // TODO: Show GPU name
-    },
-  })
-  .valueType("tensorSplit", {
-    paramType: {},
-    schemaMaker: () => {
-      return z.array(z.number().nonnegative());
-    },
-    effectiveEquals: (a, b) => {
-      return deepEquals(a, b); // TODO: more performant comparison
-    },
-    stringify: value => {
-      return value.join(", "); // TODO: Better display
-    },
-  })
-  .valueType("gpuSplitStrategy", {
-    paramType: {},
-    schemaMaker: () => {
-      return llmSplitStrategySchema;
-    },
-    effectiveEquals: (a, b) => {
-      return a === b;
-    },
-    stringify: (value, _typeParam, { t }) => {
-      switch (value) {
-        case "evenly":
-          return t("config:customInputs.gpuSplitStrategy.evenly", "Evenly");
-        case "favorMainGpu":
-          return t("config:customInputs.gpuSplitStrategy.favorMainGpu", "Favor Main GPU");
-      }
-    },
-  })
   .valueType("llamaMirostatSampling", {
     paramType: {},
     schemaMaker: () => {
@@ -693,6 +652,18 @@ export const kvValueTypesLibrary = new KVFieldValueTypesLibraryBuilder({
     paramType: {},
     schemaMaker: () => {
       return allowableEnvVarsSchema;
+    },
+    effectiveEquals: (a, b) => {
+      return deepEquals(a, b);
+    },
+    stringify: value => {
+      return JSON.stringify(value, null, 2);
+    },
+  })
+  .valueType("gpuSplitConfig", {
+    paramType: {},
+    schemaMaker: () => {
+      return gpuSplitConfigSchema;
     },
     effectiveEquals: (a, b) => {
       return deepEquals(a, b);
