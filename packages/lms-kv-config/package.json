@@ -1,6 +1,6 @@
 {
   "name": "@lmstudio/lms-kv-config",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -11,7 +11,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@lmstudio/lms-shared-types": "^0.6.6",
+    "@lmstudio/lms-shared-types": "^0.6.7",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -32,5 +32,5 @@
     "./dist/types/**/*.d.ts"
   ],
   "sideEffects": false,
-  "gitHead": "803a488fc9d4c398991ac1991d537450a3b866d9"
+  "gitHead": "d3ec4feb6ef411106d8fabac795e8970cf1c657d"
 }
