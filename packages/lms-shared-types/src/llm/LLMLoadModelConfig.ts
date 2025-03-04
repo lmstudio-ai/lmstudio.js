@@ -20,6 +20,8 @@ export const llmLlamaAccelerationOffloadRatioSchema = z.union([
  * - "favorMainGpu": Fill the main GPU first, then fill the rest of the GPUs evenly
  *
  * @public
+ * @deprecated We are currently working on an improved way to control split. You can use this for
+ * now. We will offer the alternative before this feature is removed.
  */
 export type LLMSplitStrategy = "evenly" | "favorMainGpu";
 export const llmSplitStrategySchema = z.enum(["evenly", "favorMainGpu"]);
@@ -28,6 +30,8 @@ export const llmSplitStrategySchema = z.enum(["evenly", "favorMainGpu"]);
  * Settings related to offloading work to the GPU.
  *
  * @public
+ * @deprecated We are currently working on an improved way to control split. You can use this for
+ * now. We will offer the alternative before this feature is removed.
  */
 export type GPUSetting = {
   /**
@@ -112,6 +116,8 @@ export interface LLMLoadModelConfig {
    * How to distribute the work to your GPUs. See {@link GPUSetting} for more information.
    *
    * @public
+   * @deprecated We are currently working on an improved way to control split. You can use this for
+   * now but expect breakage in the future.
    */
   gpu?: GPUSetting;
 
