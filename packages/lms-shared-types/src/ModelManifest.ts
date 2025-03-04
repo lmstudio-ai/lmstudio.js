@@ -9,7 +9,7 @@ export interface ModelManifest extends ArtifactManifestBase {
   virtual: true;
 }
 export const modelManifestSchema = z.object({
-  type: z.literal("preset"),
+  type: z.literal("model"),
   virtual: z.literal(true),
   ...artifactManifestBaseSchema.shape,
 });
