@@ -134,7 +134,9 @@ export interface LLMRespondOpts<TStructuredOutputType = unknown>
    */
   onMessage?: (message: ChatMessage) => void;
 }
-const llmRespondOptsSchema = llmPredictionOptsSchema;
+const llmRespondOptsSchema = llmPredictionOptsSchema.extend({
+  onMessage: z.function().optional(),
+});
 
 type LLMRespondExtraOpts<TStructuredOutputType = unknown> = Omit<
   LLMRespondOpts<TStructuredOutputType>,
