@@ -406,11 +406,11 @@ export class Chat extends MaybeMutable<ChatHistoryData> {
  */
 export type ChatLike = ChatInput | string | Chat | ChatMessageInput | ChatHistoryData;
 export const chatHistoryLikeSchema = z.union([
+  z.instanceof(Chat as any),
   chatHistoryDataSchema,
   z.string(),
   chatHistoryInputSchema,
   chatMessageInputSchema,
-  z.instanceof(Chat as any),
 ]) as ZodSchema<ChatLike>;
 
 /**
@@ -772,8 +772,8 @@ export class ChatMessage extends MaybeMutable<ChatMessageData> {
  */
 export type ChatMessageLike = ChatMessageInput | string | ChatMessage | ChatMessageData;
 export const chatMessageLikeSchema = z.union([
+  z.instanceof(ChatMessage as any),
   chatMessageInputSchema,
   z.string(),
-  z.instanceof(ChatMessage as any),
   chatMessageDataSchema,
 ]) as ZodSchema<ChatMessageLike>;

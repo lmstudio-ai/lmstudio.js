@@ -91,7 +91,7 @@ export class Validator {
         index,
       }));
     if (errors.length === 0) {
-      return values as T;
+      return results.map(result => (result as any).data) as T;
     } else {
       const erroredValues = new Set(errors.map(({ index }) => index));
       const lead = leadProducer(erroredValues);
